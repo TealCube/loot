@@ -1,0 +1,4 @@
+name: ${project.build.name}
+version: ${project.build.version}
+main: info.faceland.loot.LootPlugin
+depend: [Facecore]

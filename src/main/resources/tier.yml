@@ -1,0 +1,28 @@
+version: "0.0.1"
+common:
+  display-name: "Common"
+  display-color: "<gray>"
+  identification-color: "<gray>"
+  spawn-weight: 100
+  identify-weight: 100
+  minimum-sockets: 0
+  maximum-sockets: 0
+  minimum-bonus-lore: 0
+  maximum-bonus-lore: 0
+  base-lore:
+  - '<white>A common item.'
+  bonus-lore:
+  - '<white>Fuck yeah, bonus lore.'
+  item-groups:
+  - sword
+  - pickaxe
+  - axe
+  - shovel
+  - hoe
+  - helmet
+  - chestplate
+  - leggings
+  - boots
+  - -diamond
+  - -gold
+  - -iron
