@@ -187,6 +187,7 @@ public final class LootPlugin extends FacePlugin {
                     if (ig == null) {
                         continue;
                     }
+                    ig = ig.getInverse();
                 } else {
                     ig = getItemGroupManager().getItemGroup(s);
                     if (ig == null) {
