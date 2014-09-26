@@ -29,6 +29,7 @@ public final class LootTier implements Tier {
     private double maximumDurability;
     private double optimalSpawnDistance;
     private double maximumRadiusFromOptimalSpawnDistance;
+    private boolean enchantable;
 
     public LootTier(String name) {
         this.name = name;
@@ -181,6 +182,15 @@ public final class LootTier implements Tier {
             }
         }
         return materials;
+    }
+
+    @Override
+    public boolean isEnchantable() {
+        return enchantable;
+    }
+
+    void setEnchantable(boolean enchantable) {
+        this.enchantable = enchantable;
     }
 
     void setMaximumBonusLore(int maximumBonusLore) {
