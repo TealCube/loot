@@ -5,11 +5,14 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.managers.ItemGroupManager;
+import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.TierManager;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.groups.LootItemGroup;
+import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.managers.LootItemGroupManager;
+import info.faceland.loot.managers.LootNameManager;
 import info.faceland.loot.managers.LootTierManager;
 import info.faceland.loot.tier.LootTierBuilder;
 import info.faceland.loot.utils.converters.StringConverter;
@@ -32,6 +35,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration tierYAML;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
+    private NameManager nameManager;
 
     @Override
     public void preEnable() {
@@ -55,12 +59,36 @@ public final class LootPlugin extends FacePlugin {
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
+        nameManager = new LootNameManager();
     }
 
     @Override
     public void enable() {
         loadItemGroups();
         loadTiers();
+        loadNames();
+    }
+
+    private void loadNames() {
+        for (String s : getNameManager().getPrefixes()) {
+            getNameManager().removePrefix(s);
+        }
+        for (String s : getNameManager().getSuffixes()) {
+            getNameManager().removeSuffix(s);
+        }
+
+        SmartTextFile prefixFile = new SmartTextFile(new File(getDataFolder(), "prefix.txt"));
+        SmartTextFile suffixFile = new SmartTextFile(new File(getDataFolder(), "suffix.txt"));
+
+        for (String s : prefixFile.read()) {
+            getNameManager().addPrefix(s);
+        }
+        for (String s : suffixFile.read()) {
+            getNameManager().addSuffix(s);
+        }
+
+        debug("Loaded prefixes: " + getNameManager().getPrefixes().size(), "Loaded suffixes: " + getNameManager()
+                .getSuffixes().size());
     }
 
     @Override
@@ -80,6 +108,7 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postDisable() {
+        nameManager = null;
         tierManager = null;
         itemGroupManager = null;
         tierYAML = null;
@@ -190,6 +219,10 @@ public final class LootPlugin extends FacePlugin {
 
     public ItemGroupManager getItemGroupManager() {
         return itemGroupManager;
+    }
+
+    public NameManager getNameManager() {
+        return nameManager;
     }
 
 }
