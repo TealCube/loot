@@ -125,4 +125,10 @@ public final class LootTierBuilder implements TierBuilder {
         return this;
     }
 
+    @Override
+    public TierBuilder withEnchantable(boolean b) {
+        tier.setEnchantable(b);
+        return this;
+    }
+
 }
