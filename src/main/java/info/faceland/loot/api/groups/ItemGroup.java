@@ -8,12 +8,14 @@ public interface ItemGroup {
 
     String getName();
 
-    Set<Material> getLegalMaterials();
+    Set<Material> getMaterials();
 
-    void addLegalMaterial(Material material);
+    void addMaterial(Material material);
 
-    void removeLegalMaterial(Material material);
+    void removeMaterial(Material material);
 
-    boolean isLegalMaterial(Material material);
+    boolean hasMaterial(Material material);
+
+    boolean isInverse();
 
 }
