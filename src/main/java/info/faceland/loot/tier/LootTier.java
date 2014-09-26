@@ -3,6 +3,7 @@ package info.faceland.loot.tier;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.tier.Tier;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -167,6 +168,19 @@ public final class LootTier implements Tier {
     @Override
     public int getMaximumBonusLore() {
         return maximumBonusLore;
+    }
+
+    @Override
+    public Set<Material> getAllowedMaterials() {
+        Set<Material> materials = new HashSet<>();
+        for (ItemGroup ig : getItemGroups()) {
+            if (!ig.isInverse()) {
+                materials.addAll(ig.getMaterials());
+            } else {
+                materials.removeAll(ig.getMaterials());
+            }
+        }
+        return materials;
     }
 
     void setMaximumBonusLore(int maximumBonusLore) {
