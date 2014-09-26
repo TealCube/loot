@@ -1,10 +1,12 @@
 package info.faceland.loot.tier;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import org.bukkit.ChatColor;
 
 import java.util.List;
+import java.util.Set;
 
 public final class LootTierBuilder implements TierBuilder {
     private boolean built = false;
@@ -94,8 +96,8 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
-    public TierBuilder withItemGroups(List<String> l) {
-        tier.setItemGroups(l);
+    public TierBuilder withItemGroups(Set<ItemGroup> s) {
+        tier.setItemGroups(s);
         return this;
     }
 
