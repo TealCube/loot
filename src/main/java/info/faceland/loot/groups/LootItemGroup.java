@@ -29,5 +29,10 @@ public final class LootItemGroup implements ItemGroup {
         legalMaterials.remove(material);
     }
 
+    @Override
+    public boolean isLegalMaterial(Material material) {
+        return legalMaterials.contains(material);
+    }
+
 
 }
