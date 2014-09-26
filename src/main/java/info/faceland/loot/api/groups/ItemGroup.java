@@ -6,6 +6,8 @@ import java.util.Set;
 
 public interface ItemGroup {
 
+    String getName();
+
     Set<Material> getLegalMaterials();
 
     void addLegalMaterial(Material material);

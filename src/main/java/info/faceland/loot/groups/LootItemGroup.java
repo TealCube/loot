@@ -8,10 +8,17 @@ import java.util.Set;
 
 public final class LootItemGroup implements ItemGroup {
 
+    private final String name;
     private final Set<Material> legalMaterials;
 
-    public LootItemGroup(Set<Material> legalMaterials) {
-        this.legalMaterials = new HashSet<>(legalMaterials);
+    public LootItemGroup(String name) {
+        this.name = name;
+        this.legalMaterials = new HashSet<>();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
