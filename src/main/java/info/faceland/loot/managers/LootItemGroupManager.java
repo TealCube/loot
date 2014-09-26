@@ -2,6 +2,7 @@ package info.faceland.loot.managers;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.managers.ItemGroupManager;
+import org.bukkit.Material;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +42,17 @@ public final class LootItemGroupManager implements ItemGroupManager {
             return itemGroupMap.get(name.toLowerCase());
         }
         return null;
+    }
+
+    @Override
+    public Set<ItemGroup> getMatchingItemGroups(Material m) {
+        Set<ItemGroup> groups = new HashSet<>();
+        for (ItemGroup ig : getItemGroups()) {
+            if (ig.hasMaterial(m)) {
+                groups.add(ig);
+            }
+        }
+        return groups;
     }
 
 }
