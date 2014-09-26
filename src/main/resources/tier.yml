@@ -5,6 +5,7 @@ common:
   identification-color: "<gray>"
   spawn-weight: 100
   identify-weight: 100
+  distance-weight: 0
   minimum-sockets: 0
   maximum-sockets: 0
   minimum-bonus-lore: 0
