@@ -18,4 +18,6 @@ public interface ItemGroup {
 
     boolean isInverse();
 
+    ItemGroup getInverse();
+
 }
