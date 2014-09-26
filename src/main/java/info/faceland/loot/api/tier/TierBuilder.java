@@ -44,4 +44,6 @@ public interface TierBuilder {
 
     TierBuilder withMaximumRadiusFromOptimalSpawnDistance(double d);
 
+    TierBuilder withEnchantable(boolean b);
+
 }
