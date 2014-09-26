@@ -45,4 +45,6 @@ public interface Tier extends Comparable<Tier> {
 
     Set<Material> getAllowedMaterials();
 
+    boolean isEnchantable();
+
 }
