@@ -2,6 +2,7 @@ package info.faceland.loot.api.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 
 import java.util.List;
 import java.util.Set;
@@ -41,5 +42,7 @@ public interface Tier extends Comparable<Tier> {
     int getMinimumBonusLore();
 
     int getMaximumBonusLore();
+
+    Set<Material> getAllowedMaterials();
 
 }
