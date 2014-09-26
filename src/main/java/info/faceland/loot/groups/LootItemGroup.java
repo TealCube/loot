@@ -23,11 +23,28 @@ public final class LootItemGroup implements ItemGroup {
     }
 
     @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (inverse ? 1 : 0);
+        return result;
+    }    @Override
     public String getName() {
         return name;
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootItemGroup that = (LootItemGroup) o;
+
+        return inverse == that.inverse && !(name != null ? !name.equals(that.name) : that.name != null);
+    }    @Override
     public Set<Material> getMaterials() {
         return new HashSet<>(legalMaterials);
     }
@@ -57,25 +74,8 @@ public final class LootItemGroup implements ItemGroup {
         return new LootItemGroup(getName(), getMaterials(), !isInverse());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
 
-        LootItemGroup that = (LootItemGroup) o;
 
-        return inverse == that.inverse && !(name != null ? !name.equals(that.name) : that.name != null);
-    }
 
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (inverse ? 1 : 0);
-        return result;
-    }
 
 }

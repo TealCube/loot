@@ -9,6 +9,10 @@ public final class StringConverter {
         // do nothing
     }
 
+    public static int toInt(String s) {
+        return toInt(s, 0);
+    }
+
     public static int toInt(String s, int def) {
         try {
             return Integer.parseInt(s);
@@ -17,8 +21,8 @@ public final class StringConverter {
         }
     }
 
-    public static int toInt(String s) {
-        return toInt(s, 0);
+    public static double toDouble(String s) {
+        return toDouble(s, 0D);
     }
 
     public static double toDouble(String s, double def) {
@@ -29,8 +33,8 @@ public final class StringConverter {
         }
     }
 
-    public static double toDouble(String s) {
-        return toDouble(s, 0D);
+    public static Material toMaterial(String s) {
+        return toMaterial(s, Material.AIR);
     }
 
     public static Material toMaterial(String s, Material def) {
@@ -41,8 +45,8 @@ public final class StringConverter {
         }
     }
 
-    public static Material toMaterial(String s) {
-        return toMaterial(s, Material.AIR);
+    public static Enchantment toEnchantment(String s) {
+        return toEnchantment(s, Enchantment.ARROW_DAMAGE);
     }
 
     public static Enchantment toEnchantment(String s, Enchantment def) {
@@ -51,10 +55,6 @@ public final class StringConverter {
             return def;
         }
         return e;
-    }
-
-    public static Enchantment toEnchantment(String s) {
-        return toEnchantment(s, Enchantment.ARROW_DAMAGE);
     }
 
 }

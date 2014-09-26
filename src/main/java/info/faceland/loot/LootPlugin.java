@@ -63,6 +63,40 @@ public final class LootPlugin extends FacePlugin {
         loadTiers();
     }
 
+    @Override
+    public void postEnable() {
+        debug("v" + getDescription().getVersion() + " enabled");
+    }
+
+    @Override
+    public void preDisable() {
+
+    }
+
+    @Override
+    public void disable() {
+
+    }
+
+    @Override
+    public void postDisable() {
+        tierManager = null;
+        itemGroupManager = null;
+        tierYAML = null;
+        itemsYAML = null;
+        debugPrinter = null;
+    }
+
+    public void debug(String... messages) {
+        debug(Level.INFO, messages);
+    }
+
+    public void debug(Level level, String... messages) {
+        if (debugPrinter != null) {
+            debugPrinter.debug(level, messages);
+        }
+    }
+
     private void loadItemGroups() {
         for (ItemGroup ig : getItemGroupManager().getItemGroups()) {
             getItemGroupManager().removeItemGroup(ig.getName());
@@ -152,40 +186,6 @@ public final class LootPlugin extends FacePlugin {
 
     public TierManager getTierManager() {
         return tierManager;
-    }
-
-    @Override
-    public void postEnable() {
-        debug("v" + getDescription().getVersion() + " enabled");
-    }
-
-    @Override
-    public void preDisable() {
-
-    }
-
-    @Override
-    public void disable() {
-
-    }
-
-    @Override
-    public void postDisable() {
-        tierManager = null;
-        itemGroupManager = null;
-        tierYAML = null;
-        itemsYAML = null;
-        debugPrinter = null;
-    }
-
-    public void debug(String... messages) {
-        debug(Level.INFO, messages);
-    }
-
-    public void debug(Level level, String... messages) {
-        if (debugPrinter != null) {
-            debugPrinter.debug(level, messages);
-        }
     }
 
     public ItemGroupManager getItemGroupManager() {
