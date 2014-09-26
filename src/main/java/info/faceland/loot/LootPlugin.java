@@ -3,6 +3,7 @@ package info.faceland.loot;
 import info.faceland.api.FacePlugin;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
+import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
@@ -34,6 +35,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration itemsYAML;
     private VersionedIvoryYamlConfiguration tierYAML;
     private VersionedIvoryYamlConfiguration corestatsYAML;
+    private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
@@ -65,6 +67,8 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating corestats.yml");
             debug("Updating corestats.yml");
         }
+
+        settings = IvorySettings.loadFromFiles(corestatsYAML);
         
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
@@ -98,6 +102,8 @@ public final class LootPlugin extends FacePlugin {
         nameManager = null;
         tierManager = null;
         itemGroupManager = null;
+        settings = null;
+        corestatsYAML = null;
         tierYAML = null;
         itemsYAML = null;
         debugPrinter = null;
@@ -236,6 +242,10 @@ public final class LootPlugin extends FacePlugin {
 
     public VersionedIvoryYamlConfiguration getCorestatsYAML() {
         return corestatsYAML;
+    }
+
+    public IvorySettings getSettings() {
+        return settings;
     }
 
 }
