@@ -1,8 +1,10 @@
 package info.faceland.loot.api.tier;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.ChatColor;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TierBuilder {
 
@@ -32,7 +34,7 @@ public interface TierBuilder {
 
     TierBuilder withBonusLore(List<String> l);
 
-    TierBuilder withItemGroups(List<String> l);
+    TierBuilder withItemGroups(Set<ItemGroup> s);
 
     TierBuilder withMinimumDurability(double d);
 
