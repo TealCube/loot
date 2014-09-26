@@ -33,6 +33,7 @@ public final class LootPlugin extends FacePlugin {
     private DebugPrinter debugPrinter;
     private VersionedIvoryYamlConfiguration itemsYAML;
     private VersionedIvoryYamlConfiguration tierYAML;
+    private VersionedIvoryYamlConfiguration corestatsYAML;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
@@ -56,7 +57,15 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating tier.yml");
             debug("Updating tier.yml");
         }
-
+        corestatsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
+                                                       getResource("corestats.yml"),
+                                                       VersionedIvoryConfiguration.VersionUpdateType
+                                                               .BACKUP_AND_UPDATE);
+        if (corestatsYAML.update()) {
+            getLogger().info("Updating corestats.yml");
+            debug("Updating corestats.yml");
+        }
+        
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
         nameManager = new LootNameManager();
@@ -223,6 +232,10 @@ public final class LootPlugin extends FacePlugin {
 
     public NameManager getNameManager() {
         return nameManager;
+    }
+
+    public VersionedIvoryYamlConfiguration getCorestatsYAML() {
+        return corestatsYAML;
     }
 
 }
