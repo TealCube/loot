@@ -3,13 +3,19 @@ package info.faceland.loot;
 import info.faceland.api.FacePlugin;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
+import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.TierManager;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
+import info.faceland.loot.groups.LootItemGroup;
+import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootTierManager;
 import info.faceland.loot.tier.LootTierBuilder;
+import info.faceland.loot.utils.converters.StringConverter;
 import info.faceland.utils.TextUtils;
 import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -24,6 +30,7 @@ public final class LootPlugin extends FacePlugin {
     private DebugPrinter debugPrinter;
     private VersionedIvoryYamlConfiguration itemsYAML;
     private VersionedIvoryYamlConfiguration tierYAML;
+    private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
 
     @Override
@@ -46,12 +53,42 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating tier.yml");
         }
 
+        itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
     }
 
     @Override
     public void enable() {
+        loadItemGroups();
         loadTiers();
+    }
+
+    private void loadItemGroups() {
+        for (ItemGroup ig : getItemGroupManager().getItemGroups()) {
+            getItemGroupManager().removeItemGroup(ig.getName());
+        }
+        Set<ItemGroup> itemGroups = new HashSet<>();
+        List<String> loadedItemGroups = new ArrayList<>();
+        for (String key : itemsYAML.getKeys(false)) {
+            if (!itemsYAML.isList(key)) {
+                continue;
+            }
+            List<String> list = itemsYAML.getStringList(key);
+            ItemGroup ig = new LootItemGroup(key, false);
+            for (String s : list) {
+                Material m = StringConverter.toMaterial(s);
+                if (m == Material.AIR) {
+                    continue;
+                }
+                ig.addMaterial(m);
+            }
+            itemGroups.add(ig);
+            loadedItemGroups.add(key);
+        }
+        for (ItemGroup ig : itemGroups) {
+            getItemGroupManager().addItemGroup(ig);
+        }
+        debug("Loaded item groups: " + loadedItemGroups.toString());
     }
 
     private void loadTiers() {
@@ -77,7 +114,24 @@ public final class LootPlugin extends FacePlugin {
             builder.withMaximumBonusLore(cs.getInt("maximum-bonus-lore"));
             builder.withBaseLore(cs.getStringList("base-lore"));
             builder.withBonusLore(cs.getStringList("bonus-lore"));
-            builder.withItemGroups(cs.getStringList("item-groups"));
+            List<String> sl = cs.getStringList("item-groups");
+            Set<ItemGroup> itemGroups = new HashSet<>();
+            for (String s : sl) {
+                ItemGroup ig;
+                if (s.startsWith("-")) {
+                    ig = getItemGroupManager().getItemGroup(s.substring(1));
+                    if (ig == null) {
+                        continue;
+                    }
+                } else {
+                    ig = getItemGroupManager().getItemGroup(s);
+                    if (ig == null) {
+                        continue;
+                    }
+                }
+                itemGroups.add(ig.getInverse());
+            }
+            builder.withItemGroups(itemGroups);
             builder.withMinimumDurability(cs.getDouble("minimum-durability"));
             builder.withMaximumDurability(cs.getDouble("maximum-durability"));
             builder.withOptimalSpawnDistance(cs.getDouble("optimal-spawn-distance", -1));
@@ -118,6 +172,7 @@ public final class LootPlugin extends FacePlugin {
     @Override
     public void postDisable() {
         tierManager = null;
+        itemGroupManager = null;
         tierYAML = null;
         itemsYAML = null;
         debugPrinter = null;
@@ -131,6 +186,10 @@ public final class LootPlugin extends FacePlugin {
         if (debugPrinter != null) {
             debugPrinter.debug(level, messages);
         }
+    }
+
+    public ItemGroupManager getItemGroupManager() {
+        return itemGroupManager;
     }
 
 }
