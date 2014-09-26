@@ -12,4 +12,6 @@ public interface ItemGroup {
 
     void removeLegalMaterial(Material material);
 
+    boolean isLegalMaterial(Material material);
+
 }
