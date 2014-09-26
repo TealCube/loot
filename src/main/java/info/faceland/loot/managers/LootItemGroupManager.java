@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class LootItemGroupManager implements ItemGroupManager {
+public final class LootItemGroupManager implements ItemGroupManager {
 
     private final Map<String, ItemGroup> itemGroupMap;
 
