@@ -13,8 +13,12 @@ public final class LootItemGroup implements ItemGroup {
     private final Set<Material> legalMaterials;
 
     public LootItemGroup(String name, boolean inv) {
+        this(name, new HashSet<Material>(), inv);
+    }
+
+    public LootItemGroup(String name, Set<Material> materials, boolean inv) {
         this.name = name;
-        this.legalMaterials = new HashSet<>();
+        this.legalMaterials = materials;
         this.inverse = inv;
     }
 
@@ -46,6 +50,11 @@ public final class LootItemGroup implements ItemGroup {
     @Override
     public boolean isInverse() {
         return inverse;
+    }
+
+    @Override
+    public ItemGroup getInverse() {
+        return new LootItemGroup(getName(), getMaterials(), !isInverse());
     }
 
     @Override
