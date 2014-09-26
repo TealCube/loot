@@ -1,5 +1,6 @@
 package info.faceland.loot.tier;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.tier.Tier;
 import org.bukkit.ChatColor;
 
@@ -18,7 +19,7 @@ public final class LootTier implements Tier {
     private int maximumSockets;
     private int minimumBonusLore;
     private int maximumBonusLore;
-    private List<String> itemGroups;
+    private List<ItemGroup> itemGroups;
     private List<String> baseLore;
     private List<String> bonusLore;
     private double minimumDurability;
@@ -130,7 +131,7 @@ public final class LootTier implements Tier {
     }
 
     @Override
-    public List<String> getItemGroups() {
+    public List<ItemGroup> getItemGroups() {
         return new ArrayList<>(itemGroups);
     }
 
@@ -170,7 +171,7 @@ public final class LootTier implements Tier {
         this.maximumBonusLore = maximumBonusLore;
     }
 
-    void setItemGroups(List<String> itemGroups) {
+    void setItemGroups(List<ItemGroup> itemGroups) {
         if (itemGroups == null) {
             this.itemGroups.clear();
         } else {
