@@ -1,5 +1,6 @@
 package info.faceland.loot.api.tier;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.ChatColor;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public interface Tier extends Comparable<Tier> {
 
     List<String> getBonusLore();
 
-    List<String> getItemGroups();
+    List<ItemGroup> getItemGroups();
 
     int getMinimumSockets();
 
