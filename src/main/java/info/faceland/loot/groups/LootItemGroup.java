@@ -27,9 +27,6 @@ public final class LootItemGroup implements ItemGroup {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (inverse ? 1 : 0);
         return result;
-    }    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -45,6 +42,13 @@ public final class LootItemGroup implements ItemGroup {
 
         return inverse == that.inverse && !(name != null ? !name.equals(that.name) : that.name != null);
     }    @Override
+    public String getName() {
+        return name;
+    }
+
+
+
+    @Override
     public Set<Material> getMaterials() {
         return new HashSet<>(legalMaterials);
     }
@@ -73,9 +77,6 @@ public final class LootItemGroup implements ItemGroup {
     public ItemGroup getInverse() {
         return new LootItemGroup(getName(), getMaterials(), !isInverse());
     }
-
-
-
 
 
 }

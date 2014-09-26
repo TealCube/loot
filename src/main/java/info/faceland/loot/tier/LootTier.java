@@ -27,8 +27,7 @@ public final class LootTier implements Tier {
     private List<String> bonusLore;
     private double minimumDurability;
     private double maximumDurability;
-    private double optimalSpawnDistance;
-    private double maximumRadiusFromOptimalSpawnDistance;
+    private double distanceWeight;
     private boolean enchantable;
 
     public LootTier(String name) {
@@ -94,26 +93,17 @@ public final class LootTier implements Tier {
     }
 
     @Override
-    public double getOptimalSpawnDistance() {
-        return optimalSpawnDistance;
-    }
-
-    void setOptimalSpawnDistance(double optimalSpawnDistance) {
-        this.optimalSpawnDistance = optimalSpawnDistance;
-    }
-
-    @Override
-    public double getMaximumRadiusFromOptimalSpawnDistance() {
-        return maximumRadiusFromOptimalSpawnDistance;
-    }
-
-    @Override
     public double getIdentifyWeight() {
         return identifyWeight;
     }
 
     void setIdentifyWeight(double identifyWeight) {
         this.identifyWeight = identifyWeight;
+    }
+
+    @Override
+    public double getDistanceWeight() {
+        return distanceWeight;
     }
 
     @Override
@@ -213,8 +203,8 @@ public final class LootTier implements Tier {
         }
     }
 
-    void setMaximumRadiusFromOptimalSpawnDistance(double maximumRadiusFromOptimalSpawnDistance) {
-        this.maximumRadiusFromOptimalSpawnDistance = maximumRadiusFromOptimalSpawnDistance;
+    void setDistanceWeight(double distanceWeight) {
+        this.distanceWeight = distanceWeight;
     }
 
     void setMaximumDurability(double maximumDurability) {

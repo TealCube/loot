@@ -40,9 +40,7 @@ public interface TierBuilder {
 
     TierBuilder withMaximumDurability(double d);
 
-    TierBuilder withOptimalSpawnDistance(double d);
-
-    TierBuilder withMaximumRadiusFromOptimalSpawnDistance(double d);
+    TierBuilder withDistanceWeight(double d);
 
     TierBuilder withEnchantable(boolean b);
 

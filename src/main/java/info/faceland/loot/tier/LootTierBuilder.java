@@ -114,14 +114,8 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
-    public TierBuilder withOptimalSpawnDistance(double d) {
-        tier.setOptimalSpawnDistance(d);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withMaximumRadiusFromOptimalSpawnDistance(double d) {
-        tier.setMaximumRadiusFromOptimalSpawnDistance(d);
+    public TierBuilder withDistanceWeight(double d) {
+        tier.setDistanceWeight(d);
         return this;
     }
 

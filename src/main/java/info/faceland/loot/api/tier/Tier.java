@@ -23,11 +23,9 @@ public interface Tier extends Comparable<Tier> {
 
     double getSpawnWeight();
 
-    double getOptimalSpawnDistance();
-
-    double getMaximumRadiusFromOptimalSpawnDistance();
-
     double getIdentifyWeight();
+
+    double getDistanceWeight();
 
     List<String> getBaseLore();
 

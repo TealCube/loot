@@ -38,6 +38,10 @@ public final class SmartTextFile {
         }
     }
 
+    public File getDebugFile() {
+        return debugFile;
+    }
+
     public List<String> read() {
         List<String> list = new ArrayList<>();
         try {
@@ -61,10 +65,6 @@ public final class SmartTextFile {
             e.printStackTrace();
         }
         return list;
-    }
-
-    public File getDebugFile() {
-        return debugFile;
     }
 
 }

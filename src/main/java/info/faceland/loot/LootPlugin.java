@@ -69,28 +69,6 @@ public final class LootPlugin extends FacePlugin {
         loadNames();
     }
 
-    private void loadNames() {
-        for (String s : getNameManager().getPrefixes()) {
-            getNameManager().removePrefix(s);
-        }
-        for (String s : getNameManager().getSuffixes()) {
-            getNameManager().removeSuffix(s);
-        }
-
-        SmartTextFile prefixFile = new SmartTextFile(new File(getDataFolder(), "prefix.txt"));
-        SmartTextFile suffixFile = new SmartTextFile(new File(getDataFolder(), "suffix.txt"));
-
-        for (String s : prefixFile.read()) {
-            getNameManager().addPrefix(s);
-        }
-        for (String s : suffixFile.read()) {
-            getNameManager().addSuffix(s);
-        }
-
-        debug("Loaded prefixes: " + getNameManager().getPrefixes().size(), "Loaded suffixes: " + getNameManager()
-                .getSuffixes().size());
-    }
-
     @Override
     public void postEnable() {
         debug("v" + getDescription().getVersion() + " enabled");
@@ -124,6 +102,28 @@ public final class LootPlugin extends FacePlugin {
         if (debugPrinter != null) {
             debugPrinter.debug(level, messages);
         }
+    }
+
+    private void loadNames() {
+        for (String s : getNameManager().getPrefixes()) {
+            getNameManager().removePrefix(s);
+        }
+        for (String s : getNameManager().getSuffixes()) {
+            getNameManager().removeSuffix(s);
+        }
+
+        SmartTextFile prefixFile = new SmartTextFile(new File(getDataFolder(), "prefix.txt"));
+        SmartTextFile suffixFile = new SmartTextFile(new File(getDataFolder(), "suffix.txt"));
+
+        for (String s : prefixFile.read()) {
+            getNameManager().addPrefix(s);
+        }
+        for (String s : suffixFile.read()) {
+            getNameManager().addSuffix(s);
+        }
+
+        debug("Loaded prefixes: " + getNameManager().getPrefixes().size(), "Loaded suffixes: " + getNameManager()
+                .getSuffixes().size());
     }
 
     private void loadItemGroups() {
@@ -171,6 +171,7 @@ public final class LootPlugin extends FacePlugin {
             builder.withIdentificationColor(TextUtils.convertTag(cs.getString("identification-color")));
             builder.withSpawnWeight(cs.getDouble("spawn-weight"));
             builder.withIdentifyWeight(cs.getDouble("identify-weight"));
+            builder.withDistanceWeight(cs.getDouble("distance-weight"));
             builder.withMinimumSockets(cs.getInt("minimum-sockets"));
             builder.withMaximumSockets(cs.getInt("maximum-sockets"));
             builder.withMinimumBonusLore(cs.getInt("minimum-bonus-lore"));
@@ -197,8 +198,6 @@ public final class LootPlugin extends FacePlugin {
             builder.withItemGroups(itemGroups);
             builder.withMinimumDurability(cs.getDouble("minimum-durability"));
             builder.withMaximumDurability(cs.getDouble("maximum-durability"));
-            builder.withOptimalSpawnDistance(cs.getDouble("optimal-spawn-distance", -1));
-            builder.withMaximumRadiusFromOptimalSpawnDistance(cs.getDouble("maximum-spawn-radius", -1));
             Tier t = builder.build();
             loadedTiers.add(t.getName());
             tiers.add(t);
