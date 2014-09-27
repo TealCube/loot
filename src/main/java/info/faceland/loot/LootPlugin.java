@@ -133,13 +133,19 @@ public final class LootPlugin extends FacePlugin {
             getNameManager().removeSuffix(s);
         }
 
-        SmartTextFile prefixFile = new SmartTextFile(new File(getDataFolder(), "prefix.txt"));
-        SmartTextFile suffixFile = new SmartTextFile(new File(getDataFolder(), "suffix.txt"));
+        File prefixFile = new File(getDataFolder(), "prefix.txt");
+        File suffixFile = new File(getDataFolder(), "suffix.txt");
 
-        for (String s : prefixFile.read()) {
+        SmartTextFile.writeToFile(getResource("prefix.txt"), prefixFile, true);
+        SmartTextFile.writeToFile(getResource("suffix.txt"), suffixFile, true);
+
+        SmartTextFile smartPrefixFile = new SmartTextFile(prefixFile);
+        SmartTextFile smartSuffixFile = new SmartTextFile(suffixFile);
+
+        for (String s : smartPrefixFile.read()) {
             getNameManager().addPrefix(s);
         }
-        for (String s : suffixFile.read()) {
+        for (String s : smartSuffixFile.read()) {
             getNameManager().addSuffix(s);
         }
 
