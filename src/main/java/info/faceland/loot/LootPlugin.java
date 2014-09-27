@@ -5,6 +5,7 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
@@ -13,6 +14,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
+import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.LoginListener;
 import info.faceland.loot.managers.LootItemGroupManager;
@@ -242,6 +244,10 @@ public final class LootPlugin extends FacePlugin {
 
     public ItemBuilder getNewItemBuilder() {
         return new LootItemBuilder(this);
+    }
+
+    public CustomItemBuilder getNewCustomItemBuilder(String name) {
+        return new LootCustomItemBuilder(name);
     }
 
     public TierManager getTierManager() {
