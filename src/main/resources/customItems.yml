@@ -1,0 +1,6 @@
+version: "0.0.1"
+fuckyeah-sword:
+  material: DIAMOND_SWORD
+  display-name: "<gold>Fuck Yeah, A Sword!"
+  lore:
+  - '<gold>Fuck yeah, a sword!'
