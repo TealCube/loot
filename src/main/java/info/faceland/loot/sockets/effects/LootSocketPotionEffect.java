@@ -10,16 +10,23 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
     private final PotionEffectType type;
     private final int duration;
     private final int intensity;
+    private final int radius;
 
-    public LootSocketPotionEffect(PotionEffectType type, int duration, int intensity) {
+    public LootSocketPotionEffect(PotionEffectType type, int duration, int intensity, int radius) {
         this.type = type;
         this.duration = duration;
         this.intensity = intensity;
+        this.radius = radius;
     }
 
     @Override
     public PotionEffectType getPotionEffectType() {
         return type;
+    }
+
+    @Override
+    public int getRadius() {
+        return radius;
     }
 
     @Override

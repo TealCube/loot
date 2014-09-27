@@ -4,6 +4,8 @@ import org.bukkit.entity.LivingEntity;
 
 public interface SocketEffect {
 
+    int getRadius();
+
     int getDuration();
 
     int getIntensity();
