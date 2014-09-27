@@ -59,9 +59,6 @@ public final class LootItemBuilder implements ItemBuilder {
         for (int i = 0; i < random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets()); i++) {
             lore.add("<gold>(Socket)");
         }
-        lore.add("<dark gray>(<gray>" + randomFromSet(plugin.getItemGroupManager()
-                                                                           .getMatchingItemGroups(material)) +
-                                "<dark gray>)");
         hiltItemStack.setLore(TextUtils.color(lore));
         built = true;
         return hiltItemStack;
