@@ -1,5 +1,6 @@
 package info.faceland.loot.sockets.effects;
 
+import info.faceland.loot.api.sockets.effects.SocketEffectTarget;
 import info.faceland.loot.api.sockets.effects.SocketPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
@@ -11,17 +12,25 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
     private final int duration;
     private final int intensity;
     private final int radius;
+    private final SocketEffectTarget target;
 
-    public LootSocketPotionEffect(PotionEffectType type, int duration, int intensity, int radius) {
+    public LootSocketPotionEffect(PotionEffectType type, int duration, int intensity, int radius,
+                                  SocketEffectTarget target) {
         this.type = type;
         this.duration = duration;
         this.intensity = intensity;
         this.radius = radius;
+        this.target = target;
     }
 
     @Override
     public PotionEffectType getPotionEffectType() {
         return type;
+    }
+
+    @Override
+    public SocketEffectTarget getTarget() {
+        return target;
     }
 
     @Override
