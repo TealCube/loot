@@ -5,8 +5,10 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
+import info.faceland.loot.api.managers.CustomItemManager;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.TierManager;
@@ -17,6 +19,7 @@ import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.LoginListener;
+import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
 import info.faceland.loot.managers.LootTierManager;
@@ -42,10 +45,12 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration itemsYAML;
     private VersionedIvoryYamlConfiguration tierYAML;
     private VersionedIvoryYamlConfiguration corestatsYAML;
+    private VersionedIvoryYamlConfiguration customItemsYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
+    private CustomItemManager customItemManager;
 
     @Override
     public void preEnable() {
@@ -67,19 +72,28 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating tier.yml");
         }
         corestatsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
-                                                       getResource("corestats.yml"),
-                                                       VersionedIvoryConfiguration.VersionUpdateType
-                                                               .BACKUP_AND_UPDATE);
+                                                            getResource("corestats.yml"),
+                                                            VersionedIvoryConfiguration.VersionUpdateType
+                                                                    .BACKUP_AND_UPDATE);
         if (corestatsYAML.update()) {
             getLogger().info("Updating corestats.yml");
             debug("Updating corestats.yml");
         }
+        customItemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
+                                                              getResource("customItems.yml"),
+                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                                      .BACKUP_AND_UPDATE);
+        if (customItemsYAML.update()) {
+            getLogger().info("Updating customItems.yml");
+            debug("Updating customItems.yml");
+        }
 
         settings = IvorySettings.loadFromFiles(corestatsYAML);
-        
+
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
         nameManager = new LootNameManager();
+        customItemManager = new LootCustomItemManager();
     }
 
     @Override
@@ -87,6 +101,7 @@ public final class LootPlugin extends FacePlugin {
         loadItemGroups();
         loadTiers();
         loadNames();
+        loadCustomItems();
     }
 
     @Override
@@ -107,10 +122,12 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postDisable() {
+        customItemManager = null;
         nameManager = null;
         tierManager = null;
         itemGroupManager = null;
         settings = null;
+        customItemsYAML = null;
         corestatsYAML = null;
         tierYAML = null;
         itemsYAML = null;
@@ -125,6 +142,31 @@ public final class LootPlugin extends FacePlugin {
         if (debugPrinter != null) {
             debugPrinter.debug(level, messages);
         }
+    }
+
+    private void loadCustomItems() {
+        for (CustomItem ci : getCustomItemManager().getCustomItems()) {
+            getCustomItemManager().removeCustomItem(ci.getName());
+        }
+        Set<CustomItem> customItems = new HashSet<>();
+        List<String> loaded = new ArrayList<>();
+        for (String key : customItemsYAML.getKeys(false)) {
+            if (!customItemsYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = customItemsYAML.getConfigurationSection(key);
+            CustomItemBuilder builder = getNewCustomItemBuilder(key);
+            builder.withMaterial(StringConverter.toMaterial(cs.getString("material")));
+            builder.withDisplayName(cs.getString("display-name"));
+            builder.withLore(cs.getStringList("lore"));
+            CustomItem ci = builder.build();
+            customItems.add(ci);
+            loaded.add(ci.getName());
+        }
+        for (CustomItem ci : customItems) {
+            getCustomItemManager().addCustomItem(ci);
+        }
+        debug("Loaded custom items: "  + loaded.toString());
     }
 
     private void loadNames() {
@@ -270,4 +312,7 @@ public final class LootPlugin extends FacePlugin {
         return settings;
     }
 
+    public CustomItemManager getCustomItemManager() {
+        return customItemManager;
+    }
 }
