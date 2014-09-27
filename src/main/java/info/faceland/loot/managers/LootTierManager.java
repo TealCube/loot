@@ -62,7 +62,17 @@ public final class LootTierManager implements TierManager {
     }
 
     @Override
+    public Tier getRandomTier() {
+        return getRandomTier(false);
+    }
+
+    @Override
     public Tier getRandomTier(boolean withChance) {
+        return getRandomTier(withChance, 0D);
+    }
+
+    @Override
+    public Tier getRandomTier(boolean withChance, double distance) {
         if (!withChance) {
             Tier[] array = getLoadedTiers().toArray(new Tier[getLoadedTiers().size()]);
             return array[((int) (Math.random() * array.length))];

@@ -17,7 +17,11 @@ public interface TierManager {
 
     void removeTier(ChatColor displayColor, ChatColor identificationColor);
 
+    Tier getRandomTier();
+
     Tier getRandomTier(boolean withChance);
+
+    Tier getRandomTier(boolean withChance, double distance);
 
     Set<Tier> getLoadedTiers();
 
