@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,26 @@ public final class SmartTextFile {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public static void writeToFile(InputStream stream, File output, boolean onlyIfNew) {
+        if (onlyIfNew && output.exists()) {
+            return;
+        }
+        SmartTextFile file = new SmartTextFile(output);
+        List<String> list = new ArrayList<>();
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+            String p;
+            while ((p = bufferedReader.readLine()) != null) {
+                if (!p.contains("#") && p.length() > 0) {
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        file.write(list.toArray(new String[list.size()]));
     }
 
 }
