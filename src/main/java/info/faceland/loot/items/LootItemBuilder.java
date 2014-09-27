@@ -8,7 +8,6 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -50,18 +49,20 @@ public final class LootItemBuilder implements ItemBuilder {
                 .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
         List<String> lore = new ArrayList<>(plugin.getSettings().getStringList("corestats." + material.name(),
                                                                                new ArrayList<String>()));
-        if (tier.isEnchantable() || lore.size() > 0) {
-            lore.add(TextUtils.color("<blue>(Enchantable)"));
+        lore.addAll(tier.getBaseLore());
+        for (int i = 0; i < random.nextIntRange(tier.getMinimumBonusLore(), tier.getMaximumBonusLore()); i++) {
+            lore.add(tier.getBonusLore().get(random.nextInt(tier.getBonusLore().size())));
         }
-        for (int i = 0; i < random.nextInt(tier.getMaximumSockets() - tier.getMinimumSockets()) + tier
-                .getMinimumSockets(); i++) {
-            lore.add(TextUtils.color("<gold>(Socket)"));
+        if (tier.isEnchantable()) {
+            lore.add("<blue>(Enchantable)");
         }
-        lore.add(
-                TextUtils.color("<dark gray>(<gray>" + randomFromSet(plugin.getItemGroupManager()
-                                                                           .getMatchingItemGroups(material))) +
-                "<dark gray>)");
-        hiltItemStack.setLore(lore);
+        for (int i = 0; i < random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets()); i++) {
+            lore.add("<gold>(Socket)");
+        }
+        lore.add("<dark gray>(<gray>" + randomFromSet(plugin.getItemGroupManager()
+                                                                           .getMatchingItemGroups(material)) +
+                                "<dark gray>)");
+        hiltItemStack.setLore(TextUtils.color(lore));
         built = true;
         return hiltItemStack;
     }
@@ -86,7 +87,7 @@ public final class LootItemBuilder implements ItemBuilder {
 
     private String randomFromSet(Set<ItemGroup> itemGroups) {
         ItemGroup[] array = itemGroups.toArray(new ItemGroup[itemGroups.size()]);
-        return StringUtils.capitalize(array[random.nextInt(array.length)].getName());
+        return array[random.nextInt(array.length)].getName().toUpperCase();
     }
 
 }
