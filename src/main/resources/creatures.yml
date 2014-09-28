@@ -1,0 +1,8 @@
+version: "0.0.1"
+CREEPER:
+  custom-items:
+    fuckyeah-sword: 2.0
+  socket-gems:
+    Steroids_I: 2.0
+  tiers:
+    common: 2.0
