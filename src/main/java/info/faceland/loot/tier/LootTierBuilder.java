@@ -26,6 +26,7 @@ public final class LootTierBuilder implements TierBuilder {
         if (isBuilt()) {
             throw new IllegalStateException("already built");
         }
+        built = true;
         return tier;
     }
 
