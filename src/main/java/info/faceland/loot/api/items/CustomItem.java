@@ -17,4 +17,6 @@ public interface CustomItem {
 
     HiltItemStack toItemStack(int amount);
 
+    double getWeight();
+
 }
