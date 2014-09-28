@@ -56,6 +56,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration socketGemsYAML;
     private VersionedIvoryYamlConfiguration languageYAML;
     private VersionedIvoryYamlConfiguration configYAML;
+    private VersionedIvoryYamlConfiguration anticheatYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
@@ -122,8 +123,16 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating language.yml");
             debug("Updating language.yml");
         }
+        anticheatYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "anticheat.yml"),
+                                                         getResource("anticheat.yml"),
+                                                         VersionedIvoryConfiguration.VersionUpdateType
+                                                                 .BACKUP_AND_UPDATE);
+        if (anticheatYAML.update()) {
+            getLogger().info("Updating anticheat.yml");
+            debug("Updating anticheat.yml");
+        }
 
-        settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML);
+        settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, anticheatYAML);
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
@@ -198,6 +207,7 @@ public final class LootPlugin extends FacePlugin {
         tierManager = null;
         itemGroupManager = null;
         settings = null;
+        anticheatYAML = null;
         configYAML = null;
         languageYAML = null;
         customItemsYAML = null;
