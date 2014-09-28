@@ -1,0 +1,9 @@
+version: "0.0.1"
+commands:
+  spawn:
+    custom-success: "<green>You spawned <white>%amount%<green> custom item(s)."
+    custom-failure: "<red>You were unable to spawn custom items."
+    gem-success: "<green>You spawned <white>%amount%<green> socket gem(s)."
+    gem-failure: "<red>You were unable to spawn socket gems."
+    other-success: "<green>You spawned <white>%amount%<green> items."
+    other-failure: "<red>You were unable to spawn items."

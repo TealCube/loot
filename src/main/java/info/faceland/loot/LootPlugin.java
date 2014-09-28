@@ -1,6 +1,7 @@
 package info.faceland.loot;
 
 import info.faceland.api.FacePlugin;
+import info.faceland.facecore.shade.command.CommandHandler;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
@@ -18,11 +19,11 @@ import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
+import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
-import info.faceland.loot.listeners.LoginListener;
 import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
@@ -34,7 +35,6 @@ import info.faceland.loot.tier.LootTierBuilder;
 import info.faceland.loot.utils.converters.StringConverter;
 import info.faceland.utils.TextUtils;
 import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.HandlerList;
@@ -165,7 +165,9 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postEnable() {
-        Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
+        CommandHandler handler = new CommandHandler(this);
+        handler.registerCommands(new LootCommand(this));
+        //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
         debug("v" + getDescription().getVersion() + " enabled");
     }
 
