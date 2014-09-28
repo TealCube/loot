@@ -14,4 +14,10 @@ public interface CustomItemManager {
 
     void removeCustomItem(String name);
 
+    CustomItem getRandomCustomItem();
+
+    CustomItem getRandomCustomItem(boolean withChance);
+
+    double getTotalWeight();
+
 }
