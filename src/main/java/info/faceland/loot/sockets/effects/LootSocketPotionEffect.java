@@ -56,4 +56,29 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
         entity.addPotionEffect(new PotionEffect(type, duration, intensity));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootSocketPotionEffect that = (LootSocketPotionEffect) o;
+
+        return duration == that.duration && intensity == that.intensity && radius == that.radius &&
+               target == that.target && !(type != null ? !type.equals(that.type) : that.type != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + duration;
+        result = 31 * result + intensity;
+        result = 31 * result + radius;
+        result = 31 * result + (target != null ? target.hashCode() : 0);
+        return result;
+    }
+
 }
