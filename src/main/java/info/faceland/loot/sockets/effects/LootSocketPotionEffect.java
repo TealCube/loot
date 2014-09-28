@@ -2,6 +2,7 @@ package info.faceland.loot.sockets.effects;
 
 import info.faceland.loot.api.sockets.effects.SocketEffectTarget;
 import info.faceland.loot.api.sockets.effects.SocketPotionEffect;
+import info.faceland.loot.utils.converters.StringConverter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -54,6 +55,19 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
             return;
         }
         entity.addPotionEffect(new PotionEffect(type, duration, intensity));
+    }
+
+    public static LootSocketPotionEffect parseString(String s) {
+        String[] split = s.split(":");
+        if (split.length < 5) {
+            throw new IllegalArgumentException("not proper amount of arguments");
+        }
+        PotionEffectType type = PotionEffectType.getByName(split[0]);
+        SocketEffectTarget targ = SocketEffectTarget.valueOf(split[1]);
+        int duration = StringConverter.toInt(split[2]);
+        int intensity = StringConverter.toInt(split[3]);
+        int radius = StringConverter.toInt(split[4]);
+        return new LootSocketPotionEffect(type, duration, intensity, radius, targ);
     }
 
     @Override
