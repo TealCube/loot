@@ -3,6 +3,7 @@ package info.faceland.loot.api.managers;
 import info.faceland.loot.api.tier.Tier;
 import org.bukkit.ChatColor;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface TierManager {
@@ -22,6 +23,8 @@ public interface TierManager {
     Tier getRandomTier(boolean withChance);
 
     Tier getRandomTier(boolean withChance, double distance);
+
+    Tier getRandomTier(boolean withChance, double distance, Map<Tier, Double> tierWeights);
 
     Set<Tier> getLoadedTiers();
 

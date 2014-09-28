@@ -5,7 +5,9 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.ChatColor;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public final class LootTierManager implements TierManager {
@@ -73,6 +75,11 @@ public final class LootTierManager implements TierManager {
 
     @Override
     public Tier getRandomTier(boolean withChance, double distance) {
+        return getRandomTier(withChance, distance, new HashMap<Tier, Double>());
+    }
+
+    @Override
+    public Tier getRandomTier(boolean withChance, double distance, Map<Tier, Double> tierWeights) {
         if (!withChance) {
             Tier[] array = getLoadedTiers().toArray(new Tier[getLoadedTiers().size()]);
             return array[((int) (Math.random() * array.length))];
@@ -81,7 +88,11 @@ public final class LootTierManager implements TierManager {
         double currentWeight = 0D;
         Set<Tier> chooseTiers = getLoadedTiers();
         for (Tier t : chooseTiers) {
-            currentWeight += t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
+            double calcWeight = t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
+            if (tierWeights.containsKey(t)) {
+                calcWeight *= tierWeights.get(t);
+            }
+            currentWeight += calcWeight;
             if (currentWeight >= selectedWeight) {
                 return t;
             }
