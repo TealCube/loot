@@ -24,6 +24,7 @@ import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.listeners.spawning.EntityDeathListener;
 import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
@@ -35,6 +36,7 @@ import info.faceland.loot.tier.LootTierBuilder;
 import info.faceland.loot.utils.converters.StringConverter;
 import info.faceland.utils.TextUtils;
 import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.HandlerList;
@@ -176,6 +178,7 @@ public final class LootPlugin extends FacePlugin {
     public void postEnable() {
         CommandHandler handler = new CommandHandler(this);
         handler.registerCommands(new LootCommand(this));
+        Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
         //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
         debug("v" + getDescription().getVersion() + " enabled");
     }
