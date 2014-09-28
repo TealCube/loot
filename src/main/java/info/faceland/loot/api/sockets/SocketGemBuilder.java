@@ -10,8 +10,6 @@ public interface SocketGemBuilder {
 
     SocketGem build();
 
-    SocketGemBuilder withDisplayName(String s);
-
     SocketGemBuilder withWeight(double d);
 
     SocketGemBuilder withPrefix(String s);
