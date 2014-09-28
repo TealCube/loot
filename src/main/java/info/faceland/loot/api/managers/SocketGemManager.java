@@ -2,6 +2,7 @@ package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.sockets.SocketGem;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface SocketGemManager {
@@ -17,6 +18,8 @@ public interface SocketGemManager {
     SocketGem getRandomSocketGem();
 
     SocketGem getRandomSocketGem(boolean withChance);
+
+    SocketGem getRandomSocketGem(boolean withChance, Map<SocketGem, Double> map);
 
     double getTotalWeight();
 
