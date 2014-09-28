@@ -2,6 +2,7 @@ package info.faceland.loot.managers;
 
 import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.math.LootRandom;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,10 +11,12 @@ import java.util.Set;
 
 public final class LootSocketGemManager implements SocketGemManager {
 
-    private Map<String, SocketGem> gemMap;
+    private final Map<String, SocketGem> gemMap;
+    private final LootRandom random;
 
     public LootSocketGemManager() {
         this.gemMap = new HashMap<>();
+        this.random = new LootRandom(System.currentTimeMillis());
     }
 
     @Override
@@ -44,6 +47,13 @@ public final class LootSocketGemManager implements SocketGemManager {
         if (name != null) {
             gemMap.remove(name.toLowerCase());
         }
+    }
+
+    @Override
+    public SocketGem getRandomSocketGem() {
+        Set<SocketGem> gems = getSocketGems();
+        SocketGem[] array = gems.toArray(new SocketGem[gems.size()]);
+        return array[random.nextInt(array.length)];
     }
 
 }
