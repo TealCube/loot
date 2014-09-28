@@ -51,6 +51,7 @@ public final class LootCustomItem implements CustomItem {
         if (itemStack.getType() == Material.AIR) {
             return itemStack;
         }
+        itemStack.setAmount(amount);
         itemStack.setName(TextUtils.color(this.displayName));
         itemStack.setLore(TextUtils.color(this.lore));
         return itemStack;
