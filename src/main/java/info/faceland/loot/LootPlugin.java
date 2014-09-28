@@ -5,6 +5,8 @@ import info.faceland.facecore.shade.command.CommandHandler;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
+import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
@@ -21,11 +23,13 @@ import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
+import info.faceland.loot.creatures.LootCreatureModBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
+import info.faceland.loot.managers.LootCreatureModManager;
 import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
@@ -40,12 +44,15 @@ import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -96,41 +103,41 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating corestats.yml");
         }
         customItemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
-                                                               getResource("customItems.yml"),
-                                                               VersionedIvoryConfiguration.VersionUpdateType
-                                                                       .BACKUP_AND_UPDATE);
+                                                              getResource("customItems.yml"),
+                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                                      .BACKUP_AND_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
             debug("Updating customItems.yml");
         }
         socketGemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
-                                                              getResource("socketGems.yml"),
-                                                              VersionedIvoryConfiguration.VersionUpdateType
-                                                                      .BACKUP_AND_UPDATE);
+                                                             getResource("socketGems.yml"),
+                                                             VersionedIvoryConfiguration.VersionUpdateType
+                                                                     .BACKUP_AND_UPDATE);
         if (socketGemsYAML.update()) {
             getLogger().info("Updating socketGems.yml");
             debug("Updating socketGems.yml");
         }
         languageYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "language.yml"),
-                                                             getResource("language.yml"),
-                                                             VersionedIvoryConfiguration.VersionUpdateType
-                                                                     .BACKUP_AND_UPDATE);
+                                                           getResource("language.yml"),
+                                                           VersionedIvoryConfiguration.VersionUpdateType
+                                                                   .BACKUP_AND_UPDATE);
         if (languageYAML.update()) {
             getLogger().info("Updating language.yml");
             debug("Updating language.yml");
         }
         configYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "config.yml"),
-                                                           getResource("config.yml"),
-                                                           VersionedIvoryConfiguration.VersionUpdateType
-                                                                   .BACKUP_AND_UPDATE);
+                                                         getResource("config.yml"),
+                                                         VersionedIvoryConfiguration.VersionUpdateType
+                                                                 .BACKUP_AND_UPDATE);
         if (configYAML.update()) {
             getLogger().info("Updating config.yml");
             debug("Updating config.yml");
         }
         creaturesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
-                                                         getResource("creatures.yml"),
-                                                         VersionedIvoryConfiguration.VersionUpdateType
-                                                                 .BACKUP_AND_UPDATE);
+                                                            getResource("creatures.yml"),
+                                                            VersionedIvoryConfiguration.VersionUpdateType
+                                                                    .BACKUP_AND_UPDATE);
         if (creaturesYAML.update()) {
             getLogger().info("Updating creatures.yml");
             debug("Updating creatures.yml");
@@ -143,6 +150,7 @@ public final class LootPlugin extends FacePlugin {
         nameManager = new LootNameManager();
         customItemManager = new LootCustomItemManager();
         socketGemManager = new LootSocketGemManager();
+        creatureModManager = new LootCreatureModManager();
     }
 
     @Override
@@ -152,6 +160,119 @@ public final class LootPlugin extends FacePlugin {
         loadNames();
         loadCustomItems();
         loadSocketGems();
+        loadCreatureMods();
+    }
+
+    @Override
+    public void postEnable() {
+        CommandHandler handler = new CommandHandler(this);
+        handler.registerCommands(new LootCommand(this));
+        Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
+        //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
+        debug("v" + getDescription().getVersion() + " enabled");
+    }
+
+    @Override
+    public void preDisable() {
+        HandlerList.unregisterAll(this);
+    }
+
+    @Override
+    public void disable() {
+
+    }
+
+    @Override
+    public void postDisable() {
+        creatureModManager = null;
+        socketGemManager = null;
+        customItemManager = null;
+        nameManager = null;
+        tierManager = null;
+        itemGroupManager = null;
+        settings = null;
+        creaturesYAML = null;
+        configYAML = null;
+        languageYAML = null;
+        customItemsYAML = null;
+        corestatsYAML = null;
+        tierYAML = null;
+        itemsYAML = null;
+        debugPrinter = null;
+    }
+
+    public void debug(String... messages) {
+        debug(Level.INFO, messages);
+    }
+
+    public void debug(Level level, String... messages) {
+        if (debugPrinter != null) {
+            debugPrinter.debug(level, messages);
+        }
+    }
+
+    private void loadCreatureMods() {
+        for (CreatureMod cm : getCreatureModManager().getCreatureMods()) {
+            getCreatureModManager().removeCreatureMod(cm.getEntityType());
+        }
+        Set<CreatureMod> mods = new HashSet<>();
+        List<String> loadedMods = new ArrayList<>();
+        for (String key : creaturesYAML.getKeys(false)) {
+            if (!creaturesYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = creaturesYAML.getConfigurationSection(key);
+            CreatureModBuilder builder = getNewCreatureModBuilder(EntityType.valueOf(key));
+            if (cs.isConfigurationSection("custom-items")) {
+                Map<CustomItem, Double> map = new HashMap<>();
+                for (String k : cs.getConfigurationSection("custom-items").getKeys(false)) {
+                    if (!cs.isConfigurationSection("custom-items." + k)) {
+                        continue;
+                    }
+                    CustomItem ci = customItemManager.getCustomItem(k);
+                    if (ci == null) {
+                        continue;
+                    }
+                    map.put(ci, cs.getDouble("custom-items." + k));
+                }
+                builder.withCustomItemMults(map);
+            }
+            if (cs.isConfigurationSection("socket-gems")) {
+                Map<SocketGem, Double> map = new HashMap<>();
+                for (String k : cs.getConfigurationSection("socket-gems").getKeys(false)) {
+                    if (!cs.isConfigurationSection("socket-gems." + k)) {
+                        continue;
+                    }
+                    SocketGem sg = socketGemManager.getSocketGem(k);
+                    if (sg == null) {
+                        continue;
+                    }
+                    map.put(sg, cs.getDouble("socket-gems." + k));
+                }
+                builder.withSocketGemMults(map);
+            }
+            if (cs.isConfigurationSection("tiers")) {
+                Map<Tier, Double> map = new HashMap<>();
+                for (String k : cs.getConfigurationSection("tiers").getKeys(false)) {
+                    if (!cs.isConfigurationSection("tiers." + k)) {
+                        continue;
+                    }
+                    Tier t = tierManager.getTier(k);
+                    if (t == null) {
+                        continue;
+                    }
+                    map.put(t, cs.getDouble("tiers." + k));
+                }
+                builder.withTierMults(map);
+            }
+            CreatureMod mod = builder.build();
+            mods.add(mod);
+            loadedMods.add(mod.getEntityType().name());
+        }
+        for (CreatureMod cm : mods) {
+            creatureModManager.addCreatureMod(cm);
+        }
+        debug("Loaded creature mods: " + loadedMods.toString());
     }
 
     private void loadSocketGems() {
@@ -186,53 +307,6 @@ public final class LootPlugin extends FacePlugin {
         debug("Loaded socket gems: " + loadedSocketGems.toString());
     }
 
-    @Override
-    public void postEnable() {
-        CommandHandler handler = new CommandHandler(this);
-        handler.registerCommands(new LootCommand(this));
-        Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
-        //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
-        debug("v" + getDescription().getVersion() + " enabled");
-    }
-
-    @Override
-    public void preDisable() {
-        HandlerList.unregisterAll(this);
-    }
-
-    @Override
-    public void disable() {
-
-    }
-
-    @Override
-    public void postDisable() {
-        socketGemManager = null;
-        customItemManager = null;
-        nameManager = null;
-        tierManager = null;
-        itemGroupManager = null;
-        settings = null;
-        creaturesYAML = null;
-        configYAML = null;
-        languageYAML = null;
-        customItemsYAML = null;
-        corestatsYAML = null;
-        tierYAML = null;
-        itemsYAML = null;
-        debugPrinter = null;
-    }
-
-    public void debug(String... messages) {
-        debug(Level.INFO, messages);
-    }
-
-    public void debug(Level level, String... messages) {
-        if (debugPrinter != null) {
-            debugPrinter.debug(level, messages);
-        }
-    }
-
     private void loadCustomItems() {
         for (CustomItem ci : getCustomItemManager().getCustomItems()) {
             getCustomItemManager().removeCustomItem(ci.getName());
@@ -255,7 +329,7 @@ public final class LootPlugin extends FacePlugin {
         for (CustomItem ci : customItems) {
             getCustomItemManager().addCustomItem(ci);
         }
-        debug("Loaded custom items: "  + loaded.toString());
+        debug("Loaded custom items: " + loaded.toString());
     }
 
     private void loadNames() {
@@ -383,6 +457,10 @@ public final class LootPlugin extends FacePlugin {
 
     public SocketGemBuilder getNewSocketGemBuilder(String name) {
         return new LootSocketGemBuilder(name);
+    }
+
+    public CreatureModBuilder getNewCreatureModBuilder(EntityType entityType) {
+        return new LootCreatureModBuilder(entityType);
     }
 
     public TierManager getTierManager() {
