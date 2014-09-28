@@ -71,7 +71,8 @@ public final class LootSocketGem implements SocketGem {
         itemStack.setLore(Arrays.asList(ChatColor.GRAY + "Drop this gem on an item with an",
                                         ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
                                         "to use it.", ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
-                                                      + (itemGroup != null ? itemGroup.getName().toUpperCase() : "ANY")));
+                                                      + (itemGroup != null ? itemGroup.getName().toUpperCase() :
+                                                         "ANY") + ChatColor.DARK_GRAY + ")"));
         return itemStack;
     }
 
