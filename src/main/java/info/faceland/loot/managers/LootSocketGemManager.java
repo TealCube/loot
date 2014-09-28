@@ -51,9 +51,35 @@ public final class LootSocketGemManager implements SocketGemManager {
 
     @Override
     public SocketGem getRandomSocketGem() {
+        return getRandomSocketGem(false);
+    }
+
+    @Override
+    public SocketGem getRandomSocketGem(boolean withChance) {
+        if (!withChance) {
+            Set<SocketGem> gems = getSocketGems();
+            SocketGem[] array = gems.toArray(new SocketGem[gems.size()]);
+            return array[random.nextInt(array.length)];
+        }
+        double selectedWeight = random.nextDouble() * getTotalWeight();
+        double currentWeight = 0D;
         Set<SocketGem> gems = getSocketGems();
-        SocketGem[] array = gems.toArray(new SocketGem[gems.size()]);
-        return array[random.nextInt(array.length)];
+        for (SocketGem sg : gems) {
+            currentWeight += sg.getWeight();
+            if (currentWeight >= selectedWeight) {
+                return sg;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public double getTotalWeight() {
+        double d = 0;
+        for (SocketGem sg : getSocketGems()) {
+            d += sg.getWeight();
+        }
+        return d;
     }
 
 }
