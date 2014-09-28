@@ -16,4 +16,6 @@ public interface CustomItemBuilder {
 
     CustomItemBuilder withMaterial(Material material);
 
+    CustomItemBuilder withWeight(double d);
+
 }
