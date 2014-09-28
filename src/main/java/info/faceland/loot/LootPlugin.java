@@ -115,13 +115,13 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating language.yml");
             debug("Updating language.yml");
         }
-        configYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "language.yml"),
-                                                           getResource("language.yml"),
+        configYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "config.yml"),
+                                                           getResource("config.yml"),
                                                            VersionedIvoryConfiguration.VersionUpdateType
                                                                    .BACKUP_AND_UPDATE);
         if (configYAML.update()) {
-            getLogger().info("Updating language.yml");
-            debug("Updating language.yml");
+            getLogger().info("Updating config.yml");
+            debug("Updating config.yml");
         }
         anticheatYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "anticheat.yml"),
                                                          getResource("anticheat.yml"),
