@@ -41,11 +41,12 @@ public final class LootItemGroup implements ItemGroup {
         LootItemGroup that = (LootItemGroup) o;
 
         return inverse == that.inverse && !(name != null ? !name.equals(that.name) : that.name != null);
-    }    @Override
+    }
+
+    @Override
     public String getName() {
         return name;
     }
-
 
 
     @Override
@@ -77,6 +78,5 @@ public final class LootItemGroup implements ItemGroup {
     public ItemGroup getInverse() {
         return new LootItemGroup(getName(), getMaterials(), !isInverse());
     }
-
 
 }
