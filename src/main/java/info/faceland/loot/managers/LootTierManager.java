@@ -81,7 +81,7 @@ public final class LootTierManager implements TierManager {
         double currentWeight = 0D;
         Set<Tier> chooseTiers = getLoadedTiers();
         for (Tier t : chooseTiers) {
-            currentWeight += t.getSpawnWeight();
+            currentWeight += t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
             if (currentWeight >= selectedWeight) {
                 return t;
             }
