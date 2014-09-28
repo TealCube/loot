@@ -1,0 +1,12 @@
+version: "0.0.1"
+enabled-worlds:
+- main
+- yololand
+drops:
+  normal-drop: 0.2
+  socket-gem: 0.4
+  enchant-gem: 0.1
+  upgrade-scroll: 0.1
+  identity-tome: 0.01
+  custom-item: 0.1
+  socket-extender: 0.000001
