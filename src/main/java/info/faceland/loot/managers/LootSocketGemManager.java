@@ -26,6 +26,9 @@ public final class LootSocketGemManager implements SocketGemManager {
         if (gemMap.containsKey(name.toLowerCase())) {
             return gemMap.get(name.toLowerCase());
         }
+        if (gemMap.containsKey(name.toLowerCase().replace(" ", "_"))) {
+            return gemMap.get(name.toLowerCase().replace(" ", "_"));
+        }
         return null;
     }
 
