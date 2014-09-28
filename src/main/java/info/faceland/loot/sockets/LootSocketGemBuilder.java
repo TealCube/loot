@@ -1,5 +1,6 @@
 package info.faceland.loot.sockets;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -56,6 +57,12 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     @Override
     public SocketGemBuilder withSocketEffects(List<SocketEffect> effects) {
         gem.setSocketEffects(effects);
+        return this;
+    }
+
+    @Override
+    public SocketGemBuilder withItemGroup(ItemGroup itemGroup) {
+        gem.setItemGroup(itemGroup);
         return this;
     }
 
