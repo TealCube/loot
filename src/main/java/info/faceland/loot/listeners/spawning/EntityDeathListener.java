@@ -8,6 +8,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.util.ArrayList;
+
 public final class EntityDeathListener implements Listener {
 
     private final LootPlugin plugin;
@@ -24,6 +26,10 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         if (event.getEntity().getKiller() == null) {
+            return;
+        }
+        if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<String>())
+                   .contains(event.getEntity().getWorld().getName())) {
             return;
         }
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.normal-item", 0D)) {
