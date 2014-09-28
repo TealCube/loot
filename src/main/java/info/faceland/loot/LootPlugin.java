@@ -9,6 +9,7 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
+import info.faceland.loot.api.managers.CreatureModManager;
 import info.faceland.loot.api.managers.CustomItemManager;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
@@ -65,6 +66,7 @@ public final class LootPlugin extends FacePlugin {
     private NameManager nameManager;
     private CustomItemManager customItemManager;
     private SocketGemManager socketGemManager;
+    private CreatureModManager creatureModManager;
 
     @Override
     public void preEnable() {
@@ -173,6 +175,7 @@ public final class LootPlugin extends FacePlugin {
                 effects.add(LootSocketPotionEffect.parseString(eff));
             }
             builder.withSocketEffects(effects);
+            builder.withItemGroup(itemGroupManager.getItemGroup(cs.getString("item-group")));
             SocketGem gem = builder.build();
             gems.add(gem);
             loadedSocketGems.add(gem.getName());
@@ -404,6 +407,10 @@ public final class LootPlugin extends FacePlugin {
 
     public SocketGemManager getSocketGemManager() {
         return socketGemManager;
+    }
+
+    public CreatureModManager getCreatureModManager() {
+        return creatureModManager;
     }
 
 }
