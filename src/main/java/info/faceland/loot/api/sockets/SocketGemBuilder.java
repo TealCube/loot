@@ -1,5 +1,6 @@
 package info.faceland.loot.api.sockets;
 
+import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 
 import java.util.List;
@@ -19,5 +20,7 @@ public interface SocketGemBuilder {
     SocketGemBuilder withLore(List<String> l);
 
     SocketGemBuilder withSocketEffects(List<SocketEffect> effects);
+
+    SocketGemBuilder withItemGroup(ItemGroup itemGroup);
 
 }
