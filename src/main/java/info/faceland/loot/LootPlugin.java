@@ -58,6 +58,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration socketGemsYAML;
     private VersionedIvoryYamlConfiguration languageYAML;
     private VersionedIvoryYamlConfiguration configYAML;
+    private VersionedIvoryYamlConfiguration creaturesYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
@@ -123,6 +124,14 @@ public final class LootPlugin extends FacePlugin {
         if (configYAML.update()) {
             getLogger().info("Updating config.yml");
             debug("Updating config.yml");
+        }
+        creaturesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
+                                                         getResource("creatures.yml"),
+                                                         VersionedIvoryConfiguration.VersionUpdateType
+                                                                 .BACKUP_AND_UPDATE);
+        if (creaturesYAML.update()) {
+            getLogger().info("Updating creatures.yml");
+            debug("Updating creatures.yml");
         }
 
         settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML);
@@ -201,6 +210,7 @@ public final class LootPlugin extends FacePlugin {
         tierManager = null;
         itemGroupManager = null;
         settings = null;
+        creaturesYAML = null;
         configYAML = null;
         languageYAML = null;
         customItemsYAML = null;
