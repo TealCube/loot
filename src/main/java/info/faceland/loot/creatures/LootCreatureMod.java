@@ -79,4 +79,23 @@ public final class LootCreatureMod implements CreatureMod {
         this.tierDoubleMap = tierDoubleMap;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootCreatureMod that = (LootCreatureMod) o;
+
+        return entityType == that.entityType;
+    }
+
+    @Override
+    public int hashCode() {
+        return entityType != null ? entityType.hashCode() : 0;
+    }
+
 }
