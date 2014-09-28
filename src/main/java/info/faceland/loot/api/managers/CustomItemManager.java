@@ -2,6 +2,7 @@ package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.items.CustomItem;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface CustomItemManager {
@@ -17,6 +18,8 @@ public interface CustomItemManager {
     CustomItem getRandomCustomItem();
 
     CustomItem getRandomCustomItem(boolean withChance);
+
+    CustomItem getRandomCustomItem(boolean withChance, Map<CustomItem, Double> map);
 
     double getTotalWeight();
 

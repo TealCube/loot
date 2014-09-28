@@ -51,6 +51,11 @@ public final class LootCustomItemManager implements CustomItemManager {
 
     @Override
     public CustomItem getRandomCustomItem(boolean withChance) {
+        return getRandomCustomItem(withChance, new HashMap<CustomItem, Double>());
+    }
+
+    @Override
+    public CustomItem getRandomCustomItem(boolean withChance, Map<CustomItem, Double> map) {
         if (!withChance) {
             Set<CustomItem> set = getCustomItems();
             CustomItem[] array = set.toArray(new CustomItem[set.size()]);
@@ -59,7 +64,11 @@ public final class LootCustomItemManager implements CustomItemManager {
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
         for (CustomItem ci : getCustomItems()) {
-            currentWeight += ci.getWeight();
+            double calcWeight = ci.getWeight();
+            if (map.containsKey(ci)) {
+                calcWeight *= map.get(ci);
+            }
+            currentWeight += calcWeight;
             if (currentWeight >= selectedWeight) {
                 return ci;
             }
