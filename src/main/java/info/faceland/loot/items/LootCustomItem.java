@@ -14,6 +14,7 @@ public final class LootCustomItem implements CustomItem {
     private String displayName;
     private List<String> lore;
     private Material material;
+    private double weight;
 
     public LootCustomItem(String name) {
         this.name = name;
@@ -57,6 +58,15 @@ public final class LootCustomItem implements CustomItem {
 
     void setMaterial(Material material) {
         this.material = material;
+    }
+
+    @Override
+    public double getWeight() {
+        return weight;
+    }
+
+    void setWeight(double weight) {
+        this.weight = weight;
     }
 
 }
