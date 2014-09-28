@@ -10,7 +10,7 @@ public final class Chatty {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
-        sendMessage(sender, message, new String[][]{{}});
+        sender.sendMessage(TextUtils.color(message));
     }
 
     public static void sendMessage(CommandSender sender, String message, String[][] args) {
