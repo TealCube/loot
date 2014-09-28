@@ -28,6 +28,11 @@ public final class LootItemBuilder implements ItemBuilder {
         this.random = new LootRandom(System.currentTimeMillis());
     }
 
+    private String randomFromSet(Set<ItemGroup> itemGroups) {
+        ItemGroup[] array = itemGroups.toArray(new ItemGroup[itemGroups.size()]);
+        return array[random.nextInt(array.length)].getName().toUpperCase();
+    }
+
     @Override
     public boolean isBuilt() {
         return built;
@@ -35,6 +40,10 @@ public final class LootItemBuilder implements ItemBuilder {
 
     @Override
     public HiltItemStack build() {
+        if (isBuilt()) {
+            throw new IllegalStateException("already built");
+        }
+        built = true;
         HiltItemStack hiltItemStack;
         if (material == null) {
             if (tier == null) {
@@ -60,7 +69,6 @@ public final class LootItemBuilder implements ItemBuilder {
             lore.add(tier.getDisplayColor() + "(Socket)");
         }
         hiltItemStack.setLore(TextUtils.color(lore));
-        built = true;
         return hiltItemStack;
     }
 
@@ -82,9 +90,5 @@ public final class LootItemBuilder implements ItemBuilder {
         return this;
     }
 
-    private String randomFromSet(Set<ItemGroup> itemGroups) {
-        ItemGroup[] array = itemGroups.toArray(new ItemGroup[itemGroups.size()]);
-        return array[random.nextInt(array.length)].getName().toUpperCase();
-    }
 
 }

@@ -22,6 +22,9 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
 
     @Override
     public SocketGem build() {
+        if (isBuilt()) {
+            throw new IllegalStateException("already built");
+        }
         built = true;
         return gem;
     }

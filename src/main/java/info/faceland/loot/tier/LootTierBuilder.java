@@ -24,7 +24,7 @@ public final class LootTierBuilder implements TierBuilder {
     @Override
     public Tier build() {
         if (isBuilt()) {
-            throw new IllegalStateException("already built this tier");
+            throw new IllegalStateException("already built");
         }
         return tier;
     }

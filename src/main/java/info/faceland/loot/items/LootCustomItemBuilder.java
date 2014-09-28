@@ -22,6 +22,9 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
 
     @Override
     public CustomItem build() {
+        if (isBuilt()) {
+            throw new IllegalStateException("already built");
+        }
         this.built = true;
         return customItem;
     }
