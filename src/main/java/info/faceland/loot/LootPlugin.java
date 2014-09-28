@@ -11,7 +11,11 @@ import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.managers.CustomItemManager;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
+import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.managers.TierManager;
+import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.api.sockets.SocketGemBuilder;
+import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.groups.LootItemGroup;
@@ -22,7 +26,10 @@ import info.faceland.loot.listeners.LoginListener;
 import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
+import info.faceland.loot.managers.LootSocketGemManager;
 import info.faceland.loot.managers.LootTierManager;
+import info.faceland.loot.sockets.LootSocketGemBuilder;
+import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
 import info.faceland.loot.utils.converters.StringConverter;
 import info.faceland.utils.TextUtils;
@@ -46,11 +53,13 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration tierYAML;
     private VersionedIvoryYamlConfiguration corestatsYAML;
     private VersionedIvoryYamlConfiguration customItemsYAML;
+    private VersionedIvoryYamlConfiguration socketGemsYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
     private CustomItemManager customItemManager;
+    private SocketGemManager socketGemManager;
 
     @Override
     public void preEnable() {
@@ -80,12 +89,20 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating corestats.yml");
         }
         customItemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
-                                                              getResource("customItems.yml"),
-                                                              VersionedIvoryConfiguration.VersionUpdateType
-                                                                      .BACKUP_AND_UPDATE);
+                                                               getResource("customItems.yml"),
+                                                               VersionedIvoryConfiguration.VersionUpdateType
+                                                                       .BACKUP_AND_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
             debug("Updating customItems.yml");
+        }
+        socketGemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
+                                                              getResource("socketGems.yml"),
+                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                                      .BACKUP_AND_UPDATE);
+        if (socketGemsYAML.update()) {
+            getLogger().info("Updating socketGems.yml");
+            debug("Updating socketGems.yml");
         }
 
         settings = IvorySettings.loadFromFiles(corestatsYAML);
@@ -94,6 +111,7 @@ public final class LootPlugin extends FacePlugin {
         tierManager = new LootTierManager();
         nameManager = new LootNameManager();
         customItemManager = new LootCustomItemManager();
+        socketGemManager = new LootSocketGemManager();
     }
 
     @Override
@@ -102,6 +120,38 @@ public final class LootPlugin extends FacePlugin {
         loadTiers();
         loadNames();
         loadCustomItems();
+        loadSocketGems();
+    }
+
+    private void loadSocketGems() {
+        for (SocketGem sg : getSocketGemManager().getSocketGems()) {
+            getSocketGemManager().removeSocketGem(sg.getName());
+        }
+        Set<SocketGem> gems = new HashSet<>();
+        List<String> loadedSocketGems = new ArrayList<>();
+        for (String key : socketGemsYAML.getKeys(false)) {
+            if (!socketGemsYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = socketGemsYAML.getConfigurationSection(key);
+            SocketGemBuilder builder = getNewSocketGemBuilder(key);
+            builder.withPrefix(cs.getString("prefix"));
+            builder.withSuffix(cs.getString("suffix"));
+            builder.withLore(cs.getStringList("lore"));
+            builder.withWeight(cs.getDouble("weight"));
+            List<SocketEffect> effects = new ArrayList<>();
+            for (String eff : cs.getStringList("effects")) {
+                effects.add(LootSocketPotionEffect.parseString(eff));
+            }
+            builder.withSocketEffects(effects);
+            SocketGem gem = builder.build();
+            gems.add(gem);
+            loadedSocketGems.add(gem.getName());
+        }
+        for (SocketGem sg : gems) {
+            getSocketGemManager().addSocketGem(sg);
+        }
+        debug("Loaded socket gems: " + loadedSocketGems.toString());
     }
 
     @Override
@@ -122,6 +172,7 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postDisable() {
+        socketGemManager = null;
         customItemManager = null;
         nameManager = null;
         tierManager = null;
@@ -292,6 +343,10 @@ public final class LootPlugin extends FacePlugin {
         return new LootCustomItemBuilder(name);
     }
 
+    public SocketGemBuilder getNewSocketGemBuilder(String name) {
+        return new LootSocketGemBuilder(name);
+    }
+
     public TierManager getTierManager() {
         return tierManager;
     }
@@ -304,10 +359,6 @@ public final class LootPlugin extends FacePlugin {
         return nameManager;
     }
 
-    public VersionedIvoryYamlConfiguration getCorestatsYAML() {
-        return corestatsYAML;
-    }
-
     public IvorySettings getSettings() {
         return settings;
     }
@@ -315,4 +366,9 @@ public final class LootPlugin extends FacePlugin {
     public CustomItemManager getCustomItemManager() {
         return customItemManager;
     }
+
+    public SocketGemManager getSocketGemManager() {
+        return socketGemManager;
+    }
+
 }
