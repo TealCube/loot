@@ -67,4 +67,16 @@ public final class LootCreatureMod implements CreatureMod {
         return 0;
     }
 
+    void setCustomItemDoubleMap(Map<CustomItem, Double> customItemDoubleMap) {
+        this.customItemDoubleMap = customItemDoubleMap;
+    }
+
+    void setSocketGemDoubleMap(Map<SocketGem, Double> socketGemDoubleMap) {
+        this.socketGemDoubleMap = socketGemDoubleMap;
+    }
+
+    void setTierDoubleMap(Map<Tier, Double> tierDoubleMap) {
+        this.tierDoubleMap = tierDoubleMap;
+    }
+
 }
