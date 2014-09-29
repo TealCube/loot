@@ -16,6 +16,7 @@ public final class LootCustomItem implements CustomItem {
     private Material material;
     private double weight;
     private double distanceWeight;
+    private boolean broadcast;
 
     public LootCustomItem(String name) {
         this.name = name;
@@ -97,6 +98,15 @@ public final class LootCustomItem implements CustomItem {
 
     void setDistanceWeight(double distanceWeight) {
         this.distanceWeight = distanceWeight;
+    }
+
+    @Override
+    public boolean isBroadcast() {
+        return broadcast;
+    }
+
+    void setBroadcast(boolean broadcast) {
+        this.broadcast = broadcast;
     }
 
 }

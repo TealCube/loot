@@ -20,4 +20,6 @@ public interface CustomItem {
     double getWeight();
 
     double getDistanceWeight();
+
+    boolean isBroadcast();
 }
