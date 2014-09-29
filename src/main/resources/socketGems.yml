@@ -2,6 +2,7 @@
 # duration is in milliseconds
 version: "0.0.2"
 Steroids I:
+  broadcast: false
   prefix: 'Roidy'
   suffix: 'of Roids'
   lore:
