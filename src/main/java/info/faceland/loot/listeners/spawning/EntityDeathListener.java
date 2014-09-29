@@ -1,6 +1,9 @@
 package info.faceland.loot.listeners.spawning;
 
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.items.ItemGenerationReason;
+import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,8 +35,15 @@ public final class EntityDeathListener implements Listener {
                    .contains(event.getEntity().getWorld().getName())) {
             return;
         }
+        CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.normal-item", 0D)) {
             // drop a normal random item
+            double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                          .getSpawnLocation());
+            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod.getTierMults());
+            event.getDrops().add(
+                    plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER)
+                          .build());
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-gem", 0D)) {
             // drop a socket gem
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.enchant-gem", 0D)) {
