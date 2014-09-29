@@ -126,4 +126,10 @@ public final class LootTierBuilder implements TierBuilder {
         return this;
     }
 
+    @Override
+    public TierBuilder withBroadcast(boolean b) {
+        tier.setBroadcast(b);
+        return this;
+    }
+
 }
