@@ -51,11 +51,16 @@ public final class LootCustomItemManager implements CustomItemManager {
 
     @Override
     public CustomItem getRandomCustomItem(boolean withChance) {
-        return getRandomCustomItem(withChance, new HashMap<CustomItem, Double>());
+        return getRandomCustomItem(withChance, 0D);
     }
 
     @Override
-    public CustomItem getRandomCustomItem(boolean withChance, Map<CustomItem, Double> map) {
+    public CustomItem getRandomCustomItem(boolean withChance, double distance) {
+        return getRandomCustomItem(withChance, distance, new HashMap<CustomItem, Double>());
+    }
+
+    @Override
+    public CustomItem getRandomCustomItem(boolean withChance, double distance, Map<CustomItem, Double> map) {
         if (!withChance) {
             Set<CustomItem> set = getCustomItems();
             CustomItem[] array = set.toArray(new CustomItem[set.size()]);

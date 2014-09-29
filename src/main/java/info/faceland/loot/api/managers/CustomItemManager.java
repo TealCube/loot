@@ -19,7 +19,9 @@ public interface CustomItemManager {
 
     CustomItem getRandomCustomItem(boolean withChance);
 
-    CustomItem getRandomCustomItem(boolean withChance, Map<CustomItem, Double> map);
+    CustomItem getRandomCustomItem(boolean withChance, double distance);
+
+    CustomItem getRandomCustomItem(boolean withChance, double distance, Map<CustomItem, Double> map);
 
     double getTotalWeight();
 
