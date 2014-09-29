@@ -15,6 +15,7 @@ public final class LootSocketGem implements SocketGem {
 
     private final String name;
     private double weight;
+    private double distanceWeight;
     private String prefix;
     private String suffix;
     private List<String> lore;
@@ -28,9 +29,29 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootSocketGem that = (LootSocketGem) o;
+
+        return !(name != null ? !name.equals(that.name) : that.name != null);
+    }
+
+    @Override
     public String getName() {
         return name;
     }
+
 
     @Override
     public double getWeight() {
@@ -101,22 +122,12 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        LootSocketGem that = (LootSocketGem) o;
-
-        return !(name != null ? !name.equals(that.name) : that.name != null);
+    public double getDistanceWeight() {
+        return distanceWeight;
     }
 
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+    void setDistanceWeight(double distanceWeight) {
+        this.distanceWeight = distanceWeight;
     }
 
 }
