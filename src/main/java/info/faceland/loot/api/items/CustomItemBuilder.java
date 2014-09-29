@@ -19,4 +19,6 @@ public interface CustomItemBuilder {
     CustomItemBuilder withWeight(double d);
 
     CustomItemBuilder withDistanceWeight(double d);
+
+    CustomItemBuilder withBroadcast(boolean b);
 }
