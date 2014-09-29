@@ -72,4 +72,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withBroadcast(boolean b) {
+        gem.setBroadcast(b);
+        return this;
+    }
+
 }
