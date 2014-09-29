@@ -10,6 +10,7 @@ common:
   maximum-sockets: 0
   minimum-bonus-lore: 0
   maximum-bonus-lore: 0
+  broadcast: true
   base-lore:
   - '<white>A common item.'
   bonus-lore:
