@@ -55,6 +55,10 @@ public final class EntityDeathListener implements Listener {
                     ItemGenerationReason.MONSTER).build();
             event.getDrops().add(his);
 
+            if (!t.isBroadcast()) {
+                return;
+            }
+
             Map<String, Object> replacements = new HashMap<>();
             replacements.put("{ITEM}", his);
 
@@ -76,6 +80,10 @@ public final class EntityDeathListener implements Listener {
                                                                            mod.getSocketGemMults());
             HiltItemStack his = sg.toItemStack(1);
             event.getDrops().add(his);
+
+            if (!sg.isBroadcast()) {
+                return;
+            }
 
             Map<String, Object> replacements = new HashMap<>();
             replacements.put("{ITEM}", his);
@@ -104,6 +112,10 @@ public final class EntityDeathListener implements Listener {
                                                                               mod.getCustomItemMults());
             HiltItemStack his = ci.toItemStack(1);
             event.getDrops().add(his);
+
+            if (!ci.isBroadcast()) {
+                return;
+            }
 
             Map<String, Object> replacements = new HashMap<>();
             replacements.put("{ITEM}", his);
