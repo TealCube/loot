@@ -19,7 +19,9 @@ public interface SocketGemManager {
 
     SocketGem getRandomSocketGem(boolean withChance);
 
-    SocketGem getRandomSocketGem(boolean withChance, Map<SocketGem, Double> map);
+    SocketGem getRandomSocketGem(boolean withChance, double distance);
+
+    SocketGem getRandomSocketGem(boolean withChance, double distance, Map<SocketGem, Double> map);
 
     double getTotalWeight();
 

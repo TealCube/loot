@@ -59,11 +59,16 @@ public final class LootSocketGemManager implements SocketGemManager {
 
     @Override
     public SocketGem getRandomSocketGem(boolean withChance) {
-        return getRandomSocketGem(withChance, new HashMap<SocketGem, Double>());
+        return getRandomSocketGem(withChance, 0D);
     }
 
     @Override
-    public SocketGem getRandomSocketGem(boolean withChance, Map<SocketGem, Double> map) {
+    public SocketGem getRandomSocketGem(boolean withChance, double distance) {
+        return getRandomSocketGem(withChance, distance, new HashMap<SocketGem, Double>());
+    }
+
+    @Override
+    public SocketGem getRandomSocketGem(boolean withChance, double distance, Map<SocketGem, Double> map) {
         if (!withChance) {
             Set<SocketGem> gems = getSocketGems();
             SocketGem[] array = gems.toArray(new SocketGem[gems.size()]);
@@ -73,7 +78,7 @@ public final class LootSocketGemManager implements SocketGemManager {
         double currentWeight = 0D;
         Set<SocketGem> gems = getSocketGems();
         for (SocketGem sg : gems) {
-            double calcWeight = sg.getWeight();
+            double calcWeight = sg.getWeight() + ((distance / 10000D) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
                 calcWeight *= map.get(sg);
             }
