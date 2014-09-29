@@ -15,6 +15,7 @@ public final class LootCustomItem implements CustomItem {
     private List<String> lore;
     private Material material;
     private double weight;
+    private double distanceWeight;
 
     public LootCustomItem(String name) {
         this.name = name;
@@ -87,6 +88,15 @@ public final class LootCustomItem implements CustomItem {
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public double getDistanceWeight() {
+        return distanceWeight;
+    }
+
+    void setDistanceWeight(double distanceWeight) {
+        this.distanceWeight = distanceWeight;
     }
 
 }
