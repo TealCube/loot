@@ -53,4 +53,10 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
         return this;
     }
 
+    @Override
+    public CustomItemBuilder withDistanceWeight(double d) {
+        customItem.setDistanceWeight(d);
+        return this;
+    }
+
 }
