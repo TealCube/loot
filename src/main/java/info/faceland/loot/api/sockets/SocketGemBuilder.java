@@ -23,4 +23,5 @@ public interface SocketGemBuilder {
 
     SocketGemBuilder withItemGroup(ItemGroup itemGroup);
 
+    SocketGemBuilder withDistanceWeight(double d);
 }

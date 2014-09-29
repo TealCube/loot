@@ -66,4 +66,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withDistanceWeight(double d) {
+        gem.setDistanceWeight(d);
+        return this;
+    }
+
 }
