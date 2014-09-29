@@ -1,11 +1,12 @@
 # effect format is potioneffect:target:duration:intensity:radius
 # duration is in milliseconds
-version: "0.0.1"
+version: "0.0.2"
 Steroids I:
   prefix: 'Roidy'
   suffix: 'of Roids'
   lore:
   - 'Fuck yeah, steroids'
   weight: 100
+  distance-weight: 0
   effects:
   - INCREASE_DAMAGE:SELF:10000:1:0
