@@ -2,7 +2,9 @@ package info.faceland.loot.listeners.spawning;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
+import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.event.EventHandler;
@@ -46,6 +48,11 @@ public final class EntityDeathListener implements Listener {
                           .build());
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-gem", 0D)) {
             // drop a socket gem
+            double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                          .getSpawnLocation());
+            SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
+                                                                           mod.getSocketGemMults());
+            event.getDrops().add(sg.toItemStack(1));
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.enchant-gem", 0D)) {
             // drop an enchant gem
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.upgrade-scroll", 0D)) {
@@ -54,6 +61,11 @@ public final class EntityDeathListener implements Listener {
             // drop an identity tome
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.custom-item", 0D)) {
             // drop a custom item
+            double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                          .getSpawnLocation());
+            CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared,
+                                                                           mod.getCustomItemMults());
+            event.getDrops().add(ci.toItemStack(1));
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-extender", 0D)) {
             // drop a socket extender
         } else {
