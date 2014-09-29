@@ -25,4 +25,6 @@ public interface SocketGem {
     HiltItemStack toItemStack(int amount);
 
     double getDistanceWeight();
+
+    boolean isBroadcast();
 }

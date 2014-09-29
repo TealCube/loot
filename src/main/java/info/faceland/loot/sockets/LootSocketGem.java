@@ -21,6 +21,7 @@ public final class LootSocketGem implements SocketGem {
     private List<String> lore;
     private List<SocketEffect> socketEffects;
     private ItemGroup itemGroup;
+    private boolean broadcast;
 
     public LootSocketGem(String name) {
         this.name = name;
@@ -128,6 +129,15 @@ public final class LootSocketGem implements SocketGem {
 
     void setDistanceWeight(double distanceWeight) {
         this.distanceWeight = distanceWeight;
+    }
+
+    @Override
+    public boolean isBroadcast() {
+        return broadcast;
+    }
+
+    void setBroadcast(boolean broadcast) {
+        this.broadcast = broadcast;
     }
 
 }
