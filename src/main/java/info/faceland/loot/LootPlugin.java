@@ -28,6 +28,7 @@ import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
 import info.faceland.loot.managers.LootCreatureModManager;
 import info.faceland.loot.managers.LootCustomItemManager;
@@ -177,6 +178,7 @@ public final class LootPlugin extends FacePlugin {
         CommandHandler handler = new CommandHandler(this);
         handler.registerCommands(new LootCommand(this));
         Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new SocketsListener(this), this);
         //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
         debug("v" + getDescription().getVersion() + " enabled");
     }
