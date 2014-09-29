@@ -7,6 +7,7 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfigura
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
+import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.enchantments.EnchantmentStoneBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
@@ -14,6 +15,7 @@ import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.managers.CreatureModManager;
 import info.faceland.loot.api.managers.CustomItemManager;
+import info.faceland.loot.api.managers.EnchantmentStoneManager;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.SocketGemManager;
@@ -34,6 +36,7 @@ import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
 import info.faceland.loot.managers.LootCreatureModManager;
 import info.faceland.loot.managers.LootCustomItemManager;
+import info.faceland.loot.managers.LootEnchantmentStoneManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
 import info.faceland.loot.managers.LootSocketGemManager;
@@ -71,6 +74,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration configYAML;
     private VersionedIvoryYamlConfiguration creaturesYAML;
     private VersionedIvoryYamlConfiguration identifyingYAML;
+    private VersionedIvoryYamlConfiguration enchantmentStonesYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
@@ -78,6 +82,7 @@ public final class LootPlugin extends FacePlugin {
     private CustomItemManager customItemManager;
     private SocketGemManager socketGemManager;
     private CreatureModManager creatureModManager;
+    private EnchantmentStoneManager enchantmentStoneManager;
 
     @Override
     public void preEnable() {
@@ -147,12 +152,20 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating creatures.yml");
         }
         identifyingYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
-                                                            getResource("identifying.yml"),
-                                                            VersionedIvoryConfiguration.VersionUpdateType
-                                                                    .BACKUP_AND_UPDATE);
+                                                              getResource("identifying.yml"),
+                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                                      .BACKUP_AND_UPDATE);
         if (identifyingYAML.update()) {
             getLogger().info("Updating identifying.yml");
             debug("Updating identifying.yml");
+        }
+        enchantmentStonesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "enchantmentStones.yml"),
+                                                                    getResource("enchantmentStones.yml"),
+                                                                    VersionedIvoryConfiguration.VersionUpdateType
+                                                                            .BACKUP_AND_UPDATE);
+        if (enchantmentStonesYAML.update()) {
+            getLogger().info("Updating enchantmentStones.yml");
+            debug("Updating enchantmentStones.yml");
         }
 
         settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
@@ -163,6 +176,7 @@ public final class LootPlugin extends FacePlugin {
         customItemManager = new LootCustomItemManager();
         socketGemManager = new LootSocketGemManager();
         creatureModManager = new LootCreatureModManager();
+        enchantmentStoneManager = new LootEnchantmentStoneManager();
     }
 
     @Override
@@ -173,6 +187,7 @@ public final class LootPlugin extends FacePlugin {
         loadCustomItems();
         loadSocketGems();
         loadCreatureMods();
+        loadEnchantmentStones();
     }
 
     @Override
@@ -197,6 +212,7 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postDisable() {
+        enchantmentStoneManager = null;
         creatureModManager = null;
         socketGemManager = null;
         customItemManager = null;
@@ -223,6 +239,33 @@ public final class LootPlugin extends FacePlugin {
         if (debugPrinter != null) {
             debugPrinter.debug(level, messages);
         }
+    }
+
+    private void loadEnchantmentStones() {
+        for (EnchantmentStone es : getEnchantmentStoneManager().getEnchantmentStones()) {
+            getEnchantmentStoneManager().removeEnchantmentStone(es.getName());
+        }
+        Set<EnchantmentStone> stones = new HashSet<>();
+        List<String> loadedStones = new ArrayList<>();
+        for (String key : enchantmentStonesYAML.getKeys(false)) {
+            if (!enchantmentStonesYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = enchantmentStonesYAML.getConfigurationSection(key);
+            EnchantmentStoneBuilder builder = getNewEnchantmentStoneBuilder(key);
+            builder.withWeight(cs.getDouble("weight"));
+            builder.withDistanceWeight(cs.getDouble("distance-weight"));
+            builder.withLore(cs.getStringList("lore"));
+            builder.withMinStats(cs.getInt("min-stats"));
+            builder.withMaxStats(cs.getInt("max-stats"));
+            EnchantmentStone stone = builder.build();
+            stones.add(stone);
+            loadedStones.add(stone.getName());
+        }
+        for (EnchantmentStone es : stones) {
+            getEnchantmentStoneManager().addEnchantmentStone(es);
+        }
+        debug("Loaded enchantment stones: " + loadedStones.toString());
     }
 
     private void loadCreatureMods() {
@@ -514,6 +557,10 @@ public final class LootPlugin extends FacePlugin {
 
     public CreatureModManager getCreatureModManager() {
         return creatureModManager;
+    }
+
+    public EnchantmentStoneManager getEnchantmentStoneManager() {
+        return enchantmentStoneManager;
     }
 
 }
