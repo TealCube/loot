@@ -69,7 +69,7 @@ public final class LootCustomItemManager implements CustomItemManager {
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
         for (CustomItem ci : getCustomItems()) {
-            double calcWeight = ci.getWeight();
+            double calcWeight = ci.getWeight() + ((distance / 10000D) * ci.getDistanceWeight());
             if (map.containsKey(ci)) {
                 calcWeight *= map.get(ci);
             }
