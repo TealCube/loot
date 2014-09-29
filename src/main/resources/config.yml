@@ -1,4 +1,4 @@
-version: "0.0.1"
+version: "0.0.2"
 enabled-worlds:
 - main
 - yololand
@@ -10,3 +10,4 @@ drops:
   identity-tome: 0.01
   custom-item: 0.1
   socket-extender: 0.000001
+  unidentified-item: 0.1
