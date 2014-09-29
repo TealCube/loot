@@ -54,7 +54,7 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
         if (entity == null) {
             return;
         }
-        entity.addPotionEffect(new PotionEffect(type, duration, intensity));
+        entity.addPotionEffect(new PotionEffect(type, duration / 50, intensity));
     }
 
     public static LootSocketPotionEffect parseString(String s) {
