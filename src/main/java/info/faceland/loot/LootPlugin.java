@@ -7,6 +7,7 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfigura
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
+import info.faceland.loot.api.enchantments.EnchantmentStoneBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
@@ -24,6 +25,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
+import info.faceland.loot.enchantments.LootEnchantmentStoneBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
@@ -480,6 +482,10 @@ public final class LootPlugin extends FacePlugin {
 
     public CreatureModBuilder getNewCreatureModBuilder(EntityType entityType) {
         return new LootCreatureModBuilder(entityType);
+    }
+
+    public EnchantmentStoneBuilder getNewEnchantmentStoneBuilder(String name) {
+        return new LootEnchantmentStoneBuilder(name);
     }
 
     public TierManager getTierManager() {
