@@ -1,5 +1,6 @@
 version: "0.0.2"
 fuckyeah-sword:
+  broadcast: true
   weight: 100
   distance-weight: 0
   material: DIAMOND_SWORD
