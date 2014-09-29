@@ -1,5 +1,8 @@
 package info.faceland.loot.listeners.spawning;
 
+import info.faceland.facecore.shade.mcml.mcml.MCMLBuilder;
+import info.faceland.facecore.shade.mcml.mcml.shade.fanciful.FancyMessage;
+import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.items.CustomItem;
@@ -7,6 +10,9 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.utils.TextUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -14,6 +20,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EntityDeathListener implements Listener {
 
@@ -43,16 +51,45 @@ public final class EntityDeathListener implements Listener {
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod.getTierMults());
-            event.getDrops().add(
-                    plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER)
-                          .build());
+            HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(
+                    ItemGenerationReason.MONSTER).build();
+            event.getDrops().add(his);
+
+            Map<String, Object> replacements = new HashMap<>();
+            replacements.put("{ITEM}", his);
+
+            MCMLBuilder builder = new MCMLBuilder(
+                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
+                                   new String[][]{
+                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
+                                           {"%item%", his.getName()}
+                                   }), replacements);
+            FancyMessage fancyMessage = builder.buildFancyMessage();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                fancyMessage.send(player);
+            }
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-gem", 0D)) {
             // drop a socket gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
             SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
                                                                            mod.getSocketGemMults());
-            event.getDrops().add(sg.toItemStack(1));
+            HiltItemStack his = sg.toItemStack(1);
+            event.getDrops().add(his);
+
+            Map<String, Object> replacements = new HashMap<>();
+            replacements.put("{ITEM}", his);
+
+            MCMLBuilder builder = new MCMLBuilder(
+                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
+                                   new String[][]{
+                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
+                                           {"%item%", his.getName()}
+                                   }), replacements);
+            FancyMessage fancyMessage = builder.buildFancyMessage();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                fancyMessage.send(player);
+            }
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.enchant-gem", 0D)) {
             // drop an enchant gem
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.upgrade-scroll", 0D)) {
@@ -64,8 +101,23 @@ public final class EntityDeathListener implements Listener {
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared,
-                                                                           mod.getCustomItemMults());
-            event.getDrops().add(ci.toItemStack(1));
+                                                                              mod.getCustomItemMults());
+            HiltItemStack his = ci.toItemStack(1);
+            event.getDrops().add(his);
+
+            Map<String, Object> replacements = new HashMap<>();
+            replacements.put("{ITEM}", his);
+
+            MCMLBuilder builder = new MCMLBuilder(
+                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
+                                   new String[][]{
+                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
+                                           {"%item%", his.getName()}
+                                   }), replacements);
+            FancyMessage fancyMessage = builder.buildFancyMessage();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                fancyMessage.send(player);
+            }
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-extender", 0D)) {
             // drop a socket extender
         } else {
