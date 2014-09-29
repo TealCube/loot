@@ -29,6 +29,7 @@ public final class LootTier implements Tier {
     private double maximumDurability;
     private double distanceWeight;
     private boolean enchantable;
+    private boolean broadcast;
 
     public LootTier(String name) {
         this.name = name;
@@ -239,6 +240,15 @@ public final class LootTier implements Tier {
         LootTier lootTier = (LootTier) o;
 
         return !(name != null ? !name.equals(lootTier.name) : lootTier.name != null);
+    }
+
+    @Override
+    public boolean isBroadcast() {
+        return broadcast;
+    }
+
+    void setBroadcast(boolean broadcast) {
+        this.broadcast = broadcast;
     }
 
 }
