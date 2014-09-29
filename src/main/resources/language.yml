@@ -1,4 +1,6 @@
-version: "0.0.1"
+version: "0.0.2"
+broadcast:
+  found-item: "&f%player%&a found a %item%(itm:{ITEM})&a!"
 commands:
   spawn:
     custom-success: "<green>You spawned <white>%amount%<green> custom item(s)."
