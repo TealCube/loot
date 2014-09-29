@@ -291,12 +291,14 @@ public final class LootPlugin extends FacePlugin {
             builder.withSuffix(cs.getString("suffix"));
             builder.withLore(cs.getStringList("lore"));
             builder.withWeight(cs.getDouble("weight"));
+            builder.withDistanceWeight(cs.getDouble("distance-weight"));
             List<SocketEffect> effects = new ArrayList<>();
             for (String eff : cs.getStringList("effects")) {
                 effects.add(LootSocketPotionEffect.parseString(eff));
             }
             builder.withSocketEffects(effects);
             builder.withItemGroup(itemGroupManager.getItemGroup(cs.getString("item-group")));
+            builder.withBroadcast(cs.getBoolean("broadcast"));
             SocketGem gem = builder.build();
             gems.add(gem);
             loadedSocketGems.add(gem.getName());
@@ -322,6 +324,9 @@ public final class LootPlugin extends FacePlugin {
             builder.withMaterial(StringConverter.toMaterial(cs.getString("material")));
             builder.withDisplayName(cs.getString("display-name"));
             builder.withLore(cs.getStringList("lore"));
+            builder.withWeight(cs.getDouble("weight"));
+            builder.withDistanceWeight(cs.getDouble("distance-weight"));
+            builder.withBroadcast(cs.getBoolean("broadcast"));
             CustomItem ci = builder.build();
             customItems.add(ci);
             loaded.add(ci.getName());
@@ -433,6 +438,8 @@ public final class LootPlugin extends FacePlugin {
             builder.withItemGroups(itemGroups);
             builder.withMinimumDurability(cs.getDouble("minimum-durability"));
             builder.withMaximumDurability(cs.getDouble("maximum-durability"));
+            builder.withEnchantable(cs.getBoolean("enchantable"));
+            builder.withBroadcast(cs.getBoolean("broadcast"));
             Tier t = builder.build();
             loadedTiers.add(t.getName());
             tiers.add(t);
