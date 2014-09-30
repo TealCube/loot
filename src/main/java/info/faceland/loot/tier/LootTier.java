@@ -167,9 +167,13 @@ public final class LootTier implements Tier {
         Set<Material> materials = new HashSet<>();
         for (ItemGroup ig : getItemGroups()) {
             if (!ig.isInverse()) {
-                materials.addAll(ig.getMaterials());
+                for (Material m : ig.getMaterials()) {
+                    materials.add(m);
+                }
             } else {
-                materials.removeAll(ig.getMaterials());
+                for (Material m : ig.getMaterials()) {
+                    materials.remove(m);
+                }
             }
         }
         return materials;
