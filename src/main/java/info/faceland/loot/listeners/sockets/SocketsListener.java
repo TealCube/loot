@@ -2,8 +2,10 @@ package info.faceland.loot.listeners.sockets;
 
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
@@ -25,9 +27,11 @@ import java.util.List;
 public final class SocketsListener implements Listener {
 
     private LootPlugin plugin;
+    private LootRandom random;
 
     public SocketsListener(LootPlugin plugin) {
         this.plugin = plugin;
+        this.random = new LootRandom(System.currentTimeMillis());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -143,28 +147,53 @@ public final class SocketsListener implements Listener {
         HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
         HiltItemStack cursor = new HiltItemStack(event.getCursor());
 
-        if (!cursor.getName().startsWith(ChatColor.GOLD + "Socket Gem -")) {
+        if (cursor.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
+            String gemName = ChatColor.stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
+            SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemName);
+
+            if (gem == null) {
+                return;
+            }
+
+            List<String> lore = currentItem.getLore();
+            List<String> strippedLore = StringListUtils.stripColor(lore);
+            if (!strippedLore.contains("(Socket)")) {
+                return;
+            }
+            int index = strippedLore.indexOf("(Socket)");
+
+            lore.set(index, ChatColor.GOLD + gem.getName());
+            lore.addAll(index + 1, TextUtils.color(gem.getLore()));
+
+            currentItem.setLore(lore);
+        } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Stone - ")) {
+            String stoneName = ChatColor.stripColor(
+                    cursor.getName().replace(ChatColor.BLUE + "Enchantment Stone - ", ""));
+            EnchantmentStone stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
+
+            if (stone == null) {
+                return;
+            }
+
+            List<String> lore = currentItem.getLore();
+            List<String> strippedLore = StringListUtils.stripColor(lore);
+            if (!strippedLore.contains("(Enchantable)")) {
+                return;
+            }
+            int index = strippedLore.indexOf("(Enchantable)");
+
+            List<String> added = new ArrayList<>();
+            for (int i = 0; i < random.nextIntRange(stone.getMinStats(), stone.getMaxStats()); i++) {
+                added.add(stone.getLore().get(random.nextInt(stone.getLore().size())));
+            }
+
+            lore.remove(index);
+            lore.addAll(index, TextUtils.color(added));
+
+            currentItem.setLore(lore);
+        } else {
             return;
         }
-
-        String gemName = ChatColor.stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
-        SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemName);
-
-        if (gem == null) {
-            return;
-        }
-
-        List<String> lore = currentItem.getLore();
-        List<String> strippedLore = StringListUtils.stripColor(lore);
-        if (!strippedLore.contains("(Socket)")) {
-            return;
-        }
-        int index = strippedLore.indexOf("(Socket)");
-
-        lore.set(index, ChatColor.GOLD + gem.getName());
-        lore.addAll(index + 1, TextUtils.color(gem.getLore()));
-
-        currentItem.setLore(lore);
 
         event.setCurrentItem(currentItem);
         event.setCursor(null);
