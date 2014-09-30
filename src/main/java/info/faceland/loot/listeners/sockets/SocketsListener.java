@@ -7,6 +7,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
+import info.faceland.loot.utils.messaging.Chatty;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -143,9 +144,11 @@ public final class SocketsListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null || event.getCursor() == null
-            || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR) {
+            || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR ||
+            !(event.getWhoClicked() instanceof Player)) {
             return;
         }
+        Player player = (Player) event.getWhoClicked();
         HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
         HiltItemStack cursor = new HiltItemStack(event.getCursor());
 
@@ -160,6 +163,7 @@ public final class SocketsListener implements Listener {
             List<String> lore = currentItem.getLore();
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-sockets", ""));
                 return;
             }
             int index = strippedLore.indexOf("(Socket)");
@@ -168,12 +172,15 @@ public final class SocketsListener implements Listener {
             lore.addAll(index + 1, TextUtils.color(gem.getLore()));
 
             currentItem.setLore(lore);
+
+            Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Stone - ")) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Stone - ", ""));
             EnchantmentStone stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
                 return;
             }
 
@@ -184,6 +191,7 @@ public final class SocketsListener implements Listener {
             List<String> lore = currentItem.getLore();
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
                 return;
             }
             int index = strippedLore.indexOf("(Enchantable)");
@@ -197,6 +205,8 @@ public final class SocketsListener implements Listener {
             lore.addAll(index, TextUtils.color(added));
 
             currentItem.setLore(lore);
+
+            Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
         } else {
             return;
         }
