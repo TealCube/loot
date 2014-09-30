@@ -9,7 +9,9 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -171,6 +173,10 @@ public final class SocketsListener implements Listener {
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Stone - ", ""));
             EnchantmentStone stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
+            if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
+                return;
+            }
+
             if (stone == null) {
                 return;
             }
@@ -199,6 +205,26 @@ public final class SocketsListener implements Listener {
         event.setCursor(null);
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
+    }
+
+    private boolean isBlockWithinRadius(Material material, Location location, int radius) {
+        int minX = location.getBlockX() - radius;
+        int maxX = location.getBlockX() + radius;
+        int minY = location.getBlockY() - radius;
+        int maxY = location.getBlockY() + radius;
+        int minZ = location.getBlockZ() - radius;
+        int maxZ = location.getBlockZ() + radius;
+        for (int x = minX; x < maxX; x++) {
+            for (int y = minY; y < maxY; y++) {
+                for (int z = minZ; z < maxZ; z++) {
+                    Block block = location.getWorld().getBlockAt(x, y, z);
+                    if (block.getType() == material) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 }
