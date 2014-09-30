@@ -186,8 +186,8 @@ public final class LootPlugin extends FacePlugin {
         loadNames();
         loadCustomItems();
         loadSocketGems();
-        loadCreatureMods();
         loadEnchantmentStones();
+        loadCreatureMods();
     }
 
     @Override
