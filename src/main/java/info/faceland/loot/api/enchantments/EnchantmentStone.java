@@ -19,4 +19,6 @@ public interface EnchantmentStone {
     int getMaxStats();
 
     HiltItemStack toItemStack(int amount);
+
+    boolean isBroadcast();
 }

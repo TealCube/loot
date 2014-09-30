@@ -18,4 +18,5 @@ public interface EnchantmentStoneBuilder {
 
     EnchantmentStoneBuilder withMaxStats(int i);
 
+    EnchantmentStoneBuilder withBroadcast(boolean b);
 }

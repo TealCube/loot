@@ -58,4 +58,10 @@ public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilde
         return this;
     }
 
+    @Override
+    public EnchantmentStoneBuilder withBroadcast(boolean b) {
+        stone.setBroadcast(b);
+        return this;
+    }
+
 }

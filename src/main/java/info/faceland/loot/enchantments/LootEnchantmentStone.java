@@ -16,14 +16,34 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     private double distanceWeight;
     private int minStats;
     private int maxStats;
+    private boolean broadcast;
 
     public LootEnchantmentStone(String name) {
         this.name = name;
     }
 
     @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootEnchantmentStone that = (LootEnchantmentStone) o;
+
+        return !(name != null ? !name.equals(that.name) : that.name != null);
     }
 
     @Override
@@ -80,23 +100,14 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         return is;
     }
 
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        LootEnchantmentStone that = (LootEnchantmentStone) o;
-
-        return !(name != null ? !name.equals(that.name) : that.name != null);
+    public boolean isBroadcast() {
+        return broadcast;
     }
 
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+    void setBroadcast(boolean broadcast) {
+        this.broadcast = broadcast;
     }
 
 }
