@@ -1,5 +1,7 @@
 package info.faceland.loot.api.enchantments;
 
+import info.faceland.hilt.HiltItemStack;
+
 import java.util.List;
 
 public interface EnchantmentStone {
@@ -16,4 +18,5 @@ public interface EnchantmentStone {
 
     int getMaxStats();
 
+    HiltItemStack toItemStack(int amount);
 }

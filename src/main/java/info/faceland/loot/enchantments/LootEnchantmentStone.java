@@ -1,7 +1,11 @@
 package info.faceland.loot.enchantments;
 
+import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 
+import java.util.Arrays;
 import java.util.List;
 
 public final class LootEnchantmentStone implements EnchantmentStone {
@@ -65,6 +69,15 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     void setMaxStats(int maxStats) {
         this.maxStats = maxStats;
+    }
+
+    @Override
+    public HiltItemStack toItemStack(int amount) {
+        HiltItemStack is = new HiltItemStack(Material.DIAMOND);
+        is.setAmount(amount);
+        is.setName(ChatColor.BLUE + "Enchantment Stone - " + getName());
+        is.setLore(Arrays.asList(ChatColor.GRAY + "This stone is consumed to enchant", ChatColor.GRAY + "an item!"));
+        return is;
     }
 
     @Override
