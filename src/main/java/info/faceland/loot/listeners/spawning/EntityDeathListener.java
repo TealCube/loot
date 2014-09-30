@@ -47,11 +47,12 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
-        if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.normal-item", 0D)) {
+        if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             // drop a normal random item
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
-            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod.getTierMults());
+            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
+                                                                                  new HashMap<Tier, Double>());
             HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(
                     ItemGenerationReason.MONSTER).build();
             event.getDrops().add(his);
@@ -73,12 +74,13 @@ public final class EntityDeathListener implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 fancyMessage.send(player);
             }
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-gem", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
             // drop a socket gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
             SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
-                                                                           mod.getSocketGemMults());
+                                                                           mod != null ? mod.getSocketGemMults() :
+                                                                           new HashMap<SocketGem, Double>());
             HiltItemStack his = sg.toItemStack(1);
             event.getDrops().add(his);
 
@@ -99,12 +101,13 @@ public final class EntityDeathListener implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 fancyMessage.send(player);
             }
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.enchant-gem", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
             // drop an enchant gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
-            EnchantmentStone es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
-                                                                           mod.getEnchantmentStoneMults());
+            EnchantmentStone es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(
+                    true, distanceSquared,
+                    mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentStone, Double>());
             HiltItemStack his = es.toItemStack(1);
             event.getDrops().add(his);
 
@@ -125,16 +128,18 @@ public final class EntityDeathListener implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 fancyMessage.send(player);
             }
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.upgrade-scroll", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             // drop an upgrade scroll
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.identity-tome", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             // drop an identity tome
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.custom-item", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             // drop a custom item
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared,
-                                                                              mod.getCustomItemMults());
+                                                                              mod != null ? mod.getCustomItemMults()
+                                                                                          :
+                                                                              new HashMap<CustomItem, Double>());
             HiltItemStack his = ci.toItemStack(1);
             event.getDrops().add(his);
 
@@ -155,7 +160,7 @@ public final class EntityDeathListener implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 fancyMessage.send(player);
             }
-        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.socket-extender", 0D)) {
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             // drop a socket extender
         } else {
             // do nothing
