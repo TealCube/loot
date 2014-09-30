@@ -1,4 +1,4 @@
-version: "0.0.2"
+version: "0.0.3"
 broadcast:
   found-item: "&f%player%&a found a %item%(itm:{ITEM})&a!"
 commands:
@@ -7,5 +7,7 @@ commands:
     custom-failure: "<red>You were unable to spawn custom items."
     gem-success: "<green>You spawned <white>%amount%<green> socket gem(s)."
     gem-failure: "<red>You were unable to spawn socket gems."
+    stone-success: "<green>You spawned <white>%amount%<green> enchantment stone(s)."
+    stone-failure: "<red>You were unable to spawn enchantment stones."
     other-success: "<green>You spawned <white>%amount%<green> items."
     other-failure: "<red>You were unable to spawn items."
