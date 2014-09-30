@@ -24,5 +24,6 @@ public interface CreatureMod {
 
     double getTierMult(Tier t);
 
-    Map<EnchantmentStone, Double> getEnchantmentStoneDoubleMap();
+    Map<EnchantmentStone, Double> getEnchantmentStoneMults();
+
 }

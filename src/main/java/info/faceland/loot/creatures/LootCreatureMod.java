@@ -71,8 +71,8 @@ public final class LootCreatureMod implements CreatureMod {
     }
 
     @Override
-    public Map<EnchantmentStone, Double> getEnchantmentStoneDoubleMap() {
-        return enchantmentStoneDoubleMap;
+    public Map<EnchantmentStone, Double> getEnchantmentStoneMults() {
+        return new HashMap<>(enchantmentStoneDoubleMap);
     }
 
     void setEnchantmentStoneDoubleMap(Map<EnchantmentStone, Double> enchantmentStoneDoubleMap) {
