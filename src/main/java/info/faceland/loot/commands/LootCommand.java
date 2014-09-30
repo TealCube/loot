@@ -5,6 +5,7 @@ import info.faceland.facecore.shade.command.Command;
 import info.faceland.facecore.shade.command.FlagArg;
 import info.faceland.facecore.shade.command.Flags;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -21,12 +22,13 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t"}, description = {"custom", "socket gem", "tier"})
+    @Flags(identifier = {"c", "s", "t", "e"}, description = {"custom", "socket gem", "tier", "enchantment"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
                              @FlagArg("c") boolean custom,
                              @FlagArg("s") boolean socket,
-                             @FlagArg("t") boolean tier) {
+                             @FlagArg("t") boolean tier,
+                             @FlagArg("e") boolean enchantment) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -67,6 +69,27 @@ public final class LootCommand {
                     sender.getInventory().addItem(sg.toItemStack(1));
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            }
+        } else if (enchantment) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true).toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                EnchantmentStone es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+                if (es == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(es.toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             }
         } else if (tier) {
