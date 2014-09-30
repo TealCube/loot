@@ -12,6 +12,7 @@ import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -174,6 +175,7 @@ public final class SocketsListener implements Listener {
             currentItem.setLore(lore);
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.NOTE_BASS_GUITAR, 1L, 1L);
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Stone - ")) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Stone - ", ""));
@@ -207,6 +209,7 @@ public final class SocketsListener implements Listener {
             currentItem.setLore(lore);
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.NOTE_BASS_DRUM, 1L, 1L);
         } else {
             return;
         }
