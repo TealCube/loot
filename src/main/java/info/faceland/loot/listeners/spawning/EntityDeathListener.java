@@ -5,6 +5,7 @@ import info.faceland.facecore.shade.mcml.mcml.shade.fanciful.FancyMessage;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -100,6 +101,30 @@ public final class EntityDeathListener implements Listener {
             }
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.enchant-gem", 0D)) {
             // drop an enchant gem
+            double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                          .getSpawnLocation());
+            EnchantmentStone es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
+                                                                           mod.getEnchantmentStoneMults());
+            HiltItemStack his = es.toItemStack(1);
+            event.getDrops().add(his);
+
+            if (!es.isBroadcast()) {
+                return;
+            }
+
+            Map<String, Object> replacements = new HashMap<>();
+            replacements.put("{ITEM}", his);
+
+            MCMLBuilder builder = new MCMLBuilder(
+                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
+                                   new String[][]{
+                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
+                                           {"%item%", his.getName()}
+                                   }), replacements);
+            FancyMessage fancyMessage = builder.buildFancyMessage();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                fancyMessage.send(player);
+            }
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.upgrade-scroll", 0D)) {
             // drop an upgrade scroll
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drop.identity-tome", 0D)) {
