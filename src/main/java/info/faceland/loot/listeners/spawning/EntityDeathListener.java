@@ -1,7 +1,7 @@
 package info.faceland.loot.listeners.spawning;
 
-import info.faceland.facecore.shade.mcml.mcml.MCMLBuilder;
-import info.faceland.facecore.shade.mcml.mcml.shade.fanciful.FancyMessage;
+import info.faceland.facecore.shade.mcml.MCMLBuilder;
+import info.faceland.facecore.shade.mcml.shade.fanciful.FancyMessage;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
