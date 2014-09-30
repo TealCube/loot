@@ -93,10 +93,10 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     @Override
     public HiltItemStack toItemStack(int amount) {
-        HiltItemStack is = new HiltItemStack(Material.DIAMOND);
+        HiltItemStack is = new HiltItemStack(Material.ENCHANTED_BOOK);
         is.setAmount(amount);
-        is.setName(ChatColor.BLUE + "Enchantment Stone - " + getName());
-        is.setLore(Arrays.asList(ChatColor.GRAY + "This stone is consumed to enchant", ChatColor.GRAY + "an item!"));
+        is.setName(ChatColor.BLUE + "Enchantment Tome - " + getName());
+        is.setLore(Arrays.asList(ChatColor.GRAY + "This tome is consumed to enchant", ChatColor.GRAY + "an item!"));
         return is;
     }
 

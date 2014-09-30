@@ -176,9 +176,9 @@ public final class SocketsListener implements Listener {
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.NOTE_BASS_GUITAR, 1L, 1L);
-        } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Stone - ")) {
+        } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
-                    cursor.getName().replace(ChatColor.BLUE + "Enchantment Stone - ", ""));
+                    cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
             EnchantmentStone stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
