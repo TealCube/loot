@@ -323,6 +323,20 @@ public final class LootPlugin extends FacePlugin {
                 }
                 builder.withTierMults(map);
             }
+            if (cs.isConfigurationSection("enchantment-stone")) {
+                Map<EnchantmentStone, Double> map = new HashMap<>();
+                for (String k : cs.getConfigurationSection("enchantment-stones").getKeys(false)) {
+                    if (!cs.isConfigurationSection("enchantment-stones." + k)) {
+                        continue;
+                    }
+                    EnchantmentStone es = enchantmentStoneManager.getEnchantmentStone(k);
+                    if (es == null) {
+                        continue;
+                    }
+                    map.put(es, cs.getDouble("enchantment-stones." + k));
+                }
+                builder.withEnchantmentStoneMults(map);
+            }
             CreatureMod mod = builder.build();
             mods.add(mod);
             loadedMods.add(mod.getEntityType().name());
