@@ -56,9 +56,9 @@ public final class LootItemBuilder implements ItemBuilder {
         hiltItemStack = new HiltItemStack(material);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
                 .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
-        List<String> lore = new ArrayList<>(plugin.getSettings().getStringList("corestats." + material.name(),
-                                                                               new ArrayList<String>()));
-        lore.addAll(tier.getBaseLore());
+        List<String> lore = new ArrayList<>(tier.getBaseLore());
+        lore.addAll(plugin.getSettings().getStringList("corestats." + material.name(),
+                                                       new ArrayList<String>()));
         for (int i = 0; i < random.nextIntRange(tier.getMinimumBonusLore(), tier.getMaximumBonusLore()); i++) {
             lore.add(tier.getBonusLore().get(random.nextInt(tier.getBonusLore().size())));
         }
