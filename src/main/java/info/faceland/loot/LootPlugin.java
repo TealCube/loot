@@ -258,6 +258,7 @@ public final class LootPlugin extends FacePlugin {
             builder.withLore(cs.getStringList("lore"));
             builder.withMinStats(cs.getInt("min-stats"));
             builder.withMaxStats(cs.getInt("max-stats"));
+            builder.withBroadcast(cs.getBoolean("broadcast"));
             EnchantmentStone stone = builder.build();
             stones.add(stone);
             loadedStones.add(stone.getName());
