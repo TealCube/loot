@@ -1,6 +1,7 @@
 package info.faceland.loot.creatures;
 
 import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
@@ -15,12 +16,14 @@ public final class LootCreatureMod implements CreatureMod {
     private Map<CustomItem, Double> customItemDoubleMap;
     private Map<SocketGem, Double> socketGemDoubleMap;
     private Map<Tier, Double> tierDoubleMap;
+    private Map<EnchantmentStone, Double> enchantmentStoneDoubleMap;
 
     public LootCreatureMod(EntityType entityType) {
         this.entityType = entityType;
         this.customItemDoubleMap = new HashMap<>();
         this.socketGemDoubleMap = new HashMap<>();
         this.tierDoubleMap = new HashMap<>();
+        this.enchantmentStoneDoubleMap = new HashMap<>();
     }
 
     @Override
@@ -67,6 +70,15 @@ public final class LootCreatureMod implements CreatureMod {
         return 0;
     }
 
+    @Override
+    public Map<EnchantmentStone, Double> getEnchantmentStoneDoubleMap() {
+        return enchantmentStoneDoubleMap;
+    }
+
+    void setEnchantmentStoneDoubleMap(Map<EnchantmentStone, Double> enchantmentStoneDoubleMap) {
+        this.enchantmentStoneDoubleMap = enchantmentStoneDoubleMap;
+    }
+
     void setCustomItemDoubleMap(Map<CustomItem, Double> customItemDoubleMap) {
         this.customItemDoubleMap = customItemDoubleMap;
     }
@@ -77,6 +89,11 @@ public final class LootCreatureMod implements CreatureMod {
 
     void setTierDoubleMap(Map<Tier, Double> tierDoubleMap) {
         this.tierDoubleMap = tierDoubleMap;
+    }
+
+    @Override
+    public int hashCode() {
+        return entityType != null ? entityType.hashCode() : 0;
     }
 
     @Override
@@ -91,11 +108,6 @@ public final class LootCreatureMod implements CreatureMod {
         LootCreatureMod that = (LootCreatureMod) o;
 
         return entityType == that.entityType;
-    }
-
-    @Override
-    public int hashCode() {
-        return entityType != null ? entityType.hashCode() : 0;
     }
 
 }
