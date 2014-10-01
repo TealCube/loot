@@ -4,6 +4,7 @@ import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -99,7 +100,7 @@ public final class LootSocketGem implements SocketGem {
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
                            "to use it.");
         lore.addAll(getLore());
-        itemStack.setLore(lore);
+        itemStack.setLore(TextUtils.color(lore));
         return itemStack;
     }
 
