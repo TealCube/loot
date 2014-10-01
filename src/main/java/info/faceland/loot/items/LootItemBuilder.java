@@ -93,5 +93,4 @@ public final class LootItemBuilder implements ItemBuilder {
         return this;
     }
 
-
 }
