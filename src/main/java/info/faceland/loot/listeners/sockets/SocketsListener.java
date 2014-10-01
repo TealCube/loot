@@ -224,7 +224,8 @@ public final class SocketsListener implements Listener {
         }
 
         event.setCurrentItem(currentItem);
-        event.setCursor(null);
+        cursor.setAmount(cursor.getAmount() - 1);
+        event.setCursor(cursor.getAmount() == 0 ? null : cursor);
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
     }
