@@ -51,6 +51,9 @@ public final class LootItemBuilder implements ItemBuilder {
             }
             Set<Material> set = tier.getAllowedMaterials();
             Material[] array = set.toArray(new Material[set.size()]);
+            if (array.length == 0) {
+                throw new RuntimeException("array length is 0 for tier: " + tier.getName());
+            }
             material = array[random.nextInt(array.length)];
         }
         hiltItemStack = new HiltItemStack(material);
