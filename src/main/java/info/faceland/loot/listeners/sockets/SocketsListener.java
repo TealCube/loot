@@ -189,7 +189,7 @@ public final class SocketsListener implements Listener {
             currentItem.setLore(lore);
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.NOTE_BASS_GUITAR, 1L, random.nextFloat());
+            player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
@@ -223,7 +223,7 @@ public final class SocketsListener implements Listener {
             currentItem.setLore(lore);
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.NOTE_BASS_DRUM, 1L, random.nextFloat());
+            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else {
             return;
         }
