@@ -170,10 +170,18 @@ public final class SocketsListener implements Listener {
                 return;
             }
 
+            if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).contains(gem.getItemGroup
+                    ())) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                return;
+            }
+
             List<String> lore = currentItem.getLore();
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
             int index = strippedLore.indexOf("(Socket)");
@@ -197,6 +205,7 @@ public final class SocketsListener implements Listener {
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
 
@@ -208,6 +217,7 @@ public final class SocketsListener implements Listener {
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
             int index = strippedLore.indexOf("(Enchantable)");
