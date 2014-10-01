@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public final class LootSocketGem implements SocketGem {
@@ -91,12 +91,13 @@ public final class LootSocketGem implements SocketGem {
         HiltItemStack itemStack = new HiltItemStack(Material.EMERALD);
         itemStack.setName(ChatColor.GOLD + "Socket Gem - " + getName());
         itemStack.setAmount(amount);
-        List<String> lore = Arrays.asList(ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
-                                          + (itemGroups.isEmpty() ? itemGroupsToString() :
-                                             "ANY") + ChatColor.DARK_GRAY + ")",
-                                          ChatColor.GRAY + "Drop this gem on an item with an",
-                                          ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
-                                          "to use it.");
+        List<String> lore = new ArrayList<>();
+        Collections.addAll(lore, ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
+                                 + (itemGroups.isEmpty() ? itemGroupsToString() :
+                                    "ANY") + ChatColor.DARK_GRAY + ")",
+                           ChatColor.GRAY + "Drop this gem on an item with an",
+                           ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
+                           "to use it.");
         lore.addAll(getLore());
         itemStack.setLore(lore);
         return itemStack;
