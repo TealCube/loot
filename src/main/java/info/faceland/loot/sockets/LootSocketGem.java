@@ -91,11 +91,14 @@ public final class LootSocketGem implements SocketGem {
         HiltItemStack itemStack = new HiltItemStack(Material.EMERALD);
         itemStack.setName(ChatColor.GOLD + "Socket Gem - " + getName());
         itemStack.setAmount(amount);
-        itemStack.setLore(Arrays.asList(ChatColor.GRAY + "Drop this gem on an item with an",
-                                        ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
-                                        "to use it.", ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
-                                                      + (itemGroups.isEmpty() ? itemGroupsToString() :
-                                                         "ANY") + ChatColor.DARK_GRAY + ")"));
+        List<String> lore = Arrays.asList(ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
+                                          + (itemGroups.isEmpty() ? itemGroupsToString() :
+                                             "ANY") + ChatColor.DARK_GRAY + ")",
+                                          ChatColor.GRAY + "Drop this gem on an item with an",
+                                          ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
+                                          "to use it.");
+        lore.addAll(getLore());
+        itemStack.setLore(lore);
         return itemStack;
     }
 
