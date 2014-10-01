@@ -2,12 +2,14 @@ package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.sockets.SocketGem;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface SocketGemManager {
 
-    Set<SocketGem> getSocketGems();
+    List<SocketGem> getSocketGems();
+
+    List<SocketGem> getSortedGems();
 
     SocketGem getSocketGem(String name);
 

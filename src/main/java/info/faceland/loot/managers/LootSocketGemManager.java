@@ -4,10 +4,11 @@ import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public final class LootSocketGemManager implements SocketGemManager {
 
@@ -20,8 +21,15 @@ public final class LootSocketGemManager implements SocketGemManager {
     }
 
     @Override
-    public Set<SocketGem> getSocketGems() {
-        return new HashSet<>(gemMap.values());
+    public List<SocketGem> getSocketGems() {
+        return new ArrayList<>(gemMap.values());
+    }
+
+    @Override
+    public List<SocketGem> getSortedGems() {
+        List<SocketGem> gems = getSocketGems();
+        Collections.sort(gems);
+        return gems;
     }
 
     @Override
@@ -70,13 +78,14 @@ public final class LootSocketGemManager implements SocketGemManager {
     @Override
     public SocketGem getRandomSocketGem(boolean withChance, double distance, Map<SocketGem, Double> map) {
         if (!withChance) {
-            Set<SocketGem> gems = getSocketGems();
+            List<SocketGem> gems = getSocketGems();
             SocketGem[] array = gems.toArray(new SocketGem[gems.size()]);
             return array[random.nextInt(array.length)];
         }
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
-        Set<SocketGem> gems = getSocketGems();
+        List<SocketGem> gems = getSocketGems();
+        Collections.shuffle(gems);
         for (SocketGem sg : gems) {
             double calcWeight = sg.getWeight() + ((distance / 10000D) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
