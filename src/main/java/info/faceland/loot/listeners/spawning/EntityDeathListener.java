@@ -127,9 +127,10 @@ public final class EntityDeathListener implements Listener {
             String str = TextUtils.color(s);
             if (str.contains("%player%")) {
                 message.then(str.replace("%player%", event.getEntity().getKiller().getDisplayName()));
-            }
-            if (str.contains("%item%")) {
+            } else if (str.contains("%item%")) {
                 message.then(str.replace("%item%", his.getName())).itemTooltip(his);
+            } else {
+                message.then(str);
             }
             if (i != split.length - 1) {
                 message.then(" ");
