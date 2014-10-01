@@ -178,8 +178,13 @@ public final class SocketsListener implements Listener {
             }
             int index = strippedLore.indexOf("(Socket)");
 
-            lore.set(index, ChatColor.GOLD + gem.getName());
-            lore.addAll(index + 1, TextUtils.color(gem.getLore()));
+            if (gem.isTriggerable()) {
+                lore.set(index, ChatColor.GOLD + gem.getName());
+                lore.addAll(index + 1, TextUtils.color(gem.getLore()));
+            } else {
+                lore.remove(index);
+                lore.addAll(index, TextUtils.color(gem.getLore()));
+            }
 
             currentItem.setLore(lore);
 
