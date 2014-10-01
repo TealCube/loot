@@ -1,7 +1,7 @@
 package info.faceland.loot.listeners.spawning;
 
-import info.faceland.facecore.shade.mcml.MCMLBuilder;
-import info.faceland.facecore.shade.mcml.shade.fanciful.FancyMessage;
+import info.faceland.facecore.shade.voorhees.PrettyMessageFactory;
+import info.faceland.facecore.shade.voorhees.api.IPrettyMessage;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
@@ -22,7 +22,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public final class EntityDeathListener implements Listener {
 
@@ -61,19 +60,7 @@ public final class EntityDeathListener implements Listener {
                 return;
             }
 
-            Map<String, Object> replacements = new HashMap<>();
-            replacements.put("{ITEM}", his);
-
-            MCMLBuilder builder = new MCMLBuilder(
-                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
-                                   new String[][]{
-                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
-                                           {"%item%", his.getName()}
-                                   }), replacements);
-            FancyMessage fancyMessage = builder.buildFancyMessage();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                fancyMessage.send(player);
-            }
+            broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
             // drop a socket gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
@@ -88,19 +75,7 @@ public final class EntityDeathListener implements Listener {
                 return;
             }
 
-            Map<String, Object> replacements = new HashMap<>();
-            replacements.put("{ITEM}", his);
-
-            MCMLBuilder builder = new MCMLBuilder(
-                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
-                                   new String[][]{
-                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
-                                           {"%item%", his.getName()}
-                                   }), replacements);
-            FancyMessage fancyMessage = builder.buildFancyMessage();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                fancyMessage.send(player);
-            }
+            broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
             // drop an enchant gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
@@ -115,19 +90,7 @@ public final class EntityDeathListener implements Listener {
                 return;
             }
 
-            Map<String, Object> replacements = new HashMap<>();
-            replacements.put("{ITEM}", his);
-
-            MCMLBuilder builder = new MCMLBuilder(
-                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
-                                   new String[][]{
-                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
-                                           {"%item%", his.getName()}
-                                   }), replacements);
-            FancyMessage fancyMessage = builder.buildFancyMessage();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                fancyMessage.send(player);
-            }
+            broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             // drop an upgrade scroll
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
@@ -147,23 +110,33 @@ public final class EntityDeathListener implements Listener {
                 return;
             }
 
-            Map<String, Object> replacements = new HashMap<>();
-            replacements.put("{ITEM}", his);
-
-            MCMLBuilder builder = new MCMLBuilder(
-                    TextUtils.args(plugin.getSettings().getString("language.broadcast-found-item", ""),
-                                   new String[][]{
-                                           {"%player%", event.getEntity().getKiller().getDisplayName()},
-                                           {"%item%", his.getName()}
-                                   }), replacements);
-            FancyMessage fancyMessage = builder.buildFancyMessage();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                fancyMessage.send(player);
-            }
+            broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             // drop a socket extender
         } else {
             // do nothing
+        }
+    }
+
+    private void broadcast(EntityDeathEvent event, HiltItemStack his) {
+        IPrettyMessage message = PrettyMessageFactory.buildPrettyMessage();
+        String mess = plugin.getSettings().getString("language.broadcast-found-item", "");
+        String[] split = mess.split(" ");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            String str = TextUtils.color(s);
+            if (str.contains("%player%")) {
+                message.then(str.replace("%player%", event.getEntity().getKiller().getDisplayName()));
+            }
+            if (str.contains("%item%")) {
+                message.then(str.replace("%item%", his.getName())).itemTooltip(his);
+            }
+            if (i != split.length - 1) {
+                message.then(" ");
+            }
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            message.send(p);
         }
     }
 
