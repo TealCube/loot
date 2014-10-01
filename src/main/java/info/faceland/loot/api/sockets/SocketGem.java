@@ -27,4 +27,7 @@ public interface SocketGem extends Comparable<SocketGem> {
     double getDistanceWeight();
 
     boolean isBroadcast();
+
+    boolean isTriggerable();
+
 }

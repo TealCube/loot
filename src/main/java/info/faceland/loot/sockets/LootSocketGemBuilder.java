@@ -78,4 +78,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withTriggerable(boolean b) {
+        gem.setTriggerable(b);
+        return this;
+    }
+
 }

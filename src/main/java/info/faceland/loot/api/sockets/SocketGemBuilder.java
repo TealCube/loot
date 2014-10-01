@@ -26,4 +26,6 @@ public interface SocketGemBuilder {
     SocketGemBuilder withDistanceWeight(double d);
 
     SocketGemBuilder withBroadcast(boolean b);
+
+    SocketGemBuilder withTriggerable(boolean b);
 }

@@ -22,6 +22,7 @@ public final class LootSocketGem implements SocketGem {
     private List<SocketEffect> socketEffects;
     private ItemGroup itemGroup;
     private boolean broadcast;
+    private boolean triggerable;
 
     public LootSocketGem(String name) {
         this.name = name;
@@ -136,6 +137,11 @@ public final class LootSocketGem implements SocketGem {
         return broadcast;
     }
 
+    @Override
+    public boolean isTriggerable() {
+        return triggerable;
+    }
+
     void setBroadcast(boolean broadcast) {
         this.broadcast = broadcast;
     }
@@ -147,6 +153,10 @@ public final class LootSocketGem implements SocketGem {
         }
         int compareTo = getName().compareTo(o.getName());
         return Math.min(1, Math.max(compareTo, -1));
+    }
+
+    void setTriggerable(boolean triggerable) {
+        this.triggerable = triggerable;
     }
 
 }
