@@ -26,10 +26,22 @@ public final class LootSocketGemManager implements SocketGemManager {
     }
 
     @Override
+    public List<String> getGemNames() {
+        return new ArrayList<>(gemMap.keySet());
+    }
+
+    @Override
     public List<SocketGem> getSortedGems() {
         List<SocketGem> gems = getSocketGems();
         Collections.sort(gems);
         return gems;
+    }
+
+    @Override
+    public List<String> getSortedGemNames() {
+        List<String> l = getGemNames();
+        Collections.sort(l);
+        return l;
     }
 
     @Override

@@ -9,7 +9,11 @@ public interface SocketGemManager {
 
     List<SocketGem> getSocketGems();
 
+    List<String> getGemNames();
+
     List<SocketGem> getSortedGems();
+
+    List<String> getSortedGemNames();
 
     SocketGem getSocketGem(String name);
 
