@@ -5,6 +5,7 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.utils.TextUtils;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -93,9 +94,8 @@ public final class LootSocketGem implements SocketGem {
         itemStack.setName(ChatColor.GOLD + "Socket Gem - " + getName());
         itemStack.setAmount(amount);
         List<String> lore = new ArrayList<>();
-        Collections.addAll(lore, ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
-                                 + (!itemGroups.isEmpty() ? itemGroupsToString() :
-                                    "ANY") + ChatColor.DARK_GRAY + ")",
+        Collections.addAll(lore, ChatColor.GRAY + "Type: " + ChatColor.BLUE
+                                 + (!itemGroups.isEmpty() ? itemGroupsToString() : "Any"),
                            ChatColor.GRAY + "Drop this gem on an item with an",
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
                            "to use it.");
@@ -109,7 +109,7 @@ public final class LootSocketGem implements SocketGem {
         for (ItemGroup ig :  getItemGroups()) {
             sb.append(ig.getName()).append(" ");
         }
-        return sb.toString().trim();
+        return WordUtils.capitalizeFully(sb.toString().trim());
     }
 
     void setSocketEffects(List<SocketEffect> socketEffects) {
