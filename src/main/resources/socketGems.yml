@@ -1,6 +1,6 @@
 # effect format is potioneffect:target:duration:intensity:radius
 # duration is in milliseconds
-version: "0.0.3"
+version: "0.0.4"
 Steroids I:
   broadcast: false
   triggerable: true
@@ -12,3 +12,5 @@ Steroids I:
   distance-weight: 0
   effects:
   - INCREASE_DAMAGE:SELF:10000:1:0
+  item-groups:
+  - ARMOR

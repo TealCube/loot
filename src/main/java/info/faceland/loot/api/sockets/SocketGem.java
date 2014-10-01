@@ -20,7 +20,7 @@ public interface SocketGem extends Comparable<SocketGem> {
 
     List<SocketEffect> getSocketEffects();
 
-    ItemGroup getItemGroup();
+    List<ItemGroup> getItemGroups();
 
     HiltItemStack toItemStack(int amount);
 

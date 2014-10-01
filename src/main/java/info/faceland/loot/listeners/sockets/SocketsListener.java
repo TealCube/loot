@@ -170,8 +170,8 @@ public final class SocketsListener implements Listener {
                 return;
             }
 
-            if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).contains(gem.getItemGroup
-                    ())) {
+            if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
+                    gem.getItemGroups())) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;

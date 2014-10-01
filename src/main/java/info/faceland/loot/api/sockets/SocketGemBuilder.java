@@ -21,7 +21,7 @@ public interface SocketGemBuilder {
 
     SocketGemBuilder withSocketEffects(List<SocketEffect> effects);
 
-    SocketGemBuilder withItemGroup(ItemGroup itemGroup);
+    SocketGemBuilder withItemGroups(List<ItemGroup> itemGroups);
 
     SocketGemBuilder withDistanceWeight(double d);
 

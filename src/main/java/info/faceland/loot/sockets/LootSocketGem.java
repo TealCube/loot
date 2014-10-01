@@ -20,7 +20,7 @@ public final class LootSocketGem implements SocketGem {
     private String suffix;
     private List<String> lore;
     private List<SocketEffect> socketEffects;
-    private ItemGroup itemGroup;
+    private List<ItemGroup> itemGroups;
     private boolean broadcast;
     private boolean triggerable;
 
@@ -28,6 +28,7 @@ public final class LootSocketGem implements SocketGem {
         this.name = name;
         this.lore = new ArrayList<>();
         this.socketEffects = new ArrayList<>();
+        this.itemGroups = new ArrayList<>();
     }
 
     @Override
@@ -81,9 +82,8 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
-    public ItemGroup getItemGroup() {
-        return itemGroup;
-
+    public List<ItemGroup> getItemGroups() {
+        return itemGroups;
     }
 
     @Override
@@ -94,9 +94,17 @@ public final class LootSocketGem implements SocketGem {
         itemStack.setLore(Arrays.asList(ChatColor.GRAY + "Drop this gem on an item with an",
                                         ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY +
                                         "to use it.", ChatColor.DARK_GRAY + "(" + ChatColor.GRAY
-                                                      + (itemGroup != null ? itemGroup.getName().toUpperCase() :
+                                                      + (itemGroups.isEmpty() ? itemGroupsToString() :
                                                          "ANY") + ChatColor.DARK_GRAY + ")"));
         return itemStack;
+    }
+
+    private String itemGroupsToString() {
+        StringBuilder sb = new StringBuilder();
+        for (ItemGroup ig :  getItemGroups()) {
+            sb.append(ig.getName()).append(" ");
+        }
+        return sb.toString().trim();
     }
 
     void setSocketEffects(List<SocketEffect> socketEffects) {
@@ -119,8 +127,8 @@ public final class LootSocketGem implements SocketGem {
         this.weight = weight;
     }
 
-    void setItemGroup(ItemGroup itemGroup) {
-        this.itemGroup = itemGroup;
+    void setItemGroups(List<ItemGroup> itemGroups) {
+        this.itemGroups = itemGroups;
     }
 
     @Override

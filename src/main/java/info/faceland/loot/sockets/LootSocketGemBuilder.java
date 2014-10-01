@@ -61,8 +61,8 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     }
 
     @Override
-    public SocketGemBuilder withItemGroup(ItemGroup itemGroup) {
-        gem.setItemGroup(itemGroup);
+    public SocketGemBuilder withItemGroups(List<ItemGroup> itemGroups) {
+        gem.setItemGroups(itemGroups);
         return this;
     }
 

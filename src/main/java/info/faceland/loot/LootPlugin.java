@@ -369,7 +369,15 @@ public final class LootPlugin extends FacePlugin {
                 effects.add(LootSocketPotionEffect.parseString(eff));
             }
             builder.withSocketEffects(effects);
-            builder.withItemGroup(itemGroupManager.getItemGroup(cs.getString("item-group")));
+            List<ItemGroup> groups = new ArrayList<>();
+            for (String groop : cs.getStringList("item-groups")) {
+                ItemGroup g = itemGroupManager.getItemGroup(groop);
+                if (g == null) {
+                    continue;
+                }
+                groups.add(g);
+            }
+            builder.withItemGroups(groups);
             builder.withBroadcast(cs.getBoolean("broadcast"));
             SocketGem gem = builder.build();
             gems.add(gem);
