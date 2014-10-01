@@ -173,7 +173,7 @@ public final class SocketsListener implements Listener {
             List<String> lore = currentItem.getLore();
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-sockets", ""));
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
                 return;
             }
             int index = strippedLore.indexOf("(Socket)");
