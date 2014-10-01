@@ -505,7 +505,7 @@ public final class LootPlugin extends FacePlugin {
                         continue;
                     }
                 }
-                itemGroups.add(ig.getInverse());
+                itemGroups.add(ig);
             }
             builder.withItemGroups(itemGroups);
             builder.withMinimumDurability(cs.getDouble("minimum-durability"));
