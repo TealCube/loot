@@ -120,7 +120,7 @@ public final class EntityDeathListener implements Listener {
 
     private void broadcast(EntityDeathEvent event, HiltItemStack his) {
         IPrettyMessage message = PrettyMessageFactory.buildPrettyMessage();
-        String mess = plugin.getSettings().getString("language.broadcast-found-item", "");
+        String mess = plugin.getSettings().getString("language.broadcast.found-item", "");
         String[] split = mess.split(" ");
         for (int i = 0; i < split.length; i++) {
             String s = split[i];
