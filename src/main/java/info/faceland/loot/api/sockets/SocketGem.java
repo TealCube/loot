@@ -6,7 +6,7 @@ import info.faceland.loot.api.sockets.effects.SocketEffect;
 
 import java.util.List;
 
-public interface SocketGem {
+public interface SocketGem extends Comparable<SocketGem> {
 
     String getName();
 

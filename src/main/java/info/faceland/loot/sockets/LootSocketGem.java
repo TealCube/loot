@@ -140,4 +140,13 @@ public final class LootSocketGem implements SocketGem {
         this.broadcast = broadcast;
     }
 
+    @Override
+    public int compareTo(SocketGem o) {
+        if (o == null) {
+            return 1;
+        }
+        int compareTo = getName().compareTo(o.getName());
+        return Math.min(1, Math.max(compareTo, -1));
+    }
+
 }
