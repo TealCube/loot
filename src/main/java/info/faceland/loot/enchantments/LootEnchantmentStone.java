@@ -109,6 +109,9 @@ public final class LootEnchantmentStone implements EnchantmentStone {
                 ChatColor.BLUE + "(Enchantable) " + ChatColor.GRAY + "while close to an",
                 ChatColor.GRAY + "enchanting table to upgrade it!",
                 ChatColor.WHITE + "Bonuses Applied:"));
+        if (description != null && !description.isEmpty()) {
+            lore.add(description);
+        }
         is.setLore(lore);
         return is;
     }
