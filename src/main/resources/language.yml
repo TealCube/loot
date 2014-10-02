@@ -1,4 +1,4 @@
-version: "0.0.5"
+version: "0.0.6"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -7,6 +7,7 @@ enchant:
   success: "<green>You successfully enchanted your item."
   no-enchantment-table: "<red>You must be near an enchantment table to enchant items."
   needs-enchantable: "<red>Items must have <blue>(Enchantable)<red> in their description for you to be able to enchant them."
+  failure: "<red>You were unable to enchant that item."
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
