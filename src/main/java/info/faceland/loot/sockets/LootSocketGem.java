@@ -65,12 +65,12 @@ public final class LootSocketGem implements SocketGem {
 
     @Override
     public String getPrefix() {
-        return prefix;
+        return prefix != null ? prefix : "";
     }
 
     @Override
     public String getSuffix() {
-        return suffix;
+        return suffix != null ? suffix : "";
     }
 
     @Override
