@@ -2,9 +2,11 @@ package info.faceland.loot.enchantments;
 
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,9 +19,12 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     private int minStats;
     private int maxStats;
     private boolean broadcast;
+    private List<ItemGroup> itemGroups;
 
     public LootEnchantmentStone(String name) {
         this.name = name;
+        this.lore = new ArrayList<>();
+        this.itemGroups = new ArrayList<>();
     }
 
     @Override
@@ -48,7 +53,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     @Override
     public List<String> getLore() {
-        return lore;
+        return new ArrayList<>(lore);
     }
 
     void setLore(List<String> lore) {
@@ -108,6 +113,15 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     void setBroadcast(boolean broadcast) {
         this.broadcast = broadcast;
+    }
+
+    @Override
+    public List<ItemGroup> getItemGroups() {
+        return new ArrayList<>(itemGroups);
+    }
+
+    void setItemGroups(List<ItemGroup> itemGroups) {
+        this.itemGroups = itemGroups;
     }
 
 }

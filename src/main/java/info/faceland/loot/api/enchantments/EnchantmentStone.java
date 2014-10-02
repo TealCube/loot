@@ -1,6 +1,7 @@
 package info.faceland.loot.api.enchantments;
 
 import info.faceland.hilt.HiltItemStack;
+import info.faceland.loot.api.groups.ItemGroup;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface EnchantmentStone {
     HiltItemStack toItemStack(int amount);
 
     boolean isBroadcast();
+
+    List<ItemGroup> getItemGroups();
 }

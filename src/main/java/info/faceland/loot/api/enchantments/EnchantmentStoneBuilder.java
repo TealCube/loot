@@ -1,5 +1,7 @@
 package info.faceland.loot.api.enchantments;
 
+import info.faceland.loot.api.groups.ItemGroup;
+
 import java.util.List;
 
 public interface EnchantmentStoneBuilder {
@@ -19,4 +21,6 @@ public interface EnchantmentStoneBuilder {
     EnchantmentStoneBuilder withMaxStats(int i);
 
     EnchantmentStoneBuilder withBroadcast(boolean b);
+
+    EnchantmentStoneBuilder withItemGroups(List<ItemGroup> l);
 }
