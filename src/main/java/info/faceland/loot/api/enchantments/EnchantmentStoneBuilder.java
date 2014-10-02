@@ -23,4 +23,6 @@ public interface EnchantmentStoneBuilder {
     EnchantmentStoneBuilder withBroadcast(boolean b);
 
     EnchantmentStoneBuilder withItemGroups(List<ItemGroup> l);
+
+    EnchantmentStoneBuilder withDescription(String s);
 }

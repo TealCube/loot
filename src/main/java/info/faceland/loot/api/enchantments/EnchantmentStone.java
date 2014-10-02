@@ -24,4 +24,6 @@ public interface EnchantmentStone {
     boolean isBroadcast();
 
     List<ItemGroup> getItemGroups();
+
+    String getDescription();
 }

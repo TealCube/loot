@@ -255,6 +255,7 @@ public final class LootPlugin extends FacePlugin {
             }
             ConfigurationSection cs = enchantmentStonesYAML.getConfigurationSection(key);
             EnchantmentStoneBuilder builder = getNewEnchantmentStoneBuilder(key);
+            builder.withDescription(cs.getString("description"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
             builder.withLore(cs.getStringList("lore"));

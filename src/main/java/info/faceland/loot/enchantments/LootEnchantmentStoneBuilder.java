@@ -71,4 +71,10 @@ public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilde
         return this;
     }
 
+    @Override
+    public EnchantmentStoneBuilder withDescription(String s) {
+        stone.setDescription(s);
+        return this;
+    }
+
 }

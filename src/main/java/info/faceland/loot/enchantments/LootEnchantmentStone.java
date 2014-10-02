@@ -21,6 +21,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     private int maxStats;
     private boolean broadcast;
     private List<ItemGroup> itemGroups;
+    private String description;
 
     public LootEnchantmentStone(String name) {
         this.name = name;
@@ -137,6 +138,15 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     void setItemGroups(List<ItemGroup> itemGroups) {
         this.itemGroups = itemGroups;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    void setDescription(String description) {
+        this.description = description;
     }
 
 }
