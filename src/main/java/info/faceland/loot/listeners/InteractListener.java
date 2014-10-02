@@ -104,6 +104,13 @@ public final class InteractListener implements Listener {
                 return;
             }
 
+            if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
+                    stone.getItemGroups())) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                return;
+            }
+
             List<String> lore = currentItem.getLore();
             List<String> strippedLore = StringListUtils.stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
