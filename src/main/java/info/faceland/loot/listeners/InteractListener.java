@@ -87,6 +87,15 @@ public final class InteractListener implements Listener {
 
             currentItem.setLore(lore);
 
+            String name = currentItem.getName();
+            ChatColor start = getFirstColor(name);
+            if (start != null) {
+                name = start + gem.getPrefix() + " " + name + " " + gem.getSuffix() + ChatColor.getLastColors(name);
+            } else {
+                name = gem.getPrefix() + " " + name + " " + gem.getSuffix() + ChatColor.getLastColors(name);
+            }
+            currentItem.setName(name);
+
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
@@ -161,6 +170,19 @@ public final class InteractListener implements Listener {
             }
         }
         return false;
+    }
+
+    private ChatColor getFirstColor(String s) {
+        for (int i = 0; i < s.length() - 1; i++) {
+            if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
+                continue;
+            }
+            ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
+            if (c != null) {
+                return c;
+            }
+        }
+        return null;
     }
 
 }
