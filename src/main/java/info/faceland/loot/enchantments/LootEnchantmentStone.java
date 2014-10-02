@@ -3,6 +3,7 @@ package info.faceland.loot.enchantments;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.utils.TextUtils;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -112,7 +113,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         if (description != null && !description.isEmpty()) {
             lore.add(description);
         }
-        is.setLore(lore);
+        is.setLore(TextUtils.color(lore));
         return is;
     }
 
