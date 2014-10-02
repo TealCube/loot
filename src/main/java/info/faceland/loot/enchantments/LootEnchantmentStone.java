@@ -3,6 +3,7 @@ package info.faceland.loot.enchantments;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.groups.ItemGroup;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -101,8 +102,19 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         HiltItemStack is = new HiltItemStack(Material.ENCHANTED_BOOK);
         is.setAmount(amount);
         is.setName(ChatColor.BLUE + "Enchantment Tome - " + getName());
-        is.setLore(Arrays.asList(ChatColor.GRAY + "This tome is consumed to enchant", ChatColor.GRAY + "an item!"));
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.WHITE + "Type: " + (itemGroups.isEmpty() ? "Any" : itemGroupsToString()));
+        lore.addAll(Arrays.asList(ChatColor.GRAY + "This tome is consumed to enchant", ChatColor.GRAY + "an item!"));
+        is.setLore(lore);
         return is;
+    }
+
+    private String itemGroupsToString() {
+        StringBuilder sb = new StringBuilder();
+        for (ItemGroup ig :  getItemGroups()) {
+            sb.append(ig.getName()).append(" ");
+        }
+        return WordUtils.capitalizeFully(sb.toString().trim());
     }
 
 
