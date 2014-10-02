@@ -261,6 +261,15 @@ public final class LootPlugin extends FacePlugin {
             builder.withMinStats(cs.getInt("min-stats"));
             builder.withMaxStats(cs.getInt("max-stats"));
             builder.withBroadcast(cs.getBoolean("broadcast"));
+            List<ItemGroup> groups = new ArrayList<>();
+            for (String groop : cs.getStringList("item-groups")) {
+                ItemGroup g = itemGroupManager.getItemGroup(groop);
+                if (g == null) {
+                    continue;
+                }
+                groups.add(g);
+            }
+            builder.withItemGroups(groups);
             EnchantmentStone stone = builder.build();
             stones.add(stone);
             loadedStones.add(stone.getName());
