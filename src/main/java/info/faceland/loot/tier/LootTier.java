@@ -30,6 +30,7 @@ public final class LootTier implements Tier {
     private double distanceWeight;
     private boolean enchantable;
     private boolean broadcast;
+    private boolean extendable;
 
     public LootTier(String name) {
         this.name = name;
@@ -253,6 +254,15 @@ public final class LootTier implements Tier {
 
     void setBroadcast(boolean broadcast) {
         this.broadcast = broadcast;
+    }
+
+    @Override
+    public boolean isExtendable() {
+        return extendable;
+    }
+
+    void setExtendable(boolean extendable) {
+        this.extendable = extendable;
     }
 
 }

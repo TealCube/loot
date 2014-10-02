@@ -532,6 +532,7 @@ public final class LootPlugin extends FacePlugin {
             builder.withMaximumDurability(cs.getDouble("maximum-durability"));
             builder.withEnchantable(cs.getBoolean("enchantable"));
             builder.withBroadcast(cs.getBoolean("broadcast"));
+            builder.withExtendable(cs.getBoolean("extendable"));
             Tier t = builder.build();
             loadedTiers.add(t.getName());
             tiers.add(t);

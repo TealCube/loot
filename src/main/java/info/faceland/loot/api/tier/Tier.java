@@ -46,4 +46,6 @@ public interface Tier extends Comparable<Tier> {
     boolean isEnchantable();
 
     boolean isBroadcast();
+
+    boolean isExtendable();
 }

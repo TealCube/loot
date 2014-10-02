@@ -132,4 +132,10 @@ public final class LootTierBuilder implements TierBuilder {
         return this;
     }
 
+    @Override
+    public TierBuilder withExtendable(boolean b) {
+        tier.setExtendable(b);
+        return this;
+    }
+
 }

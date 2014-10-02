@@ -45,4 +45,6 @@ public interface TierBuilder {
     TierBuilder withEnchantable(boolean b);
 
     TierBuilder withBroadcast(boolean b);
+
+    TierBuilder withExtendable(boolean b);
 }
