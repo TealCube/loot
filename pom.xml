@@ -14,7 +14,7 @@
     <repositories>
         <repository>
             <id>convent-repo</id>
-            <url>http://repository-topplethenun.forge.cloudbees.com/snapshot/</url>
+            <url>http://repo-topplethenun.rhcloud.com/nexus/content/groups/public/</url>
             <snapshots>
                 <updatePolicy>always</updatePolicy>
             </snapshots>
@@ -123,5 +123,22 @@
             </properties>
         </profile>
     </profiles>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>nunnerycode-release</id>
+            <name>NunneryCode Releases</name>
+            <url>http://repo-topplethenun.rhcloud.com/nexus/content/repositories/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>nunnerycode-snapshot</id>
+            <name>NunneryCode Snapshots</name>
+            <url>http://repo-topplethenun.rhcloud.com/nexus/content/repositories/snapshots/</url>
+            <layout>default</layout>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
