@@ -10,6 +10,8 @@ public final class IdentityTome extends HiltBook {
     public IdentityTome() {
         super(TomeType.WRITTEN_BOOK);
         setTitle(ChatColor.DARK_PURPLE + "Identity Tome");
+        setLore(Arrays.asList(ChatColor.WHITE + "Drop this item onto an Unidentified Item",
+                              "to identify it!"));
         setPages(Arrays.asList("Much identify", "Very magic", "So book", "Wow"));
     }
 
