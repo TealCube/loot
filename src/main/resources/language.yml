@@ -1,4 +1,4 @@
-version: "0.0.7"
+version: "0.0.8"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -23,3 +23,4 @@ commands:
     stone-failure: "<red>You were unable to spawn enchantment stones."
     other-success: "<green>You spawned <white>%amount%<green> items."
     other-failure: "<red>You were unable to spawn items."
+    socket-extender: "<green>You spawned <white>%amount%<green> socket extenders."

@@ -10,6 +10,7 @@ import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.utils.messaging.Chatty;
 import org.bukkit.entity.Player;
 
@@ -22,13 +23,14 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t", "e"}, description = {"custom", "socket gem", "tier", "enchantment"})
+    @Flags(identifier = {"c", "s", "t", "e", "se"}, description = {"custom", "socket gem", "tier", "enchantment"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
                              @FlagArg("c") boolean custom,
                              @FlagArg("s") boolean socket,
                              @FlagArg("t") boolean tier,
-                             @FlagArg("e") boolean enchantment) {
+                             @FlagArg("e") boolean enchantment,
+                             @FlagArg("se") boolean socketExtender) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -92,6 +94,12 @@ public final class LootCommand {
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             }
+        } else if (socketExtender) {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(new SocketExtender());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.socket-extender", ""),
+                               new String[][]{{"%amount%", amount + ""}});
         } else if (tier) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
