@@ -46,5 +46,6 @@ public interface TierBuilder {
 
     TierBuilder withBroadcast(boolean b);
 
-    TierBuilder withExtendable(boolean b);
+    TierBuilder withExtendableChance(double d);
+
 }

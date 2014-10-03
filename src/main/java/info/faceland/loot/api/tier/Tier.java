@@ -47,5 +47,6 @@ public interface Tier extends Comparable<Tier> {
 
     boolean isBroadcast();
 
-    boolean isExtendable();
+    double getExtendableChance();
+
 }

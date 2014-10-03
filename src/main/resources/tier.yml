@@ -1,4 +1,4 @@
-version: "0.0.3"
+version: "0.0.4"
 common:
   display-name: "Common"
   display-color: "<gray>"
@@ -12,7 +12,7 @@ common:
   maximum-bonus-lore: 0
   broadcast: true
   enchantable: true
-  extendable: false
+  extendable-chance: 0.0
   base-lore:
   - '<white>A common item.'
   bonus-lore:

@@ -30,7 +30,7 @@ public final class LootTier implements Tier {
     private double distanceWeight;
     private boolean enchantable;
     private boolean broadcast;
-    private boolean extendable;
+    private double extendableChance;
 
     public LootTier(String name) {
         this.name = name;
@@ -257,12 +257,12 @@ public final class LootTier implements Tier {
     }
 
     @Override
-    public boolean isExtendable() {
-        return extendable;
+    public double getExtendableChance() {
+        return extendableChance;
     }
 
-    void setExtendable(boolean extendable) {
-        this.extendable = extendable;
+    void setExtendableChance(double extendableChance) {
+        this.extendableChance = extendableChance;
     }
 
 }
