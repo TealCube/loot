@@ -19,6 +19,7 @@ broadcast:
 commands:
   give:
     receive: "<green>You received some loot!"
+    failure: "<red>Something messed up somewhere. You were unable to be given your loot."
   spawn:
     custom-success: "<green>You spawned <white>%amount%<green> custom item(s)."
     custom-failure: "<red>You were unable to spawn custom items."
