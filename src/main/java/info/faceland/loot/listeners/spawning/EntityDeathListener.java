@@ -10,6 +10,7 @@ import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
 import org.bukkit.Bukkit;
@@ -113,6 +114,7 @@ public final class EntityDeathListener implements Listener {
             broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             // drop a socket extender
+            event.getDrops().add(new SocketExtender());
         } else {
             // do nothing
         }
