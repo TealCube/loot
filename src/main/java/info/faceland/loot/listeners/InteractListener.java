@@ -141,6 +141,20 @@ public final class InteractListener implements Listener {
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+        } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Socket Extender")) {
+            List<String> lore = currentItem.getLore();
+            List<String> stripColor = StringListUtils.stripColor(lore);
+            if (!stripColor.contains("(+)")) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                return;
+            }
+            int index = stripColor.indexOf("(+)");
+            lore.set(index, ChatColor.GOLD + "(Socket)");
+            currentItem.setLore(lore);
+
+            Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else {
             return;
         }
