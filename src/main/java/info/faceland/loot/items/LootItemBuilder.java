@@ -20,7 +20,7 @@ public final class LootItemBuilder implements ItemBuilder {
     private boolean built = false;
     private Tier tier;
     private Material material;
-    private ItemGenerationReason itemGenerationReason;
+    private ItemGenerationReason itemGenerationReason = ItemGenerationReason.MONSTER;
     private LootRandom random;
 
     public LootItemBuilder(LootPlugin plugin) {
@@ -47,7 +47,7 @@ public final class LootItemBuilder implements ItemBuilder {
         HiltItemStack hiltItemStack;
         if (material == null) {
             if (tier == null) {
-                tier = plugin.getTierManager().getRandomTier(false);
+                chooseTier();
             }
             Set<Material> set = tier.getAllowedMaterials();
             Material[] array = set.toArray(new Material[set.size()]);
@@ -58,7 +58,30 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         if (tier == null) {
             List<Tier> tiers = getMatchingTiers(material);
-            tier = tiers.get(random.nextInt(tiers.size()));
+            double totalWeight = 0D;
+            for (Tier t : tiers) {
+                if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
+                    totalWeight += t.getIdentifyWeight();
+                } else {
+                    totalWeight += t.getSpawnWeight();
+                }
+            }
+            double chosenWeight = random.nextDouble() * totalWeight;
+            double currentWeight = 0D;
+            for (Tier t : tiers) {
+                if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
+                    currentWeight += t.getIdentifyWeight();
+                } else {
+                    currentWeight += t.getSpawnWeight();
+                }
+                if (currentWeight >= chosenWeight) {
+                    tier = t;
+                    break;
+                }
+            }
+            if (tier == null) {
+                throw new RuntimeException("cannot identify");
+            }
         }
         hiltItemStack = new HiltItemStack(material);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
@@ -108,6 +131,25 @@ public final class LootItemBuilder implements ItemBuilder {
             }
         }
         return tiers;
+    }
+
+    private Tier chooseTier() {
+        if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
+            double totalWeight = 0D;
+            for (Tier t : plugin.getTierManager().getLoadedTiers()) {
+                totalWeight += t.getIdentifyWeight();
+            }
+            double chosenWeight = random.nextDouble() * totalWeight;
+            double currentWeight = 0D;
+            for (Tier t : plugin.getTierManager().getLoadedTiers()) {
+                currentWeight += t.getIdentifyWeight();
+                if (currentWeight >= chosenWeight) {
+                    return t;
+                }
+            }
+            return null;
+        }
+        return plugin.getTierManager().getRandomTier(true);
     }
 
 }
