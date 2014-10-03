@@ -10,3 +10,5 @@ commands:
 permissions:
   loot.command.spawn:
     default: op
+  loot.command.give:
+    default: op
