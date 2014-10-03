@@ -1,4 +1,4 @@
-version: "0.0.10"
+version: "0.0.11"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -17,6 +17,8 @@ identify:
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
+  give:
+    receive: "<green>You received some loot!"
   spawn:
     custom-success: "<green>You spawned <white>%amount%<green> custom item(s)."
     custom-failure: "<red>You were unable to spawn custom items."
