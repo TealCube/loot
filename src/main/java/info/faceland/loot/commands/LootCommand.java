@@ -10,27 +10,36 @@ import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
+import info.faceland.loot.items.prefabs.UnidentifiedItem;
+import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.messaging.Chatty;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public final class LootCommand {
 
     private final LootPlugin plugin;
+    private final LootRandom random;
 
     public LootCommand(LootPlugin plugin) {
         this.plugin = plugin;
+        this.random = new LootRandom(System.currentTimeMillis());
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t", "e", "se"}, description = {"custom", "socket gem", "tier", "enchantment"})
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t"},
+           description = {"custom", "socket gem", "tier", "enchantment"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
                              @FlagArg("c") boolean custom,
                              @FlagArg("s") boolean socket,
                              @FlagArg("t") boolean tier,
                              @FlagArg("e") boolean enchantment,
-                             @FlagArg("se") boolean socketExtender) {
+                             @FlagArg("se") boolean socketExtender,
+                             @FlagArg("u") boolean unidentified,
+                             @FlagArg("t") boolean tome) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -99,6 +108,21 @@ public final class LootCommand {
                 sender.getInventory().addItem(new SocketExtender());
             }
             Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.socket-extender", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else if (unidentified) {
+            for (int i = 0; i < amount; i++) {
+                Tier t = plugin.getTierManager().getRandomTier(true);
+                Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
+                Material m = array[random.nextInt(array.length)];
+                sender.getInventory().addItem(new UnidentifiedItem(m));
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.unidentified-item", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else if (tome) {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(new IdentityTome());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.identity-tome", ""),
                                new String[][]{{"%amount%", amount + ""}});
         } else if (tier) {
             if (name.equals("")) {
