@@ -3,6 +3,7 @@ package info.faceland.loot.listeners;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
@@ -94,7 +95,7 @@ public final class InteractListener implements Listener {
             } else {
                 name = gem.getPrefix() + " " + name + " " + gem.getSuffix() + ChatColor.getLastColors(name);
             }
-            currentItem.setName(name);
+            currentItem.setName(TextUtils.color(name));
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
@@ -141,7 +142,7 @@ public final class InteractListener implements Listener {
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
-        } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Socket Extender")) {
+        } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             List<String> lore = currentItem.getLore();
             List<String> stripColor = StringListUtils.stripColor(lore);
             if (!stripColor.contains("(+)")) {
@@ -154,6 +155,16 @@ public final class InteractListener implements Listener {
             currentItem.setLore(lore);
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+        } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
+            if (!currentItem.getName().equals(ChatColor.WHITE + "Unidentified Item")) {
+                return;
+            }
+            Material m = currentItem.getType();
+            currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
+                                      .withMaterial(m).build();
+
+            Chatty.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else {
             return;
