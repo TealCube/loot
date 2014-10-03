@@ -1,4 +1,4 @@
-version: "0.0.9"
+version: "0.0.10"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -11,6 +11,9 @@ enchant:
 extend:
   success: "<green>You successfully extended your item."
   failure: "<red>You were unable to extend your item."
+identify:
+  success: "<green>You successfully identified your item."
+  failure: "<red>You failed at identifying your item."
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
