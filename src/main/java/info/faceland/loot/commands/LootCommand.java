@@ -16,6 +16,7 @@ import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.messaging.Chatty;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public final class LootCommand {
@@ -156,10 +157,10 @@ public final class LootCommand {
         }
     }
 
-    @Command(identifier = "loot give", permissions = "loot.command.give")
+    @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
     @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t"},
            description = {"custom", "socket gem", "tier", "enchantment"})
-    public void giveCommand(Player sender,
+    public void giveCommand(CommandSender sender,
                             @Arg(name = "player") Player target,
                             @Arg(name = "amount", def = "1") int amount,
                             @Arg(name = "name", def = "") String name,
@@ -196,7 +197,7 @@ public final class LootCommand {
         } else if (socket) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
-                    sender.getInventory().addItem(
+                    target.getInventory().addItem(
                             plugin.getSocketGemManager().getRandomSocketGem(true).toItemStack(1));
                 }
                 Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
