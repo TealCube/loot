@@ -56,6 +56,10 @@ public final class LootItemBuilder implements ItemBuilder {
             }
             material = array[random.nextInt(array.length)];
         }
+        if (tier == null) {
+            List<Tier> tiers = getMatchingTiers(material);
+            tier = tiers.get(random.nextInt(tiers.size()));
+        }
         hiltItemStack = new HiltItemStack(material);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
                 .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
@@ -94,6 +98,16 @@ public final class LootItemBuilder implements ItemBuilder {
     public ItemBuilder withItemGenerationReason(ItemGenerationReason reason) {
         itemGenerationReason = reason;
         return this;
+    }
+
+    private List<Tier> getMatchingTiers(Material m) {
+        List<Tier> tiers = new ArrayList<>();
+        for (Tier t : plugin.getTierManager().getLoadedTiers()) {
+            if (t.getAllowedMaterials().contains(m)) {
+                tiers.add(t);
+            }
+        }
+        return tiers;
     }
 
 }
