@@ -10,10 +10,13 @@ import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
+import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -96,6 +99,7 @@ public final class EntityDeathListener implements Listener {
             // drop an upgrade scroll
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             // drop an identity tome
+            event.getDrops().add(new IdentityTome());
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             // drop a custom item
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
@@ -115,8 +119,13 @@ public final class EntityDeathListener implements Listener {
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             // drop a socket extender
             event.getDrops().add(new SocketExtender());
-        } else {
-            // do nothing
+        } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
+            double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                          .getSpawnLocation());
+            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
+            Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
+            Material m = array[random.nextInt(array.length)];
+            event.getDrops().add(new UnidentifiedItem(m));
         }
     }
 
