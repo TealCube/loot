@@ -90,11 +90,10 @@ public final class InteractListener implements Listener {
 
             String name = currentItem.getName();
             ChatColor start = getFirstColor(name);
-            if (start != null) {
-                name = start + gem.getPrefix() + " " + name + " " + gem.getSuffix() + ChatColor.getLastColors(name);
-            } else {
-                name = gem.getPrefix() + " " + name + " " + gem.getSuffix() + ChatColor.getLastColors(name);
-            }
+            String format = "%s%s%s";
+            name = String.format(format, start + (gem.getPrefix() != null ? gem.getPrefix() + " " : ""),
+                                 name + (gem.getSuffix() != null ? " " : ""),
+                                 gem.getSuffix() + ChatColor.getLastColors(name));
             currentItem.setName(TextUtils.color(name));
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
@@ -207,7 +206,7 @@ public final class InteractListener implements Listener {
                 return c;
             }
         }
-        return null;
+        return ChatColor.RESET;
     }
 
 }
