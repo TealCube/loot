@@ -47,7 +47,7 @@ public final class LootItemBuilder implements ItemBuilder {
         HiltItemStack hiltItemStack;
         if (material == null) {
             if (tier == null) {
-                chooseTier();
+                tier = chooseTier();
                 if (tier == null) {
                     throw new IllegalStateException("tier is null");
                 }
