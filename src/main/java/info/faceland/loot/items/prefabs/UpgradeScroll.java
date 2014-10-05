@@ -57,6 +57,16 @@ public final class UpgradeScroll extends HiltItemStack {
         public int getMaximumLevel() {
             return maximumLevel;
         }
+
+        public static ScrollType getByName(String name) {
+            for (ScrollType val : values()) {
+                if (val.name().equals(name) || val.getPrettyName().equals(name)) {
+                    return val;
+                }
+
+            }
+            return null;
+        }
     }
 
 }
