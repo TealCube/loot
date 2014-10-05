@@ -91,8 +91,8 @@ public final class InteractListener implements Listener {
             String name = currentItem.getName();
             ChatColor start = getFirstColor(name);
             String format = "%s%s%s";
-            name = String.format(format, start + (gem.getPrefix() != null ? gem.getPrefix() + " " : ""),
-                                 name + (gem.getSuffix() != null ? " " : ""),
+            name = String.format(format, start + (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
+                                 name + (!gem.getSuffix().isEmpty() ? " " : ""),
                                  gem.getSuffix() + ChatColor.getLastColors(name));
             currentItem.setName(TextUtils.color(name));
 
