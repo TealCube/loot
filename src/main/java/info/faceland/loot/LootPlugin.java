@@ -240,7 +240,7 @@ public final class LootPlugin extends FacePlugin {
     }
 
     public void debug(Level level, String... messages) {
-        if (debugPrinter != null) {
+        if (debugPrinter != null && (settings == null || settings.getBoolean("config.debug", false))) {
             debugPrinter.debug(level, messages);
         }
     }
