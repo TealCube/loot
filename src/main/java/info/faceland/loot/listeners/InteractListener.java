@@ -174,8 +174,10 @@ public final class InteractListener implements Listener {
             if (type == null) {
                 return;
             }
-            String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(name);
+            name = currentItem.getName();
+            String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ChatColor.stripColor(name));
             int level = StringConverter.toInt(lev);
+            plugin.debug(lev, String.valueOf(level));
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
@@ -186,11 +188,19 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                 currentItem = null;
             } else {
-                level++;
-                name = name.replace(lev, String.valueOf(level));
-                currentItem.setName(name);
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                if (level == 0) {
+                    level++;
+                    name = getFirstColor(name) + ("+" + level) + " " + name;
+                    currentItem.setName(name);
+                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                } else {
+                    level++;
+                    name = name.replace(lev, String.valueOf(level));
+                    currentItem.setName(name);
+                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                }
             }
         } else {
             return;
