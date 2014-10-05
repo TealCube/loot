@@ -153,7 +153,8 @@ public final class LootCommand {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
                     sender.getInventory().addItem(new UpgradeScroll(
-                            UpgradeScroll.ScrollType.values()[UpgradeScroll.ScrollType.values().length]));
+                            UpgradeScroll.ScrollType.values()[random.nextInt(
+                                    UpgradeScroll.ScrollType.values().length)]));
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
                                    new String[][]{{"%amount%", amount + ""}});
