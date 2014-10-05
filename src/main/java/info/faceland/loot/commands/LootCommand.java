@@ -152,9 +152,7 @@ public final class LootCommand {
         } else if (upgradeScroll) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
-                    sender.getInventory().addItem(new UpgradeScroll(
-                            UpgradeScroll.ScrollType.values()[random.nextInt(
-                                    UpgradeScroll.ScrollType.values().length)]));
+                    sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
                                    new String[][]{{"%amount%", amount + ""}});
@@ -317,8 +315,7 @@ public final class LootCommand {
         } else if (upgradeScroll) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
-                    target.getInventory().addItem(new UpgradeScroll(
-                            UpgradeScroll.ScrollType.values()[UpgradeScroll.ScrollType.values().length]));
+                    target.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
                                    new String[][]{{"%amount%", amount + ""}});

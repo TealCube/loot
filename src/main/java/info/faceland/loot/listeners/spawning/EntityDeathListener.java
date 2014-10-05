@@ -13,6 +13,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
+import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
 import org.bukkit.Bukkit;
@@ -97,6 +98,7 @@ public final class EntityDeathListener implements Listener {
             broadcast(event, his);
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             // drop an upgrade scroll
+            event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
         } else if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             // drop an identity tome
             event.getDrops().add(new IdentityTome());
