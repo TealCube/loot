@@ -170,7 +170,7 @@ public final class InteractListener implements Listener {
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
             String name = ChatColor.stripColor(cursor.getName().replace("Upgrade Scroll", "")).trim();
-            UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.valueOf(name);
+            UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
             if (type == null) {
                 return;
             }
