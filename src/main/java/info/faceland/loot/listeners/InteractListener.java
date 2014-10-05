@@ -177,7 +177,6 @@ public final class InteractListener implements Listener {
             name = currentItem.getName();
             String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ChatColor.stripColor(name));
             int level = StringConverter.toInt(lev);
-            plugin.debug(lev, String.valueOf(level));
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
