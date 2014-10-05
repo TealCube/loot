@@ -1,12 +1,15 @@
 package info.faceland.loot.listeners;
 
+import com.google.common.base.CharMatcher;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
+import info.faceland.loot.utils.converters.StringConverter;
 import info.faceland.loot.utils.messaging.Chatty;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
@@ -165,6 +168,30 @@ public final class InteractListener implements Listener {
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+        } else if (cursor.getName().endsWith("Upgrade Scroll")) {
+            String name = ChatColor.stripColor(cursor.getName().replace("Upgrade Scroll", "")).trim();
+            UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.valueOf(name);
+            if (type == null) {
+                return;
+            }
+            String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(name);
+            int level = StringConverter.toInt(lev);
+            if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                return;
+            }
+            if (random.nextDouble() < type.getChanceToDestroy()) {
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+                player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                currentItem = null;
+            } else {
+                level++;
+                name = name.replace(lev, String.valueOf(level));
+                currentItem.setName(name);
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+            }
         } else {
             return;
         }
