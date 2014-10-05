@@ -28,18 +28,53 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 3), ARCANE("Arcane", 0.3D, 4, 7);
+        LESSER("Lesser", 0D, 0, 3, 100D), ARCANE("Arcane", 0.3D, 4, 7, 75D);
 
         private final String prettyName;
         private final double chanceToDestroy;
         private final int minimumLevel;
         private final int maximumLevel;
+        private final double weight;
 
-        private ScrollType(String prettyName, double chanceToDestroy, int minimumLevel, int maximumLevel) {
+        private ScrollType(String prettyName, double chanceToDestroy, int minimumLevel, int maximumLevel,
+                           double weight) {
             this.prettyName = prettyName;
             this.chanceToDestroy = chanceToDestroy;
             this.minimumLevel = minimumLevel;
             this.maximumLevel = maximumLevel;
+            this.weight = weight;
+        }
+
+        public static ScrollType getByName(String name) {
+            for (ScrollType val : values()) {
+                if (val.name().equals(name) || val.getPrettyName().equals(name)) {
+                    return val;
+                }
+            }
+            return null;
+        }
+
+        public static double getTotalWeight() {
+            double d = 0D;
+            for (ScrollType val : values()) {
+                d += val.getWeight();
+            }
+            return d;
+        }
+
+        public static ScrollType random(boolean withChance) {
+            if (!withChance) {
+                return values()[((int) (Math.random() * values().length))];
+            }
+            double selectedWeight = Math.random() * getTotalWeight();
+            double currentWeight = 0D;
+            for (ScrollType st : values()) {
+                currentWeight += st.getWeight();
+                if (currentWeight >= selectedWeight) {
+                    return st;
+                }
+            }
+            return null;
         }
 
         public String getPrettyName() {
@@ -58,15 +93,10 @@ public final class UpgradeScroll extends HiltItemStack {
             return maximumLevel;
         }
 
-        public static ScrollType getByName(String name) {
-            for (ScrollType val : values()) {
-                if (val.name().equals(name) || val.getPrettyName().equals(name)) {
-                    return val;
-                }
-
-            }
-            return null;
+        public double getWeight() {
+            return weight;
         }
+
     }
 
 }
