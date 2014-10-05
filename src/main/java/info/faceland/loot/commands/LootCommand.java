@@ -324,7 +324,7 @@ public final class LootCommand {
                                    new String[][]{{"%amount%", amount + ""}});
                 Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
             } else {
-                UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.valueOf(name.toUpperCase());
+                UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name.toUpperCase());
                 if (type == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
