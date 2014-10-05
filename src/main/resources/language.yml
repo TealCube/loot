@@ -1,4 +1,4 @@
-version: "0.0.12"
+version: "0.0.13"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -36,3 +36,4 @@ commands:
     socket-extender: "<green>You spawned <white>%amount%<green> socket extender(s)."
     identity-tome: "<green>You spawned <white>%amount%<green> identity tome(s)."
     unidentified-item: "<green>You spawned <white>%amount%<green> unidentified item(s)."
+    upgrade-scroll: "<green>You spawned <white>%amount%<green> upgrade scroll(s)."
