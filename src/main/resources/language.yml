@@ -1,4 +1,4 @@
-version: "0.0.11"
+version: "0.0.12"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -14,6 +14,10 @@ extend:
 identify:
   success: "<green>You successfully identified your item."
   failure: "<red>You failed at identifying your item."
+upgrade:
+  success: "<green>You successfully upgraded your item."
+  failure: "<red>You failed at upgrading your item."
+  destroyed: "<red>Your item was destroyed when you attempted to upgrade it."
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
