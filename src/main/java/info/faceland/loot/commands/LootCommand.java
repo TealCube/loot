@@ -13,6 +13,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
+import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.messaging.Chatty;
 import org.bukkit.Material;
@@ -30,7 +31,7 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t"},
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us"},
            description = {"custom", "socket gem", "tier", "enchantment"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
@@ -40,7 +41,8 @@ public final class LootCommand {
                              @FlagArg("e") boolean enchantment,
                              @FlagArg("se") boolean socketExtender,
                              @FlagArg("u") boolean unidentified,
-                             @FlagArg("t") boolean tome) {
+                             @FlagArg("t") boolean tome,
+                             @FlagArg("us") boolean upgradeScroll) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -147,6 +149,27 @@ public final class LootCommand {
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             }
+        } else if (upgradeScroll) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(new UpgradeScroll(
+                            UpgradeScroll.ScrollType.values()[UpgradeScroll.ScrollType.values().length]));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.valueOf(name.toUpperCase());
+                if (type == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(new UpgradeScroll(type));
+                }
+                Chatty.sendMessage(
+                        sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
+            }
         } else {
             for (int i = 0; i < amount; i++) {
                 sender.getInventory().addItem(
@@ -158,7 +181,7 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t"},
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us"},
            description = {"custom", "socket gem", "tier", "enchantment"})
     public void giveCommand(CommandSender sender,
                             @Arg(name = "player") Player target,
@@ -170,7 +193,8 @@ public final class LootCommand {
                             @FlagArg("e") boolean enchantment,
                             @FlagArg("se") boolean socketExtender,
                             @FlagArg("u") boolean unidentified,
-                            @FlagArg("t") boolean tome) {
+                            @FlagArg("t") boolean tome,
+                            @FlagArg("us") boolean upgradeScroll) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -287,6 +311,29 @@ public final class LootCommand {
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
+                Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
+            }
+        } else if (upgradeScroll) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    target.getInventory().addItem(new UpgradeScroll(
+                            UpgradeScroll.ScrollType.values()[UpgradeScroll.ScrollType.values().length]));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+                Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
+            } else {
+                UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.valueOf(name.toUpperCase());
+                if (type == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    target.getInventory().addItem(new UpgradeScroll(type));
+                }
+                Chatty.sendMessage(
+                        sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
                 Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
             }
         } else {
