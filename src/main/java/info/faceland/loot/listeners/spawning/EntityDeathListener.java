@@ -136,6 +136,13 @@ public final class EntityDeathListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDeathMonitor(EntityDeathEvent event) {
+        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
+            plugin.getAnticheatManager().pull(event.getEntity());
+        }
+    }
+
     private void broadcast(EntityDeathEvent event, HiltItemStack his) {
         IPrettyMessage message = PrettyMessageFactory.buildPrettyMessage();
         String mess = plugin.getSettings().getString("language.broadcast.found-item", "");
