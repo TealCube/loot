@@ -191,12 +191,14 @@ public final class InteractListener implements Listener {
                     currentItem = null;
                 } else {
                     int index = player.getInventory().first(new ProtectionCharm());
-                    ItemStack inInv = player.getInventory().getItem(index);
-                    inInv.setAmount(inInv.getAmount() - 1);
-                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
-                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                    if (index != -1) {
+                        ItemStack inInv = player.getInventory().getItem(index);
+                        inInv.setAmount(inInv.getAmount() - 1);
+                        player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
+                        Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+                        Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
+                        player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                    }
                 }
             } else {
                 if (level == 0) {
