@@ -17,7 +17,9 @@ import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,6 +55,20 @@ public final class EntityDeathListener implements Listener {
         }
         if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false)
             && !(event.getEntity() instanceof Monster)) {
+            return;
+        }
+        if (isWater(event.getEntity().getLocation()) && random.nextDouble() < 0.5) {
+            return;
+        }
+        if (isWater(event.getEntity().getKiller().getLocation()) && random.nextDouble() < 0.5) {
+            return;
+        }
+        double distance = -1D;
+        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
+            distance = plugin.getAnticheatManager().tag(
+                    event.getEntity()).getLocation().distanceSquared(event.getEntity().getLocation());
+        }
+        if (distance >= 0 && distance <= 4 && random.nextDouble() < 0.75) {
             return;
         }
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
@@ -136,13 +152,6 @@ public final class EntityDeathListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onEntityDeathMonitor(EntityDeathEvent event) {
-        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            plugin.getAnticheatManager().pull(event.getEntity());
-        }
-    }
-
     private void broadcast(EntityDeathEvent event, HiltItemStack his) {
         IPrettyMessage message = PrettyMessageFactory.buildPrettyMessage();
         String mess = plugin.getSettings().getString("language.broadcast.found-item", "");
@@ -163,6 +172,18 @@ public final class EntityDeathListener implements Listener {
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             message.send(p);
+        }
+    }
+
+    private boolean isWater(Location location) {
+        Block b = location.getBlock();
+        return b.isLiquid();
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDeathMonitor(EntityDeathEvent event) {
+        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
+            plugin.getAnticheatManager().pull(event.getEntity());
         }
     }
 
