@@ -189,6 +189,24 @@ public final class LootTier implements Tier {
         this.enchantable = enchantable;
     }
 
+    @Override
+    public boolean isBroadcast() {
+        return broadcast;
+    }
+
+    void setBroadcast(boolean broadcast) {
+        this.broadcast = broadcast;
+    }
+
+    @Override
+    public double getExtendableChance() {
+        return extendableChance;
+    }
+
+    void setExtendableChance(double extendableChance) {
+        this.extendableChance = extendableChance;
+    }
+
     void setMaximumBonusLore(int maximumBonusLore) {
         this.maximumBonusLore = maximumBonusLore;
     }
@@ -245,24 +263,6 @@ public final class LootTier implements Tier {
         LootTier lootTier = (LootTier) o;
 
         return !(name != null ? !name.equals(lootTier.name) : lootTier.name != null);
-    }
-
-    @Override
-    public boolean isBroadcast() {
-        return broadcast;
-    }
-
-    void setBroadcast(boolean broadcast) {
-        this.broadcast = broadcast;
-    }
-
-    @Override
-    public double getExtendableChance() {
-        return extendableChance;
-    }
-
-    void setExtendableChance(double extendableChance) {
-        this.extendableChance = extendableChance;
     }
 
 }

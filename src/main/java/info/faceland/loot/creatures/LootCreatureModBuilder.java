@@ -12,8 +12,8 @@ import java.util.Map;
 
 public final class LootCreatureModBuilder implements CreatureModBuilder {
 
-    private boolean built = false;
     private final LootCreatureMod mod;
+    private boolean built = false;
 
     public LootCreatureModBuilder(EntityType entityType) {
         this.mod = new LootCreatureMod(entityType);

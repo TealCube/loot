@@ -24,5 +24,5 @@ public interface EnchantmentStoneManager {
     EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance, Map<EnchantmentStone, Double> map);
 
     double getTotalWeight();
-    
+
 }

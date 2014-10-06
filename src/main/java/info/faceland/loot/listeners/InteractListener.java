@@ -166,7 +166,7 @@ public final class InteractListener implements Listener {
             }
             Material m = currentItem.getType();
             currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-                                      .withMaterial(m).build();
+                                .withMaterial(m).build();
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);

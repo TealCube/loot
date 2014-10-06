@@ -36,11 +36,6 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -52,7 +47,12 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         LootEnchantmentStone that = (LootEnchantmentStone) o;
 
         return !(name != null ? !name.equals(that.name) : that.name != null);
+    }    @Override
+    public String getName() {
+        return name;
     }
+
+
 
     @Override
     public List<String> getLore() {
@@ -107,9 +107,9 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.WHITE + "Type: " + (itemGroups.isEmpty() ? "Any" : itemGroupsToString()));
         lore.addAll(Arrays.asList(ChatColor.GRAY + "Drag this tome on an item that is",
-                ChatColor.BLUE + "(Enchantable) " + ChatColor.GRAY + "while close to an",
-                ChatColor.GRAY + "enchanting table to upgrade it!",
-                ChatColor.WHITE + "Bonuses Applied:"));
+                                  ChatColor.BLUE + "(Enchantable) " + ChatColor.GRAY + "while close to an",
+                                  ChatColor.GRAY + "enchanting table to upgrade it!",
+                                  ChatColor.WHITE + "Bonuses Applied:"));
         if (description != null && !description.isEmpty()) {
             lore.add(description);
         }
@@ -119,7 +119,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     private String itemGroupsToString() {
         StringBuilder sb = new StringBuilder();
-        for (ItemGroup ig :  getItemGroups()) {
+        for (ItemGroup ig : getItemGroups()) {
             sb.append(ig.getName()).append(" ");
         }
         return WordUtils.capitalizeFully(sb.toString().trim());

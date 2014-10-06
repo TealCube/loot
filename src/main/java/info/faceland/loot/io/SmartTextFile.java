@@ -19,6 +19,26 @@ public final class SmartTextFile {
         this.debugFile = file;
     }
 
+    public static void writeToFile(InputStream stream, File output, boolean onlyIfNew) {
+        if (onlyIfNew && output.exists()) {
+            return;
+        }
+        SmartTextFile file = new SmartTextFile(output);
+        List<String> list = new ArrayList<>();
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+            String p;
+            while ((p = bufferedReader.readLine()) != null) {
+                if (!p.contains("#") && p.length() > 0) {
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        file.write(list.toArray(new String[list.size()]));
+    }
+
     public void write(String... messages) {
         try {
             File saveTo = getDebugFile();
@@ -38,10 +58,6 @@ public final class SmartTextFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public File getDebugFile() {
-        return debugFile;
     }
 
     public List<String> read() {
@@ -69,24 +85,8 @@ public final class SmartTextFile {
         return list;
     }
 
-    public static void writeToFile(InputStream stream, File output, boolean onlyIfNew) {
-        if (onlyIfNew && output.exists()) {
-            return;
-        }
-        SmartTextFile file = new SmartTextFile(output);
-        List<String> list = new ArrayList<>();
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-            String p;
-            while ((p = bufferedReader.readLine()) != null) {
-                if (!p.contains("#") && p.length() > 0) {
-                    list.add(p);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        file.write(list.toArray(new String[list.size()]));
+    public File getDebugFile() {
+        return debugFile;
     }
 
 }

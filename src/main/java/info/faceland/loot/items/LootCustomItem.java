@@ -59,10 +59,6 @@ public final class LootCustomItem implements CustomItem {
         return itemStack;
     }
 
-    void setMaterial(Material material) {
-        this.material = material;
-    }
-
     @Override
     public double getWeight() {
         return weight;
@@ -70,25 +66,6 @@ public final class LootCustomItem implements CustomItem {
 
     void setWeight(double weight) {
         this.weight = weight;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        LootCustomItem that = (LootCustomItem) o;
-
-        return !(name != null ? !name.equals(that.name) : that.name != null);
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
     }
 
     @Override
@@ -107,6 +84,29 @@ public final class LootCustomItem implements CustomItem {
 
     void setBroadcast(boolean broadcast) {
         this.broadcast = broadcast;
+    }
+
+    void setMaterial(Material material) {
+        this.material = material;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        LootCustomItem that = (LootCustomItem) o;
+
+        return !(name != null ? !name.equals(that.name) : that.name != null);
     }
 
 }

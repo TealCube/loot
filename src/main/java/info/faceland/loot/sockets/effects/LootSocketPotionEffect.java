@@ -24,6 +24,19 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
         this.target = target;
     }
 
+    public static LootSocketPotionEffect parseString(String s) {
+        String[] split = s.split(":");
+        if (split.length < 5) {
+            throw new IllegalArgumentException("not proper amount of arguments");
+        }
+        PotionEffectType type = PotionEffectType.getByName(split[0]);
+        SocketEffectTarget targ = SocketEffectTarget.valueOf(split[1]);
+        int duration = StringConverter.toInt(split[2]);
+        int intensity = StringConverter.toInt(split[3]);
+        int radius = StringConverter.toInt(split[4]);
+        return new LootSocketPotionEffect(type, duration, intensity, radius, targ);
+    }
+
     @Override
     public PotionEffectType getPotionEffectType() {
         return type;
@@ -57,17 +70,14 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
         entity.addPotionEffect(new PotionEffect(type, duration / 50, intensity));
     }
 
-    public static LootSocketPotionEffect parseString(String s) {
-        String[] split = s.split(":");
-        if (split.length < 5) {
-            throw new IllegalArgumentException("not proper amount of arguments");
-        }
-        PotionEffectType type = PotionEffectType.getByName(split[0]);
-        SocketEffectTarget targ = SocketEffectTarget.valueOf(split[1]);
-        int duration = StringConverter.toInt(split[2]);
-        int intensity = StringConverter.toInt(split[3]);
-        int radius = StringConverter.toInt(split[4]);
-        return new LootSocketPotionEffect(type, duration, intensity, radius, targ);
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + duration;
+        result = 31 * result + intensity;
+        result = 31 * result + radius;
+        result = 31 * result + (target != null ? target.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -83,16 +93,6 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
 
         return duration == that.duration && intensity == that.intensity && radius == that.radius &&
                target == that.target && !(type != null ? !type.equals(that.type) : that.type != null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + duration;
-        result = 31 * result + intensity;
-        result = 31 * result + radius;
-        result = 31 * result + (target != null ? target.hashCode() : 0);
-        return result;
     }
 
 }

@@ -68,7 +68,8 @@ public final class LootEnchantmentStoneManager implements EnchantmentStoneManage
     }
 
     @Override
-    public EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance, Map<EnchantmentStone, Double> map) {
+    public EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance,
+                                                      Map<EnchantmentStone, Double> map) {
         if (!withChance) {
             Set<EnchantmentStone> gems = getEnchantmentStones();
             EnchantmentStone[] array = gems.toArray(new EnchantmentStone[gems.size()]);

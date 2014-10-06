@@ -53,6 +53,13 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
+    public int compareTo(SocketGem o) {
+        if (o == null) {
+            return 1;
+        }
+        int compareTo = getName().compareTo(o.getName());
+        return Math.min(1, Math.max(compareTo, -1));
+    }    @Override
     public String getName() {
         return name;
     }
@@ -97,7 +104,7 @@ public final class LootSocketGem implements SocketGem {
         Collections.addAll(lore, ChatColor.WHITE + "Type: " + (!itemGroups.isEmpty() ? itemGroupsToString() : "Any"),
                            ChatColor.GRAY + "Drag this gem on an item with an",
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY + "to upgrade it!",
-                           ChatColor.WHITE + "Bonuses Applied:" );
+                           ChatColor.WHITE + "Bonuses Applied:");
         lore.addAll(getLore());
         itemStack.setLore(TextUtils.color(lore));
         return itemStack;
@@ -105,7 +112,7 @@ public final class LootSocketGem implements SocketGem {
 
     private String itemGroupsToString() {
         StringBuilder sb = new StringBuilder();
-        for (ItemGroup ig :  getItemGroups()) {
+        for (ItemGroup ig : getItemGroups()) {
             sb.append(ig.getName()).append(" ");
         }
         return WordUtils.capitalizeFully(sb.toString().trim());
@@ -158,14 +165,7 @@ public final class LootSocketGem implements SocketGem {
         this.broadcast = broadcast;
     }
 
-    @Override
-    public int compareTo(SocketGem o) {
-        if (o == null) {
-            return 1;
-        }
-        int compareTo = getName().compareTo(o.getName());
-        return Math.min(1, Math.max(compareTo, -1));
-    }
+
 
     void setTriggerable(boolean triggerable) {
         this.triggerable = triggerable;
