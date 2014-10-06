@@ -1,4 +1,4 @@
-version: "0.0.13"
+version: "0.0.14"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -18,6 +18,7 @@ upgrade:
   success: "<green>You successfully upgraded your item."
   failure: "<red>You failed at upgrading your item."
   destroyed: "<red>Your item was destroyed when you attempted to upgrade it."
+  consumed: "<red>One of your <aqua>Charm of Protection<red>s was consumed."
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
