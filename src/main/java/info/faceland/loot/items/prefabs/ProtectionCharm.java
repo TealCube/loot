@@ -14,6 +14,4 @@ public final class ProtectionCharm extends HiltItemStack {
         setLore(Arrays.asList(ChatColor.WHITE + "Prevents one failed upgrade. Consumed on use."));
     }
 
-
-
 }
