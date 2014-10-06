@@ -18,6 +18,7 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.utils.TextUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -48,6 +49,10 @@ public final class EntityDeathListener implements Listener {
         }
         if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<String>())
                    .contains(event.getEntity().getWorld().getName())) {
+            return;
+        }
+        if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false)
+            && !(event.getEntity() instanceof Monster)) {
             return;
         }
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
