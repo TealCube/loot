@@ -207,7 +207,7 @@ public final class InteractListener implements Listener {
                     currentItem.setName(name);
                 } else {
                     level++;
-                    name = name.replace(lev, String.valueOf(level));
+                    name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
                 }
                 List<String> lore = currentItem.getLore();
