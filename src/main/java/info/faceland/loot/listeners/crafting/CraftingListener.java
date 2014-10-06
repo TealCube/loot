@@ -24,7 +24,8 @@ public final class CraftingListener implements Listener {
             HiltItemStack his = new HiltItemStack(is);
             if (his.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                     his.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
-                    his.getName().startsWith(ChatColor.GOLD + "Socket Gem -")) {
+                    his.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
+                    his.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
                 event.setCancelled(true);
                 return;
             }
