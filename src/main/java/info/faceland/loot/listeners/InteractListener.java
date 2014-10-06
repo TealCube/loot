@@ -191,15 +191,25 @@ public final class InteractListener implements Listener {
                     level++;
                     name = getFirstColor(name) + ("+" + level) + " " + name;
                     currentItem.setName(name);
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
                 } else {
                     level++;
                     name = name.replace(lev, String.valueOf(level));
                     currentItem.setName(name);
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
                 }
+                List<String> lore = currentItem.getLore();
+                for (int i = 0; i < lore.size(); i++) {
+                    String s = lore.get(i);
+                    String ss = ChatColor.stripColor(s);
+                    if (!ss.startsWith("+")) {
+                        continue;
+                    }
+                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                    int loreLevel = StringConverter.toInt(loreLev);
+                    lore.set(i, s.replace(loreLev, "+" + loreLevel));
+                    break;
+                }
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
             }
         } else {
             return;
