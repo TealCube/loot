@@ -13,6 +13,7 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
+import info.faceland.loot.api.managers.AnticheatManager;
 import info.faceland.loot.api.managers.CreatureModManager;
 import info.faceland.loot.api.managers.CustomItemManager;
 import info.faceland.loot.api.managers.EnchantmentStoneManager;
@@ -36,6 +37,7 @@ import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
+import info.faceland.loot.managers.LootAnticheatManager;
 import info.faceland.loot.managers.LootCreatureModManager;
 import info.faceland.loot.managers.LootCustomItemManager;
 import info.faceland.loot.managers.LootEnchantmentStoneManager;
@@ -85,6 +87,7 @@ public final class LootPlugin extends FacePlugin {
     private SocketGemManager socketGemManager;
     private CreatureModManager creatureModManager;
     private EnchantmentStoneManager enchantmentStoneManager;
+    private AnticheatManager anticheatManager;
 
     @Override
     public void preEnable() {
@@ -179,6 +182,7 @@ public final class LootPlugin extends FacePlugin {
         socketGemManager = new LootSocketGemManager();
         creatureModManager = new LootCreatureModManager();
         enchantmentStoneManager = new LootEnchantmentStoneManager();
+        anticheatManager = new LootAnticheatManager();
     }
 
     @Override
@@ -216,6 +220,7 @@ public final class LootPlugin extends FacePlugin {
 
     @Override
     public void postDisable() {
+        anticheatManager = null;
         enchantmentStoneManager = null;
         creatureModManager = null;
         socketGemManager = null;
@@ -599,6 +604,10 @@ public final class LootPlugin extends FacePlugin {
 
     public EnchantmentStoneManager getEnchantmentStoneManager() {
         return enchantmentStoneManager;
+    }
+
+    public AnticheatManager getAnticheatManager() {
+        return anticheatManager;
     }
 
 }
