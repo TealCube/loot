@@ -187,6 +187,168 @@ public final class LootCommand {
         }
     }
 
+    @Command(identifier = "loot simulate", permissions = "loot.command.simulate")
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us", "ch"},
+           description = {"custom", "socket gem", "tier", "enchantment"})
+    public void simulateCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
+                                @Arg(name = "name", def = "") String name,
+                                @FlagArg("c") boolean custom,
+                                @FlagArg("s") boolean socket,
+                                @FlagArg("t") boolean tier,
+                                @FlagArg("e") boolean enchantment,
+                                @FlagArg("se") boolean socketExtender,
+                                @FlagArg("u") boolean unidentified,
+                                @FlagArg("t") boolean tome,
+                                @FlagArg("us") boolean upgradeScroll,
+                                @FlagArg("ch") boolean charm) {
+        double distanceFromSpawnSquared = sender.getLocation().distanceSquared(sender.getWorld().getSpawnLocation());
+        if (custom) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getCustomItemManager().getRandomCustomItem(true, distanceFromSpawnSquared)
+                                  .toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.custom-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                CustomItem ci = plugin.getCustomItemManager().getCustomItem(name);
+                if (ci == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.custom-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(ci.toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.custom-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            }
+        } else if (socket) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getSocketGemManager().getRandomSocketGem(true, distanceFromSpawnSquared)
+                                  .toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                SocketGem sg = plugin.getSocketGemManager().getSocketGem(name);
+                if (sg == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.gem-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(sg.toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            }
+        } else if (enchantment) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getEnchantmentStoneManager()
+                                  .getRandomEnchantmentStone(true, distanceFromSpawnSquared).toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                EnchantmentStone es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+                if (es == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(es.toItemStack(1));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            }
+        } else if (socketExtender) {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(new SocketExtender());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.socket-extender", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else if (unidentified) {
+            for (int i = 0; i < amount; i++) {
+                Tier t = plugin.getTierManager().getRandomTier(true, distanceFromSpawnSquared);
+                Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
+                Material m = array[random.nextInt(array.length)];
+                sender.getInventory().addItem(new UnidentifiedItem(m));
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.unidentified-item", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else if (tome) {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(new IdentityTome());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.identity-tome", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else if (tier) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getNewItemBuilder().withDistance(distanceFromSpawnSquared)
+                                  .withItemGenerationReason(ItemGenerationReason.COMMAND).build());
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                Tier t = plugin.getTierManager().getTier(name);
+                if (t == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(
+                            plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.COMMAND).build());
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            }
+        } else if (upgradeScroll) {
+            if (name.equals("")) {
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
+                }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
+            } else {
+                UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
+                if (type == null) {
+                    Chatty.sendMessage(
+                            sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+                    return;
+                }
+                for (int i = 0; i < amount; i++) {
+                    sender.getInventory().addItem(new UpgradeScroll(type));
+                }
+                Chatty.sendMessage(
+                        sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
+            }
+        } else if (charm) {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(new ProtectionCharm());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        } else {
+            for (int i = 0; i < amount; i++) {
+                sender.getInventory().addItem(
+                        plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.COMMAND)
+                              .withDistance(distanceFromSpawnSquared).build());
+            }
+            Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
+                               new String[][]{{"%amount%", amount + ""}});
+        }
+    }
+
     @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
     @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us", "ch"},
            description = {"custom", "socket gem", "tier", "enchantment"})
