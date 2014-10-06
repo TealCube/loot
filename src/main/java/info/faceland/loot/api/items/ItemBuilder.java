@@ -16,4 +16,5 @@ public interface ItemBuilder {
 
     ItemBuilder withItemGenerationReason(ItemGenerationReason reason);
 
+    ItemBuilder withDistance(double d);
 }

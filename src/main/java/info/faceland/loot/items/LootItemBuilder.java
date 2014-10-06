@@ -2,7 +2,6 @@ package info.faceland.loot.items;
 
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
@@ -22,15 +21,11 @@ public final class LootItemBuilder implements ItemBuilder {
     private Material material;
     private ItemGenerationReason itemGenerationReason = ItemGenerationReason.MONSTER;
     private LootRandom random;
+    private double distance;
 
     public LootItemBuilder(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom(System.currentTimeMillis());
-    }
-
-    private String randomFromSet(Set<ItemGroup> itemGroups) {
-        ItemGroup[] array = itemGroups.toArray(new ItemGroup[itemGroups.size()]);
-        return array[random.nextInt(array.length)].getName().toUpperCase();
     }
 
     @Override
@@ -126,6 +121,12 @@ public final class LootItemBuilder implements ItemBuilder {
         return this;
     }
 
+    @Override
+    public ItemBuilder withDistance(double d) {
+        distance = d;
+        return this;
+    }
+
     private List<Tier> getMatchingTiers(Material m) {
         List<Tier> tiers = new ArrayList<>();
         for (Tier t : plugin.getTierManager().getLoadedTiers()) {
@@ -145,14 +146,14 @@ public final class LootItemBuilder implements ItemBuilder {
             double chosenWeight = random.nextDouble() * totalWeight;
             double currentWeight = 0D;
             for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                currentWeight += t.getIdentifyWeight();
+                currentWeight += t.getIdentifyWeight() + ((distance / 10000D) * t.getDistanceWeight());
                 if (currentWeight >= chosenWeight) {
                     return t;
                 }
             }
             return null;
         }
-        return plugin.getTierManager().getRandomTier(true);
+        return plugin.getTierManager().getRandomTier(true, distance);
     }
 
 }
