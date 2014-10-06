@@ -16,11 +16,13 @@ public final class UpgradeScroll extends HiltItemStack {
         super(Material.PAPER);
         this.scrollType = scrollType;
         this.setName(ChatColor.DARK_GREEN + scrollType.getPrettyName() + " Upgrade Scroll");
-        this.setLore(Arrays.asList(ChatColor.WHITE + "Drop this on an item to upgrade it.",
-                                   ChatColor.YELLOW + "Chance for item to be destroyed: " + ChatColor.WHITE +
-                                   DECIMAL_FORMAT.format(scrollType.getChanceToDestroy() * 100D),
-                                   ChatColor.YELLOW + "Can be used on items with the levels: " + ChatColor.WHITE +
-                                   scrollType.getMinimumLevel() + " - " + scrollType.getMaximumLevel()));
+        this.setLore(Arrays.asList(ChatColor.GRAY + "Drag this scroll onto an item with",
+                ChatColor.GRAY + "stats to upgrade it. The item is",
+                ChatColor.WHITE + "destroyed" + ChatColor.GRAY + " if the upgrade fails!",
+                ChatColor.GREEN + "Success Chance: " + ChatColor.WHITE +
+                DECIMAL_FORMAT.format(100D - (scrollType.getChanceToDestroy() * 100D)),
+                ChatColor.YELLOW + "Level Range: " + ChatColor.WHITE + "+" +
+                scrollType.getMinimumLevel() + " to +" + (scrollType.getMaximumLevel() + 1)));
     }
 
     public ScrollType getScrollType() {
@@ -28,7 +30,7 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 3, 100D), ARCANE("Arcane", 0.3D, 4, 7, 75D);
+        LESSER("Lesser", 0D, 0, 2, 70D), STANDARD("Standard", 0.5D, 3, 5, 25D), GREATER("Greater", 0.8D, 6, 8, 5D), ULTIMATE("Ultimate", 0D, 0, 8, 1D);
 
         private final String prettyName;
         private final double chanceToDestroy;
