@@ -6,6 +6,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.items.prefabs.ProtectionCharm;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
@@ -25,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -183,9 +185,19 @@ public final class InteractListener implements Listener {
                 return;
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
-                player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
-                currentItem = null;
+                if (!player.getInventory().containsAtLeast(new ProtectionCharm(), 1)) {
+                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+                    player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                    currentItem = null;
+                } else {
+                    int index = player.getInventory().first(new ProtectionCharm());
+                    ItemStack inInv = player.getInventory().getItem(index);
+                    inInv.setAmount(inInv.getAmount() - 1);
+                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
+                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
+                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                }
             } else {
                 if (level == 0) {
                     level++;
