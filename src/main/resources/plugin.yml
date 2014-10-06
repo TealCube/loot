@@ -12,3 +12,5 @@ permissions:
     default: op
   loot.command.give:
     default: op
+  loot.command.simulate:
+    default: op
