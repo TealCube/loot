@@ -17,12 +17,12 @@ public final class UpgradeScroll extends HiltItemStack {
         this.scrollType = scrollType;
         this.setName(ChatColor.DARK_GREEN + scrollType.getPrettyName() + " Upgrade Scroll");
         this.setLore(Arrays.asList(ChatColor.GRAY + "Drag this scroll onto an item with",
-                ChatColor.GRAY + "stats to upgrade it. The item is",
-                ChatColor.WHITE + "destroyed" + ChatColor.GRAY + " if the upgrade fails!",
-                ChatColor.GREEN + "Success Chance: " + ChatColor.WHITE +
-                DECIMAL_FORMAT.format(100D - (scrollType.getChanceToDestroy() * 100D)),
-                ChatColor.YELLOW + "Level Range: " + ChatColor.WHITE + "+" +
-                scrollType.getMinimumLevel() + " to +" + (scrollType.getMaximumLevel() + 1)));
+                                   ChatColor.GRAY + "stats to upgrade it. The item is",
+                                   ChatColor.WHITE + "destroyed" + ChatColor.GRAY + " if the upgrade fails!",
+                                   ChatColor.GREEN + "Success Chance: " + ChatColor.WHITE +
+                                   DECIMAL_FORMAT.format(100D - (scrollType.getChanceToDestroy() * 100D)),
+                                   ChatColor.YELLOW + "Level Range: " + ChatColor.WHITE + "+" +
+                                   scrollType.getMinimumLevel() + " to +" + (scrollType.getMaximumLevel() + 1)));
     }
 
     public ScrollType getScrollType() {
@@ -30,7 +30,8 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 2, 70D), STANDARD("Standard", 0.5D, 3, 5, 25D), GREATER("Greater", 0.8D, 6, 8, 5D), ULTIMATE("Ultimate", 0D, 0, 8, 1D);
+        LESSER("Lesser", 0D, 0, 2, 70D), STANDARD("Standard", 0.5D, 3, 5, 25D), GREATER("Greater", 0.8D, 6, 8, 5D),
+        ULTIMATE("Ultimate", 0D, 0, 8, 1D);
 
         private final String prettyName;
         private final double chanceToDestroy;
@@ -56,12 +57,8 @@ public final class UpgradeScroll extends HiltItemStack {
             return null;
         }
 
-        public static double getTotalWeight() {
-            double d = 0D;
-            for (ScrollType val : values()) {
-                d += val.getWeight();
-            }
-            return d;
+        public String getPrettyName() {
+            return prettyName;
         }
 
         public static ScrollType random(boolean withChance) {
@@ -79,8 +76,16 @@ public final class UpgradeScroll extends HiltItemStack {
             return null;
         }
 
-        public String getPrettyName() {
-            return prettyName;
+        public static double getTotalWeight() {
+            double d = 0D;
+            for (ScrollType val : values()) {
+                d += val.getWeight();
+            }
+            return d;
+        }
+
+        public double getWeight() {
+            return weight;
         }
 
         public double getChanceToDestroy() {
@@ -93,10 +98,6 @@ public final class UpgradeScroll extends HiltItemStack {
 
         public int getMaximumLevel() {
             return maximumLevel;
-        }
-
-        public double getWeight() {
-            return weight;
         }
 
     }
