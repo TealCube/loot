@@ -69,10 +69,10 @@ public final class LootItemBuilder implements ItemBuilder {
             lore.add("<blue>(Enchantable)");
         }
         for (int i = 0; i < random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets()); i++) {
-            lore.add("<yellow>(Socket)");
+            lore.add("<gold>(Socket)");
         }
         if (random.nextDouble() < tier.getExtendableChance()) {
-            lore.add("<gold>(+)");
+            lore.add("<dark aqua>(+)");
         }
         hiltItemStack.setLore(TextUtils.color(lore));
         return hiltItemStack;

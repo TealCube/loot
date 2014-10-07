@@ -12,8 +12,8 @@ public final class SocketExtender extends HiltItemStack {
         super(Material.NETHER_STAR);
         setAmount(1);
         setName(ChatColor.DARK_AQUA + "Socket Extender");
-        setLore(Arrays.asList(ChatColor.WHITE + "Drop on an item with a " + ChatColor.GOLD + "(+)",
-                              ChatColor.WHITE + "in its lore to give it a socket."));
+        setLore(Arrays.asList(ChatColor.GRAY + "Drag this item onto an item with a " + ChatColor.DARK_AQUA + "(+)",
+                              ChatColor.GRAY + "to give that item an additional socket!"));
     }
 
 }

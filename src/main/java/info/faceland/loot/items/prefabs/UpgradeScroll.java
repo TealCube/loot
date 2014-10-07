@@ -30,7 +30,7 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 2, 70D), STANDARD("Standard", 0.5D, 3, 5, 25D), GREATER("Greater", 0.8D, 6, 8, 5D),
+        LESSER("Lesser", 0D, 0, 2, 700D), STANDARD("Standard", 0.5D, 3, 5, 250D), GREATER("Greater", 0.8D, 6, 8, 50D),
         ULTIMATE("Ultimate", 0D, 0, 8, 1D);
 
         private final String prettyName;
