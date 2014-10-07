@@ -102,16 +102,6 @@ public final class LootItemBuilder implements ItemBuilder {
         return this;
     }
 
-    private List<Tier> getMatchingTiers(Material m) {
-        List<Tier> tiers = new ArrayList<>();
-        for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-            if (t.getAllowedMaterials().contains(m)) {
-                tiers.add(t);
-            }
-        }
-        return tiers;
-    }
-
     private Tier chooseTier() {
         if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
             double totalWeight = 0D;
