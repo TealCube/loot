@@ -92,7 +92,9 @@ public final class LootTierManager implements TierManager {
             if (tierWeights.containsKey(t)) {
                 calcWeight *= tierWeights.get(t);
             }
-            currentWeight += calcWeight;
+            if (calcWeight >= 0) {
+                currentWeight += calcWeight;
+            }
             if (currentWeight >= selectedWeight) {
                 return t;
             }

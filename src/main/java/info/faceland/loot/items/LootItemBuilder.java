@@ -106,7 +106,7 @@ public final class LootItemBuilder implements ItemBuilder {
         if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
             double totalWeight = 0D;
             for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                totalWeight += t.getIdentifyWeight();
+                totalWeight += t.getIdentifyWeight() + ((distance / 10000D) * t.getDistanceWeight());
             }
             double chosenWeight = random.nextDouble() * totalWeight;
             double currentWeight = 0D;
