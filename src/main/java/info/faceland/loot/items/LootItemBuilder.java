@@ -41,11 +41,12 @@ public final class LootItemBuilder implements ItemBuilder {
         built = true;
         HiltItemStack hiltItemStack;
         if (material == null) {
-            if (tier == null) {
+            int attempts = 0;
+            while (tier == null && attempts < 10) {
                 tier = chooseTier();
-                if (tier == null) {
-                    throw new IllegalStateException("tier is null");
-                }
+            }
+            if (tier == null) {
+                throw new IllegalStateException("tier is null");
             }
             Set<Material> set = tier.getAllowedMaterials();
             Material[] array = set.toArray(new Material[set.size()]);
