@@ -28,6 +28,6 @@ public interface TierManager {
 
     Set<Tier> getLoadedTiers();
 
-    double getTotalTierWeight();
+    double getTotalTierWeight(double d);
 
 }

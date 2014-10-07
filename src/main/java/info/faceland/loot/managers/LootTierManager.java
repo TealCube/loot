@@ -84,7 +84,7 @@ public final class LootTierManager implements TierManager {
             Tier[] array = getLoadedTiers().toArray(new Tier[getLoadedTiers().size()]);
             return array[((int) (Math.random() * array.length))];
         }
-        double selectedWeight = random.nextDouble() * getTotalTierWeight();
+        double selectedWeight = random.nextDouble() * getTotalTierWeight(distance);
         double currentWeight = 0D;
         Set<Tier> chooseTiers = getLoadedTiers();
         for (Tier t : chooseTiers) {
@@ -106,11 +106,14 @@ public final class LootTierManager implements TierManager {
     }
 
     @Override
-    public double getTotalTierWeight() {
+    public double getTotalTierWeight(double distance) {
         double weight = 0;
         for (Tier t : getLoadedTiers()) {
-            if (t != null && t.getSpawnWeight() > 0D) {
-                weight += t.getSpawnWeight();
+            if (t != null) {
+                double d = t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
+                if (d > 0D) {
+                    weight += d;
+                }
             }
         }
         return weight;
