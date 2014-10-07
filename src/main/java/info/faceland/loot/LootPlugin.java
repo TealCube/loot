@@ -523,7 +523,6 @@ public final class LootPlugin extends FacePlugin {
                 if (s.startsWith("-")) {
                     ig = getItemGroupManager().getItemGroup(s.substring(1));
                     if (ig == null) {
-                        debug("tier loading : " + key + " : " + s.substring(1));
                         continue;
                     }
                     ig = ig.getInverse();
