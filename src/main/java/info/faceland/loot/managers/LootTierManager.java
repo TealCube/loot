@@ -28,6 +28,8 @@ import java.util.Set;
 
 public final class LootTierManager implements TierManager {
 
+    private static final double DISTANCE = 1000;
+    private static final double DISTANCE_SQUARED = Math.pow(DISTANCE, 2);
     private Set<Tier> loadedTiers;
     private LootRandom random;
 
@@ -104,7 +106,7 @@ public final class LootTierManager implements TierManager {
         double currentWeight = 0D;
         Set<Tier> chooseTiers = getLoadedTiers();
         for (Tier t : chooseTiers) {
-            double calcWeight = t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
+            double calcWeight = t.getSpawnWeight() + ((distance / DISTANCE_SQUARED) * t.getDistanceWeight());
             if (tierWeights.containsKey(t)) {
                 calcWeight *= tierWeights.get(t);
             }
@@ -128,7 +130,7 @@ public final class LootTierManager implements TierManager {
         double weight = 0;
         for (Tier t : getLoadedTiers()) {
             if (t != null) {
-                double d = t.getSpawnWeight() + ((distance / 10000D) * t.getDistanceWeight());
+                double d = t.getSpawnWeight() + ((distance / DISTANCE_SQUARED) * t.getDistanceWeight());
                 if (d > 0D) {
                     weight += d;
                 }
