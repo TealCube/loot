@@ -24,6 +24,8 @@ import java.util.*;
 
 public final class LootSocketGemManager implements SocketGemManager {
 
+    private static final double DISTANCE = 1000;
+    private static final double DISTANCE_SQUARED = Math.pow(DISTANCE, 2);
     private final Map<String, SocketGem> gemMap;
     private final LootRandom random;
 
@@ -111,7 +113,7 @@ public final class LootSocketGemManager implements SocketGemManager {
         List<SocketGem> gems = getSocketGems();
         Collections.shuffle(gems);
         for (SocketGem sg : gems) {
-            double calcWeight = sg.getWeight() + ((distance / 10000D) * sg.getDistanceWeight());
+            double calcWeight = sg.getWeight() + ((distance / DISTANCE_SQUARED) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
                 calcWeight *= map.get(sg);
             }
