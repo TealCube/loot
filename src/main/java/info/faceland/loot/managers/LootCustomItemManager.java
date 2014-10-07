@@ -27,6 +27,8 @@ import java.util.Set;
 
 public final class LootCustomItemManager implements CustomItemManager {
 
+    private static final double DISTANCE = 1000;
+    private static final double DISTANCE_SQUARED = Math.pow(DISTANCE, 2);
     private final Map<String, CustomItem> customItemMap;
     private final LootRandom random;
 
@@ -85,7 +87,7 @@ public final class LootCustomItemManager implements CustomItemManager {
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
         for (CustomItem ci : getCustomItems()) {
-            double calcWeight = ci.getWeight() + ((distance / 10000D) * ci.getDistanceWeight());
+            double calcWeight = ci.getWeight() + ((distance / DISTANCE_SQUARED) * ci.getDistanceWeight());
             if (map.containsKey(ci)) {
                 calcWeight *= map.get(ci);
             }
