@@ -16,9 +16,9 @@ public final class InventoryUtil {
         if (inventory == null || itemStack == null) {
             return -1;
         }
-        HashMap<Integer, ? extends ItemStack> map = inventory.all(itemStack);
+        HashMap<Integer, ? extends ItemStack> map = inventory.all(itemStack.getType());
         for (Map.Entry<Integer, ? extends ItemStack> entry : map.entrySet()) {
-            if (entry.getValue().getAmount() >= amount) {
+            if (entry.getValue().isSimilar(itemStack) && entry.getValue().getAmount() >= amount) {
                 return entry.getKey();
             }
         }
