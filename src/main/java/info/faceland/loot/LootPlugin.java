@@ -1,3 +1,19 @@
+/******************************************************************************
+ * Copyright (c) 2014, Richard Harrah                                         *
+ *                                                                            *
+ * Permission to use, copy, modify, and/or distribute this software for any   *
+ * purpose with or without fee is hereby granted, provided that the above     *
+ * copyright notice and this permission notice appear in all copies.          *
+ *                                                                            *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES   *
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF           *
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR    *
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES     *
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN      *
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF    *
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.             *
+ ******************************************************************************/
+
 package info.faceland.loot;
 
 import info.faceland.api.FacePlugin;
@@ -13,14 +29,7 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
-import info.faceland.loot.api.managers.AnticheatManager;
-import info.faceland.loot.api.managers.CreatureModManager;
-import info.faceland.loot.api.managers.CustomItemManager;
-import info.faceland.loot.api.managers.EnchantmentStoneManager;
-import info.faceland.loot.api.managers.ItemGroupManager;
-import info.faceland.loot.api.managers.NameManager;
-import info.faceland.loot.api.managers.SocketGemManager;
-import info.faceland.loot.api.managers.TierManager;
+import info.faceland.loot.api.managers.*;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -37,14 +46,7 @@ import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
-import info.faceland.loot.managers.LootAnticheatManager;
-import info.faceland.loot.managers.LootCreatureModManager;
-import info.faceland.loot.managers.LootCustomItemManager;
-import info.faceland.loot.managers.LootEnchantmentStoneManager;
-import info.faceland.loot.managers.LootItemGroupManager;
-import info.faceland.loot.managers.LootNameManager;
-import info.faceland.loot.managers.LootSocketGemManager;
-import info.faceland.loot.managers.LootTierManager;
+import info.faceland.loot.managers.*;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
@@ -58,12 +60,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 public final class LootPlugin extends FacePlugin {
