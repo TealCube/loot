@@ -525,14 +525,16 @@ public final class LootPlugin extends FacePlugin {
                     if (ig == null) {
                         continue;
                     }
-                    ig = ig.getInverse();
+                    itemGroups.add(ig.getInverse());
+                    debug(key + " : item group : " + ig.getName() + " : inverse");
                 } else {
                     ig = getItemGroupManager().getItemGroup(s);
                     if (ig == null) {
                         continue;
                     }
+                    itemGroups.add(ig);
+                    debug(key + " : item group : " + ig.getName());
                 }
-                itemGroups.add(ig);
             }
             builder.withItemGroups(itemGroups);
             builder.withMinimumDurability(cs.getDouble("minimum-durability"));
