@@ -109,7 +109,7 @@ public final class LootTierManager implements TierManager {
     public double getTotalTierWeight() {
         double weight = 0;
         for (Tier t : getLoadedTiers()) {
-            if (t != null) {
+            if (t != null && t.getSpawnWeight() > 0D) {
                 weight += t.getSpawnWeight();
             }
         }
