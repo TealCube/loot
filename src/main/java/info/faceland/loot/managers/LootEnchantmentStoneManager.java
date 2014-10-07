@@ -27,6 +27,8 @@ import java.util.Set;
 
 public final class LootEnchantmentStoneManager implements EnchantmentStoneManager {
 
+    private static final double DISTANCE = 1000;
+    private static final double DISTANCE_SQUARED = Math.pow(DISTANCE, 2);
     private final Map<String, EnchantmentStone> gemMap;
     private final LootRandom random;
 
@@ -95,7 +97,7 @@ public final class LootEnchantmentStoneManager implements EnchantmentStoneManage
         double currentWeight = 0D;
         Set<EnchantmentStone> gems = getEnchantmentStones();
         for (EnchantmentStone sg : gems) {
-            double calcWeight = sg.getWeight() + ((distance / 10000D) * sg.getDistanceWeight());
+            double calcWeight = sg.getWeight() + ((distance / DISTANCE_SQUARED) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
                 calcWeight *= map.get(sg);
             }
