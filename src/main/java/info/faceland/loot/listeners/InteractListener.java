@@ -11,6 +11,7 @@ import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
 import info.faceland.loot.utils.converters.StringConverter;
+import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.messaging.Chatty;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
@@ -190,7 +191,7 @@ public final class InteractListener implements Listener {
                     player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                     currentItem = null;
                 } else {
-                    int index = player.getInventory().first(new ProtectionCharm());
+                    int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
                     if (index != -1) {
                         ItemStack inInv = player.getInventory().getItem(index);
                         inInv.setAmount(inInv.getAmount() - 1);
