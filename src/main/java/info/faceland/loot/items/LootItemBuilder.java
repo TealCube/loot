@@ -40,47 +40,21 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         built = true;
         HiltItemStack hiltItemStack;
+        int attempts = 0;
+        while (tier == null && attempts < 10) {
+            tier = chooseTier();
+            attempts++;
+        }
+        if (tier == null) {
+            throw new IllegalStateException("tier is null");
+        }
         if (material == null) {
-            int attempts = 0;
-            while (tier == null && attempts < 10) {
-                tier = chooseTier();
-            }
-            if (tier == null) {
-                throw new IllegalStateException("tier is null");
-            }
             Set<Material> set = tier.getAllowedMaterials();
             Material[] array = set.toArray(new Material[set.size()]);
             if (array.length == 0) {
                 throw new RuntimeException("array length is 0 for tier: " + tier.getName());
             }
             material = array[random.nextInt(array.length)];
-        }
-        if (tier == null) {
-            List<Tier> tiers = getMatchingTiers(material);
-            double totalWeight = 0D;
-            for (Tier t : tiers) {
-                if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
-                    totalWeight += t.getIdentifyWeight();
-                } else {
-                    totalWeight += t.getSpawnWeight();
-                }
-            }
-            double chosenWeight = random.nextDouble() * totalWeight;
-            double currentWeight = 0D;
-            for (Tier t : tiers) {
-                if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
-                    currentWeight += t.getIdentifyWeight();
-                } else {
-                    currentWeight += t.getSpawnWeight();
-                }
-                if (currentWeight >= chosenWeight) {
-                    tier = t;
-                    break;
-                }
-            }
-            if (tier == null) {
-                throw new RuntimeException("cannot identify");
-            }
         }
         hiltItemStack = new HiltItemStack(material);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
