@@ -76,7 +76,7 @@ public final class LootItemGroup implements ItemGroup {
 
     @Override
     public ItemGroup getInverse() {
-        return new LootItemGroup(getName(), getMaterials(), !isInverse());
+        return new LootItemGroup(name, legalMaterials, !inverse);
     }
 
 }

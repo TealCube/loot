@@ -547,11 +547,6 @@ public final class LootPlugin extends FacePlugin {
         debug("Loaded tiers: " + loadedTiers.toString());
         for (Tier t : tiers) {
             getTierManager().addTier(t);
-            List<String> l = new ArrayList<>();
-            for (Material m : t.getAllowedMaterials()) {
-                l.add(m.name());
-            }
-            debug(t.getName() + " : " + l.toString());
         }
     }
 
