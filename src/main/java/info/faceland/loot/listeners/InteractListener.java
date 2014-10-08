@@ -22,12 +22,10 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.items.prefabs.ProtectionCharm;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.StringListUtils;
 import info.faceland.loot.utils.converters.StringConverter;
-import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.messaging.Chatty;
 import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
@@ -43,7 +41,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,48 +198,48 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
-            boolean succeed = true;
-            int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
-            if (random.nextDouble() < type.getChanceToDestroy()) {
-                if (index == -1) {
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
-                    player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
-                    currentItem = null;
-                } else {
-                    ItemStack inInv = player.getInventory().getItem(index);
-                    inInv.setAmount(inInv.getAmount() - 1);
-                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
-                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
-                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
-                }
-                succeed = false;
+//            boolean succeed = true;
+//            int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
+//            if (random.nextDouble() < type.getChanceToDestroy()) {
+//                if (index == -1) {
+//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+//                    player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+//                    currentItem = null;
+//                } else {
+//                    ItemStack inInv = player.getInventory().getItem(index);
+//                    inInv.setAmount(inInv.getAmount() - 1);
+//                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
+//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
+//                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+//                }
+//                succeed = false;
+//            }
+//            if (currentItem != null && succeed) {
+            if (level == 0) {
+                level++;
+                name = getFirstColor(name) + ("+" + level) + " " + name;
+                currentItem.setName(name);
+            } else {
+                level++;
+                name = name.replace("+" + lev, "+" + String.valueOf(level));
+                currentItem.setName(name);
             }
-            if (currentItem != null && succeed) {
-                if (level == 0) {
-                    level++;
-                    name = getFirstColor(name) + ("+" + level) + " " + name;
-                    currentItem.setName(name);
-                } else {
-                    level++;
-                    name = name.replace("+" + lev, "+" + String.valueOf(level));
-                    currentItem.setName(name);
+            List<String> lore = currentItem.getLore();
+            for (int i = 0; i < lore.size(); i++) {
+                String s = lore.get(i);
+                String ss = ChatColor.stripColor(s);
+                if (!ss.startsWith("+")) {
+                    continue;
                 }
-                List<String> lore = currentItem.getLore();
-                for (int i = 0; i < lore.size(); i++) {
-                    String s = lore.get(i);
-                    String ss = ChatColor.stripColor(s);
-                    if (!ss.startsWith("+")) {
-                        continue;
-                    }
-                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                    int loreLevel = StringConverter.toInt(loreLev);
-                    lore.set(i, s.replace(loreLev, "+" + loreLevel));
-                    break;
-                }
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                int loreLevel = StringConverter.toInt(loreLev);
+                lore.set(i, s.replace(loreLev, "+" + loreLevel));
+                break;
             }
+            Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+//            }
         } else {
             return;
         }
