@@ -249,6 +249,7 @@ public final class InteractListener implements Listener {
         event.setCursor(cursor.getAmount() == 0 ? null : cursor);
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
+        player.updateInventory();
     }
 
     private boolean isBlockWithinRadius(Material material, Location location, int radius) {

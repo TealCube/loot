@@ -19,9 +19,6 @@ package info.faceland.loot.utils.inventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class InventoryUtil {
 
     private InventoryUtil() {
@@ -32,11 +29,12 @@ public final class InventoryUtil {
         if (inventory == null || itemStack == null) {
             return -1;
         }
-        HashMap<Integer, ? extends ItemStack> map = inventory.all(itemStack.getType());
-        for (Map.Entry<Integer, ? extends ItemStack> entry : map.entrySet()) {
-            if (entry.getValue().isSimilar(itemStack) && entry.getValue().getAmount() >= amount) {
-                return entry.getKey();
+        for (int i = 0; i < inventory.getContents().length; i++) {
+            ItemStack is = inventory.getContents()[i];
+            if (is == null || !is.isSimilar(itemStack) || is.getAmount() < amount) {
+                continue;
             }
+            return i;
         }
         return -1;
     }
