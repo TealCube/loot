@@ -211,7 +211,7 @@ public final class InteractListener implements Listener {
                 } else {
                     ItemStack inInv = player.getInventory().getItem(index);
                     inInv.setAmount(inInv.getAmount() - 1);
-                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
+                    player.getInventory().setItem(index, inInv.getAmount() == 0 ? null : inInv);
                     Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                     Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
                     player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
@@ -240,6 +240,7 @@ public final class InteractListener implements Listener {
                     lore.set(i, s.replace(loreLev, "+" + loreLevel));
                     break;
                 }
+                currentItem.setLore(lore);
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
             }
@@ -252,6 +253,7 @@ public final class InteractListener implements Listener {
         event.setCursor(cursor.getAmount() == 0 ? null : cursor);
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
+        player.updateInventory();
     }
 
     private boolean isBlockWithinRadius(Material material, Location location, int radius) {
