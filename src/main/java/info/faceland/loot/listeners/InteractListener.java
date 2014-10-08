@@ -201,13 +201,14 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
+            boolean succeed = true;
             int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
             if (random.nextDouble() < type.getChanceToDestroy()) {
-                if (!player.getInventory().containsAtLeast(new ProtectionCharm(), 1)) {
+                if (index == -1) {
                     Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                     player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                     currentItem = null;
-                } else if (index != -1) {
+                } else {
                     ItemStack inInv = player.getInventory().getItem(index);
                     inInv.setAmount(inInv.getAmount() - 1);
                     player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
@@ -215,8 +216,9 @@ public final class InteractListener implements Listener {
                     Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
                     player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 }
+                succeed = false;
             }
-            if (currentItem != null) {
+            if (currentItem != null && succeed) {
                 if (level == 0) {
                     level++;
                     name = getFirstColor(name) + ("+" + level) + " " + name;
@@ -240,8 +242,6 @@ public final class InteractListener implements Listener {
                 }
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
-            } else {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
             }
         } else {
             return;
