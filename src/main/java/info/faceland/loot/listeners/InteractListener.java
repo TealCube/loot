@@ -38,6 +38,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
@@ -66,7 +67,7 @@ public final class InteractListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null || event.getCursor() == null
             || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR ||
-            !(event.getWhoClicked() instanceof Player)) {
+            !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
             return;
         }
         Player player = (Player) event.getWhoClicked();
