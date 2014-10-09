@@ -199,13 +199,13 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
-//            boolean succeed = true;
+            boolean succeed = true;
 //            int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
-//            if (random.nextDouble() < type.getChanceToDestroy()) {
+            if (random.nextDouble() < type.getChanceToDestroy()) {
 //                if (index == -1) {
-//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
-//                    player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
-//                    currentItem = null;
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+                player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                currentItem = null;
 //                } else {
 //                    ItemStack inInv = player.getInventory().getItem(index);
 //                    inInv.setAmount(inInv.getAmount() - 1);
@@ -215,32 +215,32 @@ public final class InteractListener implements Listener {
 //                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
 //                }
 //                succeed = false;
-//            }
-//            if (currentItem != null && succeed) {
-            if (level == 0) {
-                level++;
-                name = getFirstColor(name) + ("+" + level) + " " + name;
-                currentItem.setName(name);
-            } else {
-                level++;
-                name = name.replace("+" + lev, "+" + String.valueOf(level));
-                currentItem.setName(name);
             }
-            List<String> lore = currentItem.getLore();
-            for (int i = 0; i < lore.size(); i++) {
-                String s = lore.get(i);
-                String ss = ChatColor.stripColor(s);
-                if (!ss.startsWith("+")) {
-                    continue;
+            if (currentItem != null) {
+                if (level == 0) {
+                    level++;
+                    name = getFirstColor(name) + ("+" + level) + " " + name;
+                    currentItem.setName(name);
+                } else {
+                    level++;
+                    name = name.replace("+" + lev, "+" + String.valueOf(level));
+                    currentItem.setName(name);
                 }
-                String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                int loreLevel = StringConverter.toInt(loreLev);
-                lore.set(i, s.replace(loreLev, "+" + loreLevel));
-                break;
+                List<String> lore = currentItem.getLore();
+                for (int i = 0; i < lore.size(); i++) {
+                    String s = lore.get(i);
+                    String ss = ChatColor.stripColor(s);
+                    if (!ss.startsWith("+")) {
+                        continue;
+                    }
+                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                    int loreLevel = StringConverter.toInt(loreLev) + 1;
+                    lore.set(i, s.replace("+" + loreLev, "+" + loreLevel));
+                    break;
+                }
+                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
             }
-            Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
-//            }
         } else {
             return;
         }
