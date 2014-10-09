@@ -18,7 +18,7 @@ package info.faceland.loot.sockets.effects;
 
 import info.faceland.loot.api.sockets.effects.SocketEffectTarget;
 import info.faceland.loot.api.sockets.effects.SocketPotionEffect;
-import info.faceland.loot.utils.converters.StringConverter;
+import info.faceland.utils.StringConverter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
