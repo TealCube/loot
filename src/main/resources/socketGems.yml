@@ -1,9 +1,10 @@
 # effect format is potioneffect:target:duration:intensity:radius
 # duration is in milliseconds
-version: "0.0.4"
+version: "0.0.5"
 Steroids I:
   broadcast: false
   triggerable: true
+  trigger-text: "Fuck yeah, steroids"
   prefix: 'Roidy'
   suffix: 'of Roids'
   lore:
