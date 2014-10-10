@@ -41,6 +41,7 @@ public final class LootSocketGem implements SocketGem {
     private List<ItemGroup> itemGroups;
     private boolean broadcast;
     private boolean triggerable;
+    private String triggerText;
 
     public LootSocketGem(String name) {
         this.name = name;
@@ -185,6 +186,15 @@ public final class LootSocketGem implements SocketGem {
 
     void setWeight(double weight) {
         this.weight = weight;
+    }
+
+    @Override
+    public String getTriggerText() {
+        return triggerText;
+    }
+
+    void setTriggerText(String triggerText) {
+        this.triggerText = triggerText;
     }
 
 }

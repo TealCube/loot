@@ -44,4 +44,6 @@ public interface SocketGemBuilder {
     SocketGemBuilder withBroadcast(boolean b);
 
     SocketGemBuilder withTriggerable(boolean b);
+
+    SocketGemBuilder withTriggerText(String s);
 }

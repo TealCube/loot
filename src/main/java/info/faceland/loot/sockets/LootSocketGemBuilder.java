@@ -100,4 +100,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withTriggerText(String s) {
+        gem.setTriggerText(s);
+        return this;
+    }
+
 }

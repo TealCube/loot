@@ -46,4 +46,6 @@ public interface SocketGem extends Comparable<SocketGem> {
 
     boolean isTriggerable();
 
+    String getTriggerText();
+
 }
