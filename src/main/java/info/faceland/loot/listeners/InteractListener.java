@@ -98,13 +98,8 @@ public final class InteractListener implements Listener {
             }
             int index = strippedLore.indexOf("(Socket)");
 
-            if (gem.isTriggerable()) {
-                lore.set(index, ChatColor.GOLD + gem.getName());
-                lore.addAll(index + 1, TextUtils.color(gem.getLore()));
-            } else {
-                lore.remove(index);
-                lore.addAll(index, TextUtils.color(gem.getLore()));
-            }
+            lore.remove(index);
+            lore.addAll(index, TextUtils.color(gem.getLore()));
 
             currentItem.setLore(lore);
 
