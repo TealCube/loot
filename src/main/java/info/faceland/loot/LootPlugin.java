@@ -414,6 +414,7 @@ public final class LootPlugin extends FacePlugin {
             }
             builder.withItemGroups(groups);
             builder.withBroadcast(cs.getBoolean("broadcast"));
+            builder.withTriggerable(cs.getBoolean("triggerable"));
             SocketGem gem = builder.build();
             gems.add(gem);
             loadedSocketGems.add(gem.getName());
