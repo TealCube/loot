@@ -194,7 +194,17 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
-            boolean succeed = true;
+            boolean succeed = false;
+            List<String> strip = StringListUtils.stripColor(currentItem.getLore());
+            for (String s : strip) {
+                if (s.startsWith("+")) {
+                    succeed = true;
+                    break;
+                }
+            }
+            if (!succeed) {
+                return;
+            }
 //            int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
             if (random.nextDouble() < type.getChanceToDestroy()) {
 //                if (index == -1) {
