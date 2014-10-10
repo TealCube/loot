@@ -113,7 +113,7 @@ public final class InteractListener implements Listener {
             String format = "%s%s%s";
             name = String.format(format, start + (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
                                  name + (!gem.getSuffix().isEmpty() ? " " : ""),
-                                 gem.getSuffix() + ChatColor.getLastColors(name));
+                                 start + gem.getSuffix() + ChatColor.getLastColors(name));
             currentItem.setName(TextUtils.color(name));
 
             Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
