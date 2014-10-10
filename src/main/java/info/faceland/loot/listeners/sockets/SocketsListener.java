@@ -21,6 +21,8 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.utils.StringListUtils;
+import info.faceland.utils.TextUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -32,7 +34,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class SocketsListener implements Listener {
 
@@ -53,35 +57,12 @@ public final class SocketsListener implements Listener {
         Entity defender = event.getEntity();
         if (attacker instanceof Player) {
             Player attackerP = (Player) attacker;
-            if (attackerP.getItemInHand() != null && attackerP.getItemInHand().getType() != Material.AIR) {
-                HiltItemStack inHand = new HiltItemStack(attackerP.getItemInHand());
-                List<String> lore = inHand.getLore();
-                List<String> strippedLore = StringListUtils.stripColor(lore);
-                for (String key : strippedLore) {
-                    SocketGem gem = plugin.getSocketGemManager().getSocketGem(key);
-                    if (gem == null) {
-                        continue;
-                    }
-                    attackerGems.add(gem);
-                }
-            }
+            attackerGems.addAll(getGems(attackerP.getEquipment().getItemInHand()));
         }
         if (defender instanceof Player) {
             Player defenderP = (Player) defender;
             for (ItemStack equipment : defenderP.getEquipment().getArmorContents()) {
-                if (equipment == null || equipment.getType() == Material.AIR) {
-                    continue;
-                }
-                HiltItemStack item = new HiltItemStack(equipment);
-                List<String> lore = item.getLore();
-                List<String> strippedLore = StringListUtils.stripColor(lore);
-                for (String key : strippedLore) {
-                    SocketGem gem = plugin.getSocketGemManager().getSocketGem(key);
-                    if (gem == null) {
-                        continue;
-                    }
-                    defenderGems.add(gem);
-                }
+                defenderGems.addAll(getGems(equipment));
             }
         }
 
@@ -144,6 +125,32 @@ public final class SocketsListener implements Listener {
                 }
             }
         }
+    }
+
+    private Set<SocketGem> getGems(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType() == Material.AIR) {
+            return new HashSet<>();
+        }
+        Set<SocketGem> gems = new HashSet<>();
+        HiltItemStack item = new HiltItemStack(itemStack);
+        List<String> lore = item.getLore();
+        List<String> strippedLore = StringListUtils.stripColor(lore);
+        for (String key : strippedLore) {
+            SocketGem gem = plugin.getSocketGemManager().getSocketGem(key);
+            if (gem == null) {
+                for (SocketGem g : plugin.getSocketGemManager().getSocketGems()) {
+                    if (key.equals(ChatColor.stripColor(TextUtils.color(g.getTriggerText())))) {
+                        gem = g;
+                        break;
+                    }
+                }
+                if (gem == null) {
+                    continue;
+                }
+            }
+            gems.add(gem);
+        }
+        return gems;
     }
 
 }
