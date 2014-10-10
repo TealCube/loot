@@ -139,7 +139,8 @@ public final class SocketsListener implements Listener {
             SocketGem gem = plugin.getSocketGemManager().getSocketGem(key);
             if (gem == null) {
                 for (SocketGem g : plugin.getSocketGemManager().getSocketGems()) {
-                    if (key.equals(ChatColor.stripColor(TextUtils.color(g.getTriggerText())))) {
+                    if (key.equals(ChatColor.stripColor(TextUtils.color(
+                            g.getTriggerText() != null ? g.getTriggerText() : "")))) {
                         gem = g;
                         break;
                     }
