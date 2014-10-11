@@ -17,6 +17,7 @@
 package info.faceland.loot.listeners.anticheat;
 
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.anticheat.AnticheatTag;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -39,8 +40,14 @@ public final class AnticheatListener implements Listener {
             return;
         }
         if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
-            plugin.getAnticheatManager().push((LivingEntity) event.getEntity());
+            plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
         }
+        AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
+        if (tag.getTaggerLocation(event.getDamager().getUniqueId()) != null) {
+            return;
+        }
+        tag.setTaggerLocation(event.getDamager().getUniqueId(), event.getDamager().getLocation());
+        plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
     }
 
 }
