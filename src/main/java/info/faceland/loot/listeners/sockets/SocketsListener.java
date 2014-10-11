@@ -27,11 +27,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,6 +60,20 @@ public final class SocketsListener implements Listener {
         if (attacker instanceof Player) {
             Player attackerP = (Player) attacker;
             attackerGems.addAll(getGems(attackerP.getEquipment().getItemInHand()));
+        } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
+            attacker = (Player) ((Projectile) attacker).getShooter();
+            if (attacker.hasMetadata("loot.gems")) {
+                for (MetadataValue val : attacker.getMetadata("loot.gems")) {
+                    if (!val.getOwningPlugin().equals(plugin)) {
+                        continue;
+                    }
+                    SocketGem gem = plugin.getSocketGemManager().getSocketGem(val.asString());
+                    if (gem == null) {
+                        continue;
+                    }
+                    attackerGems.add(gem);
+                }
+            }
         }
         if (defender instanceof Player) {
             Player defenderP = (Player) defender;
