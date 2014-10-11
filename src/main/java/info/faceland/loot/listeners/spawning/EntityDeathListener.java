@@ -73,6 +73,9 @@ public final class EntityDeathListener implements Listener {
             && !(event.getEntity() instanceof Monster)) {
             return;
         }
+        if (isBlockWithinRadius(Material.MOB_SPAWNER, event.getEntity().getLocation(), 20)) {
+            return;
+        }
         if (isWater(event.getEntity().getLocation()) && random.nextDouble() < 0.5) {
             return;
         }
@@ -201,6 +204,26 @@ public final class EntityDeathListener implements Listener {
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
             plugin.getAnticheatManager().pull(event.getEntity());
         }
+    }
+
+    private boolean isBlockWithinRadius(Material material, Location location, int radius) {
+        int minX = location.getBlockX() - radius;
+        int maxX = location.getBlockX() + radius;
+        int minY = location.getBlockY() - radius;
+        int maxY = location.getBlockY() + radius;
+        int minZ = location.getBlockZ() - radius;
+        int maxZ = location.getBlockZ() + radius;
+        for (int x = minX; x < maxX; x++) {
+            for (int y = minY; y < maxY; y++) {
+                for (int z = minZ; z < maxZ; z++) {
+                    Block block = location.getWorld().getBlockAt(x, y, z);
+                    if (block.getType() == material) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 }
