@@ -32,7 +32,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
@@ -46,6 +48,19 @@ public final class SocketsListener implements Listener {
 
     public SocketsListener(LootPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (event.isCancelled() || !(event.getEntity().getShooter() instanceof Player)) {
+            return;
+        }
+        Set<SocketGem> gems = getGems(((Player) event.getEntity().getShooter()).getItemInHand());
+        List<String> names = new ArrayList<>();
+        for (SocketGem gem : gems) {
+            names.add(gem.getName());
+        }
+        event.getEntity().setMetadata("loot.gems", new FixedMetadataValue(plugin, names.toString()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -67,11 +82,14 @@ public final class SocketsListener implements Listener {
                     if (!val.getOwningPlugin().equals(plugin)) {
                         continue;
                     }
-                    SocketGem gem = plugin.getSocketGemManager().getSocketGem(val.asString());
-                    if (gem == null) {
-                        continue;
+                    String blah = val.asString().replace("[", "").replace("]", "");
+                    for (String s : blah.split(", ")) {
+                        SocketGem gem = plugin.getSocketGemManager().getSocketGem(s);
+                        if (gem == null) {
+                            continue;
+                        }
+                        attackerGems.add(gem);
                     }
-                    attackerGems.add(gem);
                 }
             }
         }
