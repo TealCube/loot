@@ -39,17 +39,17 @@ public final class LootAnticheatManager implements AnticheatManager {
     }
 
     @Override
-    public boolean push(LivingEntity entity) {
+    public boolean addTag(LivingEntity entity) {
         return entity != null && anticheatTagMap.put(entity.getUniqueId(), new LootAnticheatTag(entity)) != null;
     }
 
     @Override
-    public boolean pull(LivingEntity entity) {
+    public boolean removeTag(LivingEntity entity) {
         return entity != null && anticheatTagMap.remove(entity.getUniqueId()) != null;
     }
 
     @Override
-    public AnticheatTag tag(LivingEntity entity) {
+    public AnticheatTag getTag(LivingEntity entity) {
         if (entity == null) {
             throw new IllegalArgumentException("entity cannot be null");
         }

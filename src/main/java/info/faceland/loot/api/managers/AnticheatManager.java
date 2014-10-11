@@ -23,10 +23,10 @@ public interface AnticheatManager {
 
     boolean isTagged(LivingEntity entity);
 
-    boolean push(LivingEntity entity);
+    boolean addTag(LivingEntity entity);
 
-    boolean pull(LivingEntity entity);
+    boolean removeTag(LivingEntity entity);
 
-    AnticheatTag tag(LivingEntity entity);
+    AnticheatTag getTag(LivingEntity entity);
 
 }

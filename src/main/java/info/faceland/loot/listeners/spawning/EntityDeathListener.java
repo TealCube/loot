@@ -84,8 +84,8 @@ public final class EntityDeathListener implements Listener {
         }
         double distance = -1D;
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            distance = plugin.getAnticheatManager().tag(
-                    event.getEntity()).getLocation().distanceSquared(event.getEntity().getLocation());
+            distance = plugin.getAnticheatManager().getTag(
+                    event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
         }
         if (distance >= 0 && distance <= 4 && random.nextDouble() < 0.75) {
             return;
@@ -202,7 +202,7 @@ public final class EntityDeathListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeathMonitor(EntityDeathEvent event) {
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            plugin.getAnticheatManager().pull(event.getEntity());
+            plugin.getAnticheatManager().removeTag(event.getEntity());
         }
     }
 
