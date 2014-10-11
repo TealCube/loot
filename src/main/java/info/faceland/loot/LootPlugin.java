@@ -50,6 +50,7 @@ import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.InteractListener;
+import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
@@ -220,6 +221,7 @@ public final class LootPlugin extends FacePlugin {
         Bukkit.getPluginManager().registerEvents(new SocketsListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
+        Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
         //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
         debug("v" + getDescription().getVersion() + " enabled");
     }
