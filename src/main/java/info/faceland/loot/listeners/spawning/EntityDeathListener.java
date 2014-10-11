@@ -41,8 +41,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +57,14 @@ public final class EntityDeathListener implements Listener {
     public EntityDeathListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom(System.currentTimeMillis());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            return;
+        }
+        event.getEntity().setMetadata("loot.spawnreason", new FixedMetadataValue(plugin, true));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -73,21 +83,36 @@ public final class EntityDeathListener implements Listener {
             && !(event.getEntity() instanceof Monster)) {
             return;
         }
-        if (isBlockWithinRadius(Material.MOB_SPAWNER, event.getEntity().getLocation(), 20)) {
+        if (event.getEntity().hasMetadata("loot.spawnreason")) {
             return;
         }
-        if (isWater(event.getEntity().getLocation()) && random.nextDouble() < 0.5) {
-            return;
+        double cancelChance = 1.0D;
+        if (isWater(event.getEntity().getLocation())) {
+            cancelChance *= 0.5D;
         }
-        if (isWater(event.getEntity().getKiller().getLocation()) && random.nextDouble() < 0.5) {
-            return;
+        if (isWater(event.getEntity().getKiller().getLocation())) {
+            cancelChance *= 0.5D;
         }
-        double distance = -1D;
+        double distanceFromWhereTagged = -1D;
+        double taggerDistance = -1;
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            distance = plugin.getAnticheatManager().getTag(
+            distanceFromWhereTagged = plugin.getAnticheatManager().getTag(
                     event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
+            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(event.getEntity().getKiller
+                    ().getUniqueId()) != null) {
+                taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity())
+                                       .getTaggerLocation(event.getEntity().getKiller
+                                               ().getUniqueId())
+                                       .distanceSquared(event.getEntity().getKiller().getLocation());
+            }
         }
-        if (distance >= 0 && distance <= 4 && random.nextDouble() < 0.75) {
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 4) {
+            cancelChance *= 0.4D;
+        }
+        if (taggerDistance >= 0 && taggerDistance <= 4) {
+            cancelChance *= 0.4D;
+        }
+        if (random.nextDouble() >= cancelChance) {
             return;
         }
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
@@ -199,13 +224,6 @@ public final class EntityDeathListener implements Listener {
         return b.isLiquid();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onEntityDeathMonitor(EntityDeathEvent event) {
-        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            plugin.getAnticheatManager().removeTag(event.getEntity());
-        }
-    }
-
     private boolean isBlockWithinRadius(Material material, Location location, int radius) {
         int minX = location.getBlockX() - radius;
         int maxX = location.getBlockX() + radius;
@@ -224,6 +242,13 @@ public final class EntityDeathListener implements Listener {
             }
         }
         return false;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDeathMonitor(EntityDeathEvent event) {
+        if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
+            plugin.getAnticheatManager().removeTag(event.getEntity());
+        }
     }
 
 }
