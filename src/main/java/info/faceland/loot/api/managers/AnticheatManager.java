@@ -27,6 +27,8 @@ public interface AnticheatManager {
 
     boolean removeTag(LivingEntity entity);
 
+    boolean pushTag(LivingEntity entity, AnticheatTag tag);
+
     AnticheatTag getTag(LivingEntity entity);
 
 }
