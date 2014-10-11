@@ -110,7 +110,7 @@ public final class InteractListener implements Listener {
             name = name.replace("+" + level + " ", "");
             ChatColor start = getFirstColor(name);
             String format = "%s%s%s";
-            name = String.format(format, start + "+" + level + " " +
+            name = String.format(format, start + (level > 0 ? "+" + level + " " : "") +
                                          (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
                                  name + (!gem.getSuffix().isEmpty() ? " " : ""),
                                  start + gem.getSuffix() + ChatColor.getLastColors(name));
@@ -298,7 +298,7 @@ public final class InteractListener implements Listener {
 
     private int getLevel(String name) {
         String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ChatColor.stripColor(name));
-        return StringConverter.toInt(lev);
+        return StringConverter.toInt(lev, 0);
     }
 
 }
