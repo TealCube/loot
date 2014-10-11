@@ -39,7 +39,7 @@ public final class AnticheatListener implements Listener {
             return;
         }
         if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
-            plugin.getAnticheatManager().tag((LivingEntity) event.getEntity());
+            plugin.getAnticheatManager().push((LivingEntity) event.getEntity());
         }
     }
 
