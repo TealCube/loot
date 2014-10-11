@@ -243,6 +243,7 @@ public final class InteractListener implements Listener {
                     lore.set(i, s.replace("+" + loreLev, "+" + loreLevel));
                     break;
                 }
+                currentItem.setLore(lore);
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
             }
