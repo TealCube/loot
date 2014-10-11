@@ -20,20 +20,24 @@ import info.faceland.loot.api.anticheat.AnticheatTag;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class LootAnticheatTag implements AnticheatTag {
 
     private final UUID uuid;
-    private final Location location;
+    private final Location entityLocation;
+    private final Map<UUID, Location> taggerLocations;
 
     public LootAnticheatTag(LivingEntity entity) {
         this(entity.getUniqueId(), entity.getLocation());
     }
 
-    public LootAnticheatTag(UUID uuid, Location location) {
+    public LootAnticheatTag(UUID uuid, Location entityLocation) {
         this.uuid = uuid;
-        this.location = location;
+        this.entityLocation = entityLocation;
+        this.taggerLocations = new HashMap<>();
     }
 
     @Override
@@ -42,8 +46,21 @@ public final class LootAnticheatTag implements AnticheatTag {
     }
 
     @Override
-    public Location getLocation() {
-        return location;
+    public Location getEntityLocation() {
+        return entityLocation;
+    }
+
+    @Override
+    public Location getTaggerLocation(UUID uuid) {
+        if (taggerLocations.containsKey(uuid)) {
+            return taggerLocations.get(uuid);
+        }
+        return null;
+    }
+
+    @Override
+    public void setTaggerLocation(UUID uuid, Location location) {
+        taggerLocations.put(uuid, location);
     }
 
 }

@@ -24,6 +24,9 @@ public interface AnticheatTag {
 
     UUID getUniqueId();
 
-    Location getLocation();
+    Location getEntityLocation();
 
+    Location getTaggerLocation(UUID uuid);
+
+    void setTaggerLocation(UUID uuid, Location location);
 }
