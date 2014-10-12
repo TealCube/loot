@@ -186,6 +186,12 @@ public final class InteractListener implements Listener {
             Chatty.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
+            if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
+                currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
+                currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
+                currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
+                return;
+            }
             String name = ChatColor.stripColor(cursor.getName().replace("Upgrade Scroll", "")).trim();
             UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
             if (type == null) {
