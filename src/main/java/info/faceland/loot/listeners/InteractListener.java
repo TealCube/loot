@@ -33,6 +33,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -240,6 +241,9 @@ public final class InteractListener implements Listener {
                     level++;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
+                    if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
+                        currentItem.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+                    }
                 }
                 List<String> lore = currentItem.getLore();
                 for (int i = 0; i < lore.size(); i++) {
