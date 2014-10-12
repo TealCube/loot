@@ -1,7 +1,7 @@
 name: ${project.build.name}
 version: ${project.build.version}
 main: info.faceland.loot.LootPlugin
-depend: [Facecore]
+depend: [Facecore, ProtocolLib]
 
 commands:
   loot:

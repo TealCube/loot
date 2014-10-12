@@ -35,6 +35,11 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>comphenix-releases</id>
+            <name>Comphenix Maven Releases</name>
+            <url>http://repo.comphenix.net/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -42,6 +47,11 @@
             <groupId>info.faceland</groupId>
             <artifactId>facecore</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>RELEASE</version>
         </dependency>
     </dependencies>
 
