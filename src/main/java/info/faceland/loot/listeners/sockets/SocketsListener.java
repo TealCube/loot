@@ -60,6 +60,7 @@ public final class SocketsListener implements Listener {
         for (SocketGem gem : gems) {
             names.add(gem.getName());
         }
+        ((Player) event.getEntity().getShooter()).sendMessage(names.toString());
         event.getEntity().setMetadata("loot.gems", new FixedMetadataValue(plugin, names.toString()));
     }
 
