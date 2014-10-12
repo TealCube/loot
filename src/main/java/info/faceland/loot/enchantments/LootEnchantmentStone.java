@@ -123,7 +123,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
         is.setName(ChatColor.BLUE + "Enchantment Tome - " + getName());
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.WHITE + "Type: " + (itemGroups.isEmpty() ? "Any" : itemGroupsToString()));
-        lore.addAll(Arrays.asList(ChatColor.GRAY + "Drag this tome on an item that is",
+        lore.addAll(Arrays.asList(ChatColor.GRAY + "Drop this tome on an item that is",
                                   ChatColor.BLUE + "(Enchantable) " + ChatColor.GRAY + "while close to an",
                                   ChatColor.GRAY + "enchanting table to upgrade it!",
                                   ChatColor.WHITE + "Bonuses Applied:"));

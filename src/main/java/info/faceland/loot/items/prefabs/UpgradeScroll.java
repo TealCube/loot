@@ -32,7 +32,7 @@ public final class UpgradeScroll extends HiltItemStack {
         super(Material.PAPER);
         this.scrollType = scrollType;
         this.setName(ChatColor.DARK_GREEN + scrollType.getPrettyName() + " Upgrade Scroll");
-        this.setLore(Arrays.asList(ChatColor.GRAY + "Drag this scroll onto an item with",
+        this.setLore(Arrays.asList(ChatColor.GRAY + "Drop this scroll onto an item with",
                                    ChatColor.GRAY + "stats to upgrade it. The item is",
                                    ChatColor.WHITE + "destroyed" + ChatColor.GRAY + " if the upgrade fails!",
                                    ChatColor.GREEN + "Success Chance: " + ChatColor.WHITE +
