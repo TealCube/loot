@@ -111,7 +111,6 @@ public final class LootSocketGemManager implements SocketGemManager {
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
         List<SocketGem> gems = getSocketGems();
-        Collections.shuffle(gems);
         for (SocketGem sg : gems) {
             double calcWeight = sg.getWeight() + ((distance / DISTANCE_SQUARED) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
