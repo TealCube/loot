@@ -60,7 +60,6 @@ public final class SocketsListener implements Listener {
         for (SocketGem gem : gems) {
             names.add(gem.getName());
         }
-        ((Player) event.getEntity().getShooter()).sendMessage(names.toString());
         event.getEntity().setMetadata("loot.gems", new FixedMetadataValue(plugin, names.toString()));
     }
 
@@ -78,14 +77,14 @@ public final class SocketsListener implements Listener {
             attackerGems.addAll(getGems(attackerP.getEquipment().getItemInHand()));
         } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
             attacker = (Player) ((Projectile) attacker).getShooter();
-            if (attacker.hasMetadata("loot.gems")) {
-                for (MetadataValue val : attacker.getMetadata("loot.gems")) {
+            if (event.getDamager().hasMetadata("loot.gems")) {
+                for (MetadataValue val : event.getDamager().getMetadata("loot.gems")) {
                     if (!val.getOwningPlugin().equals(plugin)) {
                         continue;
                     }
                     String blah = val.asString().replace("[", "").replace("]", "");
-                    for (String s : blah.split(", ")) {
-                        SocketGem gem = plugin.getSocketGemManager().getSocketGem(s);
+                    for (String s : blah.split(",")) {
+                        SocketGem gem = plugin.getSocketGemManager().getSocketGem(s.trim());
                         if (gem == null) {
                             continue;
                         }
