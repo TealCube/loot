@@ -16,6 +16,14 @@
 
 package info.faceland.loot;
 
+import com.comphenix.protocol.Packets;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.ConnectionSide;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import info.faceland.api.FacePlugin;
 import info.faceland.facecore.shade.command.CommandHandler;
 import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
@@ -71,8 +79,10 @@ import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -223,6 +233,18 @@ public final class LootPlugin extends FacePlugin {
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
         //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
+        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
+                this, ConnectionSide.SERVER_SIDE, ListenerPriority.HIGH,
+                Packets.Server.SET_SLOT, Packets.Server.WINDOW_ITEMS) {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                if (event.getPacketID() == Packets.Server.SET_SLOT) {
+                    addGlow(new ItemStack[] { event.getPacket().getItemModifier().read(0) });
+                } else {
+                    addGlow(event.getPacket().getItemArrayModifier().read(0));
+                }
+            }
+        });
         debug("v" + getDescription().getVersion() + " enabled");
     }
 
@@ -628,6 +650,18 @@ public final class LootPlugin extends FacePlugin {
 
     public AnticheatManager getAnticheatManager() {
         return anticheatManager;
+    }
+
+    private void addGlow(ItemStack[] stacks) {
+        for (ItemStack stack : stacks) {
+            if (stack != null) {
+                // Only update those stacks that have our flag enchantment
+                if (stack.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 32) {
+                    NbtCompound compound = (NbtCompound) NbtFactory.fromItemTag(stack);
+                    compound.put(NbtFactory.ofList("ench"));
+                }
+            }
+        }
     }
 
 }
