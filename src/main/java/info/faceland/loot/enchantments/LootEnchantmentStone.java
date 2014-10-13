@@ -118,7 +118,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     @Override
     public HiltItemStack toItemStack(int amount) {
-        HiltItemStack is = new HiltItemStack(Material.ENCHANTED_BOOK);
+        HiltItemStack is = new HiltItemStack(Material.BOOK);
         is.setAmount(amount);
         is.setName(ChatColor.BLUE + "Enchantment Tome - " + getName());
         List<String> lore = new ArrayList<>();
