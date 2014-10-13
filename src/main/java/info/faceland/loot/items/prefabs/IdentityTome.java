@@ -16,20 +16,19 @@
 
 package info.faceland.loot.items.prefabs;
 
-import info.faceland.hilt.HiltBook;
+import info.faceland.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 
 import java.util.Arrays;
 
-public final class IdentityTome extends HiltBook {
+public final class IdentityTome extends HiltItemStack {
 
     public IdentityTome() {
-        super(TomeType.WRITTEN_BOOK);
+        super(Material.ENCHANTED_BOOK);
         setName(ChatColor.DARK_PURPLE + "Identity Tome");
-        setTitle(ChatColor.DARK_PURPLE + "Identity Tome");
         setLore(Arrays.asList(ChatColor.WHITE + "Drop this item onto an Unidentified Item",
                               ChatColor.WHITE + "to identify it!"));
-        setPages(Arrays.asList("Much identify", "Very magic", "So book", "Wow"));
     }
 
 }
