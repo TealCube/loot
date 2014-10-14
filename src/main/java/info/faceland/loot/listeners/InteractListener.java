@@ -61,6 +61,7 @@ public final class InteractListener implements Listener {
     public void onInventoryOpenEvent(InventoryOpenEvent event) {
         if (event.getInventory() instanceof EnchantingInventory) {
             event.setCancelled(true);
+            Chatty.sendMessage((Player) event.getPlayer(), plugin.getSettings().getString("language.enchant.no-open", ""));
         }
     }
 
