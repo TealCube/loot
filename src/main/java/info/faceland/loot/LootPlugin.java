@@ -317,6 +317,19 @@ public final class LootPlugin extends FacePlugin {
                 }
                 groups.add(g);
             }
+            Map<Enchantment, Integer> enchantments = new HashMap<>();
+            if (cs.isConfigurationSection("enchantments")) {
+                ConfigurationSection enchCS = cs.getConfigurationSection("enchantments");
+                for (String eKey : enchCS.getKeys(false)) {
+                    Enchantment ench = StringConverter.toEnchantment(eKey);
+                    if (ench == null) {
+                        continue;
+                    }
+                    int i = enchCS.getInt(eKey);
+                    enchantments.put(ench, i);
+                }
+            }
+            builder.withEnchantments(enchantments);
             builder.withItemGroups(groups);
             EnchantmentStone stone = builder.build();
             stones.add(stone);

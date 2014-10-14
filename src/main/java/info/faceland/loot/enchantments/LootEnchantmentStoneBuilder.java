@@ -19,8 +19,10 @@ package info.faceland.loot.enchantments;
 import info.faceland.loot.api.enchantments.EnchantmentStone;
 import info.faceland.loot.api.enchantments.EnchantmentStoneBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
+import java.util.Map;
 
 public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilder {
 
@@ -90,6 +92,12 @@ public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilde
     @Override
     public EnchantmentStoneBuilder withDescription(String s) {
         stone.setDescription(s);
+        return this;
+    }
+
+    @Override
+    public EnchantmentStoneBuilder withEnchantments(Map<Enchantment, Integer> map) {
+        stone.setEnchantments(map);
         return this;
     }
 

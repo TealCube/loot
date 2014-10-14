@@ -23,10 +23,13 @@ import info.faceland.utils.TextUtils;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class LootEnchantmentStone implements EnchantmentStone {
 
@@ -39,6 +42,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     private boolean broadcast;
     private List<ItemGroup> itemGroups;
     private String description;
+    private Map<Enchantment, Integer> enchantments;
 
     public LootEnchantmentStone(String name) {
         this.name = name;
@@ -168,6 +172,15 @@ public final class LootEnchantmentStone implements EnchantmentStone {
 
     void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public Map<Enchantment, Integer> getEnchantments() {
+        return new HashMap<>(enchantments);
+    }
+
+    void setEnchantments(Map<Enchantment, Integer> enchantments) {
+        this.enchantments = enchantments;
     }
 
 }

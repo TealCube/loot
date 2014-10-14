@@ -17,8 +17,10 @@
 package info.faceland.loot.api.enchantments;
 
 import info.faceland.loot.api.groups.ItemGroup;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EnchantmentStoneBuilder {
 
@@ -41,4 +43,6 @@ public interface EnchantmentStoneBuilder {
     EnchantmentStoneBuilder withItemGroups(List<ItemGroup> l);
 
     EnchantmentStoneBuilder withDescription(String s);
+
+    EnchantmentStoneBuilder withEnchantments(Map<Enchantment, Integer> map);
 }

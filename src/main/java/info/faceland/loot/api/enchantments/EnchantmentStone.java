@@ -18,8 +18,10 @@ package info.faceland.loot.api.enchantments;
 
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EnchantmentStone {
 
@@ -42,4 +44,6 @@ public interface EnchantmentStone {
     List<ItemGroup> getItemGroups();
 
     String getDescription();
+
+    Map<Enchantment, Integer> getEnchantments();
 }
