@@ -21,7 +21,7 @@ import info.faceland.facecore.shade.voorhees.api.IPrettyMessage;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -150,9 +150,9 @@ public final class EntityDeathListener implements Listener {
             // drop an enchant gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
-            EnchantmentStone es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(
+            EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(
                     true, distanceSquared,
-                    mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentStone, Double>());
+                    mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
             HiltItemStack his = es.toItemStack(1);
             event.getDrops().add(his);
 

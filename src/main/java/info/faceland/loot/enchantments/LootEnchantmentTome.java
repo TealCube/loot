@@ -17,7 +17,7 @@
 package info.faceland.loot.enchantments;
 
 import info.faceland.hilt.HiltItemStack;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.utils.TextUtils;
 import org.apache.commons.lang.WordUtils;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class LootEnchantmentStone implements EnchantmentStone {
+public final class LootEnchantmentTome implements EnchantmentTome {
 
     private final String name;
     private List<String> lore;
@@ -44,7 +44,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
     private String description;
     private Map<Enchantment, Integer> enchantments;
 
-    public LootEnchantmentStone(String name) {
+    public LootEnchantmentTome(String name) {
         this.name = name;
         this.lore = new ArrayList<>();
         this.itemGroups = new ArrayList<>();
@@ -64,7 +64,7 @@ public final class LootEnchantmentStone implements EnchantmentStone {
             return false;
         }
 
-        LootEnchantmentStone that = (LootEnchantmentStone) o;
+        LootEnchantmentTome that = (LootEnchantmentTome) o;
 
         return !(name != null ? !name.equals(that.name) : that.name != null);
     }

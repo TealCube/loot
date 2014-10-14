@@ -16,21 +16,21 @@
 
 package info.faceland.loot.enchantments;
 
-import info.faceland.loot.api.enchantments.EnchantmentStone;
-import info.faceland.loot.api.enchantments.EnchantmentStoneBuilder;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
+import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
 import java.util.Map;
 
-public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilder {
+public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder {
 
     private boolean built = false;
-    private LootEnchantmentStone stone;
+    private LootEnchantmentTome stone;
 
-    public LootEnchantmentStoneBuilder(String name) {
-        stone = new LootEnchantmentStone(name);
+    public LootEnchantmentTomeBuilder(String name) {
+        stone = new LootEnchantmentTome(name);
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilde
     }
 
     @Override
-    public EnchantmentStone build() {
+    public EnchantmentTome build() {
         if (isBuilt()) {
             throw new IllegalStateException("already built");
         }
@@ -48,55 +48,55 @@ public final class LootEnchantmentStoneBuilder implements EnchantmentStoneBuilde
     }
 
     @Override
-    public EnchantmentStoneBuilder withLore(List<String> l) {
+    public EnchantmentTomeBuilder withLore(List<String> l) {
         stone.setLore(l);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withWeight(double d) {
+    public EnchantmentTomeBuilder withWeight(double d) {
         stone.setWeight(d);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withDistanceWeight(double d) {
+    public EnchantmentTomeBuilder withDistanceWeight(double d) {
         stone.setDistanceWeight(d);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withMinStats(int i) {
+    public EnchantmentTomeBuilder withMinStats(int i) {
         stone.setMinStats(i);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withMaxStats(int i) {
+    public EnchantmentTomeBuilder withMaxStats(int i) {
         stone.setMaxStats(i);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withBroadcast(boolean b) {
+    public EnchantmentTomeBuilder withBroadcast(boolean b) {
         stone.setBroadcast(b);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withItemGroups(List<ItemGroup> l) {
+    public EnchantmentTomeBuilder withItemGroups(List<ItemGroup> l) {
         stone.setItemGroups(l);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withDescription(String s) {
+    public EnchantmentTomeBuilder withDescription(String s) {
         stone.setDescription(s);
         return this;
     }
 
     @Override
-    public EnchantmentStoneBuilder withEnchantments(Map<Enchantment, Integer> map) {
+    public EnchantmentTomeBuilder withEnchantments(Map<Enchantment, Integer> map) {
         stone.setEnchantments(map);
         return this;
     }

@@ -31,8 +31,8 @@ import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfigura
 import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
-import info.faceland.loot.api.enchantments.EnchantmentStoneBuilder;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
+import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
@@ -40,7 +40,7 @@ import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.managers.AnticheatManager;
 import info.faceland.loot.api.managers.CreatureModManager;
 import info.faceland.loot.api.managers.CustomItemManager;
-import info.faceland.loot.api.managers.EnchantmentStoneManager;
+import info.faceland.loot.api.managers.EnchantmentTomeManager;
 import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.SocketGemManager;
@@ -52,7 +52,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
-import info.faceland.loot.enchantments.LootEnchantmentStoneBuilder;
+import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
@@ -65,7 +65,7 @@ import info.faceland.loot.listeners.spawning.EntityDeathListener;
 import info.faceland.loot.managers.LootAnticheatManager;
 import info.faceland.loot.managers.LootCreatureModManager;
 import info.faceland.loot.managers.LootCustomItemManager;
-import info.faceland.loot.managers.LootEnchantmentStoneManager;
+import info.faceland.loot.managers.LootEnchantmentTomeManager;
 import info.faceland.loot.managers.LootItemGroupManager;
 import info.faceland.loot.managers.LootNameManager;
 import info.faceland.loot.managers.LootSocketGemManager;
@@ -113,7 +113,7 @@ public final class LootPlugin extends FacePlugin {
     private CustomItemManager customItemManager;
     private SocketGemManager socketGemManager;
     private CreatureModManager creatureModManager;
-    private EnchantmentStoneManager enchantmentStoneManager;
+    private EnchantmentTomeManager enchantmentStoneManager;
     private AnticheatManager anticheatManager;
 
     @Override
@@ -208,7 +208,7 @@ public final class LootPlugin extends FacePlugin {
         customItemManager = new LootCustomItemManager();
         socketGemManager = new LootSocketGemManager();
         creatureModManager = new LootCreatureModManager();
-        enchantmentStoneManager = new LootEnchantmentStoneManager();
+        enchantmentStoneManager = new LootEnchantmentTomeManager();
         anticheatManager = new LootAnticheatManager();
     }
 
@@ -291,17 +291,17 @@ public final class LootPlugin extends FacePlugin {
     }
 
     private void loadEnchantmentStones() {
-        for (EnchantmentStone es : getEnchantmentStoneManager().getEnchantmentStones()) {
+        for (EnchantmentTome es : getEnchantmentStoneManager().getEnchantmentStones()) {
             getEnchantmentStoneManager().removeEnchantmentStone(es.getName());
         }
-        Set<EnchantmentStone> stones = new HashSet<>();
+        Set<EnchantmentTome> stones = new HashSet<>();
         List<String> loadedStones = new ArrayList<>();
         for (String key : enchantmentStonesYAML.getKeys(false)) {
             if (!enchantmentStonesYAML.isConfigurationSection(key)) {
                 continue;
             }
             ConfigurationSection cs = enchantmentStonesYAML.getConfigurationSection(key);
-            EnchantmentStoneBuilder builder = getNewEnchantmentStoneBuilder(key);
+            EnchantmentTomeBuilder builder = getNewEnchantmentStoneBuilder(key);
             builder.withDescription(cs.getString("description"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
@@ -331,11 +331,11 @@ public final class LootPlugin extends FacePlugin {
             }
             builder.withEnchantments(enchantments);
             builder.withItemGroups(groups);
-            EnchantmentStone stone = builder.build();
+            EnchantmentTome stone = builder.build();
             stones.add(stone);
             loadedStones.add(stone.getName());
         }
-        for (EnchantmentStone es : stones) {
+        for (EnchantmentTome es : stones) {
             getEnchantmentStoneManager().addEnchantmentStone(es);
         }
         debug("Loaded enchantment stones: " + loadedStones.toString());
@@ -396,12 +396,12 @@ public final class LootPlugin extends FacePlugin {
                 builder.withTierMults(map);
             }
             if (cs.isConfigurationSection("enchantment-stone")) {
-                Map<EnchantmentStone, Double> map = new HashMap<>();
+                Map<EnchantmentTome, Double> map = new HashMap<>();
                 for (String k : cs.getConfigurationSection("enchantment-stones").getKeys(false)) {
                     if (!cs.isConfigurationSection("enchantment-stones." + k)) {
                         continue;
                     }
-                    EnchantmentStone es = enchantmentStoneManager.getEnchantmentStone(k);
+                    EnchantmentTome es = enchantmentStoneManager.getEnchantmentStone(k);
                     if (es == null) {
                         continue;
                     }
@@ -625,8 +625,8 @@ public final class LootPlugin extends FacePlugin {
         return new LootCreatureModBuilder(entityType);
     }
 
-    public EnchantmentStoneBuilder getNewEnchantmentStoneBuilder(String name) {
-        return new LootEnchantmentStoneBuilder(name);
+    public EnchantmentTomeBuilder getNewEnchantmentStoneBuilder(String name) {
+        return new LootEnchantmentTomeBuilder(name);
     }
 
     public TierManager getTierManager() {
@@ -657,7 +657,7 @@ public final class LootPlugin extends FacePlugin {
         return creatureModManager;
     }
 
-    public EnchantmentStoneManager getEnchantmentStoneManager() {
+    public EnchantmentTomeManager getEnchantmentStoneManager() {
         return enchantmentStoneManager;
     }
 

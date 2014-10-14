@@ -14,35 +14,31 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.             *
  ******************************************************************************/
 
-package info.faceland.loot.api.enchantments;
+package info.faceland.loot.api.managers;
 
-import info.faceland.loot.api.groups.ItemGroup;
-import org.bukkit.enchantments.Enchantment;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public interface EnchantmentStoneBuilder {
+public interface EnchantmentTomeManager {
 
-    boolean isBuilt();
+    Set<EnchantmentTome> getEnchantmentStones();
 
-    EnchantmentStone build();
+    EnchantmentTome getEnchantmentStone(String name);
 
-    EnchantmentStoneBuilder withLore(List<String> l);
+    void addEnchantmentStone(EnchantmentTome gem);
 
-    EnchantmentStoneBuilder withWeight(double d);
+    void removeEnchantmentStone(String name);
 
-    EnchantmentStoneBuilder withDistanceWeight(double d);
+    EnchantmentTome getRandomEnchantmentStone();
 
-    EnchantmentStoneBuilder withMinStats(int i);
+    EnchantmentTome getRandomEnchantmentStone(boolean withChance);
 
-    EnchantmentStoneBuilder withMaxStats(int i);
+    EnchantmentTome getRandomEnchantmentStone(boolean withChance, double distance);
 
-    EnchantmentStoneBuilder withBroadcast(boolean b);
+    EnchantmentTome getRandomEnchantmentStone(boolean withChance, double distance, Map<EnchantmentTome, Double> map);
 
-    EnchantmentStoneBuilder withItemGroups(List<ItemGroup> l);
+    double getTotalWeight();
 
-    EnchantmentStoneBuilder withDescription(String s);
-
-    EnchantmentStoneBuilder withEnchantments(Map<Enchantment, Integer> map);
 }

@@ -16,7 +16,7 @@
 
 package info.faceland.loot.api.creatures;
 
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
@@ -40,6 +40,6 @@ public interface CreatureMod {
 
     double getTierMult(Tier t);
 
-    Map<EnchantmentStone, Double> getEnchantmentStoneMults();
+    Map<EnchantmentTome, Double> getEnchantmentStoneMults();
 
 }

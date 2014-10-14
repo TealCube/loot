@@ -21,7 +21,7 @@ import info.faceland.facecore.shade.command.Command;
 import info.faceland.facecore.shade.command.FlagArg;
 import info.faceland.facecore.shade.command.Flags;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -112,7 +112,7 @@ public final class LootCommand {
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             } else {
-                EnchantmentStone es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+                EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
                 if (es == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
@@ -272,7 +272,7 @@ public final class LootCommand {
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             } else {
-                EnchantmentStone es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+                EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
                 if (es == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
@@ -436,7 +436,7 @@ public final class LootCommand {
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             } else {
-                EnchantmentStone es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+                EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
                 if (es == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));

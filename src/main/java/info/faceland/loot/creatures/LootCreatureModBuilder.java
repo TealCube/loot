@@ -18,7 +18,7 @@ package info.faceland.loot.creatures;
 
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
@@ -68,7 +68,7 @@ public final class LootCreatureModBuilder implements CreatureModBuilder {
     }
 
     @Override
-    public CreatureModBuilder withEnchantmentStoneMults(Map<EnchantmentStone, Double> map) {
+    public CreatureModBuilder withEnchantmentStoneMults(Map<EnchantmentTome, Double> map) {
         mod.setEnchantmentStoneDoubleMap(map);
         return this;
     }

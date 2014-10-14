@@ -17,7 +17,7 @@
 package info.faceland.loot.creatures;
 
 import info.faceland.loot.api.creatures.CreatureMod;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
@@ -32,7 +32,7 @@ public final class LootCreatureMod implements CreatureMod {
     private Map<CustomItem, Double> customItemDoubleMap;
     private Map<SocketGem, Double> socketGemDoubleMap;
     private Map<Tier, Double> tierDoubleMap;
-    private Map<EnchantmentStone, Double> enchantmentStoneDoubleMap;
+    private Map<EnchantmentTome, Double> enchantmentStoneDoubleMap;
 
     public LootCreatureMod(EntityType entityType) {
         this.entityType = entityType;
@@ -87,11 +87,11 @@ public final class LootCreatureMod implements CreatureMod {
     }
 
     @Override
-    public Map<EnchantmentStone, Double> getEnchantmentStoneMults() {
+    public Map<EnchantmentTome, Double> getEnchantmentStoneMults() {
         return new HashMap<>(enchantmentStoneDoubleMap);
     }
 
-    void setEnchantmentStoneDoubleMap(Map<EnchantmentStone, Double> enchantmentStoneDoubleMap) {
+    void setEnchantmentStoneDoubleMap(Map<EnchantmentTome, Double> enchantmentStoneDoubleMap) {
         this.enchantmentStoneDoubleMap = enchantmentStoneDoubleMap;
     }
 

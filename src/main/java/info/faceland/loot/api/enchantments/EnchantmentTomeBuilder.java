@@ -16,34 +16,33 @@
 
 package info.faceland.loot.api.enchantments;
 
-import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
 import java.util.Map;
 
-public interface EnchantmentStone {
+public interface EnchantmentTomeBuilder {
 
-    String getName();
+    boolean isBuilt();
 
-    List<String> getLore();
+    EnchantmentTome build();
 
-    double getWeight();
+    EnchantmentTomeBuilder withLore(List<String> l);
 
-    double getDistanceWeight();
+    EnchantmentTomeBuilder withWeight(double d);
 
-    int getMinStats();
+    EnchantmentTomeBuilder withDistanceWeight(double d);
 
-    int getMaxStats();
+    EnchantmentTomeBuilder withMinStats(int i);
 
-    HiltItemStack toItemStack(int amount);
+    EnchantmentTomeBuilder withMaxStats(int i);
 
-    boolean isBroadcast();
+    EnchantmentTomeBuilder withBroadcast(boolean b);
 
-    List<ItemGroup> getItemGroups();
+    EnchantmentTomeBuilder withItemGroups(List<ItemGroup> l);
 
-    String getDescription();
+    EnchantmentTomeBuilder withDescription(String s);
 
-    Map<Enchantment, Integer> getEnchantments();
+    EnchantmentTomeBuilder withEnchantments(Map<Enchantment, Integer> map);
 }

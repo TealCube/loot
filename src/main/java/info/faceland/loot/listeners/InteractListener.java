@@ -19,7 +19,7 @@ package info.faceland.loot.listeners;
 import com.google.common.base.CharMatcher;
 import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
@@ -122,7 +122,7 @@ public final class InteractListener implements Listener {
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
-            EnchantmentStone stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
+            EnchantmentTome stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));

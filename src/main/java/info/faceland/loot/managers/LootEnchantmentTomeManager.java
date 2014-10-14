@@ -16,8 +16,8 @@
 
 package info.faceland.loot.managers;
 
-import info.faceland.loot.api.enchantments.EnchantmentStone;
-import info.faceland.loot.api.managers.EnchantmentStoneManager;
+import info.faceland.loot.api.enchantments.EnchantmentTome;
+import info.faceland.loot.api.managers.EnchantmentTomeManager;
 import info.faceland.loot.math.LootRandom;
 
 import java.util.HashMap;
@@ -25,25 +25,25 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class LootEnchantmentStoneManager implements EnchantmentStoneManager {
+public final class LootEnchantmentTomeManager implements EnchantmentTomeManager {
 
     private static final double DISTANCE = 1000;
     private static final double DISTANCE_SQUARED = Math.pow(DISTANCE, 2);
-    private final Map<String, EnchantmentStone> gemMap;
+    private final Map<String, EnchantmentTome> gemMap;
     private final LootRandom random;
 
-    public LootEnchantmentStoneManager() {
+    public LootEnchantmentTomeManager() {
         this.gemMap = new HashMap<>();
         this.random = new LootRandom(System.currentTimeMillis());
     }
 
     @Override
-    public Set<EnchantmentStone> getEnchantmentStones() {
+    public Set<EnchantmentTome> getEnchantmentStones() {
         return new HashSet<>(gemMap.values());
     }
 
     @Override
-    public EnchantmentStone getEnchantmentStone(String name) {
+    public EnchantmentTome getEnchantmentStone(String name) {
         if (gemMap.containsKey(name.toLowerCase())) {
             return gemMap.get(name.toLowerCase());
         }
@@ -57,7 +57,7 @@ public final class LootEnchantmentStoneManager implements EnchantmentStoneManage
     }
 
     @Override
-    public void addEnchantmentStone(EnchantmentStone gem) {
+    public void addEnchantmentStone(EnchantmentTome gem) {
         if (gem != null) {
             gemMap.put(gem.getName().toLowerCase(), gem);
         }
@@ -71,32 +71,32 @@ public final class LootEnchantmentStoneManager implements EnchantmentStoneManage
     }
 
     @Override
-    public EnchantmentStone getRandomEnchantmentStone() {
+    public EnchantmentTome getRandomEnchantmentStone() {
         return getRandomEnchantmentStone(false);
     }
 
     @Override
-    public EnchantmentStone getRandomEnchantmentStone(boolean withChance) {
+    public EnchantmentTome getRandomEnchantmentStone(boolean withChance) {
         return getRandomEnchantmentStone(withChance, 0D);
     }
 
     @Override
-    public EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance) {
-        return getRandomEnchantmentStone(withChance, distance, new HashMap<EnchantmentStone, Double>());
+    public EnchantmentTome getRandomEnchantmentStone(boolean withChance, double distance) {
+        return getRandomEnchantmentStone(withChance, distance, new HashMap<EnchantmentTome, Double>());
     }
 
     @Override
-    public EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance,
-                                                      Map<EnchantmentStone, Double> map) {
+    public EnchantmentTome getRandomEnchantmentStone(boolean withChance, double distance,
+                                                      Map<EnchantmentTome, Double> map) {
         if (!withChance) {
-            Set<EnchantmentStone> gems = getEnchantmentStones();
-            EnchantmentStone[] array = gems.toArray(new EnchantmentStone[gems.size()]);
+            Set<EnchantmentTome> gems = getEnchantmentStones();
+            EnchantmentTome[] array = gems.toArray(new EnchantmentTome[gems.size()]);
             return array[random.nextInt(array.length)];
         }
         double selectedWeight = random.nextDouble() * getTotalWeight();
         double currentWeight = 0D;
-        Set<EnchantmentStone> gems = getEnchantmentStones();
-        for (EnchantmentStone sg : gems) {
+        Set<EnchantmentTome> gems = getEnchantmentStones();
+        for (EnchantmentTome sg : gems) {
             double calcWeight = sg.getWeight() + ((distance / DISTANCE_SQUARED) * sg.getDistanceWeight());
             if (map.containsKey(sg)) {
                 calcWeight *= map.get(sg);
@@ -112,7 +112,7 @@ public final class LootEnchantmentStoneManager implements EnchantmentStoneManage
     @Override
     public double getTotalWeight() {
         double d = 0;
-        for (EnchantmentStone sg : getEnchantmentStones()) {
+        for (EnchantmentTome sg : getEnchantmentStones()) {
             d += sg.getWeight();
         }
         return d;

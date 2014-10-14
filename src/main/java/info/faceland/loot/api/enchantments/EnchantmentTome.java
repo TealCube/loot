@@ -14,31 +14,36 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.             *
  ******************************************************************************/
 
-package info.faceland.loot.api.managers;
+package info.faceland.loot.api.enchantments;
 
-import info.faceland.loot.api.enchantments.EnchantmentStone;
+import info.faceland.hilt.HiltItemStack;
+import info.faceland.loot.api.groups.ItemGroup;
+import org.bukkit.enchantments.Enchantment;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-public interface EnchantmentStoneManager {
+public interface EnchantmentTome {
 
-    Set<EnchantmentStone> getEnchantmentStones();
+    String getName();
 
-    EnchantmentStone getEnchantmentStone(String name);
+    List<String> getLore();
 
-    void addEnchantmentStone(EnchantmentStone gem);
+    double getWeight();
 
-    void removeEnchantmentStone(String name);
+    double getDistanceWeight();
 
-    EnchantmentStone getRandomEnchantmentStone();
+    int getMinStats();
 
-    EnchantmentStone getRandomEnchantmentStone(boolean withChance);
+    int getMaxStats();
 
-    EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance);
+    HiltItemStack toItemStack(int amount);
 
-    EnchantmentStone getRandomEnchantmentStone(boolean withChance, double distance, Map<EnchantmentStone, Double> map);
+    boolean isBroadcast();
 
-    double getTotalWeight();
+    List<ItemGroup> getItemGroups();
 
+    String getDescription();
+
+    Map<Enchantment, Integer> getEnchantments();
 }
