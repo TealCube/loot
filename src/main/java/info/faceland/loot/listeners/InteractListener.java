@@ -160,6 +160,8 @@ public final class InteractListener implements Listener {
 
             currentItem.setLore(lore);
 
+            currentItem.addUnsafeEnchantments(stone.getEnchantments());
+
             Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
