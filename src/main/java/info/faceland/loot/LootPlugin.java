@@ -105,7 +105,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedIvoryYamlConfiguration configYAML;
     private VersionedIvoryYamlConfiguration creaturesYAML;
     private VersionedIvoryYamlConfiguration identifyingYAML;
-    private VersionedIvoryYamlConfiguration enchantmentStonesYAML;
+    private VersionedIvoryYamlConfiguration enchantmentTomesYAML;
     private IvorySettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
@@ -191,13 +191,13 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating identifying.yml");
             debug("Updating identifying.yml");
         }
-        enchantmentStonesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "enchantmentStones.yml"),
-                                                                    getResource("enchantmentStones.yml"),
+        enchantmentTomesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
+                                                                    getResource("enchantmentTomes.yml"),
                                                                     VersionedIvoryConfiguration.VersionUpdateType
                                                                             .BACKUP_AND_UPDATE);
-        if (enchantmentStonesYAML.update()) {
-            getLogger().info("Updating enchantmentStones.yml");
-            debug("Updating enchantmentStones.yml");
+        if (enchantmentTomesYAML.update()) {
+            getLogger().info("Updating enchantmentTomes.yml");
+            debug("Updating enchantmentTomes.yml");
         }
 
         settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
@@ -296,11 +296,11 @@ public final class LootPlugin extends FacePlugin {
         }
         Set<EnchantmentTome> stones = new HashSet<>();
         List<String> loadedStones = new ArrayList<>();
-        for (String key : enchantmentStonesYAML.getKeys(false)) {
-            if (!enchantmentStonesYAML.isConfigurationSection(key)) {
+        for (String key : enchantmentTomesYAML.getKeys(false)) {
+            if (!enchantmentTomesYAML.isConfigurationSection(key)) {
                 continue;
             }
-            ConfigurationSection cs = enchantmentStonesYAML.getConfigurationSection(key);
+            ConfigurationSection cs = enchantmentTomesYAML.getConfigurationSection(key);
             EnchantmentTomeBuilder builder = getNewEnchantmentStoneBuilder(key);
             builder.withDescription(cs.getString("description"));
             builder.withWeight(cs.getDouble("weight"));
