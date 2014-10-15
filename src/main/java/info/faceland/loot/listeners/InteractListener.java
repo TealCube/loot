@@ -255,7 +255,7 @@ public final class InteractListener implements Listener {
                     if (!ss.startsWith("+")) {
                         continue;
                     }
-                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(ss, ' ').split(" ")[0];
                     int loreLevel = StringConverter.toInt(loreLev) + 1;
                     lore.set(i, s.replace("+" + loreLev, "+" + loreLevel));
                     break;
