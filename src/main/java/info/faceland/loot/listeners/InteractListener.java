@@ -256,8 +256,8 @@ public final class InteractListener implements Listener {
                         continue;
                     }
                     String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(ss, ' ').split(" ")[0];
-                    int loreLevel = StringConverter.toInt(loreLev) + 1;
-                    lore.set(i, s.replace("+" + loreLev, "+" + loreLevel));
+                    int loreLevel = StringConverter.toInt(loreLev);
+                    lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
                     break;
                 }
                 currentItem.setLore(lore);
