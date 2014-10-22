@@ -87,11 +87,14 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         double cancelChance = 1.0D;
+        double xpMult = 1.0D;
         if (isWater(event.getEntity().getLocation())) {
             cancelChance *= 0.5D;
+            xpMult *= 0.5D;
         }
         if (isWater(event.getEntity().getKiller().getLocation())) {
             cancelChance *= 0.5D;
+            xpMult *= 0.5D;
         }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
@@ -108,15 +111,17 @@ public final class EntityDeathListener implements Listener {
         }
         if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 4) {
             cancelChance *= 0.4D;
+            xpMult *= 0.2D;
         }
         if (taggerDistance >= 0 && taggerDistance <= 4) {
             cancelChance *= 0.4D;
+            xpMult *= 0.2D;
         }
         if (random.nextDouble() >= cancelChance) {
             event.setDroppedExp(0);
             return;
         }
-        event.setDroppedExp((int) (cancelChance * event.getDroppedExp()));
+        event.setDroppedExp((int) (xpMult * event.getDroppedExp()));
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             // drop a normal random item
