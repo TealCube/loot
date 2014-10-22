@@ -113,8 +113,10 @@ public final class EntityDeathListener implements Listener {
             cancelChance *= 0.4D;
         }
         if (random.nextDouble() >= cancelChance) {
+            event.setDroppedExp(0);
             return;
         }
+        event.setDroppedExp((int) (cancelChance * event.getDroppedExp()));
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             // drop a normal random item
