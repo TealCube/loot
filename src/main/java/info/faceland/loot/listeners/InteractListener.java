@@ -219,21 +219,10 @@ public final class InteractListener implements Listener {
             if (!succeed) {
                 return;
             }
-//            int index = InventoryUtil.firstAtLeast(player.getInventory(), new ProtectionCharm(), 1);
             if (random.nextDouble() < type.getChanceToDestroy()) {
-//                if (index == -1) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                 player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                 currentItem = null;
-//                } else {
-//                    ItemStack inInv = player.getInventory().getItem(index);
-//                    inInv.setAmount(inInv.getAmount() - 1);
-//                    player.getInventory().setItem(index, inInv.getAmount() > 0 ? inInv : null);
-//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
-//                    Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.consumed", ""));
-//                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
-//                }
-//                succeed = false;
             }
             if (currentItem != null) {
                 if (level == 0) {
@@ -255,7 +244,7 @@ public final class InteractListener implements Listener {
                     if (!ss.startsWith("+")) {
                         continue;
                     }
-                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(ss, ' ').split(" ")[0];
+                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
                     int loreLevel = StringConverter.toInt(loreLev);
                     lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
                     break;
@@ -310,7 +299,7 @@ public final class InteractListener implements Listener {
     }
 
     private int getLevel(String name) {
-        String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ChatColor.stripColor(name));
+        String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').split(" ")[0];
         return StringConverter.toInt(lev, 0);
     }
 
