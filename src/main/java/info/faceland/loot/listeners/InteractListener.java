@@ -108,7 +108,7 @@ public final class InteractListener implements Listener {
             // strip color, check against that
             // k
             String name = currentItem.getName();
-            int level = getLevel(name);
+            int level = getLevel(ChatColor.stripColor(name));
             name = name.replace("+" + level + " ", "");
             ChatColor start = getFirstColor(name);
             String format = "%s%s%s";
@@ -202,7 +202,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             name = currentItem.getName();
-            int level = getLevel(name), lev = level;
+            int level = getLevel(ChatColor.stripColor(name)), lev = level;
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
@@ -299,8 +299,8 @@ public final class InteractListener implements Listener {
     }
 
     private int getLevel(String name) {
-        String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').split(" ")[0];
-        return StringConverter.toInt(lev, 0);
+        String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
+        return StringConverter.toInt(lev.split(" ")[0], 0);
     }
 
 }
