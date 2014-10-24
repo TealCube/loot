@@ -202,7 +202,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             name = currentItem.getName();
-            int level = getLevel(ChatColor.stripColor(name)), lev = level;
+            int level = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = level;
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
