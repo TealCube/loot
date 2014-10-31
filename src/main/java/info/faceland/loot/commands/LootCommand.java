@@ -395,6 +395,7 @@ public final class LootCommand {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.custom-failure", ""));
                     Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.failure", ""));
+                    target.updateInventory();
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
@@ -410,6 +411,8 @@ public final class LootCommand {
                     target.getInventory().addItem(
                             plugin.getSocketGemManager().getRandomSocketGem(true).toItemStack(1));
                 }
+                Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
+                                   new String[][]{{"%amount%", amount + ""}});
                 Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.spawn.gem-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
             } else {
@@ -418,6 +421,7 @@ public final class LootCommand {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.gem-failure", ""));
                     Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.failure", ""));
+                    target.updateInventory();
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
@@ -435,12 +439,14 @@ public final class LootCommand {
                 }
                 Chatty.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
+                Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
             } else {
                 EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
                 if (es == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
                     Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.failure", ""));
+                    target.updateInventory();
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
@@ -489,6 +495,7 @@ public final class LootCommand {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
                     Chatty.sendMessage(target, plugin.getSettings().getString("language.commands.give.failure", ""));
+                    target.updateInventory();
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
@@ -512,6 +519,7 @@ public final class LootCommand {
                 if (type == null) {
                     Chatty.sendMessage(
                             sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+                    target.updateInventory();
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
