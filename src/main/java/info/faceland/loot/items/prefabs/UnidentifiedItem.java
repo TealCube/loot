@@ -26,9 +26,9 @@ public final class UnidentifiedItem extends HiltItemStack {
 
     public UnidentifiedItem(Material material) {
         super(material);
-        setName(ChatColor.WHITE + "Unidentified Item");
-        setLore(Arrays.asList(ChatColor.GRAY + "Drop an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY
-                              + "on", ChatColor.GRAY + "this item to identify it."));
+        setName(ChatColor.LIGHT_PURPLE + "Unidentified Item");
+        setLore(Arrays.asList(ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY
+                              + " to", ChatColor.GRAY + "reveal this item's stats!"));
     }
 
 }

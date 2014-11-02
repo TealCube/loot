@@ -180,7 +180,7 @@ public final class InteractListener implements Listener {
             Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
-            if (!currentItem.getName().equals(ChatColor.WHITE + "Unidentified Item")) {
+            if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
                 return;
             }
             Material m = currentItem.getType();
