@@ -109,11 +109,11 @@ public final class EntityDeathListener implements Listener {
                                        .distanceSquared(event.getEntity().getKiller().getLocation());
             }
         }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 4) {
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 3) {
             cancelChance *= 0.4D;
             xpMult *= 0.2D;
         }
-        if (taggerDistance >= 0 && taggerDistance <= 4) {
+        if (taggerDistance >= 0 && taggerDistance <= 3) {
             cancelChance *= 0.4D;
             xpMult *= 0.2D;
         }
