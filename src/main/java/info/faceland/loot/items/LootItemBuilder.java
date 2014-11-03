@@ -59,6 +59,9 @@ public final class LootItemBuilder implements ItemBuilder {
         int attempts = 0;
         while (tier == null && attempts < 10) {
             tier = chooseTier();
+            if (material != null && tier != null && !tier.getAllowedMaterials().contains(material)) {
+                tier = null;
+            }
             attempts++;
         }
         if (tier == null) {
