@@ -118,7 +118,7 @@ public final class EntityDeathListener implements Listener {
             xpMult *= 0.2D;
         }
         if (random.nextDouble() >= cancelChance) {
-            event.setDroppedExp(0);
+            event.setDroppedExp(3);
             return;
         }
         event.setDroppedExp(Math.max(3, (int) (xpMult * event.getDroppedExp())));
