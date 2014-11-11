@@ -76,6 +76,10 @@ public final class InteractListener implements Listener {
         HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
         HiltItemStack cursor = new HiltItemStack(event.getCursor());
 
+        if (cursor.getName() == null) {
+            return;
+        }
+
         if (cursor.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
             String gemName = ChatColor.stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
             SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemName);
@@ -196,12 +200,15 @@ public final class InteractListener implements Listener {
                 currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
                 return;
             }
-            String name = ChatColor.stripColor(cursor.getName().replace("Upgrade Scroll", "")).trim();
+            String name = ChatColor.stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
             UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
             if (type == null) {
                 return;
             }
             name = currentItem.getName();
+            if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>()).contains(ChatColor.stripColor(name))) {
+                return;
+            }
             int level = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = level;
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
