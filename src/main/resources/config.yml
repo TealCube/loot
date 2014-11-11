@@ -1,4 +1,4 @@
-version: "0.0.4"
+version: "0.0.5"
 debug: false
 neutral-mobs-drop: false
 enabled-worlds:
@@ -13,3 +13,7 @@ drops:
   custom-item: 0.1
   socket-extender: 0.000001
   unidentified-item: 0.1
+cannot-be-upgraded:
+- Fuck
+- This
+- Shit
