@@ -25,10 +25,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import info.faceland.api.FacePlugin;
+import info.faceland.config.VersionedFaceConfiguration;
+import info.faceland.config.VersionedFaceYamlConfiguration;
+import info.faceland.config.settings.FaceSettings;
 import info.faceland.facecore.shade.command.CommandHandler;
-import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryConfiguration;
-import info.faceland.facecore.shade.nun.ivory.config.VersionedIvoryYamlConfiguration;
-import info.faceland.facecore.shade.nun.ivory.config.settings.IvorySettings;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -96,17 +96,17 @@ import java.util.logging.Level;
 public final class LootPlugin extends FacePlugin {
 
     private DebugPrinter debugPrinter;
-    private VersionedIvoryYamlConfiguration itemsYAML;
-    private VersionedIvoryYamlConfiguration tierYAML;
-    private VersionedIvoryYamlConfiguration corestatsYAML;
-    private VersionedIvoryYamlConfiguration customItemsYAML;
-    private VersionedIvoryYamlConfiguration socketGemsYAML;
-    private VersionedIvoryYamlConfiguration languageYAML;
-    private VersionedIvoryYamlConfiguration configYAML;
-    private VersionedIvoryYamlConfiguration creaturesYAML;
-    private VersionedIvoryYamlConfiguration identifyingYAML;
-    private VersionedIvoryYamlConfiguration enchantmentTomesYAML;
-    private IvorySettings settings;
+    private VersionedFaceYamlConfiguration itemsYAML;
+    private VersionedFaceYamlConfiguration tierYAML;
+    private VersionedFaceYamlConfiguration corestatsYAML;
+    private VersionedFaceYamlConfiguration customItemsYAML;
+    private VersionedFaceYamlConfiguration socketGemsYAML;
+    private VersionedFaceYamlConfiguration languageYAML;
+    private VersionedFaceYamlConfiguration configYAML;
+    private VersionedFaceYamlConfiguration creaturesYAML;
+    private VersionedFaceYamlConfiguration identifyingYAML;
+    private VersionedFaceYamlConfiguration enchantmentTomesYAML;
+    private FaceSettings settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
@@ -119,88 +119,88 @@ public final class LootPlugin extends FacePlugin {
     @Override
     public void preEnable() {
         debugPrinter = new DebugPrinter(getDataFolder().getPath(), "debug.log");
-        itemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "items.yml"),
+        itemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "items.yml"),
                                                         getResource("items.yml"),
-                                                        VersionedIvoryConfiguration.VersionUpdateType
+                                                        VersionedFaceConfiguration.VersionUpdateType
                                                                 .BACKUP_AND_UPDATE);
         if (itemsYAML.update()) {
             getLogger().info("Updating items.yml");
             debug("Updating items.yml");
         }
-        tierYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "tier.yml"),
+        tierYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "tier.yml"),
                                                        getResource("tier.yml"),
-                                                       VersionedIvoryConfiguration.VersionUpdateType
+                                                       VersionedFaceConfiguration.VersionUpdateType
                                                                .BACKUP_AND_UPDATE);
         if (tierYAML.update()) {
             getLogger().info("Updating tier.yml");
             debug("Updating tier.yml");
         }
-        corestatsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
+        corestatsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
                                                             getResource("corestats.yml"),
-                                                            VersionedIvoryConfiguration.VersionUpdateType
+                                                            VersionedFaceConfiguration.VersionUpdateType
                                                                     .BACKUP_AND_UPDATE);
         if (corestatsYAML.update()) {
             getLogger().info("Updating corestats.yml");
             debug("Updating corestats.yml");
         }
-        customItemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
+        customItemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
                                                               getResource("customItems.yml"),
-                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                              VersionedFaceConfiguration.VersionUpdateType
                                                                       .BACKUP_AND_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
             debug("Updating customItems.yml");
         }
-        socketGemsYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
+        socketGemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
                                                              getResource("socketGems.yml"),
-                                                             VersionedIvoryConfiguration.VersionUpdateType
+                                                             VersionedFaceConfiguration.VersionUpdateType
                                                                      .BACKUP_AND_UPDATE);
         if (socketGemsYAML.update()) {
             getLogger().info("Updating socketGems.yml");
             debug("Updating socketGems.yml");
         }
-        languageYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "language.yml"),
+        languageYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "language.yml"),
                                                            getResource("language.yml"),
-                                                           VersionedIvoryConfiguration.VersionUpdateType
+                                                           VersionedFaceConfiguration.VersionUpdateType
                                                                    .BACKUP_AND_UPDATE);
         if (languageYAML.update()) {
             getLogger().info("Updating language.yml");
             debug("Updating language.yml");
         }
-        configYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "config.yml"),
+        configYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "config.yml"),
                                                          getResource("config.yml"),
-                                                         VersionedIvoryConfiguration.VersionUpdateType
+                                                         VersionedFaceConfiguration.VersionUpdateType
                                                                  .BACKUP_AND_UPDATE);
         if (configYAML.update()) {
             getLogger().info("Updating config.yml");
             debug("Updating config.yml");
         }
-        creaturesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
+        creaturesYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
                                                             getResource("creatures.yml"),
-                                                            VersionedIvoryConfiguration.VersionUpdateType
+                                                            VersionedFaceConfiguration.VersionUpdateType
                                                                     .BACKUP_AND_UPDATE);
         if (creaturesYAML.update()) {
             getLogger().info("Updating creatures.yml");
             debug("Updating creatures.yml");
         }
-        identifyingYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
+        identifyingYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
                                                               getResource("identifying.yml"),
-                                                              VersionedIvoryConfiguration.VersionUpdateType
+                                                              VersionedFaceConfiguration.VersionUpdateType
                                                                       .BACKUP_AND_UPDATE);
         if (identifyingYAML.update()) {
             getLogger().info("Updating identifying.yml");
             debug("Updating identifying.yml");
         }
-        enchantmentTomesYAML = new VersionedIvoryYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
+        enchantmentTomesYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
                                                                     getResource("enchantmentTomes.yml"),
-                                                                    VersionedIvoryConfiguration.VersionUpdateType
+                                                                    VersionedFaceConfiguration.VersionUpdateType
                                                                             .BACKUP_AND_UPDATE);
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
         }
 
-        settings = IvorySettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
+        settings = FaceSettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
@@ -641,7 +641,7 @@ public final class LootPlugin extends FacePlugin {
         return nameManager;
     }
 
-    public IvorySettings getSettings() {
+    public FaceSettings getSettings() {
         return settings;
     }
 
