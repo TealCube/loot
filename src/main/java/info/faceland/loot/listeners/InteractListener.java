@@ -1,33 +1,25 @@
-/******************************************************************************
- * Copyright (c) 2014, Richard Harrah                                         *
- *                                                                            *
- * Permission to use, copy, modify, and/or distribute this software for any   *
- * purpose with or without fee is hereby granted, provided that the above     *
- * copyright notice and this permission notice appear in all copies.          *
- *                                                                            *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES   *
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF           *
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR    *
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES     *
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN      *
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF    *
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.             *
- ******************************************************************************/
-
+/*
+ * This file is part of Loot, licensed under the ISC License.
+ *
+ * Copyright (c) 2014 Richard Harrah
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
+ * provided that the above copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+ * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
 package info.faceland.loot.listeners;
 
-import com.google.common.base.CharMatcher;
-import info.faceland.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
-import info.faceland.messaging.Chatty;
-import info.faceland.utils.StringConverter;
-import info.faceland.utils.StringListUtils;
-import info.faceland.utils.TextUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,6 +35,11 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
+import org.nunnerycode.facecore.hilt.HiltItemStack;
+import org.nunnerycode.facecore.utilities.MessageUtils;
+import org.nunnerycode.facecore.utilities.TextUtils;
+import org.nunnerycode.kern.apache.commons.lang3.math.NumberUtils;
+import org.nunnerycode.kern.shade.google.common.base.CharMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +58,8 @@ public final class InteractListener implements Listener {
     public void onInventoryOpenEvent(InventoryOpenEvent event) {
         if (event.getInventory() instanceof EnchantingInventory) {
             event.setCancelled(true);
-            Chatty.sendMessage((Player) event.getPlayer(), plugin.getSettings().getString("language.enchant.no-open", ""));
+            MessageUtils.sendMessage((Player) event.getPlayer(),
+                    plugin.getSettings().getString("language.enchant.no-open", ""));
         }
     }
 
@@ -90,15 +88,15 @@ public final class InteractListener implements Listener {
 
             if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
                     gem.getItemGroups())) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
 
             List<String> lore = currentItem.getLore();
-            List<String> strippedLore = StringListUtils.stripColor(lore);
+            List<String> strippedLore = stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
@@ -122,7 +120,7 @@ public final class InteractListener implements Listener {
                                  start + gem.getSuffix() + ChatColor.getLastColors(name));
             currentItem.setName(TextUtils.color(name));
 
-            Chatty.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
@@ -130,7 +128,7 @@ public final class InteractListener implements Listener {
             EnchantmentTome stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
@@ -141,15 +139,15 @@ public final class InteractListener implements Listener {
 
             if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
                     stone.getItemGroups())) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
 
             List<String> lore = currentItem.getLore();
-            List<String> strippedLore = StringListUtils.stripColor(lore);
+            List<String> strippedLore = stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
@@ -167,13 +165,13 @@ public final class InteractListener implements Listener {
 
             currentItem.addUnsafeEnchantments(stone.getEnchantments());
 
-            Chatty.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             List<String> lore = currentItem.getLore();
-            List<String> stripColor = StringListUtils.stripColor(lore);
+            List<String> stripColor = stripColor(lore);
             if (!stripColor.contains("(+)")) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
@@ -181,7 +179,7 @@ public final class InteractListener implements Listener {
             lore.set(index, ChatColor.GOLD + "(Socket)");
             currentItem.setLore(lore);
 
-            Chatty.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
             if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
@@ -191,7 +189,7 @@ public final class InteractListener implements Listener {
             currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
                                 .withMaterial(m).build();
 
-            Chatty.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
@@ -211,12 +209,12 @@ public final class InteractListener implements Listener {
             }
             int level = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = level;
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
                 return;
             }
             boolean succeed = false;
-            List<String> strip = StringListUtils.stripColor(currentItem.getLore());
+            List<String> strip = stripColor(currentItem.getLore());
             for (String s : strip) {
                 if (s.startsWith("+")) {
                     succeed = true;
@@ -227,7 +225,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                 player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                 currentItem = null;
             }
@@ -252,12 +250,12 @@ public final class InteractListener implements Listener {
                         continue;
                     }
                     String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                    int loreLevel = StringConverter.toInt(loreLev);
+                    int loreLevel = NumberUtils.toInt(loreLev);
                     lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
                     break;
                 }
                 currentItem.setLore(lore);
-                Chatty.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
             }
         } else {
@@ -307,7 +305,15 @@ public final class InteractListener implements Listener {
 
     private int getLevel(String name) {
         String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
-        return StringConverter.toInt(lev.split(" ")[0], 0);
+        return NumberUtils.toInt(lev.split(" ")[0], 0);
+    }
+
+    private List<String> stripColor(List<String> strings) {
+        List<String> ret = new ArrayList<>();
+        for (String s : strings) {
+            ret.add(ChatColor.stripColor(s));
+        }
+        return ret;
     }
 
 }

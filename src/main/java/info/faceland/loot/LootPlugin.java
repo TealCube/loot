@@ -1,19 +1,17 @@
-/******************************************************************************
- * Copyright (c) 2014, Richard Harrah                                         *
- *                                                                            *
- * Permission to use, copy, modify, and/or distribute this software for any   *
- * purpose with or without fee is hereby granted, provided that the above     *
- * copyright notice and this permission notice appear in all copies.          *
- *                                                                            *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES   *
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF           *
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR    *
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES     *
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN      *
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF    *
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.             *
- ******************************************************************************/
-
+/*
+ * This file is part of Loot, licensed under the ISC License.
+ *
+ * Copyright (c) 2014 Richard Harrah
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted,
+ * provided that the above copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+ * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ */
 package info.faceland.loot;
 
 import com.comphenix.protocol.Packets;
@@ -24,11 +22,6 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
-import info.faceland.api.FacePlugin;
-import info.faceland.config.VersionedFaceConfiguration;
-import info.faceland.config.VersionedFaceYamlConfiguration;
-import info.faceland.config.settings.FaceSettings;
-import info.faceland.facecore.shade.command.CommandHandler;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -73,9 +66,6 @@ import info.faceland.loot.managers.LootTierManager;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
-import info.faceland.utils.StringConverter;
-import info.faceland.utils.TextUtils;
-import net.nunnerycode.java.libraries.cannonball.DebugPrinter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -83,9 +73,17 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+import org.nunnerycode.facecore.configuration.MasterConfiguration;
+import org.nunnerycode.facecore.configuration.VersionedSmartConfiguration;
+import org.nunnerycode.facecore.configuration.VersionedSmartYamlConfiguration;
+import org.nunnerycode.facecore.logging.PluginLogger;
+import org.nunnerycode.facecore.plugin.FacePlugin;
+import org.nunnerycode.facecore.utilities.TextUtils;
+import org.nunnerycode.kern.methodcommand.CommandHandler;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -95,18 +93,18 @@ import java.util.logging.Level;
 
 public final class LootPlugin extends FacePlugin {
 
-    private DebugPrinter debugPrinter;
-    private VersionedFaceYamlConfiguration itemsYAML;
-    private VersionedFaceYamlConfiguration tierYAML;
-    private VersionedFaceYamlConfiguration corestatsYAML;
-    private VersionedFaceYamlConfiguration customItemsYAML;
-    private VersionedFaceYamlConfiguration socketGemsYAML;
-    private VersionedFaceYamlConfiguration languageYAML;
-    private VersionedFaceYamlConfiguration configYAML;
-    private VersionedFaceYamlConfiguration creaturesYAML;
-    private VersionedFaceYamlConfiguration identifyingYAML;
-    private VersionedFaceYamlConfiguration enchantmentTomesYAML;
-    private FaceSettings settings;
+    private PluginLogger debugPrinter;
+    private VersionedSmartYamlConfiguration itemsYAML;
+    private VersionedSmartYamlConfiguration tierYAML;
+    private VersionedSmartYamlConfiguration corestatsYAML;
+    private VersionedSmartYamlConfiguration customItemsYAML;
+    private VersionedSmartYamlConfiguration socketGemsYAML;
+    private VersionedSmartYamlConfiguration languageYAML;
+    private VersionedSmartYamlConfiguration configYAML;
+    private VersionedSmartYamlConfiguration creaturesYAML;
+    private VersionedSmartYamlConfiguration identifyingYAML;
+    private VersionedSmartYamlConfiguration enchantmentTomesYAML;
+    private MasterConfiguration settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
     private NameManager nameManager;
@@ -117,90 +115,90 @@ public final class LootPlugin extends FacePlugin {
     private AnticheatManager anticheatManager;
 
     @Override
-    public void preEnable() {
-        debugPrinter = new DebugPrinter(getDataFolder().getPath(), "debug.log");
-        itemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "items.yml"),
-                                                        getResource("items.yml"),
-                                                        VersionedFaceConfiguration.VersionUpdateType
-                                                                .BACKUP_AND_UPDATE);
+    public void enable() {
+        debugPrinter = new PluginLogger(this);
+        itemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "items.yml"),
+                getResource("items.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (itemsYAML.update()) {
             getLogger().info("Updating items.yml");
             debug("Updating items.yml");
         }
-        tierYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "tier.yml"),
-                                                       getResource("tier.yml"),
-                                                       VersionedFaceConfiguration.VersionUpdateType
-                                                               .BACKUP_AND_UPDATE);
+        tierYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "tier.yml"),
+                getResource("tier.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (tierYAML.update()) {
             getLogger().info("Updating tier.yml");
             debug("Updating tier.yml");
         }
-        corestatsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
-                                                            getResource("corestats.yml"),
-                                                            VersionedFaceConfiguration.VersionUpdateType
-                                                                    .BACKUP_AND_UPDATE);
+        corestatsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
+                getResource("corestats.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (corestatsYAML.update()) {
             getLogger().info("Updating corestats.yml");
             debug("Updating corestats.yml");
         }
-        customItemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
-                                                              getResource("customItems.yml"),
-                                                              VersionedFaceConfiguration.VersionUpdateType
-                                                                      .BACKUP_AND_UPDATE);
+        customItemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
+                getResource("customItems.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
             debug("Updating customItems.yml");
         }
-        socketGemsYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
-                                                             getResource("socketGems.yml"),
-                                                             VersionedFaceConfiguration.VersionUpdateType
-                                                                     .BACKUP_AND_UPDATE);
+        socketGemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
+                getResource("socketGems.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (socketGemsYAML.update()) {
             getLogger().info("Updating socketGems.yml");
             debug("Updating socketGems.yml");
         }
-        languageYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "language.yml"),
-                                                           getResource("language.yml"),
-                                                           VersionedFaceConfiguration.VersionUpdateType
-                                                                   .BACKUP_AND_UPDATE);
+        languageYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "language.yml"),
+                getResource("language.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (languageYAML.update()) {
             getLogger().info("Updating language.yml");
             debug("Updating language.yml");
         }
-        configYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "config.yml"),
-                                                         getResource("config.yml"),
-                                                         VersionedFaceConfiguration.VersionUpdateType
-                                                                 .BACKUP_AND_UPDATE);
+        configYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
+                getResource("config.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (configYAML.update()) {
             getLogger().info("Updating config.yml");
             debug("Updating config.yml");
         }
-        creaturesYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
-                                                            getResource("creatures.yml"),
-                                                            VersionedFaceConfiguration.VersionUpdateType
-                                                                    .BACKUP_AND_UPDATE);
+        creaturesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
+                getResource("creatures.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (creaturesYAML.update()) {
             getLogger().info("Updating creatures.yml");
             debug("Updating creatures.yml");
         }
-        identifyingYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
-                                                              getResource("identifying.yml"),
-                                                              VersionedFaceConfiguration.VersionUpdateType
-                                                                      .BACKUP_AND_UPDATE);
+        identifyingYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
+                getResource("identifying.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (identifyingYAML.update()) {
             getLogger().info("Updating identifying.yml");
             debug("Updating identifying.yml");
         }
-        enchantmentTomesYAML = new VersionedFaceYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
-                                                                    getResource("enchantmentTomes.yml"),
-                                                                    VersionedFaceConfiguration.VersionUpdateType
-                                                                            .BACKUP_AND_UPDATE);
+        enchantmentTomesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
+                getResource("enchantmentTomes.yml"),
+                VersionedSmartConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
         }
 
-        settings = FaceSettings.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
+        settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
@@ -210,10 +208,7 @@ public final class LootPlugin extends FacePlugin {
         creatureModManager = new LootCreatureModManager();
         enchantmentStoneManager = new LootEnchantmentTomeManager();
         anticheatManager = new LootAnticheatManager();
-    }
 
-    @Override
-    public void enable() {
         loadItemGroups();
         loadTiers();
         loadNames();
@@ -221,10 +216,7 @@ public final class LootPlugin extends FacePlugin {
         loadSocketGems();
         loadEnchantmentStones();
         loadCreatureMods();
-    }
 
-    @Override
-    public void postEnable() {
         CommandHandler handler = new CommandHandler(this);
         handler.registerCommands(new LootCommand(this));
         Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
@@ -249,17 +241,9 @@ public final class LootPlugin extends FacePlugin {
     }
 
     @Override
-    public void preDisable() {
-        HandlerList.unregisterAll(this);
-    }
-
-    @Override
     public void disable() {
+        HandlerList.unregisterAll(this);
 
-    }
-
-    @Override
-    public void postDisable() {
         anticheatManager = null;
         enchantmentStoneManager = null;
         creatureModManager = null;
@@ -286,7 +270,7 @@ public final class LootPlugin extends FacePlugin {
 
     public void debug(Level level, String... messages) {
         if (debugPrinter != null && (settings == null || settings.getBoolean("config.debug", false))) {
-            debugPrinter.debug(level, messages);
+            debugPrinter.log(level, Arrays.asList(messages));
         }
     }
 
@@ -321,7 +305,7 @@ public final class LootPlugin extends FacePlugin {
             if (cs.isConfigurationSection("enchantments")) {
                 ConfigurationSection enchCS = cs.getConfigurationSection("enchantments");
                 for (String eKey : enchCS.getKeys(false)) {
-                    Enchantment ench = StringConverter.toEnchantment(eKey);
+                    Enchantment ench = Enchantment.getByName(eKey);
                     if (ench == null) {
                         continue;
                     }
@@ -475,7 +459,7 @@ public final class LootPlugin extends FacePlugin {
             }
             ConfigurationSection cs = customItemsYAML.getConfigurationSection(key);
             CustomItemBuilder builder = getNewCustomItemBuilder(key);
-            builder.withMaterial(StringConverter.toMaterial(cs.getString("material")));
+            builder.withMaterial(Material.getMaterial(cs.getString("material")));
             builder.withDisplayName(cs.getString("display-name"));
             builder.withLore(cs.getStringList("lore"));
             builder.withWeight(cs.getDouble("weight"));
@@ -532,7 +516,7 @@ public final class LootPlugin extends FacePlugin {
             List<String> list = itemsYAML.getStringList(key);
             ItemGroup ig = new LootItemGroup(key, false);
             for (String s : list) {
-                Material m = StringConverter.toMaterial(s);
+                Material m = Material.getMaterial(s);
                 if (m == Material.AIR) {
                     continue;
                 }
@@ -641,7 +625,7 @@ public final class LootPlugin extends FacePlugin {
         return nameManager;
     }
 
-    public FaceSettings getSettings() {
+    public MasterConfiguration getSettings() {
         return settings;
     }
 
