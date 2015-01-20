@@ -31,6 +31,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -52,6 +53,15 @@ public final class InteractListener implements Listener {
     public InteractListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom(System.currentTimeMillis());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemSpawnEvent(ItemSpawnEvent event) {
+        HiltItemStack itemStack = new HiltItemStack(event.getEntity().getItemStack());
+        if (!itemStack.getName().isEmpty()) {
+            event.getEntity().setCustomName(itemStack.getName());
+            event.getEntity().setCustomNameVisible(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
