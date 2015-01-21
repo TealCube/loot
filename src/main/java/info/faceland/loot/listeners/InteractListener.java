@@ -58,7 +58,8 @@ public final class InteractListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemSpawnEvent(ItemSpawnEvent event) {
         HiltItemStack itemStack = new HiltItemStack(event.getEntity().getItemStack());
-        if (!itemStack.getName().equals(itemStack.getDefaultName())) {
+        if (!itemStack.getName().equals(itemStack.getDefaultName()) && !itemStack.getName().equals(ChatColor.GOLD +
+                "REWARD!")) {
             event.getEntity().setCustomName(itemStack.getName());
             event.getEntity().setCustomNameVisible(true);
         }
