@@ -46,8 +46,9 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us", "ch"},
-           description = {"custom", "socket gem", "tier", "enchantment"})
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+           description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
+                   "upgrade scroll", "charm"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
                              @FlagArg("c") boolean custom,
@@ -56,7 +57,7 @@ public final class LootCommand {
                              @FlagArg("e") boolean enchantment,
                              @FlagArg("se") boolean socketExtender,
                              @FlagArg("u") boolean unidentified,
-                             @FlagArg("t") boolean tome,
+                             @FlagArg("id") boolean tome,
                              @FlagArg("us") boolean upgradeScroll,
                              @FlagArg("ch") boolean charm) {
         if (custom) {
@@ -203,8 +204,9 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot simulate", permissions = "loot.command.simulate")
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us", "ch"},
-           description = {"custom", "socket gem", "tier", "enchantment"})
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+            description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
+                    "upgrade scroll", "charm"})
     public void simulateCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                                 @Arg(name = "name", def = "") String name,
                                 @FlagArg("c") boolean custom,
@@ -213,7 +215,7 @@ public final class LootCommand {
                                 @FlagArg("e") boolean enchantment,
                                 @FlagArg("se") boolean socketExtender,
                                 @FlagArg("u") boolean unidentified,
-                                @FlagArg("t") boolean tome,
+                                @FlagArg("id") boolean tome,
                                 @FlagArg("us") boolean upgradeScroll,
                                 @FlagArg("ch") boolean charm) {
         double distanceFromSpawnSquared = sender.getLocation().distanceSquared(sender.getWorld().getSpawnLocation());
@@ -365,8 +367,9 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "t", "us", "ch"},
-           description = {"custom", "socket gem", "tier", "enchantment"})
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+            description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
+                    "upgrade scroll", "charm"})
     public void giveCommand(CommandSender sender,
                             @Arg(name = "player") Player target,
                             @Arg(name = "amount", def = "1") int amount,
@@ -377,7 +380,7 @@ public final class LootCommand {
                             @FlagArg("e") boolean enchantment,
                             @FlagArg("se") boolean socketExtender,
                             @FlagArg("u") boolean unidentified,
-                            @FlagArg("t") boolean tome,
+                            @FlagArg("id") boolean tome,
                             @FlagArg("us") boolean upgradeScroll,
                             @FlagArg("ch") boolean charm) {
         if (custom) {
