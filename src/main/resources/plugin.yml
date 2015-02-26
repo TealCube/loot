@@ -1,7 +1,7 @@
 name: @NAME@
 version: @VERSION@
 main: info.faceland.loot.LootPlugin
-depend: [facecore, ProtocolLib]
+depend: [Facecore, ProtocolLib]
 
 commands:
   loot:
