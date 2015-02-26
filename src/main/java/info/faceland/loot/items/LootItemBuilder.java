@@ -22,6 +22,7 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,8 @@ public final class LootItemBuilder implements ItemBuilder {
             material = array[random.nextInt(array.length)];
         }
         hiltItemStack = new HiltItemStack(material);
+        hiltItemStack.setUnbreakable(true);
+        hiltItemStack.getItemMeta().addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
                 .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
         List<String> lore = new ArrayList<>(tier.getBaseLore());
