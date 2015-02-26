@@ -49,10 +49,7 @@ public final class LootRandom extends Random {
     public int nextIntRange(int i1, int i2) {
         int min = Math.min(i1, i2);
         int max = Math.max(i1, i2);
-        int diff = max - min;
-        if (diff <= 0) {
-            return min;
-        }
+        int diff = Math.abs(max - min);
         return min + nextInt(diff);
     }
 
