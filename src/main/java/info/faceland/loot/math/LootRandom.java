@@ -50,7 +50,7 @@ public final class LootRandom extends Random {
         int min = Math.min(i1, i2);
         int max = Math.max(i1, i2);
         int diff = Math.abs(max - min);
-        return min + nextInt(diff);
+        return min + nextInt(diff > 0 ? diff : 1);
     }
 
 }
