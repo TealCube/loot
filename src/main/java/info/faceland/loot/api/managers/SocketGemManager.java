@@ -45,4 +45,8 @@ public interface SocketGemManager {
 
     double getTotalWeight();
 
+    double getTotalWeight(double distance);
+
+    double getTotalWeight(double distance, Map<SocketGem, Double> map);
+
 }
