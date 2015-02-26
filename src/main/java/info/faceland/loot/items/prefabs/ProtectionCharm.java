@@ -14,9 +14,9 @@
  */
 package info.faceland.loot.items.prefabs;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
 
 import java.util.Arrays;
 

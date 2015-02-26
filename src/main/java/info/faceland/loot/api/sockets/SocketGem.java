@@ -14,9 +14,9 @@
  */
 package info.faceland.loot.api.sockets;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
 
 import java.util.List;
 

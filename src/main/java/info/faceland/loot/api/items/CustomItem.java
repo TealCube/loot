@@ -14,8 +14,8 @@
  */
 package info.faceland.loot.api.items;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import org.bukkit.Material;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
 
 import java.util.List;
 

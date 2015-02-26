@@ -14,6 +14,11 @@
  */
 package info.faceland.loot.listeners;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
@@ -36,11 +41,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
-import org.nunnerycode.facecore.utilities.MessageUtils;
-import org.nunnerycode.facecore.utilities.TextUtils;
-import org.nunnerycode.kern.apache.commons.lang3.math.NumberUtils;
-import org.nunnerycode.kern.shade.google.common.base.CharMatcher;
 
 import java.util.ArrayList;
 import java.util.List;

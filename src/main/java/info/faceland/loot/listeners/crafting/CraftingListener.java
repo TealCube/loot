@@ -14,6 +14,7 @@
  */
 package info.faceland.loot.listeners.crafting;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -21,7 +22,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
 
 public final class CraftingListener implements Listener {
 

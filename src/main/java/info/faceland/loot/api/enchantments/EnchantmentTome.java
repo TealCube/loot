@@ -14,9 +14,9 @@
  */
 package info.faceland.loot.api.enchantments;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
 import org.bukkit.enchantments.Enchantment;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
 
 import java.util.List;
 import java.util.Map;

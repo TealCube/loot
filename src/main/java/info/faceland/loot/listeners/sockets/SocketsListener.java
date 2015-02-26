@@ -14,6 +14,8 @@
  */
 package info.faceland.loot.listeners.sockets;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -31,8 +33,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
-import org.nunnerycode.facecore.utilities.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

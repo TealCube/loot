@@ -14,6 +14,11 @@
  */
 package info.faceland.loot.commands;
 
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.kern.methodcommand.Arg;
+import com.tealcube.minecraft.bukkit.kern.methodcommand.Command;
+import com.tealcube.minecraft.bukkit.kern.methodcommand.FlagArg;
+import com.tealcube.minecraft.bukkit.kern.methodcommand.Flags;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
@@ -29,11 +34,6 @@ import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.nunnerycode.facecore.utilities.MessageUtils;
-import org.nunnerycode.kern.methodcommand.Arg;
-import org.nunnerycode.kern.methodcommand.Command;
-import org.nunnerycode.kern.methodcommand.FlagArg;
-import org.nunnerycode.kern.methodcommand.Flags;
 
 public final class LootCommand {
 

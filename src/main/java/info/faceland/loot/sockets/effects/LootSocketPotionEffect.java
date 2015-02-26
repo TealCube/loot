@@ -14,12 +14,12 @@
  */
 package info.faceland.loot.sockets.effects;
 
+import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
 import info.faceland.loot.api.sockets.effects.SocketEffectTarget;
 import info.faceland.loot.api.sockets.effects.SocketPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.nunnerycode.kern.apache.commons.lang3.math.NumberUtils;
 
 public final class LootSocketPotionEffect implements SocketPotionEffect {
 

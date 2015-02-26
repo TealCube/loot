@@ -14,14 +14,14 @@
  */
 package info.faceland.loot.items;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
-import org.nunnerycode.facecore.utilities.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;

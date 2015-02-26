@@ -14,10 +14,10 @@
  */
 package info.faceland.loot.items;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import info.faceland.loot.api.items.CustomItem;
 import org.bukkit.Material;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
-import org.nunnerycode.facecore.utilities.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;

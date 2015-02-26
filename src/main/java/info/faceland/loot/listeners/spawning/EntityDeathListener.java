@@ -14,6 +14,9 @@
  */
 package info.faceland.loot.listeners.spawning;
 
+import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.kern.fanciful.FancyMessage;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -40,9 +43,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.nunnerycode.facecore.hilt.HiltItemStack;
-import org.nunnerycode.facecore.utilities.TextUtils;
-import org.nunnerycode.kern.fanciful.FancyMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;

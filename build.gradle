@@ -12,31 +12,33 @@ sourceCompatibility = "1.7"
 
 defaultTasks 'clean', 'licenseFormat', 'check', 'build'
 
-group = "org.nunnerycode"
-archivesBaseName = "loot-gradle"
-version = "0.0.1-SNAPSHOT"
+group = "com.tealcube.minecraft.bukkit"
+archivesBaseName = "loot"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
     maven {
-        url "http://repo-topplethenun.rhcloud.com/nexus/content/groups/public/"
+        url "http://tealcube.com/nexus/content/groups/public/"
     }
     maven {
         url "https://hub.spigotmc.org/nexus/content/groups/public/"
     }
     maven {
-        url "http://repo.comphenix.net/content/groups/public/"
+        url "http://ci.shadowvolt.com/plugin/repository/everything/"
     }
 }
 
 dependencies {
-    compile "org.nunnerycode:facecore-gradle-all:0.0.3-SNAPSHOT"
-    compile "com.comphenix.protocol:ProtocolLib:latest.release"
+    compile "com.tealcube.minecraft.bukkit:facecore-all:1.0.0-SNAPSHOT"
+    compile("com.comphenix.protocol:ProtocolLib:3.6.3-SNAPSHOT") {
+        exclude module: "BukkitExecutors"
+    }
 }
 
 processResources {
     filter ReplaceTokens, tokens: [
-            VERSION: version + "-" + (System.getenv("CIRCLECI") != null ? "circleci" : "compiled") + "-" + (System.getenv("CIRCLE_BUILD_NUM") ?: "0"),
+            VERSION: version + "-" + (System.getenv("BUILD_NUMBER") ?: "0"),
             NAME   : project.name
     ]
 }
@@ -53,14 +55,14 @@ license {
 publishing {
     publications {
         java(MavenPublication) {
-            artifactId = "loot-gradle"
+            artifactId = "loot"
             from components.java
         }
     }
     repositories {
         maven {
-            url "http://repo-topplethenun.rhcloud.com/nexus/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
-            name "nunnerycode-repo"
+            url "http://tealcube.com/nexus/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
+            name "TealCube"
             credentials {
                 username System.getenv("nexusUsername") ?: nexusUsername
                 password System.getenv("nexusPassword") ?: nexusPassword
