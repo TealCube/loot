@@ -79,13 +79,15 @@ public final class LootItemBuilder implements ItemBuilder {
         List<String> lore = new ArrayList<>(tier.getBaseLore());
         lore.addAll(plugin.getSettings().getStringList("corestats." + material.name(),
                                                        new ArrayList<String>()));
-        for (int i = 0; i < random.nextIntRange(tier.getMinimumBonusLore(), tier.getMaximumBonusLore()); i++) {
+        int bonusLore = random.nextIntRange(tier.getMinimumBonusLore(), tier.getMaximumBonusLore());
+        for (int i = 0; i < bonusLore; i++) {
             lore.add(tier.getBonusLore().get(random.nextInt(tier.getBonusLore().size())));
         }
         if (tier.isEnchantable()) {
             lore.add("<blue>(Enchantable)");
         }
-        for (int i = 0; i < random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets()); i++) {
+        int sockets = random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets());
+        for (int i = 0; i < sockets; i++) {
             lore.add("<gold>(Socket)");
         }
         if (random.nextDouble() < tier.getExtendableChance()) {
