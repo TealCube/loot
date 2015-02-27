@@ -113,6 +113,18 @@ public final class InteractListener implements Listener {
                 hiltItemStack.setItemMeta(itemMeta);
                 ee.setBoots(hiltItemStack);
             }
+            if (ee.getItemInHand() != null && ee.getItemInHand().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getItemInHand());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setItemInHand(hiltItemStack);
+            }
         }
         if (event.getDamager() instanceof Player) {
             EntityEquipment ee = ((Player) event.getDamager()).getEquipment();
@@ -163,6 +175,18 @@ public final class InteractListener implements Listener {
                 }
                 hiltItemStack.setItemMeta(itemMeta);
                 ee.setBoots(hiltItemStack);
+            }
+            if (ee.getItemInHand() != null && ee.getItemInHand().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getItemInHand());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setItemInHand(hiltItemStack);
             }
         }
     }
