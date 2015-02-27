@@ -23,6 +23,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,6 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         hiltItemStack = new HiltItemStack(material);
         hiltItemStack.setUnbreakable(true);
-        hiltItemStack.getItemMeta().addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
                 .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
         List<String> lore = new ArrayList<>(tier.getBaseLore());
@@ -97,6 +97,9 @@ public final class LootItemBuilder implements ItemBuilder {
             lore.add("<dark aqua>(+)");
         }
         hiltItemStack.setLore(TextUtils.color(lore));
+        ItemMeta itemMeta = hiltItemStack.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        hiltItemStack.setItemMeta(itemMeta);
         return hiltItemStack;
     }
 
