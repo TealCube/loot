@@ -36,11 +36,17 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +59,112 @@ public final class InteractListener implements Listener {
     public InteractListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom(System.currentTimeMillis());
+    }
+
+    @EventHandler
+    public void onEntityDamageEvent(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Player) {
+            EntityEquipment ee = ((Player) event.getEntity()).getEquipment();
+            if (ee.getHelmet() != null && ee.getHelmet().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getHelmet());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setHelmet(hiltItemStack);
+            }
+            if (ee.getChestplate() != null && ee.getChestplate().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getChestplate());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setChestplate(hiltItemStack);
+            }
+            if (ee.getLeggings() != null && ee.getLeggings().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getLeggings());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setLeggings(hiltItemStack);
+            }
+            if (ee.getBoots() != null && ee.getBoots().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getBoots());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setBoots(hiltItemStack);
+            }
+        }
+        if (event.getDamager() instanceof Player) {
+            EntityEquipment ee = ((Player) event.getDamager()).getEquipment();
+            if (ee.getHelmet() != null && ee.getHelmet().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getHelmet());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setHelmet(hiltItemStack);
+            }
+            if (ee.getChestplate() != null && ee.getChestplate().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getChestplate());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setChestplate(hiltItemStack);
+            }
+            if (ee.getLeggings() != null && ee.getLeggings().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getLeggings());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setLeggings(hiltItemStack);
+            }
+            if (ee.getBoots() != null && ee.getBoots().getType() != Material.AIR) {
+                HiltItemStack hiltItemStack = new HiltItemStack(ee.getBoots());
+                if (!hiltItemStack.isUnbreakable()) {
+                    hiltItemStack.setUnbreakable(true);
+                }
+                ItemMeta itemMeta = hiltItemStack.getItemMeta();
+                if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES) && !itemMeta.hasItemFlag(ItemFlag.HIDE_UNBREAKABLE)) {
+                    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+                }
+                hiltItemStack.setItemMeta(itemMeta);
+                ee.setBoots(hiltItemStack);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
