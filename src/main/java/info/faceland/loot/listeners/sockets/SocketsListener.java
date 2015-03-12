@@ -193,9 +193,6 @@ public final class SocketsListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getInventory().getHolder() instanceof Chest)) {
-            return;
-        }
         if (!ChatColor.stripColor(event.getInventory().getName()).equals("Socket Gem Combiner")) {
             return;
         }
