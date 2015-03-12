@@ -14,6 +14,7 @@
  */
 package info.faceland.loot.listeners.sockets;
 
+import com.kill3rtaco.tacoserialization.SingleItemSerialization;
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Predicates;
@@ -50,9 +51,11 @@ import java.util.*;
 public final class SocketsListener implements Listener {
 
     private LootPlugin plugin;
+    private final Map<UUID, List<String>> gems;
 
     public SocketsListener(LootPlugin plugin) {
         this.plugin = plugin;
+        this.gems = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -180,6 +183,13 @@ public final class SocketsListener implements Listener {
         }
         event.setCancelled(true);
         Inventory toShow = Bukkit.createInventory(null, 9, "Socket Gem Combiner");
+        List<String> toAdd = gems.get(event.getPlayer().getUniqueId());
+        if (toAdd == null) {
+            toAdd = new ArrayList<>();
+        }
+        for (String s : toAdd) {
+            toShow.addItem(SingleItemSerialization.getItem(s));
+        }
         event.getPlayer().openInventory(toShow);
     }
 
@@ -202,7 +212,11 @@ public final class SocketsListener implements Listener {
             newResults.add(plugin.getSocketGemManager().getRandomSocketGemByBonus().toItemStack(1));
         }
         newResults.addAll(contents);
-        event.getInventory().setContents(newResults.toArray(new ItemStack[newResults.size()]));
+        List<String> toAdd = new ArrayList<>();
+        for (ItemStack is : newResults) {
+            toAdd.add(SingleItemSerialization.serializeItemAsString(is));
+        }
+        gems.put(event.getPlayer().getUniqueId(), toAdd);
     }
 
     private Set<SocketGem> getGems(ItemStack itemStack) {
