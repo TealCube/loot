@@ -166,7 +166,7 @@ public final class SocketsListener implements Listener {
         if (!(event.getInventory().getType() == InventoryType.CHEST)) {
             return;
         }
-        if (!event.getInventory().getName().equals("Socket Gem Combiner")) {
+        if (!ChatColor.stripColor(event.getInventory().getName()).equals("Socket Gem Combiner")) {
             return;
         }
         if (event.getInventory().getSize() > 9) {
