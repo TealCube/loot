@@ -16,6 +16,10 @@ package info.faceland.loot.listeners.sockets;
 
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Predicates;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.ImmutableList;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Iterables;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Lists;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -30,14 +34,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class SocketsListener implements Listener {
 
@@ -156,6 +159,28 @@ public final class SocketsListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getInventory().getType() == InventoryType.CHEST)) {
+            return;
+        }
+        if (!event.getInventory().getName().equals("Socket Gem Combiner")) {
+            return;
+        }
+        if (event.getInventory().getSize() > 9) {
+            return;
+        }
+        List<ItemStack> newResults = new ArrayList<>();
+        List<ItemStack> contents = Lists.newArrayList(Iterables.filter(Arrays.asList(event.getInventory().getContents()),
+                Predicates.notNull()));
+        while (contents.size() >= 4) {
+            contents = contents.subList(4, contents.size());
+            newResults.add(plugin.getSocketGemManager().getRandomSocketGemByBonus().toItemStack(1));
+        }
+        newResults.addAll(contents);
+        event.getInventory().setContents(newResults.toArray(new ItemStack[newResults.size()]));
     }
 
     private Set<SocketGem> getGems(ItemStack itemStack) {
