@@ -25,6 +25,7 @@ import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import com.tealcube.minecraft.bukkit.facecore.shade.config.MasterConfiguration;
+import com.tealcube.minecraft.bukkit.facecore.shade.config.SmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.shade.config.VersionedSmartConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.shade.config.VersionedSmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
@@ -37,14 +38,8 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
-import info.faceland.loot.api.managers.AnticheatManager;
-import info.faceland.loot.api.managers.CreatureModManager;
-import info.faceland.loot.api.managers.CustomItemManager;
-import info.faceland.loot.api.managers.EnchantmentTomeManager;
-import info.faceland.loot.api.managers.ItemGroupManager;
-import info.faceland.loot.api.managers.NameManager;
-import info.faceland.loot.api.managers.SocketGemManager;
-import info.faceland.loot.api.managers.TierManager;
+import info.faceland.loot.api.managers.*;
+import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -62,14 +57,7 @@ import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.spawning.EntityDeathListener;
-import info.faceland.loot.managers.LootAnticheatManager;
-import info.faceland.loot.managers.LootCreatureModManager;
-import info.faceland.loot.managers.LootCustomItemManager;
-import info.faceland.loot.managers.LootEnchantmentTomeManager;
-import info.faceland.loot.managers.LootItemGroupManager;
-import info.faceland.loot.managers.LootNameManager;
-import info.faceland.loot.managers.LootSocketGemManager;
-import info.faceland.loot.managers.LootTierManager;
+import info.faceland.loot.managers.*;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
@@ -104,6 +92,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedSmartYamlConfiguration creaturesYAML;
     private VersionedSmartYamlConfiguration identifyingYAML;
     private VersionedSmartYamlConfiguration enchantmentTomesYAML;
+    private SmartYamlConfiguration chestsYAML;
     private MasterConfiguration settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
@@ -113,6 +102,7 @@ public final class LootPlugin extends FacePlugin {
     private CreatureModManager creatureModManager;
     private EnchantmentTomeManager enchantmentStoneManager;
     private AnticheatManager anticheatManager;
+    private ChestManager chestManager;
 
     @Override
     public void enable() {
@@ -197,6 +187,8 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
         }
+        chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
+        chestsYAML.load();
 
         settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
 
@@ -208,6 +200,7 @@ public final class LootPlugin extends FacePlugin {
         creatureModManager = new LootCreatureModManager();
         enchantmentStoneManager = new LootEnchantmentTomeManager();
         anticheatManager = new LootAnticheatManager();
+        chestManager = new LootChestManager();
 
         loadItemGroups();
         loadTiers();
@@ -216,6 +209,7 @@ public final class LootPlugin extends FacePlugin {
         loadSocketGems();
         loadEnchantmentStones();
         loadCreatureMods();
+        loadChests();
 
         CommandHandler handler = new CommandHandler(this);
         handler.registerCommands(new LootCommand(this));
@@ -238,6 +232,21 @@ public final class LootPlugin extends FacePlugin {
             }
         });
         debug("v" + getDescription().getVersion() + " enabled");
+    }
+
+    private void loadChests() {
+        for (Vec3 loc : getChestManager().getChestLocations()) {
+            getChestManager().removeChestLocation(loc);
+        }
+        Set<Vec3> locs = new HashSet<>();
+        List<String> locStrings = chestsYAML.getStringList("locs");
+        for (String s : locStrings) {
+            locs.add(Vec3.fromString(s));
+        }
+        for (Vec3 loc : locs) {
+            getChestManager().addChestLocation(loc);
+        }
+        debug("Loaded chests: " + locs.size());
     }
 
     @Override
@@ -660,6 +669,10 @@ public final class LootPlugin extends FacePlugin {
                 }
             }
         }
+    }
+
+    public ChestManager getChestManager() {
+        return chestManager;
     }
 
 }
