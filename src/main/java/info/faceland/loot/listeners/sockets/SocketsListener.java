@@ -27,10 +27,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -212,8 +209,7 @@ public final class SocketsListener implements Listener {
             toAdd.add(SingleItemSerialization.serializeItemAsString(is));
         }
         if (toAdd.size() > 0) {
-            InventoryHolder holder = event.getInventory().getHolder();
-            Chest c = (Chest) holder;
+            HumanEntity c = event.getPlayer();
             c.getWorld().playEffect(c.getLocation().add(0, 1, 0), Effect.SPELL, 0);
             c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENDERMAN_SCREAM, 1.0f, 1.0f);
             MessageUtils.sendMessage(event.getPlayer(), "<green>Open the chest again to get your new Socket Gems!");
