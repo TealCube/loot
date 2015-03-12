@@ -24,9 +24,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -39,7 +37,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -195,7 +192,7 @@ public final class SocketsListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getInventory().getType() == InventoryType.CHEST)) {
+        if (!(event.getInventory().getHolder() instanceof Chest)) {
             return;
         }
         if (!ChatColor.stripColor(event.getInventory().getName()).equals("Socket Gem Combiner")) {
@@ -215,6 +212,12 @@ public final class SocketsListener implements Listener {
         List<String> toAdd = new ArrayList<>();
         for (ItemStack is : newResults) {
             toAdd.add(SingleItemSerialization.serializeItemAsString(is));
+        }
+        if (toAdd.size() > 0) {
+            InventoryHolder holder = event.getInventory().getHolder();
+            Chest c = (Chest) holder;
+            c.getWorld().playEffect(c.getLocation().add(0, 1, 0), Effect.SPELL, 0);
+            c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENDERMAN_SCREAM, 1.0f, 1.0f);
         }
         gems.put(event.getPlayer().getUniqueId(), toAdd);
     }
