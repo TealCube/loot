@@ -17,14 +17,16 @@ package info.faceland.loot.listeners.sockets;
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Predicates;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.ImmutableList;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Iterables;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Lists;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,7 +37,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -159,6 +164,23 @@ public final class SocketsListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        Inventory inventory = event.getInventory();
+        InventoryHolder holder = inventory.getHolder();
+        if (!(holder instanceof Chest)) {
+            return;
+        }
+        Vec3 loc = new Vec3(((Chest) holder).getWorld().getName(), ((Chest) holder).getX(), ((Chest) holder).getY(),
+                ((Chest) holder).getZ());
+        if (!plugin.getChestManager().getChestLocations().contains(loc)) {
+            return;
+        }
+        event.setCancelled(true);
+        Inventory toShow = Bukkit.createInventory(null, 9, "Socket Gem Combiner");
+        event.getPlayer().openInventory(toShow);
     }
 
     @EventHandler
