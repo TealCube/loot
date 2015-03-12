@@ -104,4 +104,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withBonusWeight(double d) {
+        gem.setBonusWeight(d);
+        return this;
+    }
+
 }

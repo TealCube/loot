@@ -32,6 +32,7 @@ public final class LootSocketGem implements SocketGem {
     private final String name;
     private double weight;
     private double distanceWeight;
+    private double bonusWeight;
     private String prefix;
     private String suffix;
     private List<String> lore;
@@ -195,4 +196,12 @@ public final class LootSocketGem implements SocketGem {
         this.triggerText = triggerText;
     }
 
+    @Override
+    public double getBonusWeight() {
+        return bonusWeight;
+    }
+
+    void setBonusWeight(double bonusWeight) {
+        this.bonusWeight = bonusWeight;
+    }
 }

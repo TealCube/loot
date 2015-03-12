@@ -420,6 +420,7 @@ public final class LootPlugin extends FacePlugin {
             builder.withLore(cs.getStringList("lore"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
+            builder.withBonusWeight(cs.getDouble("bonus-weight"));
             List<SocketEffect> effects = new ArrayList<>();
             for (String eff : cs.getStringList("effects")) {
                 effects.add(LootSocketPotionEffect.parseString(eff));

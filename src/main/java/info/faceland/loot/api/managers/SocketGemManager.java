@@ -43,10 +43,14 @@ public interface SocketGemManager {
 
     SocketGem getRandomSocketGem(boolean withChance, double distance, Map<SocketGem, Double> map);
 
+    SocketGem getRandomSocketGemByBonus();
+
     double getTotalWeight();
 
     double getTotalWeight(double distance);
 
     double getTotalWeight(double distance, Map<SocketGem, Double> map);
+
+    double getTotalBonusWeight();
 
 }

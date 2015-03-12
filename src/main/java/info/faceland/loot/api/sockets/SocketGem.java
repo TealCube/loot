@@ -46,4 +46,5 @@ public interface SocketGem extends Comparable<SocketGem> {
 
     String getTriggerText();
 
+    double getBonusWeight();
 }
