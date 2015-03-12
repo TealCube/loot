@@ -16,6 +16,7 @@ package info.faceland.loot.listeners.sockets;
 
 import com.kill3rtaco.tacoserialization.SingleItemSerialization;
 import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Predicates;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Iterables;
@@ -218,6 +219,7 @@ public final class SocketsListener implements Listener {
             Chest c = (Chest) holder;
             c.getWorld().playEffect(c.getLocation().add(0, 1, 0), Effect.SPELL, 0);
             c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENDERMAN_SCREAM, 1.0f, 1.0f);
+            MessageUtils.sendMessage(event.getPlayer(), "<green>Open the chest again to get your new Socket Gems!");
         }
         gems.put(event.getPlayer().getUniqueId(), toAdd);
     }
