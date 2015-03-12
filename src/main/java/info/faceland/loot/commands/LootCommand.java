@@ -19,10 +19,12 @@ import com.tealcube.minecraft.bukkit.kern.methodcommand.Arg;
 import com.tealcube.minecraft.bukkit.kern.methodcommand.Command;
 import com.tealcube.minecraft.bukkit.kern.methodcommand.FlagArg;
 import com.tealcube.minecraft.bukkit.kern.methodcommand.Flags;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
+import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.IdentityTome;
@@ -32,8 +34,12 @@ import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.Set;
 
 public final class LootCommand {
 
@@ -547,6 +553,20 @@ public final class LootCommand {
                                new String[][]{{"%amount%", amount + ""}});
             MessageUtils.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
         }
+    }
+
+    @Command(identifier = "loot chest", permissions = "loot.command.chest", onlyPlayers = true)
+    public void chestSubcommand(Player sender) {
+        List<Block> blocks = sender.getLineOfSight(Sets.newHashSet(Material.AIR), 10);
+        for (Block block : blocks) {
+            if (block.getType() == Material.CHEST) {
+                Vec3 loc = new Vec3(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
+                plugin.getChestManager().addChestLocation(loc);
+                MessageUtils.sendMessage(sender, "<green>You added a gem combiner chest!");
+                return;
+            }
+        }
+        MessageUtils.sendMessage(sender, "<red>You could not add a chest.");
     }
 
 }

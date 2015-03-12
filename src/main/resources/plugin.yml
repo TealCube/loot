@@ -14,3 +14,5 @@ permissions:
     default: op
   loot.command.simulate:
     default: op
+  loot.command.chest:
+    default: op

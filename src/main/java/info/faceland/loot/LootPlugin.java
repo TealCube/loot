@@ -249,10 +249,23 @@ public final class LootPlugin extends FacePlugin {
         debug("Loaded chests: " + locs.size());
     }
 
+    private void saveChests() {
+        List<String> locs = new ArrayList<>();
+        for (Vec3 loc : getChestManager().getChestLocations()) {
+            locs.add(loc.toString());
+            getChestManager().removeChestLocation(loc);
+        }
+        chestsYAML.set("locs", locs);
+        chestsYAML.save();
+    }
+
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
 
+        saveChests();
+
+        chestManager = null;
         anticheatManager = null;
         enchantmentStoneManager = null;
         creatureModManager = null;
