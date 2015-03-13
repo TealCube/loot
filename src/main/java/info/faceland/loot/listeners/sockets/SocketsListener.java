@@ -178,6 +178,7 @@ public final class SocketsListener implements Listener {
         }
         event.setCancelled(true);
         Inventory toShow = Bukkit.createInventory(null, 9, "Socket Gem Combiner");
+        toShow.setMaxStackSize(1);
         List<String> toAdd = gems.get(event.getPlayer().getUniqueId());
         if (toAdd == null) {
             toAdd = new ArrayList<>();
