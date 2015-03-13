@@ -216,6 +216,13 @@ public final class SocketsListener implements Listener {
         List<ItemStack> newResults = new ArrayList<>();
         List<ItemStack> contents = Lists.newArrayList(Iterables.filter(Arrays.asList(event.getInventory().getContents()),
                 Predicates.notNull()));
+        for (ItemStack content : contents) {
+            HiltItemStack his = new HiltItemStack(content);
+            if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
+                MessageUtils.sendMessage(event.getPlayer(), "<green>All items must be Socket Gems in order to transmute.");
+                return;
+            }
+        }
         while (contents.size() >= 4) {
             contents = contents.subList(4, contents.size());
             newResults.add(plugin.getSocketGemManager().getRandomSocketGemByBonus().toItemStack(1));
