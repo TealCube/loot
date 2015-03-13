@@ -28,11 +28,13 @@ import info.faceland.loot.api.sockets.effects.SocketEffect;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
@@ -161,6 +163,20 @@ public final class SocketsListener implements Listener {
                         break;
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!ChatColor.stripColor(event.getInventory().getName()).equals("Socket Gem Combiner")) {
+            return;
+        }
+        if (event.getInventory().getSize() > 9) {
+            return;
+        }
+        if (event.isShiftClick()) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
         }
     }
 
