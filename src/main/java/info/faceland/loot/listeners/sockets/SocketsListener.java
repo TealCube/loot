@@ -174,6 +174,16 @@ public final class SocketsListener implements Listener {
         if (event.getInventory().getSize() > 9) {
             return;
         }
+        HiltItemStack his = new HiltItemStack(event.getCurrentItem());
+        if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+        }
+        his = new HiltItemStack(event.getCursor());
+        if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+        }
         if (event.isShiftClick()) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
