@@ -206,7 +206,7 @@ public final class SocketsListener implements Listener {
         Inventory toShow = Bukkit.createInventory(null, 9, "Socket Gem Combiner");
         toShow.setMaxStackSize(1);
         List<String> toAdd = new ArrayList<>();
-        toAdd.addAll(gems.get(event.getPlayer().getUniqueId()));
+        toAdd.addAll(gems.containsKey(event.getPlayer().getUniqueId()) ? gems.get(event.getPlayer().getUniqueId()) : new ArrayList<String>());
         gems.remove(event.getPlayer().getUniqueId());
         for (String s : toAdd) {
             toShow.addItem(SingleItemSerialization.getItem(s));
