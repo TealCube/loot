@@ -174,6 +174,11 @@ public final class SocketsListener implements Listener {
         if (event.getInventory().getSize() > 9) {
             return;
         }
+        if (event.isShiftClick()) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+            return;
+        }
         HiltItemStack his = new HiltItemStack(event.getCurrentItem());
         if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
             event.setCancelled(true);
@@ -181,10 +186,6 @@ public final class SocketsListener implements Listener {
         }
         his = new HiltItemStack(event.getCursor());
         if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
-            event.setCancelled(true);
-            event.setResult(Event.Result.DENY);
-        }
-        if (event.isShiftClick()) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
         }
