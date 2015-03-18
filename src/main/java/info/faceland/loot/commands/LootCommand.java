@@ -569,4 +569,11 @@ public final class LootCommand {
         MessageUtils.sendMessage(sender, "<red>You could not add a chest.");
     }
 
+    @Command(identifier = "loot reload", permissions = "loot.command.reload", onlyPlayers = false)
+    public void reloadSubcommand(CommandSender sender) {
+        plugin.disable();
+        plugin.enable();
+        MessageUtils.sendMessage(sender, "<green>Loot has been reloaded.");
+    }
+
 }

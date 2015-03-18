@@ -14,6 +14,7 @@
  */
 package info.faceland.loot;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ConnectionSide;
@@ -219,13 +220,13 @@ public final class LootPlugin extends FacePlugin {
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
         //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
-                this, ConnectionSide.SERVER_SIDE, ListenerPriority.HIGH,
-                Packets.Server.SET_SLOT, Packets.Server.WINDOW_ITEMS) {
+        PacketAdapter.AdapterParameteters params = new PacketAdapter.AdapterParameteters().plugin(this);
+        params.serverSide().listenerPriority(ListenerPriority.HIGH).types(PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.WINDOW_ITEMS);
+        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(params) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 if (event.getPacketID() == Packets.Server.SET_SLOT) {
-                    addGlow(new ItemStack[] { event.getPacket().getItemModifier().read(0) });
+                    addGlow(new ItemStack[]{event.getPacket().getItemModifier().read(0)});
                 } else {
                     addGlow(event.getPacket().getItemArrayModifier().read(0));
                 }
@@ -262,6 +263,7 @@ public final class LootPlugin extends FacePlugin {
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
+        ProtocolLibrary.getProtocolManager().removePacketListeners(this);
 
         saveChests();
 
