@@ -179,10 +179,17 @@ public final class SocketsListener implements Listener {
             event.setResult(Event.Result.DENY);
             return;
         }
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
+            return;
+        }
         HiltItemStack his = new HiltItemStack(event.getCurrentItem());
         if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
+            return;
+        }
+        if (event.getCursor() == null || event.getCursor().getType() == Material.AIR) {
+            return;
         }
         his = new HiltItemStack(event.getCursor());
         if (!his.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
