@@ -83,8 +83,8 @@ public final class InteractListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null || event.getCursor() == null
-            || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR ||
-            !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
+                || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR ||
+                !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
             return;
         }
         Player player = (Player) event.getWhoClicked();
@@ -132,9 +132,9 @@ public final class InteractListener implements Listener {
             ChatColor start = getFirstColor(name);
             String format = "%s%s%s";
             name = String.format(format, start + (level > 0 ? "+" + level + " " : "") +
-                                         (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
-                                 name + (!gem.getSuffix().isEmpty() ? " " : ""),
-                                 start + gem.getSuffix() + ChatColor.getLastColors(name));
+                            (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
+                    name + (!gem.getSuffix().isEmpty() ? " " : ""),
+                    start + gem.getSuffix() + ChatColor.getLastColors(name));
             currentItem.setName(TextUtils.color(name));
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
@@ -204,7 +204,7 @@ public final class InteractListener implements Listener {
             }
             Material m = currentItem.getType();
             currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-                                .withMaterial(m).build();
+                    .withMaterial(m).build();
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
@@ -302,13 +302,13 @@ public final class InteractListener implements Listener {
                     return;
                 }
             }
-        }
         event.setCurrentItem(currentItem);
         cursor.setAmount(cursor.getAmount() - 1);
         event.setCursor(cursor.getAmount() == 0 ? null : cursor);
         event.setCancelled(true);
         event.setResult(Event.Result.DENY);
         player.updateInventory();
+        }
     }
 
     private boolean isBlockWithinRadius(Material material, Location location, int radius) {
