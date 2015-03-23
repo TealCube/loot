@@ -90,6 +90,7 @@ public final class InteractListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
         HiltItemStack cursor = new HiltItemStack(event.getCursor());
+        boolean updateItem = false;
 
         if (cursor.getName() == null) {
             return;
@@ -139,6 +140,7 @@ public final class InteractListener implements Listener {
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
+            updateItem = true;
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
@@ -184,6 +186,7 @@ public final class InteractListener implements Listener {
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             List<String> lore = currentItem.getLore();
             List<String> stripColor = stripColor(lore);
@@ -208,6 +211,7 @@ public final class InteractListener implements Listener {
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            updateItem = true;
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                     currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
@@ -263,10 +267,12 @@ public final class InteractListener implements Listener {
                     damaged = true;
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
                     player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 1F);
+                    updateItem = true;
                 } else {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                     player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                     currentItem = null;
+                    updateItem = true;
                 }
             }
             if (!damaged) {
@@ -298,16 +304,19 @@ public final class InteractListener implements Listener {
                     currentItem.setLore(lore);
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                     player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                    updateItem = true;
                 } else {
                     return;
                 }
             }
-        event.setCurrentItem(currentItem);
-        cursor.setAmount(cursor.getAmount() - 1);
-        event.setCursor(cursor.getAmount() == 0 ? null : cursor);
-        event.setCancelled(true);
-        event.setResult(Event.Result.DENY);
-        player.updateInventory();
+        }
+        if (updateItem) {
+            event.setCurrentItem(currentItem);
+            cursor.setAmount(cursor.getAmount() - 1);
+            event.setCursor(cursor.getAmount() == 0 ? null : cursor);
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+            player.updateInventory();
         }
     }
 
