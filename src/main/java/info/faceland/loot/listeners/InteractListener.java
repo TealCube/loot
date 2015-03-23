@@ -243,8 +243,7 @@ public final class InteractListener implements Listener {
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
                 if (random.nextDouble() > 0.1) {
-                    level--;
-                    level--;
+                    level=level-2;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
                     List<String> lore = currentItem.getLore();
@@ -256,7 +255,7 @@ public final class InteractListener implements Listener {
                         }
                         String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
                         int loreLevel = NumberUtils.toInt(loreLev);
-                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
+                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel - 2)));
                         break;
                     }
                     currentItem.setLore(lore);
