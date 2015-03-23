@@ -272,7 +272,6 @@ public final class InteractListener implements Listener {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                     player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                     currentItem = null;
-                    updateItem = true;
                 }
             }
             if (!damaged) {
