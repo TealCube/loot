@@ -242,9 +242,32 @@ public final class InteractListener implements Listener {
                 return;
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
-                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
-                player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
-                currentItem = null;
+                if (random.nextDouble() > 0.1) {
+                    level--;
+                    level--;
+                    name = name.replace("+" + lev, "+" + String.valueOf(level));
+                    currentItem.setName(name);
+                    List<String> lore = currentItem.getLore();
+                    for (int i = 0; i < lore.size(); i++) {
+                        String s = lore.get(i);
+                        String ss = ChatColor.stripColor(s);
+                        if (!ss.startsWith("+")) {
+                            continue;
+                        }
+                        String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                        int loreLevel = NumberUtils.toInt(loreLev);
+                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
+                        break;
+                    }
+                    currentItem.setLore(lore);
+                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
+                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 1F);
+                    return;
+                } else {
+                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
+                    player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                    currentItem = null;
+                }
             }
             if (currentItem != null) {
                 if (level == 0) {
