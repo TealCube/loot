@@ -210,9 +210,9 @@ public final class InteractListener implements Listener {
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
-                currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
-                currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
-                currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
+                    currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
+                    currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
+                    currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
                 return;
             }
             String name = ChatColor.stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
@@ -231,6 +231,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             boolean succeed = false;
+            boolean damaged = false;
             List<String> strip = stripColor(currentItem.getLore());
             for (String s : strip) {
                 if (s.startsWith("+")) {
@@ -243,7 +244,7 @@ public final class InteractListener implements Listener {
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
                 if (random.nextDouble() > 0.1) {
-                    level=level-2;
+                    level = level - 2;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
                     List<String> lore = currentItem.getLore();
@@ -259,48 +260,49 @@ public final class InteractListener implements Listener {
                         break;
                     }
                     currentItem.setLore(lore);
+                    damaged = true;
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
                     player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 1F);
-                    return;
                 } else {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
                     player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
                     currentItem = null;
                 }
             }
-            if (currentItem != null) {
-                if (level == 0) {
-                    level++;
-                    name = getFirstColor(name) + ("+" + level) + " " + name;
-                    currentItem.setName(name);
-                } else {
-                    level++;
-                    name = name.replace("+" + lev, "+" + String.valueOf(level));
-                    currentItem.setName(name);
-                    if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
-                        currentItem.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+            if (!damaged) {
+                if (currentItem != null) {
+                    if (level == 0) {
+                        level++;
+                        name = getFirstColor(name) + ("+" + level) + " " + name;
+                        currentItem.setName(name);
+                    } else {
+                        level++;
+                        name = name.replace("+" + lev, "+" + String.valueOf(level));
+                        currentItem.setName(name);
+                        if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
+                            currentItem.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+                        }
                     }
-                }
-                List<String> lore = currentItem.getLore();
-                for (int i = 0; i < lore.size(); i++) {
-                    String s = lore.get(i);
-                    String ss = ChatColor.stripColor(s);
-                    if (!ss.startsWith("+")) {
-                        continue;
+                    List<String> lore = currentItem.getLore();
+                    for (int i = 0; i < lore.size(); i++) {
+                        String s = lore.get(i);
+                        String ss = ChatColor.stripColor(s);
+                        if (!ss.startsWith("+")) {
+                            continue;
+                        }
+                        String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                        int loreLevel = NumberUtils.toInt(loreLev);
+                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
+                        break;
                     }
-                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                    int loreLevel = NumberUtils.toInt(loreLev);
-                    lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
-                    break;
+                    currentItem.setLore(lore);
+                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
                 }
-                currentItem.setLore(lore);
-                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+            } else {
+                return;
             }
-        } else {
-            return;
         }
-
         event.setCurrentItem(currentItem);
         cursor.setAmount(cursor.getAmount() - 1);
         event.setCursor(cursor.getAmount() == 0 ? null : cursor);
