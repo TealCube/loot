@@ -298,9 +298,9 @@ public final class InteractListener implements Listener {
                     currentItem.setLore(lore);
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                     player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                } else {
+                    return;
                 }
-            } else {
-                return;
             }
         }
         event.setCurrentItem(currentItem);
