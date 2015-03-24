@@ -212,6 +212,44 @@ public final class InteractListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;
+        } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Faceguy's Tears")) {
+            if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
+                    currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
+                    currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
+                    currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
+                return;
+            }
+            String name = currentItem.getName();
+            if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>()).contains(ChatColor.stripColor(name))) {
+                return;
+            }
+            boolean succeed = false;
+            List<String> strip = stripColor(currentItem.getLore());
+            for (String s : strip) {
+                if (s.startsWith("+")) {
+                    succeed = true;
+                    break;
+                }
+            }
+            if (!succeed) {
+                return;
+            }
+            List<String> lore = currentItem.getLore();
+            for (int i = 0; i < lore.size(); i++) {
+                String s = lore.get(i);
+                String ss = ChatColor.stripColor(s);
+                if (!ss.startsWith("+")) {
+                    continue;
+                }
+                String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                int loreLevel = NumberUtils.toInt(loreLev);
+                lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
+                break;
+            }
+            currentItem.setLore(lore);
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+            updateItem = true;
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                     currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
