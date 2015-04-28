@@ -205,9 +205,8 @@ public final class InteractListener implements Listener {
             if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
                 return;
             }
-            Material m = currentItem.getType();
             currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-                    .withMaterial(m).build();
+                    .build();
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
