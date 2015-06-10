@@ -25,7 +25,7 @@ public final class IdentityTome extends HiltItemStack {
     public IdentityTome() {
         super(Material.ENCHANTED_BOOK);
         setName(ChatColor.DARK_PURPLE + "Identity Tome");
-        setLore(Arrays.asList(ChatColor.GRAY + "Drop this tome onto an",
+        setLore(Arrays.asList(ChatColor.GRAY + "Place this tome onto an",
                               ChatColor.LIGHT_PURPLE + "Unidentified Item" + ChatColor.GRAY + " to reveal",
                               ChatColor.GRAY + "that item's hidden stats!"));
     }

@@ -120,7 +120,7 @@ public final class LootSocketGem implements SocketGem {
         itemStack.setAmount(amount);
         List<String> lore = new ArrayList<>();
         Collections.addAll(lore, ChatColor.WHITE + "Type: " + (!itemGroups.isEmpty() ? itemGroupsToString() : "Any"),
-                           ChatColor.GRAY + "Drop this gem on an item with an",
+                           ChatColor.GRAY + "Place this gem on an item with an",
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY + "to upgrade it!",
                            ChatColor.WHITE + "Bonuses Applied:");
         lore.addAll(getLore());
