@@ -139,7 +139,8 @@ public final class EntityDeathListener implements Listener {
             }
 
             broadcast(event, his);
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
             // drop a socket gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
@@ -154,7 +155,8 @@ public final class EntityDeathListener implements Listener {
             }
 
             broadcast(event, his);
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
             // drop an enchant gem
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
@@ -169,13 +171,16 @@ public final class EntityDeathListener implements Listener {
             }
 
             broadcast(event, his);
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             // drop an upgrade scroll
             event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             // drop an identity tome
             event.getDrops().add(new IdentityTome());
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             // drop a custom item
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
@@ -191,10 +196,12 @@ public final class EntityDeathListener implements Listener {
             }
 
             broadcast(event, his);
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             // drop a socket extender
             event.getDrops().add(new SocketExtender());
-        } else if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item",
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item",
                 0D)) {
             double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                           .getSpawnLocation());
