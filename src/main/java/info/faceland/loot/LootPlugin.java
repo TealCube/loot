@@ -15,9 +15,7 @@
 package info.faceland.loot;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ConnectionSide;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
@@ -71,13 +69,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 public final class LootPlugin extends FacePlugin {
@@ -225,7 +217,7 @@ public final class LootPlugin extends FacePlugin {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(params) {
             @Override
             public void onPacketSending(PacketEvent event) {
-                if (event.getPacketID() == Packets.Server.SET_SLOT) {
+                if (event.getPacketType() == PacketType.Play.Server.SET_SLOT) {
                     addGlow(new ItemStack[]{event.getPacket().getItemModifier().read(0)});
                 } else {
                     addGlow(event.getPacket().getItemArrayModifier().read(0));
