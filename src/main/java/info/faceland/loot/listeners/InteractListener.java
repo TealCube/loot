@@ -288,6 +288,11 @@ public final class InteractListener implements Listener {
                     level = level - 2;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
+                    if (currentItem.containsEnchantment(Enchantment.DURABILITY)) {
+                        if (level < 7) {
+                            currentItem.removeEnchantment(Enchantment.DURABILITY);
+                        }
+                    }
                     List<String> lore = currentItem.getLore();
                     for (int i = 0; i < lore.size(); i++) {
                         String s = lore.get(i);
@@ -323,7 +328,10 @@ public final class InteractListener implements Listener {
                         name = name.replace("+" + lev, "+" + String.valueOf(level));
                         currentItem.setName(name);
                         if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
-                            currentItem.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 32);
+                            currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+                            ItemMeta itemMeta = currentItem.getItemMeta();
+                            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                            currentItem.setItemMeta(itemMeta);
                         }
                     }
                     List<String> lore = currentItem.getLore();
