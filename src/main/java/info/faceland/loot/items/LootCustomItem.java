@@ -18,6 +18,8 @@ import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import info.faceland.loot.api.items.CustomItem;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +72,11 @@ public final class LootCustomItem implements CustomItem {
         itemStack.setAmount(amount);
         itemStack.setName(TextUtils.color(this.displayName));
         itemStack.setLore(TextUtils.color(this.lore));
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        itemStack.setItemMeta(itemMeta);
+
         return itemStack;
     }
 
