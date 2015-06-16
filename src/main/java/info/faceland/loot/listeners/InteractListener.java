@@ -19,6 +19,7 @@ import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
+import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
@@ -36,17 +37,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.EnchantingInventory;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -329,9 +325,7 @@ public final class InteractListener implements Listener {
                         currentItem.setName(name);
                         if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
                             currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-                            ItemMeta itemMeta = currentItem.getItemMeta();
-                            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                            currentItem.setItemMeta(itemMeta);
+                            currentItem.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
                         }
                     }
                     List<String> lore = currentItem.getLore();
