@@ -31,9 +31,6 @@ repositories {
 
 dependencies {
     compile "com.tealcube.minecraft.bukkit:facecore-all:1.0.0-SNAPSHOT"
-    compile("com.comphenix.protocol:ProtocolLib:3.6.3-SNAPSHOT") {
-        exclude module: "BukkitExecutors"
-    }
 }
 
 processResources {
@@ -46,6 +43,7 @@ processResources {
 license {
     header file('HEADER')
     ignoreFailures false
+    include "info/faceland/loot/**/*.java"
     strictCheck true
     mapping {
         java = 'SLASHSTAR_STYLE'

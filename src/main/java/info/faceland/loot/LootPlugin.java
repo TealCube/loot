@@ -14,13 +14,6 @@
  */
 package info.faceland.loot;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.nbt.NbtCompound;
-import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import com.tealcube.minecraft.bukkit.facecore.shade.config.MasterConfiguration;
@@ -66,7 +59,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
@@ -211,19 +203,6 @@ public final class LootPlugin extends FacePlugin {
         Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
-        //Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
-        PacketAdapter.AdapterParameteters params = new PacketAdapter.AdapterParameteters().plugin(this);
-        params.serverSide().listenerPriority(ListenerPriority.HIGH).types(PacketType.Play.Server.SET_SLOT, PacketType.Play.Server.WINDOW_ITEMS);
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(params) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                if (event.getPacketType() == PacketType.Play.Server.SET_SLOT) {
-                    addGlow(new ItemStack[]{event.getPacket().getItemModifier().read(0)});
-                } else {
-                    addGlow(event.getPacket().getItemArrayModifier().read(0));
-                }
-            }
-        });
         debug("v" + getDescription().getVersion() + " enabled");
     }
 
@@ -255,7 +234,6 @@ public final class LootPlugin extends FacePlugin {
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
-        ProtocolLibrary.getProtocolManager().removePacketListeners(this);
 
         saveChests();
 
@@ -664,18 +642,6 @@ public final class LootPlugin extends FacePlugin {
 
     public AnticheatManager getAnticheatManager() {
         return anticheatManager;
-    }
-
-    private void addGlow(ItemStack[] stacks) {
-        for (ItemStack stack : stacks) {
-            if (stack != null) {
-                // Only update those stacks that have our flag enchantment
-                if (stack.getEnchantmentLevel(Enchantment.SILK_TOUCH) == 32) {
-                    NbtCompound compound = (NbtCompound) NbtFactory.fromItemTag(stack);
-                    compound.put(NbtFactory.ofList("ench"));
-                }
-            }
-        }
     }
 
     public ChestManager getChestManager() {
