@@ -191,11 +191,11 @@ public final class InteractListener implements Listener {
             Material matType = currentItem.getType();
             String[] stat = new String[5];
 
-            if (!stripColor.contains("( ??? )")) {
+            if (!stripColor.contains("(Hidden)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.failure", ""));
                 return;
             }
-            int index = stripColor.indexOf("( ??? )");
+            int index = stripColor.indexOf("(Hidden)");
 
             // hhaha..hhHHAHEHHAHHEHAHAHAHAHAHAH!!!
             switch (matType) {
