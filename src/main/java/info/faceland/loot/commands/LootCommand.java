@@ -29,6 +29,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.ProtectionCharm;
+import info.faceland.loot.items.prefabs.RevealPowder;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
@@ -373,7 +374,7 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "rp"},
             description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
                     "upgrade scroll", "charm"})
     public void giveCommand(CommandSender sender,
@@ -385,10 +386,10 @@ public final class LootCommand {
                             @FlagArg("t") boolean tier,
                             @FlagArg("e") boolean enchantment,
                             @FlagArg("se") boolean socketExtender,
+                            @FlagArg("rp") boolean revealPowder,
                             @FlagArg("u") boolean unidentified,
                             @FlagArg("id") boolean tome,
-                            @FlagArg("us") boolean upgradeScroll,
-                            @FlagArg("ch") boolean charm) {
+                            @FlagArg("us") boolean upgradeScroll) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -469,7 +470,14 @@ public final class LootCommand {
                 target.getInventory().addItem(new SocketExtender());
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.socket-extender", ""),
-                               new String[][]{{"%amount%", amount + ""}});
+                                     new String[][]{{"%amount%", amount + ""}});
+            MessageUtils.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
+        } else if (revealPowder) {
+            for (int i = 0; i < amount; i++) {
+                target.getInventory().addItem(new RevealPowder());
+            }
+            MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.reveal-powder", ""),
+                                     new String[][]{{"%amount%", amount + ""}});
             MessageUtils.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
         } else if (unidentified) {
             for (int i = 0; i < amount; i++) {
@@ -537,13 +545,6 @@ public final class LootCommand {
                         sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
                 MessageUtils.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
             }
-        } else if (charm) {
-            for (int i = 0; i < amount; i++) {
-                target.getInventory().addItem(new ProtectionCharm());
-            }
-            MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
-                               new String[][]{{"%amount%", amount + ""}});
-            MessageUtils.sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
         } else {
             for (int i = 0; i < amount; i++) {
                 target.getInventory().addItem(

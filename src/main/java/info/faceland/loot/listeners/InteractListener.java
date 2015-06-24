@@ -24,6 +24,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.items.prefabs.RevealPowder;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.ChatColor;
@@ -72,7 +73,7 @@ public final class InteractListener implements Listener {
         if (event.getInventory() instanceof EnchantingInventory) {
             event.setCancelled(true);
             MessageUtils.sendMessage((Player) event.getPlayer(),
-                    plugin.getSettings().getString("language.enchant.no-open", ""));
+                                     plugin.getSettings().getString("language.enchant.no-open", ""));
         }
     }
 
@@ -183,6 +184,247 @@ public final class InteractListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;
+        } else if (cursor.getName().equals(ChatColor.YELLOW + "Stat Reveal Powder")) {
+            List<String> lore = currentItem.getLore();
+            List<String> stripColor = stripColor(lore);
+
+            Material matType = currentItem.getType();
+            String[] stat = new String[5];
+
+            if (!stripColor.contains("( ??? )")) {
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.failure", ""));
+                return;
+            }
+            int index = stripColor.indexOf("( ??? )");
+
+            // hhaha..hhHHAHEHHAHHEHAHAHAHAHAHAH!!!
+            switch (matType) {
+                case LEATHER_HELMET:
+                    stat[0] = "<yellow>+4 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case LEATHER_CHESTPLATE:
+                    stat[0] = "<yellow>+6 Evasion";
+                    stat[1] = "<yellow>+10% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case LEATHER_LEGGINGS:
+                    stat[0] = "<yellow>+5 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case LEATHER_BOOTS:
+                    stat[0] = "<yellow>+4 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+15 Movement Speed";
+                    break;
+                case CHAINMAIL_HELMET:
+                    stat[0] = "<yellow>+4 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case CHAINMAIL_CHESTPLATE:
+                    stat[0] = "<yellow>+6 Evasion";
+                    stat[1] = "<yellow>+10% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case CHAINMAIL_LEGGINGS:
+                    stat[0] = "<yellow>+5 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+8 Movement Speed";
+                    break;
+                case CHAINMAIL_BOOTS:
+                    stat[0] = "<yellow>+4 Evasion";
+                    stat[1] = "<yellow>+8% Attack Speed";
+                    stat[2] = "<yellow>+3 Ranged Damage";
+                    stat[3] = "<yellow>+3 Melee Damage";
+                    stat[4] = "<yellow>+15 Movement Speed";
+                    break;
+                case IRON_HELMET:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+15% Block";
+                    break;
+                case IRON_CHESTPLATE:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+15% Block";
+                    break;
+                case IRON_LEGGINGS:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+15% Block";
+                    break;
+                case IRON_BOOTS:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+15% Block";
+                    break;
+                case GOLD_HELMET:
+                    stat[0] = "<yellow>+5% Life Steal";
+                    stat[1] = "<yellow>+6 Health";
+                    stat[2] = "<yellow>+5% Damage Reflect";
+                    stat[3] = "<yellow>+5 Movement Speed";
+                    stat[4] = "<yellow>+4 Fire Damage";
+                    break;
+                case GOLD_CHESTPLATE:
+                    stat[0] = "<yellow>+5% Life Steal";
+                    stat[1] = "<yellow>+6 Health";
+                    stat[2] = "<yellow>+5% Damage Reflect";
+                    stat[3] = "<yellow>+5 Movement Speed";
+                    stat[4] = "<yellow>+4 Fire Damage";
+                    break;
+                case GOLD_LEGGINGS:
+                    stat[0] = "<yellow>+5% Life Steal";
+                    stat[1] = "<yellow>+6 Health";
+                    stat[2] = "<yellow>+5% Damage Reflect";
+                    stat[3] = "<yellow>+5 Movement Speed";
+                    stat[4] = "<yellow>+4 Fire Damage";
+                    break;
+                case GOLD_BOOTS:
+                    stat[0] = "<yellow>+5% Life Steal";
+                    stat[1] = "<yellow>+6 Health";
+                    stat[2] = "<yellow>+5% Damage Reflect";
+                    stat[3] = "<yellow>+5 Movement Speed";
+                    stat[4] = "<yellow>+4 Fire Damage";
+                    break;
+                case DIAMOND_HELMET:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+8% Parry Chance";
+                    break;
+                case DIAMOND_CHESTPLATE:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+8% Parry Chance";
+                    break;
+                case DIAMOND_LEGGINGS:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+8% Parry Chance";
+                    break;
+                case DIAMOND_BOOTS:
+                    stat[0] = "<yellow>+7 Armor";
+                    stat[1] = "<yellow>+7 Health";
+                    stat[2] = "<yellow>+8 Armor";
+                    stat[3] = "<yellow>+8 Health";
+                    stat[4] = "<yellow>+8% Parry Chance";
+                    break;
+                case WOOD_SWORD:
+                    stat[0] = "<yellow>+6 Fire Damage";
+                    stat[1] = "<yellow>+20% Attack Speed";
+                    stat[2] = "<yellow>+5 Melee Damage";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+12% Life Steal";
+                    break;
+                case WOOD_AXE:
+                    stat[0] = "<yellow>+6 Fire Damage";
+                    stat[1] = "<yellow>+20% Overcharge";
+                    stat[2] = "<yellow>+5 Melee Damage";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+15% Life Steal";
+                    break;
+                case STONE_SWORD:
+                    stat[0] = "<yellow>+25% Block";
+                    stat[1] = "<yellow>+20% Attack Speed";
+                    stat[2] = "<yellow>+5 Melee Damage";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+15% Overcharge";
+                    break;
+                case STONE_AXE:
+                    stat[0] = "<yellow>+6 Melee Damage";
+                    stat[1] = "<yellow>+30% Overcharge";
+                    stat[2] = "<yellow>+5 Melee Damage";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+25% Overcharge";
+                    break;
+                case IRON_SWORD:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+20% Overcharge";
+                    stat[2] = "<yellow>+20% Attack Speed";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+12% Life Steal";
+                    break;
+                case IRON_AXE:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+25% Overcharge";
+                    stat[2] = "<yellow>+15% Attack Speed";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+12% Life Steal";
+                    break;
+                case GOLD_SWORD:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+5 Fire Damage";
+                    stat[2] = "<yellow>+5 Lightning Damage";
+                    stat[3] = "<yellow>+4 Ice Damage";
+                    stat[4] = "<yellow>+15% Life Steal";
+                    break;
+                case GOLD_AXE:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+5 Fire Damage";
+                    stat[2] = "<yellow>+5 Lightning Damage";
+                    stat[3] = "<yellow>+4 Ice Damage";
+                    stat[4] = "<yellow>+15% Life Steal";
+                    break;
+                case DIAMOND_SWORD:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+20% Overcharge";
+                    stat[2] = "<yellow>+20% Attack Speed";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+12% Life Steal";
+                    break;
+                case DIAMOND_AXE:
+                    stat[0] = "<yellow>+5 Melee Damage";
+                    stat[1] = "<yellow>+25% Overcharge";
+                    stat[2] = "<yellow>+15% Attack Speed";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+12% Life Steal";
+                    break;
+                case BOW:
+                    stat[0] = "<yellow>+5 Ranged Damage";
+                    stat[1] = "<yellow>+20% Snare Chance";
+                    stat[2] = "<yellow>+25% Armor Penetration";
+                    stat[3] = "<yellow>+25% Accuracy";
+                    stat[4] = "<yellow>+6 Ranged Damage";
+                    break;
+            }
+
+            int i = random.nextInt(5);
+            lore.remove(index);
+            lore.add(index, TextUtils.color(stat[i]));
+
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+            updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             List<String> lore = currentItem.getLore();
             List<String> stripColor = stripColor(lore);
@@ -197,6 +439,7 @@ public final class InteractListener implements Listener {
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
             if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
                 return;
