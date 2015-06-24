@@ -28,7 +28,7 @@ public final class RevealPowder extends HiltItemStack {
         setAmount(1);
         setName(ChatColor.YELLOW + "Stat Reveal Powder");
         setLore(Arrays.asList(ChatColor.GRAY + "Use this item on an item with",
-                              ChatColor.GRAY + "a hidden " + ChatColor.YELLOW + "( ??? )" + ChatColor.GRAY + " stat to",
-                              ChatColor.GRAY + "unlock its hidden power!"));
+                              ChatColor.GRAY + "a " + ChatColor.YELLOW + "(Hidden)" + ChatColor.GRAY + " stat to unlock",
+                              ChatColor.GRAY + "its hidden power!"));
     }
 }
