@@ -15,9 +15,9 @@
 package info.faceland.loot.listeners.sockets;
 
 import com.kill3rtaco.tacoserialization.SingleItemSerialization;
-import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Predicates;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Iterables;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Lists;

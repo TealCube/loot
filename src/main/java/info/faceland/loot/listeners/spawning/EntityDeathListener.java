@@ -14,8 +14,8 @@
  */
 package info.faceland.loot.listeners.spawning;
 
-import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.kern.fanciful.FancyMessage;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;

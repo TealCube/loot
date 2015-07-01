@@ -14,7 +14,7 @@
  */
 package info.faceland.loot.api.items;
 
-import com.tealcube.minecraft.bukkit.facecore.shade.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import info.faceland.loot.api.tier.Tier;
 import org.bukkit.Material;
 

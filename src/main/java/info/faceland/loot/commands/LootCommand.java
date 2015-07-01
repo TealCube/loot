@@ -15,10 +15,6 @@
 package info.faceland.loot.commands;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.kern.methodcommand.Arg;
-import com.tealcube.minecraft.bukkit.kern.methodcommand.Command;
-import com.tealcube.minecraft.bukkit.kern.methodcommand.FlagArg;
-import com.tealcube.minecraft.bukkit.kern.methodcommand.Flags;
 import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -27,20 +23,18 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
-import info.faceland.loot.items.prefabs.IdentityTome;
-import info.faceland.loot.items.prefabs.ProtectionCharm;
-import info.faceland.loot.items.prefabs.RevealPowder;
-import info.faceland.loot.items.prefabs.SocketExtender;
-import info.faceland.loot.items.prefabs.UnidentifiedItem;
-import info.faceland.loot.items.prefabs.UpgradeScroll;
+import info.faceland.loot.items.prefabs.*;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import se.ranzdo.bukkit.methodcommand.Arg;
+import se.ranzdo.bukkit.methodcommand.Command;
+import se.ranzdo.bukkit.methodcommand.FlagArg;
+import se.ranzdo.bukkit.methodcommand.Flags;
 
 import java.util.List;
-import java.util.Set;
 
 public final class LootCommand {
 

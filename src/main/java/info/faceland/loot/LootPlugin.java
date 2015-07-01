@@ -14,14 +14,13 @@
  */
 package info.faceland.loot;
 
+import com.tealcube.minecraft.bukkit.config.MasterConfiguration;
+import com.tealcube.minecraft.bukkit.config.SmartYamlConfiguration;
+import com.tealcube.minecraft.bukkit.config.VersionedConfiguration;
+import com.tealcube.minecraft.bukkit.config.VersionedSmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
-import com.tealcube.minecraft.bukkit.facecore.shade.config.MasterConfiguration;
-import com.tealcube.minecraft.bukkit.facecore.shade.config.SmartYamlConfiguration;
-import com.tealcube.minecraft.bukkit.facecore.shade.config.VersionedSmartConfiguration;
-import com.tealcube.minecraft.bukkit.facecore.shade.config.VersionedSmartYamlConfiguration;
 import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
-import com.tealcube.minecraft.bukkit.kern.methodcommand.CommandHandler;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -59,6 +58,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
+import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
 import java.io.File;
 import java.util.*;
@@ -94,7 +94,7 @@ public final class LootPlugin extends FacePlugin {
         debugPrinter = new PluginLogger(this);
         itemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "items.yml"),
                 getResource("items.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (itemsYAML.update()) {
             getLogger().info("Updating items.yml");
@@ -102,7 +102,7 @@ public final class LootPlugin extends FacePlugin {
         }
         tierYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "tier.yml"),
                 getResource("tier.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (tierYAML.update()) {
             getLogger().info("Updating tier.yml");
@@ -110,7 +110,7 @@ public final class LootPlugin extends FacePlugin {
         }
         corestatsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
                 getResource("corestats.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (corestatsYAML.update()) {
             getLogger().info("Updating corestats.yml");
@@ -118,7 +118,7 @@ public final class LootPlugin extends FacePlugin {
         }
         customItemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
                 getResource("customItems.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
@@ -126,7 +126,7 @@ public final class LootPlugin extends FacePlugin {
         }
         socketGemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
                 getResource("socketGems.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (socketGemsYAML.update()) {
             getLogger().info("Updating socketGems.yml");
@@ -134,7 +134,7 @@ public final class LootPlugin extends FacePlugin {
         }
         languageYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "language.yml"),
                 getResource("language.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (languageYAML.update()) {
             getLogger().info("Updating language.yml");
@@ -142,7 +142,7 @@ public final class LootPlugin extends FacePlugin {
         }
         configYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
                 getResource("config.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (configYAML.update()) {
             getLogger().info("Updating config.yml");
@@ -150,7 +150,7 @@ public final class LootPlugin extends FacePlugin {
         }
         creaturesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
                 getResource("creatures.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (creaturesYAML.update()) {
             getLogger().info("Updating creatures.yml");
@@ -158,7 +158,7 @@ public final class LootPlugin extends FacePlugin {
         }
         identifyingYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "identifying.yml"),
                 getResource("identifying.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (identifyingYAML.update()) {
             getLogger().info("Updating identifying.yml");
@@ -166,7 +166,7 @@ public final class LootPlugin extends FacePlugin {
         }
         enchantmentTomesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
                 getResource("enchantmentTomes.yml"),
-                VersionedSmartConfiguration.VersionUpdateType
+                VersionedConfiguration.VersionUpdateType
                         .BACKUP_AND_UPDATE);
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
