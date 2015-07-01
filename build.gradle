@@ -19,7 +19,7 @@ version = "1.0.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven {
-        url "http://tealcube.com/nexus/content/groups/public/"
+        url "http://maven.tealcube.com/artifactory/public/"
     }
     maven {
         url "https://hub.spigotmc.org/nexus/content/groups/public/"
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.tealcube.minecraft.bukkit:facecore-all:1.0.0"
+    compile("com.tealcube.minecraft.bukkit:facecore:1.0.0") { exclude module: "bungeecord-chat" }
 }
 
 processResources {
@@ -59,7 +59,7 @@ publishing {
     }
     repositories {
         maven {
-            url "http://tealcube.com/nexus/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
+            url "http://maven.tealcube.com/artifactory/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
             name "TealCube"
             credentials {
                 username System.getenv("nexusUsername") ?: nexusUsername
