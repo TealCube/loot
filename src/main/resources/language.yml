@@ -1,4 +1,4 @@
-version: "0.0.15"
+version: "0.0.16"
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
@@ -20,6 +20,9 @@ upgrade:
   failure: "<red>You failed at upgrading your item."
   destroyed: "<red>Your item was destroyed when you attempted to upgrade it."
   consumed: "<red>One of your <aqua>Charm of Protection<red>s was consumed."
+reveal:
+  success: "<green>You revealed a hidden stat!"
+  failure: "<red>This target doesn't have a hidden stat to reveal!"
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
 commands:
@@ -39,3 +42,4 @@ commands:
     identity-tome: "<green>You spawned <white>%amount%<green> identity tome(s)."
     unidentified-item: "<green>You spawned <white>%amount%<green> unidentified item(s)."
     upgrade-scroll: "<green>You spawned <white>%amount%<green> upgrade scroll(s)."
+    reveal-powder: "<green>You spawned <white>%amount%<green> pile(s) of reveal powder!"

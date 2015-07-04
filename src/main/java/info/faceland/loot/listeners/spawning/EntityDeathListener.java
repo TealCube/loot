@@ -34,6 +34,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.events.LootDetermineChanceEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
+import info.faceland.loot.items.prefabs.RevealPowder;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
@@ -187,6 +188,10 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             // drop an identity tome
             event.getDrops().add(new IdentityTome());
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+            // drop an identity tome
+            event.getDrops().add(new RevealPowder());
+        }
         }
         if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             // drop a custom item

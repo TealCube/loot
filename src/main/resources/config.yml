@@ -1,4 +1,4 @@
-version: "0.0.5"
+version: "0.0.6"
 debug: false
 neutral-mobs-drop: false
 enabled-worlds:
@@ -9,6 +9,7 @@ drops:
   socket-gem: 0.4
   enchant-gem: 0.1
   upgrade-scroll: 0.1
+  reveal-powder: 0.1
   identity-tome: 0.01
   custom-item: 0.1
   socket-extender: 0.000001
