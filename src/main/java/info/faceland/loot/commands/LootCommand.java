@@ -55,9 +55,9 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "rp"},
            description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
-                   "upgrade scroll", "charm"})
+                   "upgrade scroll", "reveal powder"})
     public void spawnCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                              @Arg(name = "name", def = "") String name,
                              @FlagArg("c") boolean custom,
@@ -213,9 +213,9 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot simulate", permissions = "loot.command.simulate")
-    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "ch"},
+    @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "rp"},
             description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
-                    "upgrade scroll", "charm"})
+                    "upgrade scroll", "reveal powder"})
     public void simulateCommand(Player sender, @Arg(name = "amount", def = "1") int amount,
                                 @Arg(name = "name", def = "") String name,
                                 @FlagArg("c") boolean custom,
@@ -378,7 +378,7 @@ public final class LootCommand {
     @Command(identifier = "loot give", permissions = "loot.command.give", onlyPlayers = false)
     @Flags(identifier = {"c", "s", "t", "e", "se", "u", "id", "us", "rp"},
             description = {"custom", "socket gem", "tier", "enchantment", "socket extender", "unidentified", "tome",
-                    "upgrade scroll", "charm"})
+                    "upgrade scroll", "reveal powder"})
     public void giveCommand(CommandSender sender,
                             @Arg(name = "player") Player target,
                             @Arg(name = "amount", def = "1") int amount,
@@ -388,10 +388,10 @@ public final class LootCommand {
                             @FlagArg("t") boolean tier,
                             @FlagArg("e") boolean enchantment,
                             @FlagArg("se") boolean socketExtender,
-                            @FlagArg("rp") boolean revealPowder,
                             @FlagArg("u") boolean unidentified,
                             @FlagArg("id") boolean tome,
-                            @FlagArg("us") boolean upgradeScroll) {
+                            @FlagArg("us") boolean upgradeScroll,
+                            @FlagArg("rp") boolean revealPowder) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
