@@ -136,16 +136,16 @@ public final class EntityDeathListener implements Listener {
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getName();
         if (mobName.contains("[M]")) {
-            rankMult = 3;
+            rankMult = 2;
         }
         if (mobName.contains("[R]")) {
-            rankMult = 6;
+            rankMult = 4;
         }
         if (mobName.contains("[E]")) {
-            rankMult = 9;
+            rankMult = 6;
         }
         if (mobName.contains("[L]")) {
-            rankMult = 20;
+            rankMult = 10;
         }
         for (int i = rankMult; i > 0; i--) {
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
@@ -203,10 +203,11 @@ public final class EntityDeathListener implements Listener {
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
                 // drop an identity tome
                 event.getDrops().add(new IdentityTome());
-                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
-                    // drop an identity tome
-                    event.getDrops().add(new RevealPowder());
-                }
+            }
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+                // drop some reveal powder
+                event.getDrops().add(new RevealPowder());
+
             }
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
                 // drop a custom item
