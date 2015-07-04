@@ -426,8 +426,8 @@ public final class InteractListener implements Listener {
             }
 
             int i = random.nextInt(5);
-            lore.remove(index);
-            lore.add(index, TextUtils.color(stat[i]));
+            lore.set(index, TextUtils.color(stat[i]));
+            currentItem.setLore(lore);
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.success", ""));
             player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
