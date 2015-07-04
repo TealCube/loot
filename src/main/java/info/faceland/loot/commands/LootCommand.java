@@ -68,7 +68,7 @@ public final class LootCommand {
                              @FlagArg("u") boolean unidentified,
                              @FlagArg("id") boolean tome,
                              @FlagArg("us") boolean upgradeScroll,
-                             @FlagArg("ch") boolean charm) {
+                             @FlagArg("rp") boolean revealPowder) {
         if (custom) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
@@ -196,9 +196,9 @@ public final class LootCommand {
                 MessageUtils.sendMessage(
                         sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
             }
-        } else if (charm) {
+        } else if (revealPowder) {
             for (int i = 0; i < amount; i++) {
-                sender.getInventory().addItem(new ProtectionCharm());
+                sender.getInventory().addItem(new RevealPowder());
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                new String[][]{{"%amount%", amount + ""}});
@@ -226,7 +226,7 @@ public final class LootCommand {
                                 @FlagArg("u") boolean unidentified,
                                 @FlagArg("id") boolean tome,
                                 @FlagArg("us") boolean upgradeScroll,
-                                @FlagArg("ch") boolean charm) {
+                                @FlagArg("rp") boolean revealPowder) {
         double distanceFromSpawnSquared = sender.getLocation().distanceSquared(sender.getWorld().getSpawnLocation());
         if (custom) {
             if (name.equals("")) {
@@ -358,9 +358,9 @@ public final class LootCommand {
                 MessageUtils.sendMessage(
                         sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
             }
-        } else if (charm) {
+        } else if (revealPowder) {
             for (int i = 0; i < amount; i++) {
-                sender.getInventory().addItem(new ProtectionCharm());
+                sender.getInventory().addItem(new RevealPowder());
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                new String[][]{{"%amount%", amount + ""}});
