@@ -135,17 +135,19 @@ public final class EntityDeathListener implements Listener {
         int rankMult = 0;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
-        if (mobName.endsWith("[M]")) {
-            rankMult = 2;
-        }
-        if (mobName.endsWith("[R]")) {
-            rankMult = 4;
-        }
-        if (mobName.endsWith("[E]")) {
-            rankMult = 6;
-        }
-        if (mobName.endsWith("[L]")) {
-            rankMult = 10;
+        if (mobName != null) {
+            if (mobName.endsWith("[M]")) {
+                rankMult = 2;
+            }
+            if (mobName.endsWith("[R]")) {
+                rankMult = 4;
+            }
+            if (mobName.endsWith("[E]")) {
+                rankMult = 6;
+            }
+            if (mobName.endsWith("[L]")) {
+                rankMult = 10;
+            }
         }
         for (int i = rankMult; i > 0; i--) {
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
