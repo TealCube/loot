@@ -134,7 +134,7 @@ public final class EntityDeathListener implements Listener {
         double chance = chanceEvent.getChance();
         int rankMult = 0;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
-        String mobName = event.getEntity().getName();
+        String mobName = event.getEntity().getCustomName();
         if (mobName.contains("[M]")) {
             rankMult = 2;
         }
