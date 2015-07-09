@@ -132,21 +132,21 @@ public final class EntityDeathListener implements Listener {
             .getKiller(), 1.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         double chance = chanceEvent.getChance();
-        int rankMult = 2;
+        int rankMult = 1;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                rankMult = 3;
+                rankMult = 2;
             }
             if (mobName.endsWith("[R]")) {
-                rankMult = 5;
+                rankMult = 4;
             }
             if (mobName.endsWith("[E]")) {
-                rankMult = 7;
+                rankMult = 6;
             }
             if (mobName.endsWith("[L]")) {
-                rankMult = 11;
+                rankMult = 10;
             }
         }
         for (int i = rankMult; i > 0; i--) {
