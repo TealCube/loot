@@ -132,7 +132,7 @@ public final class EntityDeathListener implements Listener {
             .getKiller(), 1.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         double chance = chanceEvent.getChance();
-        int rankDrops = 1;
+        double rankDrops = 1;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
         if (mobName != null) {
@@ -149,7 +149,8 @@ public final class EntityDeathListener implements Listener {
                 rankDrops = 30;
             }
         }
-        for (int i = rankDrops; i > 0; i--) {
+        rankDrops *= cancelChance;
+        for (double i = rankDrops; i > 0; i--) {
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
                 // drop a normal random item
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
