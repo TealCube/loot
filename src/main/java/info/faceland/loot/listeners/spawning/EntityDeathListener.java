@@ -132,25 +132,25 @@ public final class EntityDeathListener implements Listener {
             .getKiller(), 1.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         double chance = chanceEvent.getChance();
-        double rankMult = 1;
+        int rankDrops = 1;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                rankMult = 6;
+                rankDrops = 3;
             }
             if (mobName.endsWith("[R]")) {
-                rankMult = 10;
+                rankDrops = 5;
             }
             if (mobName.endsWith("[E]")) {
-                rankMult = 14;
+                rankDrops = 7;
             }
             if (mobName.endsWith("[L]")) {
-                rankMult = 24;
+                rankDrops = 12;
             }
         }
-        for (double i = rankMult/2; i > 0; i--) {
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+        if (rankDrops == 1) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
                 // drop a normal random item
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -166,7 +166,7 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
                 // drop a socket gem
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -182,7 +182,7 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
                 // drop an enchant gem
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -198,15 +198,15 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
                 // drop an upgrade scroll
                 event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
                 // drop an identity tome
                 event.getDrops().add(new IdentityTome());
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
                 // drop some reveal powder
                 event.getDrops().add(new RevealPowder());
 
@@ -228,11 +228,11 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
                 // drop a socket extender
                 event.getDrops().add(new SocketExtender());
             }
-            if (random.nextDouble() / chance < rankMult * plugin.getSettings().getDouble("config.drops.unidentified-item",
+            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item",
                                                                               0D)) {
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -241,7 +241,107 @@ public final class EntityDeathListener implements Listener {
                 Material m = array[random.nextInt(array.length)];
                 event.getDrops().add(new UnidentifiedItem(m));
             }
-            rankMult -= 2;
+        } else {
+            while (rankDrops > 0) {
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+                    // drop a normal random item
+                    double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                                 .getSpawnLocation());
+                    Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
+                                                                                          new HashMap<Tier, Double>());
+                    HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(
+                        ItemGenerationReason.MONSTER).build();
+                    event.getDrops().add(his);
+
+                    if (!t.isBroadcast()) {
+                        return;
+                    }
+
+                    broadcast(event, his);
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+                    // drop a socket gem
+                    double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                                 .getSpawnLocation());
+                    SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
+                                                                                   mod != null ? mod.getSocketGemMults() :
+                                                                                   new HashMap<SocketGem, Double>());
+                    HiltItemStack his = sg.toItemStack(1);
+                    event.getDrops().add(his);
+
+                    if (!sg.isBroadcast()) {
+                        return;
+                    }
+
+                    broadcast(event, his);
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+                    // drop an enchant gem
+                    double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                                 .getSpawnLocation());
+                    EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(
+                        true, distanceSquared,
+                        mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
+                    HiltItemStack his = es.toItemStack(1);
+                    event.getDrops().add(his);
+
+                    if (!es.isBroadcast()) {
+                        return;
+                    }
+
+                    broadcast(event, his);
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+                    // drop an upgrade scroll
+                    event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+                    // drop an identity tome
+                    event.getDrops().add(new IdentityTome());
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+                    // drop some reveal powder
+                    event.getDrops().add(new RevealPowder());
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+                    // drop a custom item NO GREATER CHANCE FOR UPGRADED MOBS, PISS OFF
+                    double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                                 .getSpawnLocation());
+                    CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared,
+                                                                                      mod != null ? mod.getCustomItemMults()
+                                                                                                  :
+                                                                                      new HashMap<CustomItem, Double>());
+                    HiltItemStack his = ci.toItemStack(1);
+                    event.getDrops().add(his);
+
+                    if (!ci.isBroadcast()) {
+                        return;
+                    }
+
+                    broadcast(event, his);
+                    rankDrops--;
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+                    // drop a socket extender
+                    event.getDrops().add(new SocketExtender());
+                }
+                if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item",
+                                                                                  0D)) {
+                    double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
+                                                                                                 .getSpawnLocation());
+                    Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
+                    Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
+                    Material m = array[random.nextInt(array.length)];
+                    event.getDrops().add(new UnidentifiedItem(m));
+                    rankDrops--;
+                }
+            }
         }
     }
 
