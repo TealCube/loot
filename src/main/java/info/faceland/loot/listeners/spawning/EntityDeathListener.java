@@ -149,8 +149,8 @@ public final class EntityDeathListener implements Listener {
                 rankMult = 12;
             }
         }
-        for (int i = rankMult; i > 0; i--) {
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+        for (double i = rankMult; i > 0; i--) {
+            if (random.nextDouble() / chance < i * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
                 // drop a normal random item
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -166,7 +166,7 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+            if (random.nextDouble() / chance < i * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
                 // drop a socket gem
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
@@ -182,7 +182,7 @@ public final class EntityDeathListener implements Listener {
 
                 broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+            if (random.nextDouble() / chance < i * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
                 // drop an enchant gem
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
                                                                                              .getSpawnLocation());
