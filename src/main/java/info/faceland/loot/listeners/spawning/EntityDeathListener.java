@@ -137,16 +137,16 @@ public final class EntityDeathListener implements Listener {
         String mobName = event.getEntity().getCustomName();
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                rankMult = 2;
+                rankMult = 5;
             }
             if (mobName.endsWith("[R]")) {
-                rankMult = 4;
+                rankMult = 7;
             }
             if (mobName.endsWith("[E]")) {
-                rankMult = 6;
+                rankMult = 9;
             }
             if (mobName.endsWith("[L]")) {
-                rankMult = 10;
+                rankMult = 20;
             }
         }
         for (int i = rankMult; i > 0; i--) {
