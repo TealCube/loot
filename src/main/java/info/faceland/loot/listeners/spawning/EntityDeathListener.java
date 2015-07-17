@@ -112,7 +112,7 @@ public final class EntityDeathListener implements Listener {
                 ().getUniqueId()) != null) {
                 taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity())
                     .getTaggerLocation(event.getEntity().getKiller
-                        ().getUniqueId())
+                            ().getUniqueId())
                     .distanceSquared(event.getEntity().getKiller().getLocation());
             }
         }
@@ -150,7 +150,7 @@ public final class EntityDeathListener implements Listener {
             }
         }
         rankDrops *= cancelChance;
-        for (double i = rankDrops; i > 0; i--) {
+        for (int i = (int) Math.round(rankDrops); i > 0; i--) {
             if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
                 // drop a normal random item
                 double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld()
@@ -162,7 +162,7 @@ public final class EntityDeathListener implements Listener {
                 event.getDrops().add(his);
 
                 if (!t.isBroadcast()) {
-                    return;
+                    continue;
                 }
 
                 broadcast(event, his);
@@ -178,7 +178,7 @@ public final class EntityDeathListener implements Listener {
                 event.getDrops().add(his);
 
                 if (!sg.isBroadcast()) {
-                    return;
+                    continue;
                 }
 
                 broadcast(event, his);
@@ -194,7 +194,7 @@ public final class EntityDeathListener implements Listener {
                 event.getDrops().add(his);
 
                 if (!es.isBroadcast()) {
-                    return;
+                    continue;
                 }
 
                 broadcast(event, his);
@@ -224,7 +224,7 @@ public final class EntityDeathListener implements Listener {
                 event.getDrops().add(his);
 
                 if (!ci.isBroadcast()) {
-                    return;
+                    continue;
                 }
 
                 broadcast(event, his);
