@@ -132,105 +132,77 @@ public final class EntityDeathListener implements Listener {
             .getKiller(), 1.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         double chance = chanceEvent.getChance();
-        double dropTokens = 1;
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
-        double
-            distanceSquared =
-            event.getEntity().getLocation().distanceSquared(event.getEntity().getWorld().getSpawnLocation());
+        double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity()
+                                                                                     .getWorld().getSpawnLocation());
+        double dropBonus = 1.0;
+        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                dropTokens = 5;
+                dropBonus = 2.5;
             } else if (mobName.endsWith("[R]")) {
-                dropTokens = 7;
+                dropBonus = 5.0;
             } else if (mobName.endsWith("[E]")) {
-                dropTokens = 10;
+                dropBonus = 7.5;
             } else if (mobName.endsWith("[L]")) {
-                dropTokens = 15;
+                dropBonus = 10.0;
             }
         }
-        while (dropTokens > 0) {
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
-                SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
-                                                                               mod != null ? mod.getSocketGemMults() :
-                                                                               new HashMap<SocketGem, Double>());
-                HiltItemStack his = sg.toItemStack(1);
-                event.getDrops().add(his);
-
-                if (sg.isBroadcast()) {
-                    broadcast(event, his);
-                }
-                dropTokens--;
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+            SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
+                                                                           mod != null ? mod.getSocketGemMults() :
+                                                                           new HashMap<SocketGem, Double>());
+            HiltItemStack his = sg.toItemStack(1);
+            event.getDrops().add(his);
+            if (sg.isBroadcast()) {
+                broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
-                // drop a socket gem
-                SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
-                                                                               mod != null ? mod.getSocketGemMults() :
-                                                                               new HashMap<SocketGem, Double>());
-                HiltItemStack his = sg.toItemStack(1);
-                event.getDrops().add(his);
-
-                if (sg.isBroadcast()) {
-                    broadcast(event, his);
-                }
-                dropTokens--;
+        }
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+            SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared, mod != null ?
+                                mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
+            HiltItemStack his = sg.toItemStack(1);
+            event.getDrops().add(his);
+            if (sg.isBroadcast()) {
+                broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
-                // drop an enchant gem
-                EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(
-                    true, distanceSquared,
-                    mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
-                HiltItemStack his = es.toItemStack(1);
-                event.getDrops().add(his);
-
-                if (es.isBroadcast()) {
-                    broadcast(event, his);
-                }
-                dropTokens--;
+        }
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+            EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
+                mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
+            HiltItemStack his = es.toItemStack(1);
+            event.getDrops().add(his);
+            if (es.isBroadcast()) {
+                broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
-                // drop an upgrade scroll
-                event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
-                dropTokens--;
+        }
+        if (random.nextDouble() / chance <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+            event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
+        }
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+            event.getDrops().add(new IdentityTome());
+        }
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+            event.getDrops().add(new RevealPowder());
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+            CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
+                                mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
+            HiltItemStack his = ci.toItemStack(1);
+            event.getDrops().add(his);
+            if (ci.isBroadcast()) {
+                broadcast(event, his);
             }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
-                // drop an identity tome
-                event.getDrops().add(new IdentityTome());
-                dropTokens--;
-            }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
-                // drop some reveal powder
-                event.getDrops().add(new RevealPowder());
-                dropTokens--;
-            }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
-                // drop a custom item NO GREATER CHANCE FOR UPGRADED MOBS, PISS OFF
-                CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared,
-                                                                                  mod != null ? mod.getCustomItemMults()
-                                                                                              :
-                                                                                  new HashMap<CustomItem, Double>());
-                HiltItemStack his = ci.toItemStack(1);
-                event.getDrops().add(his);
-
-                if (ci.isBroadcast()) {
-                    broadcast(event, his);
-                }
-                dropTokens--;
-            }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
-                // drop a socket extender
-                event.getDrops().add(new SocketExtender());
-                dropTokens--;
-            }
-            if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item",
-                                                                              0D)) {
-                Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
-                Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
-                Material m = array[random.nextInt(array.length)];
-                event.getDrops().add(new UnidentifiedItem(m));
-                dropTokens--;
-            }
-            dropTokens--;
+        }
+        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+            event.getDrops().add(new SocketExtender());
+        }
+        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
+            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
+            Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
+            Material m = array[random.nextInt(array.length)];
+            event.getDrops().add(new UnidentifiedItem(m));
         }
     }
 
