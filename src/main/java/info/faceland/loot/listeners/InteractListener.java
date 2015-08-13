@@ -531,7 +531,8 @@ public final class InteractListener implements Listener {
             }
             if (random.nextDouble() < type.getChanceToDestroy()) {
                 if (random.nextDouble() > 0.1) {
-                    level = level - 2;
+                    int degradeAmount = random.nextInt(3);
+                    level = level - degradeAmount;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
                     if (currentItem.containsEnchantment(Enchantment.DURABILITY)) {
@@ -548,12 +549,16 @@ public final class InteractListener implements Listener {
                         }
                         String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
                         int loreLevel = NumberUtils.toInt(loreLev);
-                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel - 2)));
+                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel - degradeAmount)));
                         break;
                     }
                     currentItem.setLore(lore);
                     damaged = true;
-                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
+                    if (degradeAmount == 0) {
+                        MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.undamaged", ""));
+                    } else {
+                        MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
+                    }
                     player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 1F);
                     updateItem = true;
                 } else {

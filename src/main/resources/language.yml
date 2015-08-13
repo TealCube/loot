@@ -16,9 +16,11 @@ identify:
   success: "<green>You successfully identified your item."
   failure: "<red>You failed at identifying your item."
 upgrade:
-  success: "<green>You successfully upgraded your item."
-  failure: "<red>You failed at upgrading your item."
-  destroyed: "<red>Your item was destroyed when you attempted to upgrade it."
+  success: "<green>You successfully upgraded your item!"
+  failure: "<red>Incorrect scroll rank! Check the <yellow>Level Range<red> on scrolls to see what they will upgrade."
+  destroyed: "<red>Upgrade failed! Your item was destroyed while upgrading it."
+  undamaged: "<red>Upgrade failed! Your scroll was consumed, but your item is just fine!"
+  damaged: "<red>Upgrade failed! Your item was damaged a bit, but not destroyed."
   consumed: "<red>One of your <aqua>Charm of Protection<red>s was consumed."
 reveal:
   success: "<green>You revealed a hidden stat!"
