@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.sockets.effects;
 
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import info.faceland.loot.api.sockets.effects.SocketEffectTarget;
 import info.faceland.loot.api.sockets.effects.SocketPotionEffect;
 import org.bukkit.entity.LivingEntity;

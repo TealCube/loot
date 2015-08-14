@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.items;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.ItemBuilder;

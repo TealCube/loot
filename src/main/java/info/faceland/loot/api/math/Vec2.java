@@ -22,9 +22,9 @@
  */
 package info.faceland.loot.api.math;
 
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Preconditions;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Splitter;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.Preconditions;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.Splitter;
 
 import java.util.List;
 
