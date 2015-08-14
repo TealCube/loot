@@ -22,9 +22,9 @@
  */
 package info.faceland.loot.sockets;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.text.WordUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.text.WordUtils;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;

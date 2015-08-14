@@ -22,14 +22,13 @@
  */
 package info.faceland.loot.listeners.spawning;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.kern.fanciful.FancyMessage;
+import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
-import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.events.LootDetermineChanceEvent;

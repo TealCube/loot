@@ -22,12 +22,12 @@
  */
 package info.faceland.loot.listeners;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.facecore.utilities.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.kern.apache.commons.lang3.math.NumberUtils;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.CharMatcher;
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.collect.Sets;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;

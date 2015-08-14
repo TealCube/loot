@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.managers;
 
-import com.tealcube.minecraft.bukkit.kern.shade.google.common.base.Preconditions;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.Preconditions;
 import info.faceland.loot.api.managers.ChestManager;
 import info.faceland.loot.api.math.Vec3;
 
