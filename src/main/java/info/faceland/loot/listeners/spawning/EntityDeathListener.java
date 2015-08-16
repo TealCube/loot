@@ -24,7 +24,10 @@ package info.faceland.loot.listeners.spawning;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -123,6 +126,18 @@ public final class EntityDeathListener implements Listener {
             cancelChance *= 0.4D;
             xpMult *= 0.2D;
         }
+        if (event.getEntity().getKiller() instanceof Player) {
+            if (event.getEntity().getCustomName() != null) {
+                int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(event.getEntity().getCustomName()));
+                int playerLevel = event.getEntity().getKiller().getLevel();
+                double levelDiff = Math.abs(mobLevel - playerLevel);
+                if (levelDiff > 10) {
+                    cancelChance *= Math.max(1 - ((levelDiff - 10)/10), 0);
+                    xpMult *= Math.max(1 - ((levelDiff - 10)/10), 0.1);
+                }
+            }
+        }
+
         event.setDroppedExp(Math.max(3, (int) (xpMult * event.getDroppedExp())));
         if (random.nextDouble() >= cancelChance) {
             return;
