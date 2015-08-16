@@ -132,8 +132,8 @@ public final class EntityDeathListener implements Listener {
                 int playerLevel = event.getEntity().getKiller().getLevel();
                 double levelDiff = Math.abs(mobLevel - playerLevel);
                 if (levelDiff > 10) {
-                    cancelChance *= Math.max(1 - ((levelDiff - 10)/10), 0);
-                    xpMult *= Math.max(1 - ((levelDiff - 10)/10), 0.1);
+                    cancelChance *= Math.max(1 - ((levelDiff - 10)/20), 0);
+                    xpMult *= Math.max(1 - ((levelDiff - 10)/30), 0.1);
                 }
             }
         }
