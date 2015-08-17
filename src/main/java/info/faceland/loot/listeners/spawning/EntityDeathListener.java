@@ -97,15 +97,15 @@ public final class EntityDeathListener implements Listener {
         if (event.getEntity().hasMetadata("loot.spawnreason")) {
             return;
         }
-        double cancelChance = 1.0D;
+        double dropBonus = 1.0D;
         double xpMult = 1.0D;
         if (isWater(event.getEntity().getLocation())) {
-            cancelChance *= 0.5D;
-            xpMult *= 0.5D;
+            dropBonus *= 0.4D;
+            xpMult *= 0.4D;
         }
         if (isWater(event.getEntity().getKiller().getLocation())) {
-            cancelChance *= 0.5D;
-            xpMult *= 0.5D;
+            dropBonus *= 0.7D;
+            xpMult *= 0.7D;
         }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
@@ -121,12 +121,12 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 3) {
-            cancelChance *= 0.4D;
-            xpMult *= 0.2D;
+            dropBonus *= 0.4D;
+            xpMult *= 0.3D;
         }
         if (taggerDistance >= 0 && taggerDistance <= 3) {
-            cancelChance *= 0.4D;
-            xpMult *= 0.2D;
+            dropBonus *= 0.3D;
+            xpMult *= 0.3D;
         }
         if (plugin.getSettings().getBoolean("config.scale-with-level-diff", false)) {
             if (event.getEntity().getKiller() instanceof Player) {
@@ -137,17 +137,13 @@ public final class EntityDeathListener implements Listener {
                     int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
                     double levelDiff = Math.abs(mobLevel - playerLevel);
                     if (levelDiff > range) {
-                        cancelChance *= Math.max(1 - ((levelDiff - range) / 10), 0);
-                        xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1);
+                        dropBonus *= Math.max(1 - ((levelDiff - range) / 10), 0);
+                        xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
                     }
                 }
             }
         }
-
         event.setDroppedExp(Math.max(3, (int) (xpMult * event.getDroppedExp())));
-        if (random.nextDouble() >= cancelChance) {
-            return;
-        }
         LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
             .getKiller(), 1.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
@@ -156,17 +152,16 @@ public final class EntityDeathListener implements Listener {
         String mobName = event.getEntity().getCustomName();
         double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity()
                                                                                      .getWorld().getSpawnLocation());
-        double dropBonus = 1.0;
         // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                dropBonus = 2.5;
+                dropBonus *= 2.5D;
             } else if (mobName.endsWith("[R]")) {
-                dropBonus = 5.0;
+                dropBonus *= 5.0D;
             } else if (mobName.endsWith("[E]")) {
-                dropBonus = 7.5;
+                dropBonus *= 7.5D;
             } else if (mobName.endsWith("[L]")) {
-                dropBonus = 10.0;
+                dropBonus *= 10.0D;
             }
         }
         if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
