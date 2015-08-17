@@ -128,7 +128,7 @@ public final class EntityDeathListener implements Listener {
         }
         if (event.getEntity().getKiller() instanceof Player) {
             if (event.getEntity().getCustomName() != null) {
-                int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(event.getEntity().getCustomName()));
+                int mobLevel = NumberUtils.toInt((event.getEntity().getCustomName()).replaceAll("[^\\d.]", ""));
                 int playerLevel = event.getEntity().getKiller().getLevel();
                 double levelDiff = Math.abs(mobLevel - playerLevel);
                 if (levelDiff > 10) {
