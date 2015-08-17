@@ -127,20 +127,24 @@ public final class EntityDeathListener implements Listener {
             cancelChance *= 0.4D;
             xpMult *= 0.2D;
         }
-        if (event.getEntity().getKiller() instanceof Player) {
-            if (event.getEntity().getCustomName() != null) {
-                int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
-                        .getCustomName())));
-                int playerLevel = event.getEntity().getKiller().getLevel();
-                double levelDiff = Math.abs(mobLevel - playerLevel);
-                if (levelDiff > 15) {
-                    cancelChance *= Math.max(1 - ((levelDiff - 15)/10), 0);
-                    xpMult *= Math.max(1 - ((levelDiff - 15)/20), 0.1);
-                    Bukkit.getLogger().info("leveldiff xpmult:" + xpMult);
-                    Bukkit.getLogger().info("leveldiff cancelchance:" + cancelChance);
-                    Bukkit.getLogger().info("leveldiff leveldiff:" + levelDiff);
-                    Bukkit.getLogger().info("leveldiff moblevel:" + mobLevel);
-                    Bukkit.getLogger().info("leveldiff playerlevel:" + playerLevel);
+        if (plugin.getSettings().getBoolean("config.scale-with-level-diff", false)) {
+            if (event.getEntity().getKiller() instanceof Player) {
+                if (event.getEntity().getCustomName() != null) {
+                    int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
+                            .getCustomName())));
+                    int playerLevel = event.getEntity().getKiller().getLevel();
+                    int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
+                    double levelDiff = Math.abs(mobLevel - playerLevel);
+                    if (levelDiff > range) {
+                        cancelChance *= Math.max(1 - ((levelDiff - range) / 10), 0);
+                        xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1);
+                        Bukkit.getLogger().info("leveldiff xpmult:" + xpMult);
+                        Bukkit.getLogger().info("leveldiff cancelchance:" + cancelChance);
+                        Bukkit.getLogger().info("leveldiff leveldiff:" + levelDiff);
+                        Bukkit.getLogger().info("leveldiff moblevel:" + mobLevel);
+                        Bukkit.getLogger().info("leveldiff playerlevel:" + playerLevel);
+                        Bukkit.getLogger().info("leveldiff range:" + range);
+                    }
                 }
             }
         }

@@ -1,6 +1,8 @@
 version: "0.0.6"
 debug: false
 neutral-mobs-drop: false
+scale-with-level-diff: false
+range-before-penalty: 15
 enabled-worlds:
 - main
 - yololand
