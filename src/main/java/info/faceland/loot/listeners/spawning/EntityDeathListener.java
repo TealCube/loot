@@ -42,6 +42,7 @@ import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -128,12 +129,13 @@ public final class EntityDeathListener implements Listener {
         }
         if (event.getEntity().getKiller() instanceof Player) {
             if (event.getEntity().getCustomName() != null) {
-                int mobLevel = NumberUtils.toInt((event.getEntity().getCustomName()).replaceAll("[^\\d.]", ""));
+                int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
+                        .getCustomName())));
                 int playerLevel = event.getEntity().getKiller().getLevel();
                 double levelDiff = Math.abs(mobLevel - playerLevel);
-                if (levelDiff > 10) {
-                    cancelChance *= Math.max(1 - ((levelDiff - 10)/20), 0);
-                    xpMult *= Math.max(1 - ((levelDiff - 10)/30), 0.1);
+                if (levelDiff > 15) {
+                    cancelChance *= Math.max(1 - ((levelDiff - 15)/10), 0);
+                    xpMult *= Math.max(1 - ((levelDiff - 15)/20), 0.1);
                     Bukkit.getLogger().info("leveldiff xpmult:" + xpMult);
                     Bukkit.getLogger().info("leveldiff cancelchance:" + cancelChance);
                     Bukkit.getLogger().info("leveldiff leveldiff:" + levelDiff);
