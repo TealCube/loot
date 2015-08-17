@@ -32,6 +32,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
+import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.events.LootDetermineChanceEvent;
@@ -169,12 +170,11 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
-            SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared,
-                                                                           mod != null ? mod.getSocketGemMults() :
-                                                                           new HashMap<SocketGem, Double>());
-            HiltItemStack his = sg.toItemStack(1);
+            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
+            new HashMap<Tier, Double>());
+            HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
             event.getDrops().add(his);
-            if (sg.isBroadcast()) {
+            if (t.isBroadcast()) {
                 broadcast(event, his);
             }
         }
