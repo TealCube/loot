@@ -134,6 +134,11 @@ public final class EntityDeathListener implements Listener {
                 if (levelDiff > 10) {
                     cancelChance *= Math.max(1 - ((levelDiff - 10)/20), 0);
                     xpMult *= Math.max(1 - ((levelDiff - 10)/30), 0.1);
+                    Bukkit.getLogger().info("leveldiff xpmult:" + xpMult);
+                    Bukkit.getLogger().info("leveldiff cancelchance:" + cancelChance);
+                    Bukkit.getLogger().info("leveldiff leveldiff:" + levelDiff);
+                    Bukkit.getLogger().info("leveldiff moblevel:" + mobLevel);
+                    Bukkit.getLogger().info("leveldiff playerlevel:" + playerLevel);
                 }
             }
         }
