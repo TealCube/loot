@@ -192,7 +192,7 @@ public final class LootPlugin extends FacePlugin {
         chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
         chestsYAML.load();
 
-        settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
+        settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML, revealPowderYAML);
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
@@ -269,6 +269,7 @@ public final class LootPlugin extends FacePlugin {
         configYAML = null;
         languageYAML = null;
         customItemsYAML = null;
+        revealPowderYAML = null;
         corestatsYAML = null;
         tierYAML = null;
         itemsYAML = null;
