@@ -34,6 +34,8 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -202,8 +204,11 @@ public final class InteractListener implements Listener {
             int index = stripColor.indexOf("(Hidden)");
 
             List<String> options = plugin.getSettings().getStringList(currentItem.getType().name());
+            Bukkit.getLogger().info("Target item: " + currentItem.getType().name());
+            Bukkit.getLogger().info("Item's lore size: " + options.size());
             String stat = options.get(random.nextInt(options.size()));
 
+            Bukkit.getLogger().info("check");
             lore.set(index, TextUtils.color(stat));
             currentItem.setLore(lore);
 
