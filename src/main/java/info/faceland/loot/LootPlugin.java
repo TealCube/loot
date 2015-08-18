@@ -85,6 +85,7 @@ public final class LootPlugin extends FacePlugin {
     private VersionedSmartYamlConfiguration creaturesYAML;
     private VersionedSmartYamlConfiguration identifyingYAML;
     private VersionedSmartYamlConfiguration enchantmentTomesYAML;
+    private VersionedSmartYamlConfiguration revealPowderYAML;
     private SmartYamlConfiguration chestsYAML;
     private MasterConfiguration settings;
     private ItemGroupManager itemGroupManager;
@@ -179,6 +180,14 @@ public final class LootPlugin extends FacePlugin {
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
+        }
+        revealPowderYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "reveal.yml"),
+                getResource("reveal.yml"),
+                VersionedConfiguration.VersionUpdateType
+                        .BACKUP_AND_UPDATE);
+        if (revealPowderYAML.update()) {
+            getLogger().info("Updating reveal.yml");
+            debug("Updating reveal.yml");
         }
         chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
         chestsYAML.load();

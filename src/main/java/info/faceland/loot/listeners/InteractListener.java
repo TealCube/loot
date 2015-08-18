@@ -195,19 +195,16 @@ public final class InteractListener implements Listener {
             List<String> lore = currentItem.getLore();
             List<String> stripColor = stripColor(lore);
 
-            Material matType = currentItem.getType();
-            String[] stat = new String[5];
-
             if (!stripColor.contains("(Hidden)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.failure", ""));
                 return;
             }
             int index = stripColor.indexOf("(Hidden)");
 
-            // CODE FOR DRAWING FROM CONFIGS HERE
+            List<String> options = plugin.getSettings().getStringList(currentItem.getType().name());
+            String stat = options.get(random.nextInt(options.size()));
 
-            int i = random.nextInt(5);
-            lore.set(index, TextUtils.color(stat[i]));
+            lore.set(index, TextUtils.color(stat));
             currentItem.setLore(lore);
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.success", ""));
