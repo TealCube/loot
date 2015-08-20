@@ -203,7 +203,7 @@ public final class InteractListener implements Listener {
             }
             int index = stripColor.indexOf("(Hidden)");
 
-            List<String> options = plugin.getSettings().getStringList(currentItem.getType().name());
+            List<String> options = plugin.getSettings().getStringList("reveal."+currentItem.getType().name());
             Bukkit.getLogger().info("Target item: " + currentItem.getType().name());
             Bukkit.getLogger().info("Item's lore size: " + options.size());
             String stat = options.get(random.nextInt(options.size()));
