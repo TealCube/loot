@@ -362,9 +362,9 @@ public final class InteractListener implements Listener {
                         currentItem.setName(name);
                         if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
                             currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-                            currentItem.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
                         }
                     }
+                    currentItem.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
                     List<String> lore = currentItem.getLore();
                     for (int i = 0; i < lore.size(); i++) {
                         String s = lore.get(i);
