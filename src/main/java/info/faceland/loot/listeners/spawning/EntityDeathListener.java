@@ -215,7 +215,9 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
-            event.getDrops().add(new SocketExtender());
+            HiltItemStack se = new SocketExtender();
+            event.getDrops().add(se);
+            broadcast(event, se);
         }
         // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
