@@ -144,15 +144,12 @@ public final class EntityDeathListener implements Listener {
             }
         }
         event.setDroppedExp(Math.max(3, (int) (xpMult * event.getDroppedExp())));
-        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
-            .getKiller(), 1.0D);
-        Bukkit.getPluginManager().callEvent(chanceEvent);
-        double chance = chanceEvent.getChance();
+
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
         double distanceSquared = event.getEntity().getLocation().distanceSquared(event.getEntity()
                                                                                      .getWorld().getSpawnLocation());
-        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
+        // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
                 dropBonus *= 2.5D;
@@ -164,7 +161,15 @@ public final class EntityDeathListener implements Listener {
                 dropBonus *= 10.0D;
             }
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+
+        // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
+        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
+                .getKiller(), 0.0D);
+        Bukkit.getPluginManager().callEvent(chanceEvent);
+        dropBonus += chanceEvent.getChance();
+        Bukkit.getLogger().info("CHANCE??: " + chanceEvent.getChance());
+
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
             new HashMap<Tier, Double>());
             HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
@@ -173,7 +178,7 @@ public final class EntityDeathListener implements Listener {
                 broadcast(event, his);
             }
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
             SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared, mod != null ?
                                 mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
             HiltItemStack his = sg.toItemStack(1);
@@ -182,7 +187,7 @@ public final class EntityDeathListener implements Listener {
                 broadcast(event, his);
             }
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
             EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
                 mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
             HiltItemStack his = es.toItemStack(1);
@@ -191,16 +196,17 @@ public final class EntityDeathListener implements Listener {
                 broadcast(event, his);
             }
         }
-        if (random.nextDouble() / chance <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+        if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             event.getDrops().add(new IdentityTome());
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
             event.getDrops().add(new RevealPowder());
         }
-        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
+        if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
                                 mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
             HiltItemStack his = ci.toItemStack(1);
@@ -209,10 +215,11 @@ public final class EntityDeathListener implements Listener {
                 broadcast(event, his);
             }
         }
-        if (random.nextDouble() / chance < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             event.getDrops().add(new SocketExtender());
         }
-        if (random.nextDouble() / chance < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
+        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
+        if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
             Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
             Material m = array[random.nextInt(array.length)];
