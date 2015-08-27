@@ -167,7 +167,6 @@ public final class EntityDeathListener implements Listener {
                 .getKiller(), 0.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         dropBonus += chanceEvent.getChance();
-        Bukkit.getLogger().info("CHANCE??: " + chanceEvent.getChance());
 
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
