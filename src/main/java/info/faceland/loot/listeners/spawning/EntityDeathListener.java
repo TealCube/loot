@@ -98,13 +98,14 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         double dropBonus = 1.0D;
+        double dropPenalty = 1.0D;
         double xpMult = 1.0D;
         if (isWater(event.getEntity().getLocation())) {
-            dropBonus *= 0.4D;
+            dropPenalty *= 0.4D;
             xpMult *= 0.4D;
         }
         if (isWater(event.getEntity().getKiller().getLocation())) {
-            dropBonus *= 0.7D;
+            dropPenalty *= 0.7D;
             xpMult *= 0.7D;
         }
         double distanceFromWhereTagged = -1D;
@@ -121,11 +122,11 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 3) {
-            dropBonus *= 0.4D;
+            dropPenalty *= 0.4D;
             xpMult *= 0.3D;
         }
         if (taggerDistance >= 0 && taggerDistance <= 3) {
-            dropBonus *= 0.3D;
+            dropPenalty *= 0.3D;
             xpMult *= 0.3D;
         }
         if (plugin.getSettings().getBoolean("config.scale-with-level-diff", false)) {
@@ -137,7 +138,7 @@ public final class EntityDeathListener implements Listener {
                     int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
                     double levelDiff = Math.abs(mobLevel - playerLevel);
                     if (levelDiff > range) {
-                        dropBonus *= Math.max(1 - ((levelDiff - range) / 10), 0);
+                        dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
                         xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
                     }
                 }
@@ -152,13 +153,13 @@ public final class EntityDeathListener implements Listener {
         // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                dropBonus *= 2.5D;
+                dropBonus = 2.5D * dropPenalty;
             } else if (mobName.endsWith("[R]")) {
-                dropBonus *= 5.0D;
+                dropBonus = 5.0D * dropPenalty;
             } else if (mobName.endsWith("[E]")) {
-                dropBonus *= 7.5D;
+                dropBonus = 7.5D * dropPenalty;
             } else if (mobName.endsWith("[L]")) {
-                dropBonus *= 10.0D;
+                dropBonus = 10.0D * dropPenalty;
             }
         }
 
@@ -166,7 +167,7 @@ public final class EntityDeathListener implements Listener {
         LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
                 .getKiller(), 0.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
-        dropBonus += chanceEvent.getChance();
+        dropBonus += chanceEvent.getChance() * dropPenalty;
 
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
