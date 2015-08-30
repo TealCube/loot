@@ -138,9 +138,7 @@ public final class EntityDeathListener implements Listener {
                     int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
                     double levelDiff = Math.abs(mobLevel - playerLevel);
                     if (levelDiff > range) {
-                        Bukkit.getLogger().info("Drop Penalty B4 range: " + dropPenalty);
                         dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
-                        Bukkit.getLogger().info("Drop Penalty AFTER: " + dropPenalty);
                         xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
                     }
                 }
@@ -155,26 +153,22 @@ public final class EntityDeathListener implements Listener {
         // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
             if (mobName.endsWith("[M]")) {
-                dropBonus = 2.5D * dropPenalty;
+                dropBonus = 2.5D;
             } else if (mobName.endsWith("[R]")) {
-                dropBonus = 5.0D * dropPenalty;
+                dropBonus = 5.0D;
             } else if (mobName.endsWith("[E]")) {
-                dropBonus = 7.5D * dropPenalty;
+                dropBonus = 7.5D;
             } else if (mobName.endsWith("[L]")) {
-                dropBonus = 10.0D * dropPenalty;
+                dropBonus = 10.0D;
             }
         }
-
-        Bukkit.getLogger().info("Final Drop Penalty: " + dropPenalty);
+        dropBonus *= dropPenalty;
 
         // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
         LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
                 .getKiller(), 0.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
-        Bukkit.getLogger().info("Drop Bonus b4 ID: " + dropBonus);
         dropBonus += chanceEvent.getChance() * dropPenalty;
-
-        Bukkit.getLogger().info("Final Drop Bonus: " + dropBonus);
 
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
