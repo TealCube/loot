@@ -206,8 +206,7 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
             event.getDrops().add(new RevealPowder());
         }
-        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
-        if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
                                 mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
             HiltItemStack his = ci.toItemStack(1);
@@ -221,7 +220,7 @@ public final class EntityDeathListener implements Listener {
             event.getDrops().add(se);
             broadcast(event, se);
         }
-        // NOTE: Drop bonus should not be applied to Unidentified or Custom items!
+        // NOTE: Drop bonus should not be applied to Unidentified Items!
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
             Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
