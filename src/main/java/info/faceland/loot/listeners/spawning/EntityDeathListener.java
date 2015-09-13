@@ -152,13 +152,13 @@ public final class EntityDeathListener implements Listener {
                                                                                      .getWorld().getSpawnLocation());
         // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
-            if (mobName.endsWith("[M]")) {
+            if (mobName.startsWith(ChatColor.BLUE + "Magic")) {
                 dropBonus = 2.5D;
-            } else if (mobName.endsWith("[R]")) {
+            } else if (mobName.startsWith(ChatColor.DARK_PURPLE + "Rare")) {
                 dropBonus = 5.0D;
-            } else if (mobName.endsWith("[E]")) {
+            } else if (mobName.startsWith(ChatColor.RED + "Epic")) {
                 dropBonus = 7.5D;
-            } else if (mobName.endsWith("[L]")) {
+            } else if (mobName.startsWith(ChatColor.GOLD + "Legendary")) {
                 dropBonus = 10.0D;
             }
         }
