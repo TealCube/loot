@@ -106,7 +106,7 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         hiltItemStack.setLore(TextUtils.color(lore));
         ItemMeta itemMeta = hiltItemStack.getItemMeta();
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
         hiltItemStack.setItemMeta(itemMeta);
         return hiltItemStack;
     }
