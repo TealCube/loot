@@ -121,11 +121,12 @@ public final class EntityDeathListener implements Listener {
                     .distanceSquared(event.getEntity().getKiller().getLocation());
             }
         }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 3) {
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.5) {
             dropPenalty *= 0.4D;
             xpMult *= 0.3D;
         }
-        if (taggerDistance >= 0 && taggerDistance <= 3) {
+        if (taggerDistance >= 0 && taggerDistance <= 2.5 && event.getEntity().getKiller().getItemInHand().getType() !=
+                Material.BOW) {
             dropPenalty *= 0.3D;
             xpMult *= 0.3D;
         }
