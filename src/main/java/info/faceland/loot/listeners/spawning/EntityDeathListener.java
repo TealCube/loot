@@ -117,12 +117,13 @@ public final class EntityDeathListener implements Listener {
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
             distanceFromWhereTagged = plugin.getAnticheatManager().getTag(
                 event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
-            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(event.getEntity().getKiller
-                ().getUniqueId()) != null) {
+            plugin.debug("distanceFromWhereTagged: " + distanceFromWhereTagged);
+            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(
+                event.getEntity().getKiller().getUniqueId()) != null) {
                 taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity())
-                    .getTaggerLocation(event.getEntity().getKiller
-                        ().getUniqueId())
+                    .getTaggerLocation(event.getEntity().getKiller().getUniqueId())
                     .distanceSquared(event.getEntity().getKiller().getLocation());
+                plugin.debug("taggerDistance: " + taggerDistance);
             }
         }
         if (event.getEntity().getKiller().isSneaking()) {
