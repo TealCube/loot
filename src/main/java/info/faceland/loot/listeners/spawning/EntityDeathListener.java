@@ -137,7 +137,7 @@ public final class EntityDeathListener implements Listener {
                 xpMult *= 0.5D;
             }
         }
-        if (taggerDistance >= 0 && taggerDistance <= 1.5 && event.getEntity().getKiller().getItemInHand().getType() !=
+        if (taggerDistance >= 0 && taggerDistance <= 1.2 && event.getEntity().getKiller().getItemInHand().getType() !=
                 Material.BOW) {
             dropPenalty *= 0.7D;
             xpMult *= 0.7D;
@@ -240,7 +240,7 @@ public final class EntityDeathListener implements Listener {
                 his = upgradeItem(his, upgradeBonus);
             }
             event.getDrops().add(his);
-            if (ci.isBroadcast()) {
+            if (ci.isBroadcast() || upgradeBonus > 6) {
                 broadcast(event, his);
             }
         }
