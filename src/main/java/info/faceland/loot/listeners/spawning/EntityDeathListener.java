@@ -125,14 +125,22 @@ public final class EntityDeathListener implements Listener {
                     .distanceSquared(event.getEntity().getKiller().getLocation());
             }
         }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.5) {
-            dropPenalty *= 0.4D;
-            xpMult *= 0.3D;
+        if (event.getEntity().getKiller().isSneaking()) {
+            dropPenalty *= 0.5D;
+            xpMult *= 0.5D;
         }
-        if (taggerDistance >= 0 && taggerDistance <= 2.5 && event.getEntity().getKiller().getItemInHand().getType() !=
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 1.5) {
+            dropPenalty *= 0.8D;
+            xpMult *= 0.7D;
+            if (distanceFromWhereTagged <= 0.7) {
+                dropPenalty *= 0.5D;
+                xpMult *= 0.5D;
+            }
+        }
+        if (taggerDistance >= 0 && taggerDistance <= 1.5 && event.getEntity().getKiller().getItemInHand().getType() !=
                 Material.BOW) {
-            dropPenalty *= 0.3D;
-            xpMult *= 0.3D;
+            dropPenalty *= 0.7D;
+            xpMult *= 0.7D;
         }
         if (plugin.getSettings().getBoolean("config.scale-with-level-diff", false)) {
             if (event.getEntity().getKiller() instanceof Player) {
