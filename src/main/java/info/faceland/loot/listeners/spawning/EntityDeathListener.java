@@ -271,6 +271,8 @@ public final class EntityDeathListener implements Listener {
             String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
             int loreLevel = NumberUtils.toInt(loreLev);
             lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
+            String name = getFirstColor(his.getName()) + ("+" + upgradeBonus) + " " + his.getName();
+            his.setName(name);
             break;
         }
         his.setLore(lore);
@@ -308,6 +310,19 @@ public final class EntityDeathListener implements Listener {
     private boolean isWater(Location location) {
         Block b = location.getBlock();
         return b.isLiquid();
+    }
+
+    private ChatColor getFirstColor(String s) {
+        for (int i = 0; i < s.length() - 1; i++) {
+            if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
+                continue;
+            }
+            ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
+            if (c != null) {
+                return c;
+            }
+        }
+        return ChatColor.RESET;
     }
 
     private boolean isBlockWithinRadius(Material material, Location location, int radius) {
