@@ -27,6 +27,7 @@ import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
@@ -47,6 +48,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,10 +57,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public final class EntityDeathListener implements Listener {
 
@@ -175,8 +179,16 @@ public final class EntityDeathListener implements Listener {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
             new HashMap<Tier, Double>());
             HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
+            int upgradeBonus = 0;
+            double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
+            while (random.nextDouble() <= upgradeChance && upgradeBonus < 9) {
+                upgradeBonus++;
+            }
+            if (upgradeBonus > 0) {
+                his = upgradeItem(his, upgradeBonus);
+            }
             event.getDrops().add(his);
-            if (t.isBroadcast()) {
+            if (t.isBroadcast() || upgradeBonus > 6) {
                 broadcast(event, his);
             }
         }
@@ -211,6 +223,14 @@ public final class EntityDeathListener implements Listener {
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
                                 mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
             HiltItemStack his = ci.toItemStack(1);
+            int upgradeBonus = 0;
+            double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
+            while (random.nextDouble() <= upgradeChance && upgradeBonus < 9) {
+                upgradeBonus++;
+            }
+            if (upgradeBonus > 0) {
+                his = upgradeItem(his, upgradeBonus);
+            }
             event.getDrops().add(his);
             if (ci.isBroadcast()) {
                 broadcast(event, his);
@@ -228,6 +248,38 @@ public final class EntityDeathListener implements Listener {
             Material m = array[random.nextInt(array.length)];
             event.getDrops().add(new UnidentifiedItem(m));
         }
+    }
+
+    public HiltItemStack upgradeItem(HiltItemStack his, int upgradeBonus) {
+        boolean succeed = false;
+        List<String> lore = his.getLore();
+        for (String s : lore) {
+            if (ChatColor.stripColor(s).startsWith("+")) {
+                succeed = true;
+                break;
+            }
+        }
+        if (!succeed) {
+            return his;
+        }
+        for (int i = 0; i < lore.size(); i++) {
+            String s = lore.get(i);
+            String ss = ChatColor.stripColor(s);
+            if (!ss.startsWith("+")) {
+                continue;
+            }
+            String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+            int loreLevel = NumberUtils.toInt(loreLev);
+            lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
+            break;
+        }
+        his.setLore(lore);
+        if (upgradeBonus > 6) {
+            his.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+            his.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag
+                    .HIDE_UNBREAKABLE));
+        }
+        return his;
     }
 
     private void broadcast(EntityDeathEvent event, HiltItemStack his) {

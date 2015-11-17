@@ -3,6 +3,7 @@ debug: false
 neutral-mobs-drop: false
 scale-with-level-diff: false
 range-before-penalty: 15
+random-upgrade-chance: 0.1
 enabled-worlds:
 - main
 - yololand
