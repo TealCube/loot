@@ -124,8 +124,6 @@ public final class EntityDeathListener implements Listener {
                                 ().getUniqueId())
                         .distanceSquared(event.getEntity().getKiller().getLocation());
             }
-            Bukkit.getLogger().info("enemy dist from tagged:" + distanceFromWhereTagged);
-            Bukkit.getLogger().info("player dist from tagged:" + taggerDistance);
         }
         if (event.getEntity().getKiller().isSneaking()) {
             dropPenalty *= 0.5D;
