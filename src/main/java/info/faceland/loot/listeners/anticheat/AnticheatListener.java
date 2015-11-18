@@ -24,9 +24,12 @@ package info.faceland.loot.listeners.anticheat;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.anticheat.AnticheatTag;
+
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -42,17 +45,26 @@ public final class AnticheatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Monster)) {
+        if (!(event.getEntity() instanceof Monster)) {
+            return;
+        }
+        LivingEntity li;
+        if (event.getDamager() instanceof Player) {
+            li = (LivingEntity) event.getDamager();
+        }
+        else if ( ((Projectile)event.getDamager()).getShooter() instanceof Player) {
+            li = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
+        } else {
             return;
         }
         if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
             plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
         }
         AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
-        if (tag.getTaggerLocation(event.getDamager().getUniqueId()) != null) {
+        if (tag.getTaggerLocation(li.getUniqueId()) != null) {
             return;
         }
-        tag.setTaggerLocation(event.getDamager().getUniqueId(), event.getDamager().getLocation());
+        tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
         plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
     }
 

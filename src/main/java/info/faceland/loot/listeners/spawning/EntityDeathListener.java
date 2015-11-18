@@ -49,10 +49,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -116,40 +114,32 @@ public final class EntityDeathListener implements Listener {
         }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
-        LivingEntity attacker = event.getEntity().getKiller();
-
-        if (event.getEntity().getKiller() instanceof LivingEntity) {
-            attacker = event.getEntity().getKiller();
-        } else if (event.getEntity().getKiller() instanceof Projectile && ((Projectile) event.getEntity().getKiller())
-                .getShooter() instanceof LivingEntity) {
-            attacker = (LivingEntity) ((Projectile) event.getEntity().getKiller()).getShooter();
-        }
-
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-            distanceFromWhereTagged = plugin.getAnticheatManager().getTag(event.getEntity()).getEntityLocation()
-                    .distanceSquared(event.getEntity().getLocation());
-            plugin.debug("distanceFromWhereTagged: " + distanceFromWhereTagged);
+            distanceFromWhereTagged = plugin.getAnticheatManager().getTag(
+                    event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
+            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(event.getEntity().getKiller
+                    ().getUniqueId()) != null) {
+                taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity())
+                        .getTaggerLocation(event.getEntity().getKiller
+                                ().getUniqueId())
+                        .distanceSquared(event.getEntity().getKiller().getLocation());
+            }
+            Bukkit.getLogger().info("enemy dist from tagged:" + distanceFromWhereTagged);
+            Bukkit.getLogger().info("player dist from tagged:" + taggerDistance);
         }
-        if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(attacker
-                .getUniqueId()) != null) {
-            taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(attacker
-                    .getUniqueId()).distanceSquared(attacker.getLocation());
-            plugin.debug("taggerDistance: " + taggerDistance);
-        }
-
         if (event.getEntity().getKiller().isSneaking()) {
             dropPenalty *= 0.5D;
             xpMult *= 0.5D;
         }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 1.5) {
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.5) {
             dropPenalty *= 0.8D;
             xpMult *= 0.7D;
-            if (distanceFromWhereTagged <= 0.7) {
+            if (distanceFromWhereTagged <= 1.2) {
                 dropPenalty *= 0.5D;
                 xpMult *= 0.5D;
             }
         }
-        if (taggerDistance >= 0 && taggerDistance <= 1.2 && event.getEntity().getKiller().getItemInHand().getType() !=
+        if (taggerDistance >= 0 && taggerDistance <= 2.0 && event.getEntity().getKiller().getItemInHand().getType() !=
                 Material.BOW) {
             dropPenalty *= 0.7D;
             xpMult *= 0.7D;
