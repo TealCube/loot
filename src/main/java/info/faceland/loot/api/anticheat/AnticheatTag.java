@@ -35,4 +35,10 @@ public interface AnticheatTag {
     Location getTaggerLocation(UUID uuid);
 
     void setTaggerLocation(UUID uuid, Location location);
+
+    double getTaggerDamage(UUID uuid);
+
+    void setTaggerDamage(UUID uuid, double damage);
+
+    UUID getHighestDamageTagger();
 }

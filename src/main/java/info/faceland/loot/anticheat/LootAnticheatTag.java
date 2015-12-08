@@ -35,6 +35,7 @@ public final class LootAnticheatTag implements AnticheatTag {
     private final UUID uuid;
     private final Location entityLocation;
     private final Map<UUID, Location> taggerLocations;
+    private final Map<UUID, Double> taggerDamage;
 
     public LootAnticheatTag(LivingEntity entity) {
         this(entity.getUniqueId(), entity.getLocation());
@@ -44,6 +45,7 @@ public final class LootAnticheatTag implements AnticheatTag {
         this.uuid = uuid;
         this.entityLocation = entityLocation;
         this.taggerLocations = new HashMap<>();
+        this.taggerDamage = new HashMap<>();
     }
 
     @Override
@@ -69,4 +71,28 @@ public final class LootAnticheatTag implements AnticheatTag {
         taggerLocations.put(uuid, location);
     }
 
+    @Override
+    public double getTaggerDamage(UUID uuid) {
+        return taggerDamage.containsKey(uuid) ? taggerDamage.get(uuid) : 0D;
+    }
+
+    @Override
+    public void setTaggerDamage(UUID uuid, double damage) {
+        taggerDamage.put(uuid, damage);
+    }
+
+    @Override
+    public UUID getHighestDamageTagger() {
+        UUID tagger = null;
+        double damage = 0D;
+        for (Map.Entry<UUID, Double> entry : taggerDamage.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            if (entry.getValue() >= damage) {
+                tagger = entry.getKey();
+            }
+        }
+        return tagger;
+    }
 }

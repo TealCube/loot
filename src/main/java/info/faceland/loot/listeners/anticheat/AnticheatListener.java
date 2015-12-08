@@ -66,6 +66,7 @@ public final class AnticheatListener implements Listener {
             return;
         }
         tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
+        tag.setTaggerDamage(li.getUniqueId(), tag.getTaggerDamage(li.getUniqueId()) + event.getFinalDamage());
         plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
     }
 
