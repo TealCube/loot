@@ -129,6 +129,7 @@ public final class EntityDeathListener implements Listener {
                         .distanceSquared(event.getEntity().getKiller().getLocation());
             }
             bestTaggerLmao = plugin.getAnticheatManager().getTag(event.getEntity()).getHighestDamageTagger();
+            Bukkit.getLogger().info("highest damager;" + bestTaggerLmao + "");
         }
         if (event.getEntity().getKiller().isSneaking()) {
             dropPenalty *= 0.5D;
@@ -204,10 +205,8 @@ public final class EntityDeathListener implements Listener {
             }
 
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -220,10 +219,8 @@ public final class EntityDeathListener implements Listener {
                                 mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
             HiltItemStack his = sg.toItemStack(1);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -236,10 +233,8 @@ public final class EntityDeathListener implements Listener {
                 mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
             HiltItemStack his = es.toItemStack(1);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -250,10 +245,8 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             HiltItemStack his = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -261,10 +254,8 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             HiltItemStack his = new IdentityTome();
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -272,10 +263,8 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
             HiltItemStack his = new RevealPowder();
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -293,10 +282,8 @@ public final class EntityDeathListener implements Listener {
                 his = upgradeItem(his, upgradeBonus);
             }
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -307,10 +294,8 @@ public final class EntityDeathListener implements Listener {
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             HiltItemStack his = new SocketExtender();
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
@@ -323,10 +308,8 @@ public final class EntityDeathListener implements Listener {
             Material m = array[random.nextInt(array.length)];
             HiltItemStack his = new UnidentifiedItem(m);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Owner",
-                        new FixedMetadataValue(plugin, bestTaggerLmao.toString()));
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot-Time",
-                        new FixedMetadataValue(plugin, System.currentTimeMillis()));
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }

@@ -73,15 +73,19 @@ public final class InteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemPickupEvent(PlayerPickupItemEvent event) {
-        if (!event.getItem().hasMetadata("Loot-Owner") || !event.getItem().hasMetadata("Loot-Time")) {
+        if (!event.getItem().hasMetadata("Anti-Steal")) {
             return;
         }
-        MetadataValue lootOwner = event.getItem().getMetadata("Loot-Owner").get(0);
-        MetadataValue lootTime = event.getItem().getMetadata("Loot-Time").get(0);
-        if ((System.currentTimeMillis() - lootTime.asLong()) >= 7 * MILLIS_PER_SEC) {
+        String meta = event.getItem().getMetadata("Anti-Steal").get(0).asString();
+        String[] metas = meta.split(" ");
+        String lootOwner = metas[0];
+        Long lootTime = Long.valueOf(metas[1]);
+        event.getPlayer().sendMessage("time" + (System.currentTimeMillis() - lootTime));
+        event.getPlayer().sendMessage("max t:" + (7*MILLIS_PER_SEC));
+        if ((System.currentTimeMillis() - lootTime) >= 7 * MILLIS_PER_SEC) {
             return;
         }
-        if (event.getPlayer().getUniqueId().toString().equals(lootOwner.asString())) {
+        if (event.getPlayer().getUniqueId().toString().equals(lootOwner)) {
             return;
         }
         event.setCancelled(true);
