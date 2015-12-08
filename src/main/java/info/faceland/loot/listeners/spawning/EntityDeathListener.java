@@ -43,10 +43,12 @@ import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Monster;
@@ -63,6 +65,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public final class EntityDeathListener implements Listener {
 
@@ -114,6 +117,7 @@ public final class EntityDeathListener implements Listener {
         }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
+        UUID bestTaggerLmao = null;
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
             distanceFromWhereTagged = plugin.getAnticheatManager().getTag(
                     event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
@@ -124,6 +128,7 @@ public final class EntityDeathListener implements Listener {
                                 ().getUniqueId())
                         .distanceSquared(event.getEntity().getKiller().getLocation());
             }
+            bestTaggerLmao = plugin.getAnticheatManager().getTag(event.getEntity()).getHighestDamageTagger();
         }
         if (event.getEntity().getKiller().isSneaking()) {
             dropPenalty *= 0.5D;
@@ -183,6 +188,8 @@ public final class EntityDeathListener implements Listener {
         Bukkit.getPluginManager().callEvent(chanceEvent);
         dropBonus += chanceEvent.getChance() * dropPenalty;
 
+        World w = event.getEntity().getWorld();
+
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
             new HashMap<Tier, Double>());
@@ -195,7 +202,13 @@ public final class EntityDeathListener implements Listener {
             if (upgradeBonus > 0) {
                 his = upgradeItem(his, upgradeBonus);
             }
-            event.getDrops().add(his);
+
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
             if (t.isBroadcast() || upgradeBonus > 6) {
                 broadcast(event, his);
             }
@@ -204,7 +217,12 @@ public final class EntityDeathListener implements Listener {
             SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared, mod != null ?
                                 mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
             HiltItemStack his = sg.toItemStack(1);
-            event.getDrops().add(his);
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
             if (sg.isBroadcast()) {
                 broadcast(event, his);
             }
@@ -213,19 +231,42 @@ public final class EntityDeathListener implements Listener {
             EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
                 mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
             HiltItemStack his = es.toItemStack(1);
-            event.getDrops().add(his);
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
             if (es.isBroadcast()) {
                 broadcast(event, his);
             }
         }
         if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
-            event.getDrops().add(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
+            HiltItemStack his = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
-            event.getDrops().add(new IdentityTome());
+            HiltItemStack his = new IdentityTome();
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
-            event.getDrops().add(new RevealPowder());
+            HiltItemStack his = new RevealPowder();
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
@@ -239,22 +280,38 @@ public final class EntityDeathListener implements Listener {
             if (upgradeBonus > 0) {
                 his = upgradeItem(his, upgradeBonus);
             }
-            event.getDrops().add(his);
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
             if (ci.isBroadcast() || upgradeBonus > 6) {
                 broadcast(event, his);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
-            HiltItemStack se = new SocketExtender();
-            event.getDrops().add(se);
-            broadcast(event, se);
+            HiltItemStack his = new SocketExtender();
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
+            broadcast(event, his);
         }
         // NOTE: Drop bonus should not be applied to Unidentified Items!
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
             Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
             Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
             Material m = array[random.nextInt(array.length)];
-            event.getDrops().add(new UnidentifiedItem(m));
+            HiltItemStack his = new UnidentifiedItem(m);
+            if (bestTaggerLmao != null) {
+                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Loot", new FixedMetadataValue
+                        (plugin, bestTaggerLmao.toString()));
+            } else {
+                w.dropItemNaturally(event.getEntity().getLocation(), his);
+            }
         }
     }
 
@@ -331,26 +388,6 @@ public final class EntityDeathListener implements Listener {
             }
         }
         return ChatColor.RESET;
-    }
-
-    private boolean isBlockWithinRadius(Material material, Location location, int radius) {
-        int minX = location.getBlockX() - radius;
-        int maxX = location.getBlockX() + radius;
-        int minY = location.getBlockY() - radius;
-        int maxY = location.getBlockY() + radius;
-        int minZ = location.getBlockZ() - radius;
-        int maxZ = location.getBlockZ() + radius;
-        for (int x = minX; x < maxX; x++) {
-            for (int y = minY; y < maxY; y++) {
-                for (int z = minZ; z < maxZ; z++) {
-                    Block block = location.getWorld().getBlockAt(x, y, z);
-                    if (block.getType() == material) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
