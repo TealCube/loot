@@ -28,6 +28,7 @@ import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
+
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
@@ -35,7 +36,6 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -51,13 +51,17 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class InteractListener implements Listener {
+
+    private static final long MILLIS_PER_SEC = 1000;
 
     private final LootPlugin plugin;
     private LootRandom random;
@@ -65,6 +69,25 @@ public final class InteractListener implements Listener {
     public InteractListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom(System.currentTimeMillis());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemPickupEvent(InventoryPickupItemEvent event) {
+        if (!(event.getInventory().getHolder() instanceof Player)) {
+            return;
+        }
+        if (!event.getItem().hasMetadata("Loot-Owner") || !event.getItem().hasMetadata("Loot-Time")) {
+            return;
+        }
+        MetadataValue lootOwner = event.getItem().getMetadata("Loot-Owner").get(0);
+        MetadataValue lootTime = event.getItem().getMetadata("Loot-Time").get(0);
+        if ((System.currentTimeMillis() - lootTime.asLong()) >= 7 * MILLIS_PER_SEC) {
+            return;
+        }
+        if (((Player) event.getInventory().getHolder()).getUniqueId().toString().equals(lootOwner.asString())) {
+            return;
+        }
+        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
