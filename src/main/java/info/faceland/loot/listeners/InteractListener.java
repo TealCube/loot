@@ -80,8 +80,6 @@ public final class InteractListener implements Listener {
         String[] metas = meta.split(" ");
         String lootOwner = metas[0];
         Long lootTime = Long.valueOf(metas[1]);
-        event.getPlayer().sendMessage("time" + (System.currentTimeMillis() - lootTime));
-        event.getPlayer().sendMessage("max t:" + (7*MILLIS_PER_SEC));
         if ((System.currentTimeMillis() - lootTime) >= 7 * MILLIS_PER_SEC) {
             return;
         }
