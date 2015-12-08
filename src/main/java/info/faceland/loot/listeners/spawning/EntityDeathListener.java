@@ -129,7 +129,6 @@ public final class EntityDeathListener implements Listener {
                         .distanceSquared(event.getEntity().getKiller().getLocation());
             }
             bestTaggerLmao = plugin.getAnticheatManager().getTag(event.getEntity()).getHighestDamageTagger();
-            Bukkit.getLogger().info("highest damager;" + bestTaggerLmao + "");
         }
         if (event.getEntity().getKiller().isSneaking()) {
             dropPenalty *= 0.5D;
