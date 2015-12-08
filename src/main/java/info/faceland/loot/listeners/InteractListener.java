@@ -51,7 +51,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.metadata.MetadataValue;
@@ -72,10 +72,7 @@ public final class InteractListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemPickupEvent(InventoryPickupItemEvent event) {
-        if (!(event.getInventory().getHolder() instanceof Player)) {
-            return;
-        }
+    public void onItemPickupEvent(PlayerPickupItemEvent event) {
         if (!event.getItem().hasMetadata("Loot-Owner") || !event.getItem().hasMetadata("Loot-Time")) {
             return;
         }
@@ -84,7 +81,7 @@ public final class InteractListener implements Listener {
         if ((System.currentTimeMillis() - lootTime.asLong()) >= 7 * MILLIS_PER_SEC) {
             return;
         }
-        if (((Player) event.getInventory().getHolder()).getUniqueId().toString().equals(lootOwner.asString())) {
+        if (event.getPlayer().getUniqueId().toString().equals(lootOwner.asString())) {
             return;
         }
         event.setCancelled(true);
