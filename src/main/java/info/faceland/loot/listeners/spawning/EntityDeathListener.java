@@ -57,6 +57,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -115,6 +116,10 @@ public final class EntityDeathListener implements Listener {
             dropPenalty *= 0.7D;
             xpMult *= 0.7D;
         }
+        if (event.getEntity().getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.LAVA) {
+            dropPenalty *= 0.5D;
+            xpMult *= 0.4D;
+        }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
         UUID bestTaggerLmao = null;
@@ -162,7 +167,7 @@ public final class EntityDeathListener implements Listener {
                 }
             }
         }
-        event.setDroppedExp(Math.max(3, (int) (xpMult * event.getDroppedExp())));
+        event.setDroppedExp((int) (xpMult * event.getDroppedExp()));
 
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
@@ -209,7 +214,7 @@ public final class EntityDeathListener implements Listener {
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
-            if (t.isBroadcast() || upgradeBonus > 6) {
+            if (t.isBroadcast()) {
                 broadcast(event, his);
             }
         }
@@ -286,7 +291,7 @@ public final class EntityDeathListener implements Listener {
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
-            if (ci.isBroadcast() || upgradeBonus > 6) {
+            if (ci.isBroadcast()) {
                 broadcast(event, his);
             }
         }
@@ -318,27 +323,22 @@ public final class EntityDeathListener implements Listener {
     public HiltItemStack upgradeItem(HiltItemStack his, int upgradeBonus) {
         boolean succeed = false;
         List<String> lore = his.getLore();
-        for (String s : lore) {
-            if (ChatColor.stripColor(s).startsWith("+")) {
-                succeed = true;
-                break;
-            }
-        }
-        if (!succeed) {
-            return his;
-        }
         for (int i = 0; i < lore.size(); i++) {
             String s = lore.get(i);
             String ss = ChatColor.stripColor(s);
             if (!ss.startsWith("+")) {
                 continue;
             }
+            succeed = true;
             String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
             int loreLevel = NumberUtils.toInt(loreLev);
             lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
             String name = getFirstColor(his.getName()) + ("+" + upgradeBonus) + " " + his.getName();
             his.setName(name);
             break;
+        }
+        if (!succeed) {
+            return his;
         }
         his.setLore(lore);
         if (upgradeBonus > 6) {
