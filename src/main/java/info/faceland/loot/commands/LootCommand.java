@@ -23,6 +23,8 @@
 package info.faceland.loot.commands;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -33,6 +35,8 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.*;
 import info.faceland.loot.math.LootRandom;
+
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -336,7 +340,7 @@ public final class LootCommand {
                             plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.COMMAND).build());
                 }
                 MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
-                                   new String[][]{{"%amount%", amount + ""}});
+                        new String[][]{{"%amount%", amount + ""}});
             }
         } else if (upgradeScroll) {
             if (name.equals("")) {

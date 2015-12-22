@@ -38,9 +38,11 @@ public interface TierBuilder {
 
     TierBuilder withDisplayColor(ChatColor c);
 
-    TierBuilder withIdentificationColor(ChatColor c);
-
     TierBuilder withSpawnWeight(double d);
+
+    TierBuilder withLevelBase(int i);
+
+    TierBuilder withLevelRange(int i);
 
     TierBuilder withIdentifyWeight(double d);
 

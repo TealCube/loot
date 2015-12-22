@@ -37,13 +37,15 @@ public interface Tier extends Comparable<Tier> {
 
     ChatColor getDisplayColor();
 
-    ChatColor getIdentificationColor();
-
     double getMinimumDurability();
 
     double getMaximumDurability();
 
     double getSpawnWeight();
+
+    double getLevelBase();
+
+    double getLevelRange();
 
     double getIdentifyWeight();
 

@@ -65,14 +65,20 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
-    public TierBuilder withIdentificationColor(ChatColor c) {
-        tier.setIdentificationColor(c);
+    public TierBuilder withSpawnWeight(double d) {
+        tier.setSpawnWeight(d);
         return this;
     }
 
     @Override
-    public TierBuilder withSpawnWeight(double d) {
-        tier.setSpawnWeight(d);
+    public TierBuilder withLevelBase(int i) {
+        tier.setLevelBase(i);
+        return this;
+    }
+
+    @Override
+    public TierBuilder withLevelRange(int i) {
+        tier.setLevelRange(i);
         return this;
     }
 

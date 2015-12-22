@@ -37,8 +37,9 @@ public final class LootTier implements Tier {
     private final String name;
     private String displayName;
     private ChatColor displayColor;
-    private ChatColor identificationColor;
     private double spawnWeight;
+    private double levelBase;
+    private double levelRange;
     private double identifyWeight;
     private int minimumSockets;
     private int maximumSockets;
@@ -85,15 +86,6 @@ public final class LootTier implements Tier {
     }
 
     @Override
-    public ChatColor getIdentificationColor() {
-        return identificationColor;
-    }
-
-    void setIdentificationColor(ChatColor identificationColor) {
-        this.identificationColor = identificationColor;
-    }
-
-    @Override
     public double getMinimumDurability() {
         return minimumDurability;
     }
@@ -114,6 +106,24 @@ public final class LootTier implements Tier {
 
     void setSpawnWeight(double spawnWeight) {
         this.spawnWeight = spawnWeight;
+    }
+
+    @Override
+    public double getLevelBase() {
+        return levelBase;
+    }
+
+    void setLevelBase(double levelBase) {
+        this.levelBase = levelBase;
+    }
+
+    @Override
+    public double getLevelRange() {
+        return levelRange;
+    }
+
+    void setLevelRange(double levelRange) {
+        this.levelRange = levelRange;
     }
 
     @Override

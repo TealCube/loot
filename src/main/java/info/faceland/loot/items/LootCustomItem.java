@@ -74,14 +74,13 @@ public final class LootCustomItem implements CustomItem {
     @Override
     public HiltItemStack toItemStack(int amount) {
         HiltItemStack itemStack = new HiltItemStack(this.material);
-        itemStack.setUnbreakable(true);
         if (itemStack.getType() == Material.AIR) {
             return itemStack;
         }
         itemStack.setAmount(amount);
         itemStack.setName(TextUtils.color(this.displayName));
         itemStack.setLore(TextUtils.color(this.lore));
-        itemStack.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE));
+        itemStack.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ATTRIBUTES));
         return itemStack;
     }
 

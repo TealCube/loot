@@ -558,14 +558,15 @@ public final class LootPlugin extends FacePlugin {
             TierBuilder builder = getNewTierBuilder(key);
             builder.withDisplayName(cs.getString("display-name"));
             builder.withDisplayColor(TextUtils.convertTag(cs.getString("display-color")));
-            builder.withIdentificationColor(TextUtils.convertTag(cs.getString("identification-color")));
             builder.withSpawnWeight(cs.getDouble("spawn-weight"));
+            builder.withLevelBase(cs.getInt("level-base"));
+            builder.withLevelRange(cs.getInt("level-range"));
             builder.withIdentifyWeight(cs.getDouble("identify-weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
             builder.withMinimumSockets(cs.getInt("minimum-sockets"));
-            builder.withMaximumSockets(cs.getInt("maximum-sockets"));
+            builder.withMaximumSockets(cs.getInt("maximum-sockets") + 1);
             builder.withMinimumBonusLore(cs.getInt("minimum-bonus-lore"));
-            builder.withMaximumBonusLore(cs.getInt("maximum-bonus-lore"));
+            builder.withMaximumBonusLore(cs.getInt("maximum-bonus-lore") + 1);
             builder.withBaseLore(cs.getStringList("base-lore"));
             builder.withBonusLore(cs.getStringList("bonus-lore"));
             List<String> sl = cs.getStringList("item-groups");

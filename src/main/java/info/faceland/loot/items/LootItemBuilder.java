@@ -29,6 +29,8 @@ import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
+
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -84,9 +86,8 @@ public final class LootItemBuilder implements ItemBuilder {
             material = array[random.nextInt(array.length)];
         }
         hiltItemStack = new HiltItemStack(material);
-        hiltItemStack.setUnbreakable(true);
         hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
-                .getNameManager().getRandomSuffix() + tier.getIdentificationColor());
+                .getNameManager().getRandomSuffix() + ChatColor.BLACK);
         List<String> lore = new ArrayList<>(tier.getBaseLore());
         lore.addAll(plugin.getSettings().getStringList("corestats." + material.name(),
                                                        new ArrayList<String>()));
@@ -106,7 +107,7 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         hiltItemStack.setLore(TextUtils.color(lore));
         ItemMeta itemMeta = hiltItemStack.getItemMeta();
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         hiltItemStack.setItemMeta(itemMeta);
         return hiltItemStack;
     }
@@ -139,12 +140,12 @@ public final class LootItemBuilder implements ItemBuilder {
         if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
             double totalWeight = 0D;
             for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                totalWeight += t.getIdentifyWeight() + ((distance / 10000D) * t.getDistanceWeight());
+                totalWeight += t.getIdentifyWeight();
             }
             double chosenWeight = random.nextDouble() * totalWeight;
             double currentWeight = 0D;
             for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                currentWeight += t.getIdentifyWeight() + ((distance / 10000D) * t.getDistanceWeight());
+                currentWeight += t.getIdentifyWeight();
                 if (currentWeight >= chosenWeight) {
                     return t;
                 }

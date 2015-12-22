@@ -22,9 +22,12 @@
  */
 package info.faceland.loot.managers;
 
+import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.managers.TierManager;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.HashMap;
@@ -55,16 +58,6 @@ public final class LootTierManager implements TierManager {
     }
 
     @Override
-    public Tier getTier(ChatColor displayColor, ChatColor identificationColor) {
-        for (Tier t : getLoadedTiers()) {
-            if (t.getDisplayColor() == displayColor && t.getIdentificationColor() == identificationColor) {
-                return t;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public void addTier(Tier tier) {
         if (tier != null) {
             loadedTiers.add(tier);
@@ -74,14 +67,6 @@ public final class LootTierManager implements TierManager {
     @Override
     public void removeTier(String name) {
         Tier t = getTier(name);
-        if (t != null) {
-            loadedTiers.remove(t);
-        }
-    }
-
-    @Override
-    public void removeTier(ChatColor displayColor, ChatColor identificationColor) {
-        Tier t = getTier(displayColor, identificationColor);
         if (t != null) {
             loadedTiers.remove(t);
         }
@@ -126,6 +111,24 @@ public final class LootTierManager implements TierManager {
         return null;
     }
 
+    public Tier getRandomLeveledTier(int level) {
+        double selectedWeight = random.nextDouble() * getTotalLeveledTierWeight(level);
+        double currentWeight = 0D;
+        Set<Tier> chooseTiers = getLoadedTiers();
+        for (Tier t : chooseTiers) {
+            double diff = Math.abs(t.getLevelBase() - level);
+            if (diff >= t.getLevelRange()) {
+                continue;
+            }
+            double calcWeight = t.getSpawnWeight() * (1 - diff/t.getLevelRange());
+            currentWeight += calcWeight;
+            if (currentWeight >= selectedWeight) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     @Override
     public Set<Tier> getLoadedTiers() {
         return new HashSet<>(loadedTiers);
@@ -135,12 +138,23 @@ public final class LootTierManager implements TierManager {
     public double getTotalTierWeight(double distance) {
         double weight = 0;
         for (Tier t : getLoadedTiers()) {
-            if (t != null) {
-                double d = t.getSpawnWeight() + ((distance / DISTANCE_SQUARED) * t.getDistanceWeight());
-                if (d > 0D) {
-                    weight += d;
-                }
+            double d = t.getSpawnWeight() + ((distance / DISTANCE_SQUARED) * t.getDistanceWeight());
+            if (d > 0D) {
+                weight += d;
             }
+        }
+        return weight;
+    }
+
+    public double getTotalLeveledTierWeight(int level) {
+        double weight = 0;
+        for (Tier t : getLoadedTiers()) {
+            double diff = Math.abs(t.getLevelBase() - level);
+            if (diff >= t.getLevelRange()) {
+                continue;
+            }
+            double d = t.getSpawnWeight() * (1 - diff/t.getLevelRange());
+            weight += d;
         }
         return weight;
     }

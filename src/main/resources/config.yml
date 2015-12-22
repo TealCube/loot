@@ -1,12 +1,39 @@
 version: "0.0.6"
+
+# Enables debug mode
 debug: false
+
+# Should loot drop from passive animals?
 neutral-mobs-drop: false
-scale-with-level-diff: false
-range-before-penalty: 15
+
+# Should loot drop from mobs from spawners?
+spawner-mobs-drop: false
+
+# Chance that items will have a random upgrade
+# value applied on drop. This stacks, so 0.1 would
+# be 10% chance of +1, 1% chance of +2, 0.1% chance
+# of +3, etc.
 random-upgrade-chance: 0.1
+
+# Only set total tier weight if you have a lot of
+# tiers, it is designed to be a bit less random, but
+# with less load for higher amounts. Any number above
+# 0 will enable it, set it to about double the weight
+# of your heaviest tier.
+total-tier-weight: 0
+
+# Worlds where loot items wlll drop
 enabled-worlds:
 - main
 - yololand
+
+# Settings if you have the Faceland plugin, Beast
+beast:
+  beast-mode-activate: false
+  range-before-penalty: 15
+
+# Probability that mobs will drop an item of each
+# type when it is killed
 drops:
   normal-drop: 0.2
   socket-gem: 0.4
@@ -17,6 +44,8 @@ drops:
   custom-item: 0.1
   socket-extender: 0.000001
   unidentified-item: 0.1
+
+# Items that cannot be altered by upgrade scrolls
 cannot-be-upgraded:
 - Fuck
 - This

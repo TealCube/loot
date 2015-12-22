@@ -95,15 +95,17 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<String>())
-            .contains(event.getEntity().getWorld().getName())) {
+                .contains(event.getEntity().getWorld().getName())) {
             return;
         }
-        if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false)
-            && !(event.getEntity() instanceof Monster)) {
+        if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false) &&
+                !(event.getEntity() instanceof Monster)) {
             return;
         }
-        if (event.getEntity().hasMetadata("loot.spawnreason")) {
-            return;
+        if (!plugin.getSettings().getBoolean("config.spawner-mobs-drop", false)) {
+            if (event.getEntity().hasMetadata("loot.spawnreason")) {
+                return;
+            }
         }
         double dropBonus = 1.0D;
         double dropPenalty = 1.0D;
@@ -152,14 +154,16 @@ public final class EntityDeathListener implements Listener {
             dropPenalty *= 0.7D;
             xpMult *= 0.7D;
         }
-        if (plugin.getSettings().getBoolean("config.scale-with-level-diff", false)) {
+
+        int mobLevel = 0;
+        if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
             if (event.getEntity().getKiller() instanceof Player) {
                 if (event.getEntity().getCustomName() != null) {
-                    int mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
+                    mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
                             .getCustomName())));
                     int playerLevel = event.getEntity().getKiller().getLevel();
                     int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
-                    double levelDiff = Math.abs(mobLevel - playerLevel);
+                    double levelDiff = mobLevel - playerLevel;
                     if (levelDiff > range) {
                         dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
                         xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
@@ -196,8 +200,13 @@ public final class EntityDeathListener implements Listener {
         World w = event.getEntity().getWorld();
 
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
-            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
-            new HashMap<Tier, Double>());
+            Tier t;
+            if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                t = plugin.getTierManager().getRandomLeveledTier(mobLevel);
+            } else {
+                t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
+                        new HashMap<Tier, Double>());
+            }
             HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
             int upgradeBonus = 0;
             double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
@@ -307,9 +316,7 @@ public final class EntityDeathListener implements Listener {
         }
         // NOTE: Drop bonus should not be applied to Unidentified Items!
         if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
-            Tier t = plugin.getTierManager().getRandomTier(true, distanceSquared);
-            Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
-            Material m = array[random.nextInt(array.length)];
+            Material m = Material.WOOD_SWORD;
             HiltItemStack his = new UnidentifiedItem(m);
             if (bestTaggerLmao != null) {
                 w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
@@ -343,8 +350,7 @@ public final class EntityDeathListener implements Listener {
         his.setLore(lore);
         if (upgradeBonus > 6) {
             his.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            his.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag
-                    .HIDE_UNBREAKABLE));
+            his.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
         }
         return his;
     }

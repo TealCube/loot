@@ -32,13 +32,9 @@ public interface TierManager {
 
     Tier getTier(String name);
 
-    Tier getTier(ChatColor displayColor, ChatColor identificationColor);
-
     void addTier(Tier tier);
 
     void removeTier(String name);
-
-    void removeTier(ChatColor displayColor, ChatColor identificationColor);
 
     Tier getRandomTier();
 
@@ -47,6 +43,8 @@ public interface TierManager {
     Tier getRandomTier(boolean withChance, double distance);
 
     Tier getRandomTier(boolean withChance, double distance, Map<Tier, Double> tierWeights);
+
+    Tier getRandomLeveledTier(int level);
 
     Set<Tier> getLoadedTiers();
 

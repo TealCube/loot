@@ -4,6 +4,8 @@ common:
   display-color: "<gray>"
   identification-color: "<gray>"
   spawn-weight: 100
+  level-base: 1
+  level-range: 10
   identify-weight: 100
   distance-weight: 0
   minimum-sockets: 0
