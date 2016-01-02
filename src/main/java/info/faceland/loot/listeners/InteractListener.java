@@ -263,6 +263,10 @@ public final class InteractListener implements Listener {
             player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
             updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
+            if (currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
+                    currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -")) {
+                return;
+            }
             List<String> lore = currentItem.getLore();
             List<String> stripColor = stripColor(lore);
             if (!stripColor.contains("(+)")) {
@@ -291,7 +295,7 @@ public final class InteractListener implements Listener {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                     currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
                     currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
-                    currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
+                    currentItem.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment -")) {
                 return;
             }
             String name = currentItem.getName();
@@ -372,7 +376,7 @@ public final class InteractListener implements Listener {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                     currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
                     currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
-                    currentItem.getName().equals(ChatColor.AQUA + "Charm of Protection")) {
+                    currentItem.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment -")) {
                 return;
             }
             String name = ChatColor.stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
