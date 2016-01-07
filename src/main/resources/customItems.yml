@@ -3,6 +3,7 @@ fuckyeah-sword:
   broadcast: true
   weight: 100
   distance-weight: 0
+  weight-per-level: 0.0
   material: DIAMOND_SWORD
   display-name: "<gold>Fuck Yeah, A Sword!"
   lore:

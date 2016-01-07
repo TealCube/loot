@@ -296,8 +296,13 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
-            CustomItem ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
-                                mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
+            CustomItem ci;
+            if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                ci = plugin.getCustomItemManager().getRandomCustomItemByLevel(mobLevel);
+            } else {
+                ci = plugin.getCustomItemManager().getRandomCustomItem(true, distanceSquared, mod != null ?
+                        mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
+            }
             HiltItemStack his = ci.toItemStack(1);
             int upgradeBonus = 0;
             double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
