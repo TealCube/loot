@@ -53,11 +53,15 @@ public interface SocketGemManager {
 
     SocketGem getRandomSocketGemByBonus();
 
+    SocketGem getRandomSocketGemByLevel(int level);
+
     double getTotalWeight();
 
     double getTotalWeight(double distance);
 
     double getTotalWeight(double distance, Map<SocketGem, Double> map);
+
+    double getTotalLevelWeight(int level);
 
     double getTotalBonusWeight();
 

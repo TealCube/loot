@@ -26,6 +26,8 @@ import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
 
+import org.bukkit.Bukkit;
+
 import java.util.*;
 
 public final class LootSocketGemManager implements SocketGemManager {
@@ -145,6 +147,20 @@ public final class LootSocketGemManager implements SocketGemManager {
     }
 
     @Override
+    public SocketGem getRandomSocketGemByLevel(int level) {
+        double totalWeight = getTotalLevelWeight(level);
+        double chosenWeight = random.nextDouble() * totalWeight;
+        double currentWeight = 0;
+        for (SocketGem sg : getSocketGems()) {
+            currentWeight += sg.getWeight() + sg.getWeightPerLevel() * level;
+            if (currentWeight >= chosenWeight) {
+                return sg;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public double getTotalWeight() {
         return getTotalWeight(0);
     }
@@ -163,6 +179,17 @@ public final class LootSocketGemManager implements SocketGemManager {
             if (map.containsKey(sg)) {
                 calcWeight *= map.get(sg);
             }
+            totalWeight += calcWeight;
+        }
+        return totalWeight;
+    }
+
+    @Override
+    public double getTotalLevelWeight(int level) {
+        double totalWeight = 0;
+        List<SocketGem> gems = getSocketGems();
+        for (SocketGem sg : gems) {
+            double calcWeight = sg.getWeight() + sg.getWeightPerLevel() * level;
             totalWeight += calcWeight;
         }
         return totalWeight;

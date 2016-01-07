@@ -95,6 +95,12 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     }
 
     @Override
+    public SocketGemBuilder withWeightPerLevel(double d) {
+        gem.setWeightPerLevel(d);
+        return this;
+    }
+
+    @Override
     public SocketGemBuilder withBroadcast(boolean b) {
         gem.setBroadcast(b);
         return this;

@@ -48,6 +48,8 @@ public interface SocketGem extends Comparable<SocketGem> {
 
     double getDistanceWeight();
 
+    double getWeightPerLevel();
+
     boolean isBroadcast();
 
     boolean isTriggerable();

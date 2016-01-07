@@ -40,6 +40,7 @@ public final class LootSocketGem implements SocketGem {
     private final String name;
     private double weight;
     private double distanceWeight;
+    private double weightPerLevel;
     private double bonusWeight;
     private String prefix;
     private String suffix;
@@ -147,6 +148,15 @@ public final class LootSocketGem implements SocketGem {
     @Override
     public double getDistanceWeight() {
         return distanceWeight;
+    }
+
+    @Override
+    public double getWeightPerLevel() {
+        return weightPerLevel;
+    }
+
+    void setWeightPerLevel(double weightPerLevel) {
+        this.weightPerLevel = weightPerLevel;
     }
 
     void setDistanceWeight(double distanceWeight) {

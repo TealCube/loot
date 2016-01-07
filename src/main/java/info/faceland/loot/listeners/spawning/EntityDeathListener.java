@@ -141,12 +141,12 @@ public final class EntityDeathListener implements Listener {
             dropPenalty *= 0.5D;
             xpMult *= 0.5D;
         }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.5) {
+        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.6) {
             dropPenalty *= 0.8D;
             xpMult *= 0.7D;
             if (distanceFromWhereTagged <= 1.2) {
-                dropPenalty *= 0.5D;
-                xpMult *= 0.5D;
+                dropPenalty *= 0.4D;
+                xpMult *= 0.4D;
             }
         }
         if (taggerDistance >= 0 && taggerDistance <= 2.0 && event.getEntity().getKiller().getItemInHand().getType() !=
@@ -167,6 +167,9 @@ public final class EntityDeathListener implements Listener {
                     if (levelDiff > range) {
                         dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
                         xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
+                    } else if (range > -levelDiff) {
+                        xpMult *= Math.max(1 - ((-levelDiff - range) / 10), 0.3D);
+                        dropPenalty *= Math.max(1 - ((-levelDiff - range) / 10), 0.4D);
                     }
                 }
             }
@@ -179,14 +182,18 @@ public final class EntityDeathListener implements Listener {
                                                                                      .getWorld().getSpawnLocation());
         // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
-            if (mobName.startsWith(ChatColor.BLUE + "Magic")) {
-                dropBonus = 3.0D;
+            if (mobName.startsWith(ChatColor.GRAY + "")) {
+                dropBonus = 1.0D;
+            } else if (mobName.startsWith(ChatColor.BLUE + "Magic")) {
+                dropBonus = 6.0D;
             } else if (mobName.startsWith(ChatColor.DARK_PURPLE + "Rare")) {
-                dropBonus = 7.0D;
+                dropBonus = 9.0D;
             } else if (mobName.startsWith(ChatColor.RED + "Epic")) {
-                dropBonus = 12.0D;
+                dropBonus = 11.0D;
             } else if (mobName.startsWith(ChatColor.GOLD + "Legendary")) {
-                dropBonus = 18.0D;
+                dropBonus = 13.0D;
+            } else if (mobName.startsWith(ChatColor.DARK_RED + "Boss")) {
+                dropBonus = 15.0D;
             }
         }
         dropBonus *= dropPenalty;
@@ -228,8 +235,14 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
-            SocketGem sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared, mod != null ?
-                                mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
+            SocketGem sg;
+            if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                sg = plugin.getSocketGemManager().getRandomSocketGemByLevel(mobLevel);
+            } else {
+                sg = plugin.getSocketGemManager().getRandomSocketGem(true, distanceSquared, mod != null ?
+                        mod.getSocketGemMults() : new HashMap<SocketGem, Double>());
+            }
+
             HiltItemStack his = sg.toItemStack(1);
             if (bestTaggerLmao != null) {
                 w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
@@ -273,7 +286,7 @@ public final class EntityDeathListener implements Listener {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
             }
         }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
+        if (random.nextDouble() < dropPenalty * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
             HiltItemStack his = new RevealPowder();
             if (bestTaggerLmao != null) {
                 w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
@@ -315,9 +328,10 @@ public final class EntityDeathListener implements Listener {
             broadcast(event, his);
         }
         // NOTE: Drop bonus should not be applied to Unidentified Items!
-        if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
+        if (random.nextDouble() < dropPenalty * plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
             Material m = Material.WOOD_SWORD;
             HiltItemStack his = new UnidentifiedItem(m);
+            his.getItemMeta().addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             if (bestTaggerLmao != null) {
                 w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
                         new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
