@@ -40,7 +40,8 @@ public final class LootCustomItem implements CustomItem {
     private Material material;
     private double weight;
     private double distanceWeight;
-    private double weightPerLevel;
+    private int levelBase;
+    private int levelRange;
     private boolean broadcast;
 
     public LootCustomItem(String name) {
@@ -100,16 +101,25 @@ public final class LootCustomItem implements CustomItem {
     }
 
     @Override
-    public double getWeightPerLevel() {
-        return weightPerLevel;
+    public int getLevelBase() {
+        return levelBase;
+    }
+
+    @Override
+    public int getLevelRange() {
+        return levelRange;
     }
 
     void setDistanceWeight(double distanceWeight) {
         this.distanceWeight = distanceWeight;
     }
 
-    void setWeightPerLevel(double weightPerLevel) {
-        this.weightPerLevel = weightPerLevel;
+    void setLevelBase(int levelBase) {
+        this.levelBase = levelBase;
+    }
+
+    void setLevelRange(int levelRange) {
+        this.levelRange = levelRange;
     }
 
     @Override

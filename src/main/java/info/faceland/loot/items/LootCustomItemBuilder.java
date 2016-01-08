@@ -82,8 +82,14 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     }
 
     @Override
-    public CustomItemBuilder withWeightPerLevel(double d) {
-        customItem.setWeightPerLevel(d);
+    public CustomItemBuilder withLevelBase(int i) {
+        customItem.setLevelBase(i);
+        return this;
+    }
+
+    @Override
+    public CustomItemBuilder withLevelRange(int i) {
+        customItem.setLevelRange(i);
         return this;
     }
 

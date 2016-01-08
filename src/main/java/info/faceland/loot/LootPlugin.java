@@ -478,7 +478,8 @@ public final class LootPlugin extends FacePlugin {
             builder.withLore(cs.getStringList("lore"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
-            builder.withWeightPerLevel(cs.getDouble("weight-per-level"));
+            builder.withLevelBase(cs.getInt("level-base"));
+            builder.withLevelRange(cs.getInt("level-range"));
             builder.withBroadcast(cs.getBoolean("broadcast"));
             CustomItem ci = builder.build();
             customItems.add(ci);

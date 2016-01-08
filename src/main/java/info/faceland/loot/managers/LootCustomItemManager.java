@@ -110,7 +110,11 @@ public final class LootCustomItemManager implements CustomItemManager {
         double selectedWeight = random.nextDouble() * getTotalLevelWeight(level);
         double currentWeight = 0D;
         for (CustomItem ci : getCustomItems()) {
-            double calcWeight = ci.getWeight() + ci.getWeightPerLevel() * level;
+            double diff = Math.abs(ci.getLevelBase() - level);
+            if (diff >= ci.getLevelRange()) {
+                continue;
+            }
+            double calcWeight = ci.getWeight() * (1 - diff/ci.getLevelRange());
             currentWeight += calcWeight;
             if (currentWeight >= selectedWeight) {
                 return ci;
@@ -132,7 +136,11 @@ public final class LootCustomItemManager implements CustomItemManager {
     public double getTotalLevelWeight(int level) {
         double d = 0;
         for (CustomItem ci : getCustomItems()) {
-            d += ci.getWeight() + ci.getWeightPerLevel() * level;
+            double diff = Math.abs(ci.getLevelBase() - level);
+            if (diff >= ci.getLevelRange()) {
+                continue;
+            }
+            d = ci.getWeight() * (1 - diff/ci.getLevelRange());
         }
         return d;
     }

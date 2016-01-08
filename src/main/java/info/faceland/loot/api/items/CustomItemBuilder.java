@@ -42,7 +42,9 @@ public interface CustomItemBuilder {
 
     CustomItemBuilder withDistanceWeight(double d);
 
-    CustomItemBuilder withWeightPerLevel(double d);
+    CustomItemBuilder withLevelBase(int i);
+
+    CustomItemBuilder withLevelRange(int i);
 
     CustomItemBuilder withBroadcast(boolean b);
 }

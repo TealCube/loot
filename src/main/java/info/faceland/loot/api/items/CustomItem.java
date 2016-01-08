@@ -43,7 +43,9 @@ public interface CustomItem {
 
     double getDistanceWeight();
 
-    double getWeightPerLevel();
+    int getLevelBase();
+
+    int getLevelRange();
 
     boolean isBroadcast();
 }
