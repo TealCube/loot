@@ -36,7 +36,6 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -81,10 +80,10 @@ public final class InteractListener implements Listener {
         String[] metas = meta.split(" ");
         String lootOwner = metas[0];
         Long lootTime = Long.valueOf(metas[1]);
-        if ((System.currentTimeMillis() - lootTime) >= 15 * MILLIS_PER_SEC) {
+        if (event.getPlayer().getUniqueId().toString().equals(lootOwner)) {
             return;
         }
-        if (event.getPlayer().getUniqueId().toString().equals(lootOwner)) {
+        if ((System.currentTimeMillis() - lootTime) >= 15 * MILLIS_PER_SEC) {
             return;
         }
         event.setCancelled(true);
