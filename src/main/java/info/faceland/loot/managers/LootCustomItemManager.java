@@ -134,15 +134,16 @@ public final class LootCustomItemManager implements CustomItemManager {
 
     @Override
     public double getTotalLevelWeight(int level) {
-        double d = 0;
+        double weight = 0;
         for (CustomItem ci : getCustomItems()) {
             double diff = Math.abs(ci.getLevelBase() - level);
             if (diff >= ci.getLevelRange()) {
                 continue;
             }
-            d = ci.getWeight() * (1 - diff/ci.getLevelRange());
+            double d = ci.getWeight() * (1 - diff/ci.getLevelRange());
+            weight += d;
         }
-        return d;
+        return weight;
     }
 
 }
