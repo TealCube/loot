@@ -49,7 +49,7 @@ public final class AnticheatListener implements Listener {
         }
         LivingEntity li = null;
         if (event.getDamager() instanceof Player) {
-            li = (LivingEntity) event.getDamager();
+            li = (Player) event.getDamager();
         } else if (event.getDamager() instanceof Projectile) {
             if ( ((Projectile)event.getDamager()).getShooter() instanceof Player) {
                 li = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
@@ -62,11 +62,12 @@ public final class AnticheatListener implements Listener {
             plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
         }
         AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
-        if (tag.getTaggerLocation(li.getUniqueId()) != null) {
-            return;
+        if (tag.getTaggerLocation(li.getUniqueId()) == null) {
+            tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
+        } else {
+            tag.setTaggerLocation(li.getUniqueId(), tag.getTaggerLocation(li.getUniqueId()));
         }
-        tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
-        tag.setTaggerDamage(li.getUniqueId(), tag.getTaggerDamage(li.getUniqueId()) + event.getFinalDamage());
+        tag.setTaggerDamage(li.getUniqueId(), event.getFinalDamage());
         plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
     }
 

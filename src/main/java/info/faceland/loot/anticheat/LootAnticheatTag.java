@@ -23,11 +23,15 @@
 package info.faceland.loot.anticheat;
 
 import info.faceland.loot.api.anticheat.AnticheatTag;
+
+import org.apache.commons.lang.math.RandomUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public final class LootAnticheatTag implements AnticheatTag {
@@ -78,6 +82,10 @@ public final class LootAnticheatTag implements AnticheatTag {
 
     @Override
     public void setTaggerDamage(UUID uuid, double damage) {
+        if (taggerDamage.containsKey(uuid)) {
+            taggerDamage.put(uuid, damage + taggerDamage.get(uuid));
+            return;
+        }
         taggerDamage.put(uuid, damage);
     }
 
@@ -89,7 +97,11 @@ public final class LootAnticheatTag implements AnticheatTag {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            if (entry.getValue() >= damage) {
+            if (RandomUtils.nextDouble() < 0.5 * (1.0D / taggerDamage.size())) {
+                return entry.getKey();
+            }
+            if (entry.getValue() > damage) {
+                damage = entry.getValue();
                 tagger = entry.getKey();
             }
         }

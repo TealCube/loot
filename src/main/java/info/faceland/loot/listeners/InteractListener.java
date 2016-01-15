@@ -83,7 +83,7 @@ public final class InteractListener implements Listener {
         if (event.getPlayer().getUniqueId().toString().equals(lootOwner)) {
             return;
         }
-        if ((System.currentTimeMillis() - lootTime) >= 15 * MILLIS_PER_SEC) {
+        if ((System.currentTimeMillis() - lootTime) >= 7 * MILLIS_PER_SEC) {
             return;
         }
         event.setCancelled(true);
