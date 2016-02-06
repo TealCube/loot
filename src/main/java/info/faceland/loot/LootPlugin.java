@@ -97,6 +97,7 @@ public final class LootPlugin extends FacePlugin {
     private EnchantmentTomeManager enchantmentStoneManager;
     private AnticheatManager anticheatManager;
     private ChestManager chestManager;
+    private GemCacheManager gemCacheManager;
 
     @Override
     public void enable() {
@@ -203,6 +204,7 @@ public final class LootPlugin extends FacePlugin {
         enchantmentStoneManager = new LootEnchantmentTomeManager();
         anticheatManager = new LootAnticheatManager();
         chestManager = new LootChestManager();
+        gemCacheManager = new LootGemCacheManager();
 
         loadItemGroups();
         loadTiers();
@@ -670,4 +672,7 @@ public final class LootPlugin extends FacePlugin {
         return chestManager;
     }
 
+    public GemCacheManager getGemCacheManager() {
+        return gemCacheManager;
+    }
 }
