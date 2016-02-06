@@ -1,24 +1,18 @@
 /**
- * The MIT License
- * Copyright (c) 2015 Teal Cube Games
+ * The MIT License Copyright (c) 2015 Teal Cube Games
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.listeners.sockets;
 
@@ -29,10 +23,13 @@ import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.Predicates;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Iterables;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Lists;
+
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.*;
@@ -81,13 +78,14 @@ public final class SocketsListener implements Listener {
         if (event.isCancelled()) {
             return;
         }
-        List<SocketGem> attackerGems = new ArrayList<>();
-        List<SocketGem> defenderGems = new ArrayList<>();
+        Set<SocketEffect> attackerEffects = new HashSet<>();
+        Set<SocketEffect> defenderEffects = new HashSet<>();
         Entity attacker = event.getDamager();
         Entity defender = event.getEntity();
         if (attacker instanceof Player) {
             Player attackerP = (Player) attacker;
-            attackerGems.addAll(getGems(attackerP.getEquipment().getItemInHand()));
+            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
+            attackerEffects.addAll(data.getWeaponCache());
         } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
             attacker = (Player) ((Projectile) attacker).getShooter();
             if (event.getDamager().hasMetadata("loot.gems")) {
@@ -101,75 +99,70 @@ public final class SocketsListener implements Listener {
                         if (gem == null) {
                             continue;
                         }
-                        attackerGems.add(gem);
+                        attackerEffects.addAll(gem.getSocketEffects());
                     }
                 }
             }
         }
         if (defender instanceof Player) {
             Player defenderP = (Player) defender;
-            for (ItemStack equipment : defenderP.getEquipment().getArmorContents()) {
-                defenderGems.addAll(getGems(equipment));
+            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(defenderP.getUniqueId());
+            defenderEffects.addAll(data.getArmorCache());
+        }
+
+        for (SocketEffect effect : attackerEffects) {
+            switch (effect.getTarget()) {
+                case SELF:
+                    if (attacker instanceof LivingEntity) {
+                        effect.apply((LivingEntity) attacker);
+                    }
+                    break;
+                case OTHER:
+                    if (defender instanceof LivingEntity) {
+                        effect.apply((LivingEntity) defender);
+                    }
+                    break;
+                case AREA:
+                    for (Entity e : defender
+                            .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
+                        if (e instanceof LivingEntity) {
+                            effect.apply((LivingEntity) e);
+                        }
+                    }
+                    if (defender instanceof LivingEntity) {
+                        effect.apply((LivingEntity) defender);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
-        for (SocketGem gem : attackerGems) {
-            for (SocketEffect effect : gem.getSocketEffects()) {
-                switch (effect.getTarget()) {
-                    case SELF:
-                        if (attacker instanceof LivingEntity) {
-                            effect.apply((LivingEntity) attacker);
+        for (SocketEffect effect : defenderEffects) {
+            switch (effect.getTarget()) {
+                case SELF:
+                    if (defender instanceof LivingEntity) {
+                        effect.apply((LivingEntity) defender);
+                    }
+                    break;
+                case OTHER:
+                    if (attacker instanceof LivingEntity) {
+                        effect.apply((LivingEntity) attacker);
+                    }
+                    break;
+                case AREA:
+                    for (Entity e : attacker
+                            .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
+                        if (e instanceof LivingEntity) {
+                            effect.apply((LivingEntity) e);
                         }
-                        break;
-                    case OTHER:
-                        if (defender instanceof LivingEntity) {
-                            effect.apply((LivingEntity) defender);
-                        }
-                        break;
-                    case AREA:
-                        for (Entity e : defender
-                                .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
-                            if (e instanceof LivingEntity) {
-                                effect.apply((LivingEntity) e);
-                            }
-                        }
-                        if (defender instanceof LivingEntity) {
-                            effect.apply((LivingEntity) defender);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        for (SocketGem gem : defenderGems) {
-            for (SocketEffect effect : gem.getSocketEffects()) {
-                switch (effect.getTarget()) {
-                    case SELF:
-                        if (defender instanceof LivingEntity) {
-                            effect.apply((LivingEntity) defender);
-                        }
-                        break;
-                    case OTHER:
-                        if (attacker instanceof LivingEntity) {
-                            effect.apply((LivingEntity) attacker);
-                        }
-                        break;
-                    case AREA:
-                        for (Entity e : attacker
-                                .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
-                            if (e instanceof LivingEntity) {
-                                effect.apply((LivingEntity) e);
-                            }
-                        }
-                        if (attacker instanceof LivingEntity) {
-                            effect.apply((LivingEntity) attacker);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                    }
+                    if (attacker instanceof LivingEntity) {
+                        effect.apply((LivingEntity) attacker);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
