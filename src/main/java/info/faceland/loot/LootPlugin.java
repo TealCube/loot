@@ -204,7 +204,7 @@ public final class LootPlugin extends FacePlugin {
         enchantmentStoneManager = new LootEnchantmentTomeManager();
         anticheatManager = new LootAnticheatManager();
         chestManager = new LootChestManager();
-        gemCacheManager = new LootGemCacheManager();
+        gemCacheManager = new LootGemCacheManager(this);
 
         loadItemGroups();
         loadTiers();
