@@ -37,7 +37,6 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -130,18 +129,13 @@ public final class InteractListener implements Listener {
         if (!(humanEntity instanceof Player)) {
             return;
         }
-        final Player player = (Player) humanEntity;
+        Player player = (Player) humanEntity;
         if (player.isDead() || player.getHealth() <= 0D) {
             return;
         }
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                GemCacheData gemCacheData = plugin.getGemCacheManager().getGemCacheData(player.getUniqueId());
-                gemCacheData.updateArmorCache();
-                gemCacheData.updateWeaponCache();
-            }
-        });
+        GemCacheData gemCacheData = plugin.getGemCacheManager().getGemCacheData(player.getUniqueId());
+        gemCacheData.updateArmorCache();
+        gemCacheData.updateWeaponCache();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
