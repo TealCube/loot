@@ -1,5 +1,6 @@
 package info.faceland.loot.managers;
 
+import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.managers.GemCacheManager;
 import info.faceland.loot.data.LootGemCacheData;
@@ -12,9 +13,11 @@ import java.util.UUID;
 
 public final class LootGemCacheManager implements GemCacheManager {
 
+    private final LootPlugin plugin;
     private final Map<UUID, GemCacheData> gemCacheDataMap;
 
-    public LootGemCacheManager() {
+    public LootGemCacheManager(LootPlugin plugin) {
+        this.plugin = plugin;
         gemCacheDataMap = new HashMap<>();
     }
 
@@ -31,7 +34,7 @@ public final class LootGemCacheManager implements GemCacheManager {
 
     @Override
     public GemCacheData createGemCacheData(UUID uuid) {
-        GemCacheData data = new LootGemCacheData(uuid);
+        GemCacheData data = new LootGemCacheData(plugin, uuid);
         gemCacheDataMap.put(uuid, data);
         return data;
     }

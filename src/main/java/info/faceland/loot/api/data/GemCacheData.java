@@ -17,4 +17,8 @@ public interface GemCacheData {
 
     void setWeaponCache(Set<SocketEffect> set);
 
+    void updateArmorCache();
+
+    void updateWeaponCache();
+
 }

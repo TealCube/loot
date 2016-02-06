@@ -30,6 +30,7 @@ import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -42,6 +43,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -50,10 +52,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +110,32 @@ public final class InteractListener implements Listener {
             event.setCancelled(true);
             MessageUtils.sendMessage(event.getPlayer(), plugin.getSettings().getString("language.enchant.no-open", ""));
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryCloseEvent(InventoryCloseEvent event) {
+        InventoryView inventoryView = event.getView();
+        if (!(inventoryView.getTopInventory() instanceof PlayerInventory) && !(inventoryView.getBottomInventory()
+                instanceof PlayerInventory)) {
+            return;
+        }
+        PlayerInventory playerInventory;
+        if (inventoryView.getTopInventory() instanceof PlayerInventory) {
+            playerInventory = (PlayerInventory) inventoryView.getTopInventory();
+        } else {
+            playerInventory = (PlayerInventory) inventoryView.getBottomInventory();
+        }
+        HumanEntity humanEntity = playerInventory.getHolder();
+        if (!(humanEntity instanceof Player)) {
+            return;
+        }
+        Player player = (Player) humanEntity;
+        if (player.isDead() || player.getHealth() <= 0D) {
+            return;
+        }
+        GemCacheData gemCacheData = plugin.getGemCacheManager().getGemCacheData(player.getUniqueId());
+        gemCacheData.updateArmorCache();
+        gemCacheData.updateWeaponCache();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
