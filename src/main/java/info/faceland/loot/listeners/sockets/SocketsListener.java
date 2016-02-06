@@ -91,6 +91,7 @@ public final class SocketsListener implements Listener {
         if (attacker instanceof Player) {
             Player attackerP = (Player) attacker;
             GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
+            data.updateWeaponCache();
             attackerEffects.addAll(data.getWeaponCache());
         } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
             attacker = (Player) ((Projectile) attacker).getShooter();
