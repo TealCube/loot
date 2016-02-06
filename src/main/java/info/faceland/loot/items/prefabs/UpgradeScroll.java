@@ -52,12 +52,12 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 2, 700D),
-        STANDARD("Standard", 0.5D, 3, 5, 250D),
-        STANDARDEST("Standardest", 0.35D, 3, 5, 7D),
-        GREATER("Greater", 0.8D, 6, 8, 50D),
-        GRAND("Grand", 0.7D, 6, 8, 3D),
-        ULTIMATE("Ultimate", 0D, 0, 8, 1D);
+        LESSER("Lesser", 0D, 0, 2, 7000D),
+        STANDARD("Standard", 0.5D, 3, 5, 2500D),
+        STANDARDEST("Standardest", 0.35D, 3, 5, 25D),
+        GREATER("Greater", 0.8D, 6, 8, 500D),
+        GRAND("Grand", 0.7D, 6, 8, 5D),
+        ULTIMATE("Ultimate", 0D, 0, 8, 2D);
 
         private final String prettyName;
         private final double chanceToDestroy;
@@ -65,8 +65,7 @@ public final class UpgradeScroll extends HiltItemStack {
         private final int maximumLevel;
         private final double weight;
 
-        private ScrollType(String prettyName, double chanceToDestroy, int minimumLevel, int maximumLevel,
-                           double weight) {
+        ScrollType(String prettyName, double chanceToDestroy, int minimumLevel, int maximumLevel, double weight) {
             this.prettyName = prettyName;
             this.chanceToDestroy = chanceToDestroy;
             this.minimumLevel = minimumLevel;
