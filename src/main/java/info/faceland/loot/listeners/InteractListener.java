@@ -37,6 +37,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,7 +56,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.PlayerInventory;
@@ -114,28 +118,20 @@ public final class InteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryCloseEvent(InventoryCloseEvent event) {
-        InventoryView inventoryView = event.getView();
-        if (!(inventoryView.getTopInventory() instanceof PlayerInventory) && !(inventoryView.getBottomInventory()
-                instanceof PlayerInventory)) {
+        Inventory inv = event.getInventory();
+        if (!(inv instanceof CraftingInventory)) {
             return;
         }
-        PlayerInventory playerInventory;
-        if (inventoryView.getTopInventory() instanceof PlayerInventory) {
-            playerInventory = (PlayerInventory) inventoryView.getTopInventory();
-        } else {
-            playerInventory = (PlayerInventory) inventoryView.getBottomInventory();
-        }
-        HumanEntity humanEntity = playerInventory.getHolder();
-        if (!(humanEntity instanceof Player)) {
+        InventoryHolder holder = inv.getHolder();
+        if (!(holder instanceof Player)) {
             return;
         }
-        Player player = (Player) humanEntity;
+        Player player = (Player) holder;
         if (player.isDead() || player.getHealth() <= 0D) {
             return;
         }
         GemCacheData gemCacheData = plugin.getGemCacheManager().getGemCacheData(player.getUniqueId());
         gemCacheData.updateArmorCache();
-        gemCacheData.updateWeaponCache();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
