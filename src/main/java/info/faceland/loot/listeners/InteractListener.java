@@ -34,6 +34,7 @@ import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
@@ -65,6 +66,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -311,9 +313,17 @@ public final class InteractListener implements Listener {
             if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
                 return;
             }
-            currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-                    .build();
-
+            int itemLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(currentItem
+                    .getItemMeta().getLore().get(0))));
+            Tier t;
+            if (itemLevel != 0) {
+                t = plugin.getTierManager().getRandomLeveledIDTier(itemLevel);
+                currentItem = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
+                        .build();
+            } else {
+                currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
+                        .build();
+            }
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
             player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;

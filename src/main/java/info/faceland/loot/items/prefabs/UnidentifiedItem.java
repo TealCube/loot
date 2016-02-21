@@ -30,11 +30,19 @@ import java.util.Arrays;
 
 public final class UnidentifiedItem extends HiltItemStack {
 
-    public UnidentifiedItem(Material material) {
+    public UnidentifiedItem(Material material, int level) {
         super(material);
         setName(ChatColor.LIGHT_PURPLE + "Unidentified Item");
-        setLore(Arrays.asList(ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY
-                              + " to", ChatColor.GRAY + "reveal this item's stats!"));
+        if (level > -1) {
+            setLore(Arrays.asList(
+                    ChatColor.WHITE + "Item Level: ~" + level,
+                    ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY + " to",
+                    ChatColor.GRAY + "reveal this item's stats!"));
+        } else {
+            setLore(Arrays.asList(
+                    ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY + " to",
+                    ChatColor.GRAY + "reveal this item's stats!"));
+        }
     }
 
 }

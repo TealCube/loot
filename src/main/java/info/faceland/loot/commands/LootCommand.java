@@ -148,7 +148,11 @@ public final class LootCommand {
                 Tier t = plugin.getTierManager().getRandomTier(true);
                 Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
                 Material m = array[random.nextInt(array.length)];
-                sender.getInventory().addItem(new UnidentifiedItem(m));
+                if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                    sender.getInventory().addItem(new UnidentifiedItem(m, random.nextInt(100)));
+                } else {
+                    sender.getInventory().addItem(new UnidentifiedItem(m, -1));
+                }
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.unidentified-item", ""),
                                new String[][]{{"%amount%", amount + ""}});
@@ -309,7 +313,11 @@ public final class LootCommand {
                 Tier t = plugin.getTierManager().getRandomTier(true, distanceFromSpawnSquared);
                 Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
                 Material m = array[random.nextInt(array.length)];
-                sender.getInventory().addItem(new UnidentifiedItem(m));
+                if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                    sender.getInventory().addItem(new UnidentifiedItem(m, random.nextInt(100)));
+                } else {
+                    sender.getInventory().addItem(new UnidentifiedItem(m, -1));
+                }
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.unidentified-item", ""),
                                new String[][]{{"%amount%", amount + ""}});
@@ -490,7 +498,11 @@ public final class LootCommand {
                 Tier t = plugin.getTierManager().getRandomTier(true);
                 Material[] array = t.getAllowedMaterials().toArray(new Material[t.getAllowedMaterials().size()]);
                 Material m = array[random.nextInt(array.length)];
-                target.getInventory().addItem(new UnidentifiedItem(m));
+                if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                    target.getInventory().addItem(new UnidentifiedItem(m, random.nextInt(100)));
+                } else {
+                    target.getInventory().addItem(new UnidentifiedItem(m, -1));
+                }
             }
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.unidentified-item", ""),
                                new String[][]{{"%amount%", amount + ""}});

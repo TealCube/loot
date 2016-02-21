@@ -46,6 +46,8 @@ public interface TierManager {
 
     Tier getRandomLeveledTier(int level);
 
+    Tier getRandomLeveledIDTier(int level);
+
     Set<Tier> getLoadedTiers();
 
     double getTotalTierWeight(double d);

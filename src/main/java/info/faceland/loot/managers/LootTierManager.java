@@ -129,6 +129,24 @@ public final class LootTierManager implements TierManager {
         return null;
     }
 
+    public Tier getRandomLeveledIDTier(int level) {
+        double selectedWeight = random.nextDouble() * getTotalLeveledIDWeight(level);
+        double currentWeight = 0D;
+        Set<Tier> chooseTiers = getLoadedTiers();
+        for (Tier t : chooseTiers) {
+            double diff = Math.abs(t.getLevelBase() - level);
+            if (diff >= t.getLevelRange()) {
+                continue;
+            }
+            double calcWeight = t.getIdentifyWeight() * (1 - diff/t.getLevelRange());
+            currentWeight += calcWeight;
+            if (currentWeight >= selectedWeight) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     @Override
     public Set<Tier> getLoadedTiers() {
         return new HashSet<>(loadedTiers);
@@ -154,6 +172,19 @@ public final class LootTierManager implements TierManager {
                 continue;
             }
             double d = t.getSpawnWeight() * (1 - diff/t.getLevelRange());
+            weight += d;
+        }
+        return weight;
+    }
+
+    public double getTotalLeveledIDWeight(int level) {
+        double weight = 0;
+        for (Tier t : getLoadedTiers()) {
+            double diff = Math.abs(t.getLevelBase() - level);
+            if (diff >= t.getLevelRange()) {
+                continue;
+            }
+            double d = t.getIdentifyWeight() * (1 - diff/t.getLevelRange());
             weight += d;
         }
         return weight;

@@ -61,6 +61,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
@@ -340,8 +341,15 @@ public final class EntityDeathListener implements Listener {
         // NOTE: Drop bonus should not be applied to Unidentified Items!
         if (random.nextDouble() < dropPenalty * plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
             Material m = Material.WOOD_SWORD;
-            HiltItemStack his = new UnidentifiedItem(m);
-            his.getItemMeta().addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            HiltItemStack his;
+            if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+                his = new UnidentifiedItem(m, mobLevel);
+            } else {
+                his = new UnidentifiedItem(m, -1);
+            }
+            ItemMeta itemMeta = his.getItemMeta();
+            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            his.setItemMeta(itemMeta);
             if (bestTaggerLmao != null) {
                 w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
                         new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
