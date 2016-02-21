@@ -26,6 +26,7 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
@@ -320,6 +321,9 @@ public final class InteractListener implements Listener {
                 t = plugin.getTierManager().getRandomLeveledIDTier(itemLevel);
                 currentItem = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
                         .build();
+                if (t.isBroadcast()) {
+                    broadcast(player, currentItem);
+                }
             } else {
                 currentItem = plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
                         .build();
@@ -560,6 +564,29 @@ public final class InteractListener implements Listener {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
             player.updateInventory();
+        }
+    }
+
+    private void broadcast(Player player, HiltItemStack his) {
+        FancyMessage message = new FancyMessage("");
+        String mess = plugin.getSettings().getString("language.broadcast.ided-item", "");
+        String[] split = mess.split(" ");
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            String str = TextUtils.color(s);
+            if (str.contains("%player%")) {
+                message.then(str.replace("%player%", player.getDisplayName()));
+            } else if (str.contains("%item%")) {
+                message.then(str.replace("%item%", his.getName())).itemTooltip(his);
+            } else {
+                message.then(str);
+            }
+            if (i != split.length - 1) {
+                message.then(" ");
+            }
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            message.send(p);
         }
     }
 
