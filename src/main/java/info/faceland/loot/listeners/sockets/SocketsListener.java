@@ -260,7 +260,7 @@ public final class SocketsListener implements Listener {
         if (toAdd.size() > 0) {
             HumanEntity c = event.getPlayer();
             c.getWorld().playEffect(c.getLocation().add(0, 1, 0), Effect.SPELL, 0);
-            c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENDERMAN_SCREAM, 1.0f, 1.0f);
+            c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENTITY_ENDERMEN_SCREAM, 1.0f, 1.0f);
             MessageUtils.sendMessage(event.getPlayer(), "<green>Open the chest again to get your new Socket Gems!");
         }
         gems.put(event.getPlayer().getUniqueId(), toAdd);

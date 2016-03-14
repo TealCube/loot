@@ -161,7 +161,7 @@ public final class InteractListener implements Listener {
             if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
                     gem.getItemGroups())) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
 
@@ -169,7 +169,7 @@ public final class InteractListener implements Listener {
             List<String> strippedLore = stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
             int index = strippedLore.indexOf("(Socket)");
@@ -193,7 +193,7 @@ public final class InteractListener implements Listener {
             currentItem.setName(TextUtils.color(name));
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 2.0F);
+            player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 2.0F);
             updateItem = true;
         } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
             String stoneName = ChatColor.stripColor(
@@ -202,7 +202,7 @@ public final class InteractListener implements Listener {
 
             if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(), 5)) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
 
@@ -213,7 +213,7 @@ public final class InteractListener implements Listener {
             if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
                     stone.getItemGroups())) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
 
@@ -221,7 +221,7 @@ public final class InteractListener implements Listener {
             List<String> strippedLore = stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
             int index = strippedLore.indexOf("(Enchantable)");
@@ -267,7 +267,7 @@ public final class InteractListener implements Listener {
             }
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;
         } else if (cursor.getName().equals(ChatColor.YELLOW + "Stat Reveal Powder")) {
             List<String> lore = currentItem.getLore();
@@ -286,7 +286,7 @@ public final class InteractListener implements Listener {
             currentItem.setLore(lore);
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+            player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
             updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             if (currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
@@ -297,7 +297,7 @@ public final class InteractListener implements Listener {
             List<String> stripColor = stripColor(lore);
             if (!stripColor.contains("(+)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
             int index = stripColor.indexOf("(+)");
@@ -305,7 +305,7 @@ public final class InteractListener implements Listener {
             currentItem.setLore(lore);
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
             if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
@@ -326,7 +326,7 @@ public final class InteractListener implements Listener {
                         .build();
             }
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.PORTAL_TRAVEL, 1L, 2.0F);
+            player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem = true;
         } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Faceguy's Tears")) {
             if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
@@ -358,7 +358,7 @@ public final class InteractListener implements Listener {
             }
             currentItem.setLore(lore);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+            player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
             updateItem = true;
         } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment - ")) {
             String name = ChatColor.stripColor(currentItem.getName()).replace("Upgrade Scroll", "").trim();
@@ -406,7 +406,7 @@ public final class InteractListener implements Listener {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
             player.updateInventory();
-            player.playSound(player.getEyeLocation(), Sound.ORB_PICKUP, 1L, 1.7F);
+            player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 1.7F);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.success", ""));
 
         } else if (cursor.getName().endsWith("Upgrade Scroll")) {
@@ -428,7 +428,7 @@ public final class InteractListener implements Listener {
             int level = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = level;
             if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
-                player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 0.5F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
             boolean succeed = false;
@@ -489,17 +489,17 @@ public final class InteractListener implements Listener {
                     } else {
                         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
                     }
-                    player.playSound(player.getEyeLocation(), Sound.LAVA_POP, 1F, 1F);
+                    player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 1F);
                     updateItem = true;
                 } else {
                     if (!augProtect) {
                         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.destroyed", ""));
-                        player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
                         currentItem = null;
                         updateItem = true;
                     } else {
                         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.protected", ""));
-                        player.playSound(player.getEyeLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
                         damaged = true;
                         updateItem = true;
                     }
@@ -549,7 +549,7 @@ public final class InteractListener implements Listener {
                     }
                     currentItem.setLore(lore);
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
-                    player.playSound(player.getEyeLocation(), Sound.LEVEL_UP, 1F, 2F);
+                    player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
                     updateItem = true;
                 }
             }
