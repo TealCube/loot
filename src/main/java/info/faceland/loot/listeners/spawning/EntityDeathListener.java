@@ -343,7 +343,7 @@ public final class EntityDeathListener implements Listener {
             Material m = Material.WOOD_SWORD;
             HiltItemStack his;
             if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-                his = new UnidentifiedItem(m, mobLevel);
+                his = new UnidentifiedItem(m, Math.min(mobLevel, 100));
             } else {
                 his = new UnidentifiedItem(m, -1);
             }
