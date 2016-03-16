@@ -106,9 +106,13 @@ public class LootGemCacheData implements GemCacheData {
         if (player == null) {
             return;
         }
-        Set<SocketGem> weaponGemsS = getGems(player.getItemInHand());
+        Set<SocketGem> primaryHandGems = getGems(player.getEquipment().getItemInMainHand());
+        Set<SocketGem> secondaryHandGems = getGems(player.getEquipment().getItemInOffHand());
         Set<SocketEffect> weaponEffects = new HashSet<>();
-        for (SocketGem gem : weaponGemsS) {
+        for (SocketGem gem : primaryHandGems) {
+            weaponEffects.addAll(gem.getSocketEffects());
+        }
+        for (SocketGem gem : secondaryHandGems) {
             weaponEffects.addAll(gem.getSocketEffects());
         }
         weaponGems.addAll(weaponEffects);
