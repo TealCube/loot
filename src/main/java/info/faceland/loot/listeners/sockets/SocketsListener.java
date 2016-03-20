@@ -44,6 +44,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -119,6 +121,26 @@ public final class SocketsListener implements Listener {
 
         applyEffects(attackerEffects, attacker, defender);
         applyEffects(defenderEffects, defender, attacker);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player dyingPlayer = event.getEntity();
+        Player killingPlayer = dyingPlayer.getKiller();
+
+        Set<SocketEffect> dyingEffects = new HashSet<>();
+        Set<SocketEffect> killingEffects = new HashSet<>();
+
+        GemCacheData dyingData = plugin.getGemCacheManager().getGemCacheData(dyingPlayer.getUniqueId());
+        dyingEffects.addAll(dyingData.getArmorCache(SocketGem.GemType.ON_DEATH));
+
+        if (killingPlayer != null) {
+            GemCacheData killingData = plugin.getGemCacheManager().createGemCacheData(killingPlayer.getUniqueId());
+            killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
+        }
+
+        applyEffects(dyingEffects, dyingPlayer, killingPlayer);
+        applyEffects(killingEffects, killingPlayer, dyingPlayer);
     }
 
     private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
