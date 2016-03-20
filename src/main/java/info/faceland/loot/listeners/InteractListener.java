@@ -110,7 +110,7 @@ public final class InteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryOpenEvent(InventoryOpenEvent event) {
-        if (event.getInventory() instanceof EnchantingInventory) {
+        if (event.getInventory() instanceof EnchantingInventory && plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
             event.setCancelled(true);
             MessageUtils.sendMessage(event.getPlayer(), plugin.getSettings().getString("language.enchant.no-open", ""));
         }
@@ -195,7 +195,8 @@ public final class InteractListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 2.0F);
             updateItem = true;
-        } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ")) {
+        } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") && plugin.getSettings()
+                .getBoolean("config.custom-enchanting", true)) {
             String stoneName = ChatColor.stripColor(
                     cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
             EnchantmentTome stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);

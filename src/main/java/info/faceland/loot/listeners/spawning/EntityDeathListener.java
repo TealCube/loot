@@ -262,20 +262,22 @@ public final class EntityDeathListener implements Listener {
                 }
             }
         }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
-            EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
-                mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
-            HiltItemStack his = es.toItemStack(1);
-            if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                if (es.isBroadcast()) {
-                    broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-                }
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
-                if (es.isBroadcast()) {
-                    broadcast(event.getEntity().getKiller(), his);
+        if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
+            if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+                EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
+                        mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
+                HiltItemStack his = es.toItemStack(1);
+                if (bestTaggerLmao != null) {
+                    w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
+                            new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
+                    if (es.isBroadcast()) {
+                        broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
+                    }
+                } else {
+                    w.dropItemNaturally(event.getEntity().getLocation(), his);
+                    if (es.isBroadcast()) {
+                        broadcast(event.getEntity().getKiller(), his);
+                    }
                 }
             }
         }

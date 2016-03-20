@@ -9,6 +9,10 @@ neutral-mobs-drop: false
 # Should loot drop from mobs from spawners?
 spawner-mobs-drop: false
 
+# If set to true, tomes drop, and you must use them to
+# enchant. Otherwise, it uses vanilla.
+custom-enchanting: true
+
 # Should tome enchantments stack? If true, tomes will
 # add to current enchantments. If false, tomes will
 # only work on items if the tome has a more powerful
