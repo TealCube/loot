@@ -124,23 +124,26 @@ public final class SocketsListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player dyingPlayer = event.getEntity();
-        Player killingPlayer = dyingPlayer.getKiller();
+    public void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity dyingEntity = event.getEntity();
+        Player killingPlayer = dyingEntity.getKiller();
 
         Set<SocketEffect> dyingEffects = new HashSet<>();
         Set<SocketEffect> killingEffects = new HashSet<>();
 
-        GemCacheData dyingData = plugin.getGemCacheManager().getGemCacheData(dyingPlayer.getUniqueId());
-        dyingEffects.addAll(dyingData.getArmorCache(SocketGem.GemType.ON_DEATH));
+        if (dyingEntity instanceof Player) {
+            Player dyingPlayer = (Player) dyingEntity;
+            GemCacheData dyingData = plugin.getGemCacheManager().getGemCacheData(dyingPlayer.getUniqueId());
+            dyingEffects.addAll(dyingData.getArmorCache(SocketGem.GemType.ON_DEATH));
+        }
 
         if (killingPlayer != null) {
             GemCacheData killingData = plugin.getGemCacheManager().createGemCacheData(killingPlayer.getUniqueId());
             killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
         }
 
-        applyEffects(dyingEffects, dyingPlayer, killingPlayer);
-        applyEffects(killingEffects, killingPlayer, dyingPlayer);
+        applyEffects(dyingEffects, dyingEntity, killingPlayer);
+        applyEffects(killingEffects, killingPlayer, dyingEntity);
     }
 
     private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
