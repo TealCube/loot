@@ -50,6 +50,7 @@ public final class LootSocketGem implements SocketGem {
     private boolean broadcast;
     private boolean triggerable;
     private String triggerText;
+    private GemType gemType;
 
     public LootSocketGem(String name) {
         this.name = name;
@@ -221,5 +222,14 @@ public final class LootSocketGem implements SocketGem {
 
     void setBonusWeight(double bonusWeight) {
         this.bonusWeight = bonusWeight;
+    }
+
+    @Override
+    public GemType getGemType() {
+        return gemType;
+    }
+
+    void setGemType(GemType gemType) {
+        this.gemType = gemType;
     }
 }

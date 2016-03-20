@@ -44,6 +44,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -92,7 +94,7 @@ public final class SocketsListener implements Listener {
             Player attackerP = (Player) attacker;
             GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
             data.updateWeaponCache();
-            attackerEffects.addAll(data.getWeaponCache());
+            attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
         } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
             attacker = (Player) ((Projectile) attacker).getShooter();
             if (event.getDamager().hasMetadata("loot.gems")) {
@@ -114,58 +116,55 @@ public final class SocketsListener implements Listener {
         if (defender instanceof Player) {
             Player defenderP = (Player) defender;
             GemCacheData data = plugin.getGemCacheManager().getGemCacheData(defenderP.getUniqueId());
-            defenderEffects.addAll(data.getArmorCache());
+            defenderEffects.addAll(data.getArmorCache(SocketGem.GemType.ON_HIT));
         }
 
-        for (SocketEffect effect : attackerEffects) {
+        applyEffects(attackerEffects, attacker, defender);
+        applyEffects(defenderEffects, defender, attacker);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player dyingPlayer = event.getEntity();
+        Player killingPlayer = dyingPlayer.getKiller();
+
+        Set<SocketEffect> dyingEffects = new HashSet<>();
+        Set<SocketEffect> killingEffects = new HashSet<>();
+
+        GemCacheData dyingData = plugin.getGemCacheManager().getGemCacheData(dyingPlayer.getUniqueId());
+        dyingEffects.addAll(dyingData.getArmorCache(SocketGem.GemType.ON_DEATH));
+
+        if (killingPlayer != null) {
+            GemCacheData killingData = plugin.getGemCacheManager().createGemCacheData(killingPlayer.getUniqueId());
+            killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
+        }
+
+        applyEffects(dyingEffects, dyingPlayer, killingPlayer);
+        applyEffects(killingEffects, killingPlayer, dyingPlayer);
+    }
+
+    private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
+        for (SocketEffect effect : effects) {
             switch (effect.getTarget()) {
                 case SELF:
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
+                    if (applier instanceof LivingEntity) {
+                        effect.apply((LivingEntity) applier);
                     }
                     break;
                 case OTHER:
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
+                    if (recipient instanceof LivingEntity) {
+                        effect.apply((LivingEntity) recipient);
                     }
                     break;
                 case AREA:
-                    for (Entity e : defender
+                    for (Entity e : recipient
                             .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
                         if (e instanceof LivingEntity) {
                             effect.apply((LivingEntity) e);
                         }
                     }
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        for (SocketEffect effect : defenderEffects) {
-            switch (effect.getTarget()) {
-                case SELF:
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
-                    }
-                    break;
-                case OTHER:
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
-                    }
-                    break;
-                case AREA:
-                    for (Entity e : attacker
-                            .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
-                        if (e instanceof LivingEntity) {
-                            effect.apply((LivingEntity) e);
-                        }
-                    }
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
+                    if (recipient instanceof LivingEntity) {
+                        effect.apply((LivingEntity) recipient);
                     }
                     break;
                 default:

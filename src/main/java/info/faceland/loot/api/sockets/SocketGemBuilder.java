@@ -56,4 +56,6 @@ public interface SocketGemBuilder {
     SocketGemBuilder withTriggerText(String s);
 
     SocketGemBuilder withBonusWeight(double d);
+
+    SocketGemBuilder withGemType(SocketGem.GemType type);
 }
