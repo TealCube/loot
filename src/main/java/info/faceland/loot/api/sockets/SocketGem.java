@@ -57,4 +57,19 @@ public interface SocketGem extends Comparable<SocketGem> {
     String getTriggerText();
 
     double getBonusWeight();
+
+    GemType getGemType();
+
+    enum GemType {
+        ON_HIT, ON_KILL, ON_DEATH;
+
+        public static GemType fromName(String name) {
+            for (GemType gemType : values()) {
+                if (gemType.name().equals(name)) {
+                    return gemType;
+                }
+            }
+            return ON_HIT;
+        }
+    }
 }

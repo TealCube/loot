@@ -124,4 +124,10 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
         return this;
     }
 
+    @Override
+    public SocketGemBuilder withGemType(SocketGem.GemType type) {
+        gem.setGemType(type);
+        return this;
+    }
+
 }
