@@ -117,55 +117,32 @@ public final class SocketsListener implements Listener {
             defenderEffects.addAll(data.getArmorCache(SocketGem.GemType.ON_HIT));
         }
 
-        for (SocketEffect effect : attackerEffects) {
-            switch (effect.getTarget()) {
-                case SELF:
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
-                    }
-                    break;
-                case OTHER:
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
-                    }
-                    break;
-                case AREA:
-                    for (Entity e : defender
-                            .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
-                        if (e instanceof LivingEntity) {
-                            effect.apply((LivingEntity) e);
-                        }
-                    }
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        applyEffects(attackerEffects, attacker, defender);
+        applyEffects(defenderEffects, defender, attacker);
+    }
 
-        for (SocketEffect effect : defenderEffects) {
+    private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
+        for (SocketEffect effect : effects) {
             switch (effect.getTarget()) {
                 case SELF:
-                    if (defender instanceof LivingEntity) {
-                        effect.apply((LivingEntity) defender);
+                    if (applier instanceof LivingEntity) {
+                        effect.apply((LivingEntity) applier);
                     }
                     break;
                 case OTHER:
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
+                    if (recipient instanceof LivingEntity) {
+                        effect.apply((LivingEntity) recipient);
                     }
                     break;
                 case AREA:
-                    for (Entity e : attacker
+                    for (Entity e : recipient
                             .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
                         if (e instanceof LivingEntity) {
                             effect.apply((LivingEntity) e);
                         }
                     }
-                    if (attacker instanceof LivingEntity) {
-                        effect.apply((LivingEntity) attacker);
+                    if (recipient instanceof LivingEntity) {
+                        effect.apply((LivingEntity) recipient);
                     }
                     break;
                 default:
