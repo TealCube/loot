@@ -92,7 +92,7 @@ public final class SocketsListener implements Listener {
             Player attackerP = (Player) attacker;
             GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
             data.updateWeaponCache();
-            attackerEffects.addAll(data.getWeaponCache());
+            attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
         } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
             attacker = (Player) ((Projectile) attacker).getShooter();
             if (event.getDamager().hasMetadata("loot.gems")) {
@@ -114,7 +114,7 @@ public final class SocketsListener implements Listener {
         if (defender instanceof Player) {
             Player defenderP = (Player) defender;
             GemCacheData data = plugin.getGemCacheManager().getGemCacheData(defenderP.getUniqueId());
-            defenderEffects.addAll(data.getArmorCache());
+            defenderEffects.addAll(data.getArmorCache(SocketGem.GemType.ON_HIT));
         }
 
         for (SocketEffect effect : attackerEffects) {

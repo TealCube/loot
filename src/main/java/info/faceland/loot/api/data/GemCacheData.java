@@ -22,6 +22,7 @@
  */
 package info.faceland.loot.api.data;
 
+import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 
 import java.util.Set;
@@ -31,13 +32,13 @@ public interface GemCacheData {
 
     UUID getOwner();
 
-    Set<SocketEffect> getArmorCache();
+    Set<SocketEffect> getArmorCache(SocketGem.GemType gemType);
 
-    Set<SocketEffect> getWeaponCache();
+    Set<SocketEffect> getWeaponCache(SocketGem.GemType gemType);
 
-    void setArmorCache(Set<SocketEffect> set);
+    void setArmorCache(SocketGem.GemType gemType, Set<SocketEffect> set);
 
-    void setWeaponCache(Set<SocketEffect> set);
+    void setWeaponCache(SocketGem.GemType gemType, Set<SocketEffect> set);
 
     void updateArmorCache();
 

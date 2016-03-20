@@ -1,17 +1,17 @@
 /**
  * The MIT License
  * Copyright (c) 2015 Teal Cube Games
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,38 +22,30 @@
  */
 package info.faceland.loot.data;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 
+import info.faceland.loot.utils.inventory.GemUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class LootGemCacheData implements GemCacheData {
 
     private final LootPlugin plugin;
     private final UUID owner;
-    private Set<SocketEffect> armorGems;
-    private Set<SocketEffect> weaponGems;
+    private Map<SocketGem.GemType, Set<SocketEffect>> armorGems;
+    private Map<SocketGem.GemType, Set<SocketEffect>> weaponGems;
 
     public LootGemCacheData(LootPlugin plugin, UUID owner) {
         this.plugin = plugin;
         this.owner = owner;
-        this.armorGems = new HashSet<>();
-        this.weaponGems = new HashSet<>();
+        this.armorGems = new HashMap<>();
+        this.weaponGems = new HashMap<>();
     }
 
     @Override
@@ -62,23 +54,29 @@ public class LootGemCacheData implements GemCacheData {
     }
 
     @Override
-    public Set<SocketEffect> getArmorCache() {
-        return armorGems;
+    public Set<SocketEffect> getArmorCache(SocketGem.GemType gemType) {
+        if (armorGems.containsKey(gemType)) {
+            return armorGems.get(gemType);
+        }
+        return new HashSet<>();
     }
 
     @Override
-    public Set<SocketEffect> getWeaponCache() {
-        return weaponGems;
+    public Set<SocketEffect> getWeaponCache(SocketGem.GemType gemType) {
+        if (weaponGems.containsKey(gemType)) {
+            return weaponGems.get(gemType);
+        }
+        return new HashSet<>();
     }
 
     @Override
-    public void setArmorCache(Set<SocketEffect> set) {
-        this.armorGems = set;
+    public void setArmorCache(SocketGem.GemType gemType, Set<SocketEffect> set) {
+        this.armorGems.put(gemType, set);
     }
 
     @Override
-    public void setWeaponCache(Set<SocketEffect> set) {
-        this.weaponGems = set;
+    public void setWeaponCache(SocketGem.GemType gemType, Set<SocketEffect> set) {
+        this.weaponGems.put(gemType, set);
     }
 
     @Override
@@ -90,13 +88,13 @@ public class LootGemCacheData implements GemCacheData {
         }
         Set<SocketGem> equipmentGems = new HashSet<>();
         for (ItemStack itemStack : player.getEquipment().getArmorContents()) {
-            equipmentGems.addAll(getGems(itemStack));
+            equipmentGems.addAll(GemUtil.getGems(plugin.getSocketGemManager(), itemStack));
         }
-        Set<SocketEffect> equipmentEffects = new HashSet<>();
+        Map<SocketGem.GemType, Set<SocketEffect>> equipmentEffects = new HashMap<>();
         for (SocketGem gem : equipmentGems) {
-            equipmentEffects.addAll(gem.getSocketEffects());
+            equipmentEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
         }
-        armorGems.addAll(equipmentEffects);
+        armorGems.putAll(equipmentEffects);
     }
 
     @Override
@@ -106,51 +104,18 @@ public class LootGemCacheData implements GemCacheData {
         if (player == null) {
             return;
         }
-        Set<SocketGem> primaryHandGems = getGems(player.getEquipment().getItemInMainHand());
-        Set<SocketGem> secondaryHandGems = getGems(player.getEquipment().getItemInOffHand());
-        Set<SocketEffect> weaponEffects = new HashSet<>();
+        Set<SocketGem> primaryHandGems = GemUtil.getGems(
+                plugin.getSocketGemManager(), player.getEquipment().getItemInMainHand());
+        Set<SocketGem> secondaryHandGems = GemUtil.getGems(
+                plugin.getSocketGemManager(), player.getEquipment().getItemInOffHand());
+        Map<SocketGem.GemType, Set<SocketEffect>> weaponEffects = new HashMap<>();
         for (SocketGem gem : primaryHandGems) {
-            weaponEffects.addAll(gem.getSocketEffects());
+            weaponEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
         }
         for (SocketGem gem : secondaryHandGems) {
-            weaponEffects.addAll(gem.getSocketEffects());
+            weaponEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
         }
-        weaponGems.addAll(weaponEffects);
-    }
-
-    private Set<SocketGem> getGems(ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return new HashSet<>();
-        }
-        Set<SocketGem> gems = new HashSet<>();
-        HiltItemStack item = new HiltItemStack(itemStack);
-        List<String> lore = item.getLore();
-        List<String> strippedLore = stripColor(lore);
-        for (String key : strippedLore) {
-            SocketGem gem = plugin.getSocketGemManager().getSocketGem(key);
-            if (gem == null) {
-                for (SocketGem g : plugin.getSocketGemManager().getSocketGems()) {
-                    if (key.equals(ChatColor.stripColor(TextUtils.color(
-                            g.getTriggerText() != null ? g.getTriggerText() : "")))) {
-                        gem = g;
-                        break;
-                    }
-                }
-                if (gem == null) {
-                    continue;
-                }
-            }
-            gems.add(gem);
-        }
-        return gems;
-    }
-
-    private List<String> stripColor(List<String> strings) {
-        List<String> ret = new ArrayList<>();
-        for (String s : strings) {
-            ret.add(ChatColor.stripColor(s));
-        }
-        return ret;
+        weaponGems.putAll(weaponEffects);
     }
 
 }
