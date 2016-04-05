@@ -91,9 +91,7 @@ public class LootGemCacheData implements GemCacheData {
             equipmentGems.addAll(GemUtil.getGems(plugin.getSocketGemManager(), itemStack));
         }
         Map<SocketGem.GemType, Set<SocketEffect>> equipmentEffects = new HashMap<>();
-        for (SocketGem gem : equipmentGems) {
-            equipmentEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
-        }
+        extractEffects(equipmentGems, equipmentEffects);
         armorGems.putAll(equipmentEffects);
     }
 
@@ -109,13 +107,19 @@ public class LootGemCacheData implements GemCacheData {
         Set<SocketGem> secondaryHandGems = GemUtil.getGems(
                 plugin.getSocketGemManager(), player.getEquipment().getItemInOffHand());
         Map<SocketGem.GemType, Set<SocketEffect>> weaponEffects = new HashMap<>();
-        for (SocketGem gem : primaryHandGems) {
-            weaponEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
-        }
-        for (SocketGem gem : secondaryHandGems) {
-            weaponEffects.put(gem.getGemType(), new HashSet<>(gem.getSocketEffects()));
-        }
+        extractEffects(primaryHandGems, weaponEffects);
+        extractEffects(secondaryHandGems, weaponEffects);
         weaponGems.putAll(weaponEffects);
+    }
+
+    private void extractEffects(Set<SocketGem> primaryHandGems, Map<SocketGem.GemType, Set<SocketEffect>> weaponEffects) {
+        for (SocketGem gem : primaryHandGems) {
+            Set<SocketEffect> existingEffects = new HashSet<>();
+            if (weaponEffects.containsKey(gem.getGemType())) {
+                existingEffects.addAll(gem.getSocketEffects());
+            }
+            weaponEffects.put(gem.getGemType(), existingEffects);
+        }
     }
 
 }
