@@ -9,6 +9,10 @@ neutral-mobs-drop: false
 # Should loot drop from mobs from spawners?
 spawner-mobs-drop: false
 
+# Controls item names floating above dropped loot.
+# Disable if you have another plugin for this.
+show-item-nameplates: true
+
 # If set to true, tomes drop, and you must use them to
 # enchant. Otherwise, it uses vanilla.
 custom-enchanting: true
