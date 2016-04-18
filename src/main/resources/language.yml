@@ -19,6 +19,7 @@ augment:
   already-has: "<red>This scroll is already augmented."
   nonsense: "<yellow>Failed to augment! Using this augment on this scroll doesn't make sense!"
   protected: "<green>You item was destroyed! Except... it wasn't! That protect augment saved your item! Hooray!"
+  not-on-ult: "<yellow>You cannot use this augment on an Ultimate Scroll."
 identify:
   success: "<green>You successfully identified your item."
   failure: "<red>You failed at identifying your item."
