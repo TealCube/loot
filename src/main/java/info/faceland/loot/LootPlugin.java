@@ -104,40 +104,35 @@ public final class LootPlugin extends FacePlugin {
         debugPrinter = new PluginLogger(this);
         itemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "items.yml"),
                 getResource("items.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (itemsYAML.update()) {
             getLogger().info("Updating items.yml");
             debug("Updating items.yml");
         }
         tierYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "tier.yml"),
                 getResource("tier.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (tierYAML.update()) {
             getLogger().info("Updating tier.yml");
             debug("Updating tier.yml");
         }
         corestatsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
                 getResource("corestats.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (corestatsYAML.update()) {
             getLogger().info("Updating corestats.yml");
             debug("Updating corestats.yml");
         }
         customItemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "customItems.yml"),
                 getResource("customItems.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (customItemsYAML.update()) {
             getLogger().info("Updating customItems.yml");
             debug("Updating customItems.yml");
         }
         socketGemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "socketGems.yml"),
                 getResource("socketGems.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (socketGemsYAML.update()) {
             getLogger().info("Updating socketGems.yml");
             debug("Updating socketGems.yml");
@@ -160,8 +155,7 @@ public final class LootPlugin extends FacePlugin {
         }
         creaturesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
                 getResource("creatures.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (creaturesYAML.update()) {
             getLogger().info("Updating creatures.yml");
             debug("Updating creatures.yml");
@@ -176,16 +170,14 @@ public final class LootPlugin extends FacePlugin {
         }
         enchantmentTomesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
                 getResource("enchantmentTomes.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
         }
         revealPowderYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "reveal.yml"),
                 getResource("reveal.yml"),
-                VersionedConfiguration.VersionUpdateType
-                        .BACKUP_AND_UPDATE);
+                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (revealPowderYAML.update()) {
             getLogger().info("Updating reveal.yml");
             debug("Updating reveal.yml");
