@@ -116,8 +116,9 @@ public class LootGemCacheData implements GemCacheData {
         for (SocketGem gem : primaryHandGems) {
             Set<SocketEffect> existingEffects = new HashSet<>();
             if (weaponEffects.containsKey(gem.getGemType())) {
-                existingEffects.addAll(gem.getSocketEffects());
+                existingEffects.addAll(weaponEffects.get(gem.getGemType()));
             }
+            existingEffects.addAll(gem.getSocketEffects());
             weaponEffects.put(gem.getGemType(), existingEffects);
         }
     }
