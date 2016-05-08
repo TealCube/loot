@@ -189,6 +189,11 @@ public final class SocketsListener implements Listener {
             event.setResult(Event.Result.DENY);
             return;
         }
+        if (event.getHotbarButton() != -1) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+            return;
+        }
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
             return;
         }

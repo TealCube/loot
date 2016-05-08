@@ -100,6 +100,9 @@ public final class InteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemSpawnEvent(ItemSpawnEvent event) {
+        if (!plugin.getSettings().getBoolean("config.show-item-nameplates", true)) {
+            return;
+        }
         HiltItemStack itemStack = new HiltItemStack(event.getEntity().getItemStack());
         if (!itemStack.getName().equals(itemStack.getDefaultName()) && !itemStack.getName().equals(ChatColor.GOLD +
                 "REWARD!")) {
@@ -395,6 +398,9 @@ public final class InteractListener implements Listener {
                     return;
                 }
             } else if (cursor.getName().endsWith("Bonus")) {
+                if (type == UpgradeScroll.ScrollType.ULTIMATE) {
+                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.not-on-ult", ""));
+                }
                 lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Bonus");
                 lore.add(ChatColor.GRAY + "50% chance of double upgrade");
             } else {
