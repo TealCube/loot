@@ -45,7 +45,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -86,17 +85,32 @@ public final class SocketsListener implements Listener {
         if (event.isCancelled()) {
             return;
         }
-        Set<SocketEffect> attackerEffects = new HashSet<>();
-        Set<SocketEffect> defenderEffects = new HashSet<>();
         Entity attacker = event.getDamager();
         Entity defender = event.getEntity();
-        if (attacker instanceof Player) {
-            Player attackerP = (Player) attacker;
-            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
-            data.updateWeaponCache();
-            attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
-        } else if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Player) {
-            attacker = (Player) ((Projectile) attacker).getShooter();
+
+        if (defender instanceof Player) {
+            Set<SocketEffect> defenderEffects = new HashSet<>();
+            Player defenderP = (Player) defender;
+            GemCacheData defenderData = plugin.getGemCacheManager().getGemCacheData(defenderP.getUniqueId());
+            defenderEffects.addAll(defenderData.getArmorCache(SocketGem.GemType.WHEN_HIT));
+            applyEffects(defenderEffects, defender, attacker);
+        }
+
+        if (!(attacker instanceof Player)) {
+            if (attacker instanceof Projectile) {
+                if (!(((Projectile) attacker).getShooter() instanceof Player)) {
+                    return;
+                }
+                attacker = (Player) ((Projectile) attacker).getShooter();
+            } else {
+                return;
+            }
+        }
+
+        Set<SocketEffect> attackerEffects = new HashSet<>();
+        Player attackerP = (Player) attacker;
+
+        if (event.getDamager() instanceof Projectile) {
             if (event.getDamager().hasMetadata("loot.gems")) {
                 for (MetadataValue val : event.getDamager().getMetadata("loot.gems")) {
                     if (!val.getOwningPlugin().equals(plugin)) {
@@ -112,37 +126,27 @@ public final class SocketsListener implements Listener {
                     }
                 }
             }
-        }
-        if (defender instanceof Player) {
-            Player defenderP = (Player) defender;
-            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(defenderP.getUniqueId());
-            defenderEffects.addAll(data.getArmorCache(SocketGem.GemType.ON_HIT));
+        } else {
+            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
+            data.updateWeaponCache();
+            attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
         }
 
         applyEffects(attackerEffects, attacker, defender);
-        applyEffects(defenderEffects, defender, attacker);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
         LivingEntity dyingEntity = event.getEntity();
         Player killingPlayer = dyingEntity.getKiller();
-
-        Set<SocketEffect> dyingEffects = new HashSet<>();
+        if (killingPlayer == null) {
+            return;
+        }
         Set<SocketEffect> killingEffects = new HashSet<>();
 
-        if (dyingEntity instanceof Player) {
-            Player dyingPlayer = (Player) dyingEntity;
-            GemCacheData dyingData = plugin.getGemCacheManager().getGemCacheData(dyingPlayer.getUniqueId());
-            dyingEffects.addAll(dyingData.getArmorCache(SocketGem.GemType.ON_DEATH));
-        }
+        GemCacheData killingData = plugin.getGemCacheManager().getGemCacheData(killingPlayer.getUniqueId());
+        killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
 
-        if (killingPlayer != null) {
-            GemCacheData killingData = plugin.getGemCacheManager().createGemCacheData(killingPlayer.getUniqueId());
-            killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
-        }
-
-        applyEffects(dyingEffects, dyingEntity, killingPlayer);
         applyEffects(killingEffects, killingPlayer, dyingEntity);
     }
 
