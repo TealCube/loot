@@ -67,18 +67,18 @@ public final class SocketsListener implements Listener {
         this.gems = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        if (event.isCancelled() || !(event.getEntity().getShooter() instanceof Player)) {
-            return;
-        }
-        Set<SocketGem> gems = getGems(((Player) event.getEntity().getShooter()).getItemInHand());
-        List<String> names = new ArrayList<>();
-        for (SocketGem gem : gems) {
-            names.add(gem.getName());
-        }
-        event.getEntity().setMetadata("loot.gems", new FixedMetadataValue(plugin, names.toString()));
-    }
+    //@EventHandler(priority = EventPriority.MONITOR)
+    //public void onProjectileLaunch(ProjectileLaunchEvent event) {
+    //    if (event.isCancelled() || !(event.getEntity().getShooter() instanceof Player)) {
+    //        return;
+    //    }
+    //    Set<SocketGem> gems = getGems(((Player) event.getEntity().getShooter()).getItemInHand());
+    //    List<String> names = new ArrayList<>();
+    //    for (SocketGem gem : gems) {
+    //        names.add(gem.getName());
+    //    }
+    //    event.getEntity().setMetadata("loot.gems", new FixedMetadataValue(plugin, names.toString()));
+    //}
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
@@ -110,27 +110,31 @@ public final class SocketsListener implements Listener {
         Set<SocketEffect> attackerEffects = new HashSet<>();
         Player attackerP = (Player) attacker;
 
-        if (event.getDamager() instanceof Projectile) {
-            if (event.getDamager().hasMetadata("loot.gems")) {
-                for (MetadataValue val : event.getDamager().getMetadata("loot.gems")) {
-                    if (!val.getOwningPlugin().equals(plugin)) {
-                        continue;
-                    }
-                    String blah = val.asString().replace("[", "").replace("]", "");
-                    for (String s : blah.split(",")) {
-                        SocketGem gem = plugin.getSocketGemManager().getSocketGem(s.trim());
-                        if (gem == null) {
-                            continue;
-                        }
-                        attackerEffects.addAll(gem.getSocketEffects());
-                    }
-                }
-            }
-        } else {
-            GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
-            data.updateWeaponCache();
-            attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
-        }
+        //if (event.getDamager() instanceof Projectile) {
+        //    if (event.getDamager().hasMetadata("loot.gems")) {
+        //        for (MetadataValue val : event.getDamager().getMetadata("loot.gems")) {
+        //            if (!val.getOwningPlugin().equals(plugin)) {
+        //                continue;
+        //            }
+        //            String blah = val.asString().replace("[", "").replace("]", "");
+        //            for (String s : blah.split(",")) {
+        //                SocketGem gem = plugin.getSocketGemManager().getSocketGem(s.trim());
+        //                if (gem == null) {
+        //                    continue;
+        //                }
+        //                attackerEffects.addAll(gem.getSocketEffects());
+        //            }
+        //        }
+        //    }
+        //} else {
+        //    GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
+        //    data.updateWeaponCache();
+        //    attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
+        //}
+
+        GemCacheData data = plugin.getGemCacheManager().getGemCacheData(attackerP.getUniqueId());
+        data.updateWeaponCache();
+        attackerEffects.addAll(data.getWeaponCache(SocketGem.GemType.ON_HIT));
 
         applyEffects(attackerEffects, attacker, defender);
     }

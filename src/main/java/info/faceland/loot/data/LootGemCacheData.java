@@ -104,11 +104,11 @@ public class LootGemCacheData implements GemCacheData {
         }
         Set<SocketGem> primaryHandGems = GemUtil.getGems(
                 plugin.getSocketGemManager(), player.getEquipment().getItemInMainHand());
-        Set<SocketGem> secondaryHandGems = GemUtil.getGems(
-                plugin.getSocketGemManager(), player.getEquipment().getItemInOffHand());
+        //Set<SocketGem> secondaryHandGems = GemUtil.getGems(
+        //        plugin.getSocketGemManager(), player.getEquipment().getItemInOffHand());
         Map<SocketGem.GemType, Set<SocketEffect>> weaponEffects = new HashMap<>();
         extractEffects(primaryHandGems, weaponEffects);
-        extractEffects(secondaryHandGems, weaponEffects);
+        //extractEffects(secondaryHandGems, weaponEffects);
         weaponGems.putAll(weaponEffects);
     }
 
