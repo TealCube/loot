@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package info.faceland.loot.listeners.spawning;
+package info.faceland.loot.listeners;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
@@ -50,6 +50,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,6 +63,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,11 +114,12 @@ public final class EntityDeathListener implements Listener {
         double dropBonus = 1.0D;
         double dropPenalty = 1.0D;
         double xpMult = 1.0D;
+        Player killer = event.getEntity().getKiller();
         if (isWater(event.getEntity().getLocation())) {
             dropPenalty *= 0.4D;
             xpMult *= 0.4D;
         }
-        if (isWater(event.getEntity().getKiller().getLocation())) {
+        if (isWater(killer.getLocation())) {
             dropPenalty *= 0.7D;
             xpMult *= 0.7D;
         }
@@ -130,16 +133,13 @@ public final class EntityDeathListener implements Listener {
         if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
             distanceFromWhereTagged = plugin.getAnticheatManager().getTag(
                     event.getEntity()).getEntityLocation().distanceSquared(event.getEntity().getLocation());
-            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(event.getEntity().getKiller
-                    ().getUniqueId()) != null) {
+            if (plugin.getAnticheatManager().getTag(event.getEntity()).getTaggerLocation(killer.getUniqueId()) != null) {
                 taggerDistance = plugin.getAnticheatManager().getTag(event.getEntity())
-                        .getTaggerLocation(event.getEntity().getKiller
-                                ().getUniqueId())
-                        .distanceSquared(event.getEntity().getKiller().getLocation());
+                        .getTaggerLocation(killer.getUniqueId()).distanceSquared(killer.getLocation());
             }
             bestTaggerLmao = plugin.getAnticheatManager().getTag(event.getEntity()).getHighestDamageTagger();
         }
-        if (event.getEntity().getKiller().isSneaking()) {
+        if (killer.isSneaking()) {
             dropPenalty *= 0.5D;
             xpMult *= 0.5D;
         }
@@ -151,28 +151,25 @@ public final class EntityDeathListener implements Listener {
                 xpMult *= 0.4D;
             }
         }
-        if (taggerDistance >= 0 && taggerDistance <= 2.0 && event.getEntity().getKiller().getItemInHand().getType() !=
-                Material.BOW) {
-            dropPenalty *= 0.7D;
-            xpMult *= 0.7D;
+        if (taggerDistance >= 0 && taggerDistance < 1.9) {
+            dropPenalty *= 0.6D;
+            xpMult *= 0.8D;
         }
 
         int mobLevel = 0;
         if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-            if (event.getEntity().getKiller() instanceof Player) {
-                if (event.getEntity().getCustomName() != null) {
-                    mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
-                            .getCustomName())));
-                    int playerLevel = event.getEntity().getKiller().getLevel();
-                    int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
-                    double levelDiff = mobLevel - playerLevel;
-                    if (levelDiff > range) {
-                        dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
-                        xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
-                    } else if (range > -levelDiff) {
-                        xpMult *= Math.max(1 - ((-levelDiff - range) / 10), 0.3D);
-                        dropPenalty *= Math.max(1 - ((-levelDiff - range) / 10), 0.4D);
-                    }
+            if (event.getEntity().getCustomName() != null) {
+                mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
+                        .getCustomName())));
+                int playerLevel = killer.getLevel();
+                int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
+                double levelDiff = mobLevel - playerLevel;
+                if (levelDiff > range) {
+                    dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
+                    xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
+                } else if (range > -levelDiff) {
+                    xpMult *= Math.max(1 - ((-levelDiff - range) / 10), 0.3D);
+                    dropPenalty *= Math.max(1 - ((-levelDiff - range) / 10), 0.4D);
                 }
             }
         }
@@ -201,10 +198,12 @@ public final class EntityDeathListener implements Listener {
         dropBonus *= dropPenalty;
 
         // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
-        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), event.getEntity()
-                .getKiller(), 0.0D);
+        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer, 0.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
         dropBonus += chanceEvent.getChance() * dropPenalty;
+        if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
+            dropBonus += 0.2 * dropPenalty;
+        }
 
         World w = event.getEntity().getWorld();
 
@@ -235,7 +234,7 @@ public final class EntityDeathListener implements Listener {
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
                 if (t.isBroadcast() || upgradeBonus > 6) {
-                    broadcast(event.getEntity().getKiller(), his);
+                    broadcast(killer, his);
                 }
             }
         }
@@ -258,7 +257,7 @@ public final class EntityDeathListener implements Listener {
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
                 if (sg.isBroadcast()) {
-                    broadcast(event.getEntity().getKiller(), his);
+                    broadcast(killer, his);
                 }
             }
         }
@@ -276,7 +275,7 @@ public final class EntityDeathListener implements Listener {
                 } else {
                     w.dropItemNaturally(event.getEntity().getLocation(), his);
                     if (es.isBroadcast()) {
-                        broadcast(event.getEntity().getKiller(), his);
+                        broadcast(killer, his);
                     }
                 }
             }
@@ -326,7 +325,7 @@ public final class EntityDeathListener implements Listener {
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
                 if (ci.isBroadcast()) {
-                    broadcast(event.getEntity().getKiller(), his);
+                    broadcast(killer, his);
                 }
             }
         }
@@ -338,7 +337,7 @@ public final class EntityDeathListener implements Listener {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             } else {
                 w.dropItemNaturally(event.getEntity().getLocation(), his);
-                broadcast(event.getEntity().getKiller(), his);
+                broadcast(killer, his);
             }
         }
         // NOTE: Drop bonus should not be applied to Unidentified Items!

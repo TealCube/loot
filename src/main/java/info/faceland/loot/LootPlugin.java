@@ -55,7 +55,7 @@ import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
-import info.faceland.loot.listeners.spawning.EntityDeathListener;
+import info.faceland.loot.listeners.EntityDeathListener;
 import info.faceland.loot.managers.*;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
