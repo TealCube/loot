@@ -25,6 +25,7 @@ package info.faceland.loot.listeners;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
@@ -50,7 +51,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -69,8 +69,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-
-import mkremins.fanciful.FancyMessage;
 
 public final class EntityDeathListener implements Listener {
 

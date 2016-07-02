@@ -26,6 +26,7 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
+import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
@@ -65,8 +66,6 @@ import org.bukkit.inventory.ItemFlag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import mkremins.fanciful.FancyMessage;
 
 public final class InteractListener implements Listener {
 
