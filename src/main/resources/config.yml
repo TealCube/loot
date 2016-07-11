@@ -29,6 +29,12 @@ enchantments-stack: true
 # of +3, etc.
 random-upgrade-chance: 0.1
 
+# How long loot drops assigned to a specific player
+# should disallow anyone else to pick it up. The
+# assigned player is determiend randomly from the
+# list of attackers, with weight based on dmg dealt
+loot-protect-time: 10
+
 # Worlds where loot items wlll drop
 enabled-worlds:
 - main
