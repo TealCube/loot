@@ -79,19 +79,26 @@ public final class InteractListener implements Listener {
         this.random = new LootRandom(System.currentTimeMillis());
     }
 
+    // Loot protection function. Return out of it before the end to allow an item to be picked up!
+    // Makes it so only the owner of a drop can pick it up.
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemPickupEvent(PlayerPickupItemEvent event) {
-        if (!event.getItem().hasMetadata("Anti-Steal")) {
+        if (!event.getItem().hasMetadata("loot-owner")) {
             return;
         }
-        String meta = event.getItem().getMetadata("Anti-Steal").get(0).asString();
-        String[] metas = meta.split(" ");
-        String lootOwner = metas[0];
-        Long lootTime = Long.valueOf(metas[1]);
-        if (event.getPlayer().getUniqueId().toString().equals(lootOwner)) {
+
+        // Fetching item lore that should have been applied in EntityDeathListener
+        String owner = event.getItem().getMetadata("loot-owner").get(0).asString();
+        Long time = event.getItem().getMetadata("loot-time").get(0).asLong();
+
+        // If the event player's UUID is the same as the owner UUID on the item, allow the pickup
+        if (event.getPlayer().getUniqueId().toString().equals(owner)) {
             return;
         }
-        if ((System.currentTimeMillis() - lootTime) >= 7 * MILLIS_PER_SEC) {
+
+        // If loot-protect-time seconds have passed, allow the item to be picked up!
+        if ((System.currentTimeMillis() - time) >= plugin.getSettings().getInt("config.loot-protect-time", 10) *
+                MILLIS_PER_SEC) {
             return;
         }
         event.setCancelled(true);

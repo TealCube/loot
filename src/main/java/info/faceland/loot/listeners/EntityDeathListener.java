@@ -51,6 +51,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -223,17 +224,13 @@ public final class EntityDeathListener implements Listener {
                 his = upgradeItem(his, upgradeBonus);
             }
 
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                if (t.isBroadcast() || upgradeBonus > 6) {
-                    broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-                }
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
-                if (t.isBroadcast() || upgradeBonus > 6) {
-                    broadcast(killer, his);
-                }
+                applyOwnerMeta(drop, bestTaggerLmao);
+                killer = Bukkit.getPlayer(bestTaggerLmao);
+            }
+            if (t.isBroadcast() || upgradeBonus > 3) {
+                broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
@@ -246,17 +243,13 @@ public final class EntityDeathListener implements Listener {
             }
 
             HiltItemStack his = sg.toItemStack(1);
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                if (sg.isBroadcast()) {
-                    broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-                }
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
-                if (sg.isBroadcast()) {
-                    broadcast(killer, his);
-                }
+                applyOwnerMeta(drop, bestTaggerLmao);
+                killer = Bukkit.getPlayer(bestTaggerLmao);
+            }
+            if (sg.isBroadcast()) {
+                broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             }
         }
         if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
@@ -264,45 +257,35 @@ public final class EntityDeathListener implements Listener {
                 EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
                         mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
                 HiltItemStack his = es.toItemStack(1);
+                Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
                 if (bestTaggerLmao != null) {
-                    w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                            new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                    if (es.isBroadcast()) {
-                        broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-                    }
-                } else {
-                    w.dropItemNaturally(event.getEntity().getLocation(), his);
-                    if (es.isBroadcast()) {
-                        broadcast(killer, his);
-                    }
+                    applyOwnerMeta(drop, bestTaggerLmao);
+                    killer = Bukkit.getPlayer(bestTaggerLmao);
+                }
+                if (es.isBroadcast()) {
+                    broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
                 }
             }
         }
         if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             HiltItemStack his = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
+                applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             HiltItemStack his = new IdentityTome();
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
+                applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
         if (random.nextDouble() < dropPenalty * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
             HiltItemStack his = new RevealPowder();
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
+                applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
@@ -314,28 +297,21 @@ public final class EntityDeathListener implements Listener {
                         mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
             }
             HiltItemStack his = ci.toItemStack(1);
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                if (ci.isBroadcast()) {
-                    broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-                }
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
-                if (ci.isBroadcast()) {
-                    broadcast(killer, his);
-                }
+                applyOwnerMeta(drop, bestTaggerLmao);
+                killer = Bukkit.getPlayer(bestTaggerLmao);
+            }
+            if (ci.isBroadcast()) {
+                broadcast(killer, his);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             HiltItemStack his = new SocketExtender();
+            broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-                broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
-                broadcast(killer, his);
+                applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
         // NOTE: Drop bonus should not be applied to Unidentified Items!
@@ -350,11 +326,9 @@ public final class EntityDeathListener implements Listener {
             ItemMeta itemMeta = his.getItemMeta();
             itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             his.setItemMeta(itemMeta);
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
-                w.dropItemNaturally(event.getEntity().getLocation(), his).setMetadata("Anti-Steal",
-                        new FixedMetadataValue(plugin, bestTaggerLmao + " " + System.currentTimeMillis()));
-            } else {
-                w.dropItemNaturally(event.getEntity().getLocation(), his);
+                applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
     }
@@ -435,4 +409,8 @@ public final class EntityDeathListener implements Listener {
         }
     }
 
+    public void applyOwnerMeta(Item drop, UUID owner) {
+        drop.setMetadata("loot-owner", new FixedMetadataValue(plugin, owner));
+        drop.setMetadata("loot-time", new FixedMetadataValue(plugin, System.currentTimeMillis()));
+    }
 }
