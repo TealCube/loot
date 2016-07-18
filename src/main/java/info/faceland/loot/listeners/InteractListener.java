@@ -357,7 +357,7 @@ public final class InteractListener implements Listener {
                 if (s.startsWith("+")) {
                     String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(s);
                     int loreLevel = NumberUtils.toInt(loreLev);
-                    lore.set(line, s.replace("+" + loreLevel, "+" + (loreLevel + 1)));
+                    lore.set(line, s.replace("+" + loreLevel, ChatColor.DARK_AQUA + "+" + (loreLevel + 1)));
                     succeed = true;
                     break;
                 }
@@ -566,6 +566,37 @@ public final class InteractListener implements Listener {
                     updateItem = true;
                 }
             }
+        } else if (cursor.getName().equals(ChatColor.WHITE + "Item Rename Tag")) {
+            if (cursor.getLore().get(3).equals(ChatColor.WHITE + "none")) {
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
+                return;
+            }
+            if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
+                    currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
+                    currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
+                    currentItem.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment -") ||
+                    currentItem.getName().equals(ChatColor.DARK_AQUA + "Feacguy's Tears") ||
+                    currentItem.getName().equals(ChatColor.YELLOW + "Reveal Powder") ||
+                    currentItem.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome") ||
+                    currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item") ||
+                    currentItem.getType() == Material.NAME_TAG) {
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
+                return;
+            }
+            int level = ChatColor.stripColor(currentItem.getName()).startsWith("+") ? getLevel(ChatColor.stripColor
+                    (currentItem.getName())) : 0;
+            if (level > 0) {
+                currentItem.setName(getFirstColor(currentItem.getName()) + "+" + level + " "
+                        + ChatColor.stripColor(cursor.getLore().get(3)));
+            } else {
+                currentItem.setName(getFirstColor(currentItem.getName())
+                        + ChatColor.stripColor(cursor.getLore().get(3)));
+            }
+
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
+            player.playSound(player.getEyeLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 0.8F);
+            updateItem = true;
+
         }
         if (updateItem) {
             event.setCurrentItem(currentItem);
