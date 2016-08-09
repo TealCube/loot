@@ -1,5 +1,6 @@
 version: "0.0.16"
 command:
+  notset: "<yellow>You have not set a new name to be applied! Use <white>/loot renametag newName <yellow>while holding the tag."
   renamefail: "<yellow>Invalid item! You can only use this command on <white>Item Rename Tag <yellow>!"
   success: "<green>Item successfully renamed!"
   invalidname: "<yellow>Invalid name! New names must be 20 characters or less, and also not be dumb!"
