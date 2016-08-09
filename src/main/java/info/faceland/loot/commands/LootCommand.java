@@ -22,6 +22,7 @@
  */
 package info.faceland.loot.commands;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
@@ -48,6 +49,7 @@ import se.ranzdo.bukkit.methodcommand.Arg;
 import se.ranzdo.bukkit.methodcommand.Command;
 import se.ranzdo.bukkit.methodcommand.FlagArg;
 import se.ranzdo.bukkit.methodcommand.Flags;
+import se.ranzdo.bukkit.methodcommand.Wildcard;
 
 import java.util.List;
 
@@ -599,7 +601,7 @@ public final class LootCommand {
     }
 
     @Command(identifier = "loot renametag", permissions = "loot.command.renametag", onlyPlayers = true)
-    public void renameSubcommand(Player sender, @Arg(name = "item name") String newLore) {
+    public void renameSubcommand(Player sender, @Arg(name = "item name") @Wildcard String newLore) {
         HiltItemStack heldItem = new HiltItemStack(sender.getEquipment().getItemInMainHand());
         if (heldItem.getType() != Material.NAME_TAG) {
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.command.renamefail", ""));
@@ -613,20 +615,22 @@ public final class LootCommand {
                 newLore.startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
                 newLore.startsWith(ChatColor.GOLD + "Socket Gem -") ||
                 newLore.startsWith(ChatColor.DARK_AQUA + "Scroll Augment -") ||
+                newLore.endsWith("Upgrade Scroll") ||
                 newLore.equals(ChatColor.DARK_AQUA + "Feacguy's Tears") ||
-                newLore.equals(ChatColor.YELLOW + "Reveal Powder") ||
+                newLore.equals(ChatColor.YELLOW + "Stat Reveal Powder") ||
                 newLore.equals(ChatColor.DARK_PURPLE + "Identity Tome") ||
                 newLore.equals(ChatColor.LIGHT_PURPLE + "Unidentified Item") ||
                 newLore.equals(ChatColor.WHITE + "Item Rename Tag")) {
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.command.invalidname", ""));
             return;
         }
-        if (newLore.length() > 20) {
+        if (newLore.length() > 20 || newLore.startsWith("+") || Character.isDigit(newLore.charAt(0)) ||
+                Character.isDigit(newLore.charAt(1))) {
             MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.command.invalidname", ""));
             return;
         }
         List<String> lore = heldItem.getLore();
-        lore.set(3, ChatColor.WHITE + ChatColor.stripColor(newLore));
+        lore.set(3, ChatColor.WHITE + ChatColor.stripColor(TextUtils.color(newLore)));
         heldItem.setLore(lore);
         sender.getEquipment().setItemInMainHand(heldItem);
         sender.updateInventory();
