@@ -268,10 +268,13 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
-            HiltItemStack his = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
-            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
+            UpgradeScroll us = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), us);
             if (bestTaggerLmao != null) {
                 applyOwnerMeta(drop, bestTaggerLmao);
+            }
+            if (us.getScrollType() == UpgradeScroll.ScrollType.GRAND || us.getScrollType() == UpgradeScroll.ScrollType.ULTIMATE) {
+                broadcast(Bukkit.getPlayer(bestTaggerLmao), us);
             }
         }
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
