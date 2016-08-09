@@ -194,11 +194,19 @@ public final class InteractListener implements Listener {
             int level = getLevel(ChatColor.stripColor(name));
             name = name.replace("+" + level + " ", "");
             ChatColor start = getFirstColor(name);
-            String format = "%s%s%s";
-            name = String.format(format, start + (level > 0 ? "+" + level + " " : "") +
-                            (!gem.getPrefix().isEmpty() ? gem.getPrefix() + " " : ""),
-                    name + (!gem.getSuffix().isEmpty() ? " " : ""),
-                    start + gem.getSuffix() + ChatColor.getLastColors(name));
+            String prefix = "";
+            String suffix = "";
+            if (!gem.getPrefix().isEmpty()) {
+                if (!name.contains(gem.getPrefix())) {
+                    prefix = gem.getPrefix() + " ";
+                }
+            }
+            if (!gem.getSuffix().isEmpty()) {
+                if (!name.contains(gem.getSuffix())) {
+                    suffix = " " + gem.getPrefix();
+                }
+            }
+            name = start + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + ChatColor.getLastColors(name);
             currentItem.setName(TextUtils.color(name));
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
@@ -571,13 +579,14 @@ public final class InteractListener implements Listener {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
                 return;
             }
-            if (currentItem.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
+            if (currentItem.getType() == Material.PAPER ||
                     currentItem.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
-                    currentItem.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
-                    currentItem.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment -") ||
-                    currentItem.getName().equals(ChatColor.DARK_AQUA + "Feacguy's Tears") ||
-                    currentItem.getName().equals(ChatColor.YELLOW + "Reveal Powder") ||
-                    currentItem.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome") ||
+                    currentItem.getType() == Material.EMERALD ||
+                    currentItem.getType() == Material.NETHER_STAR ||
+                    currentItem.getType() == Material.DIAMOND ||
+                    currentItem.getType() == Material.GHAST_TEAR ||
+                    currentItem.getType() == Material.GLOWSTONE_DUST ||
+                    currentItem.getType() == Material.ENCHANTED_BOOK ||
                     currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item") ||
                     currentItem.getType() == Material.NAME_TAG) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
