@@ -482,7 +482,7 @@ public final class InteractListener implements Listener {
             }
             if (random.nextDouble() + augChance < type.getChanceToDestroy()) {
                 if (random.nextDouble() > 0.1) {
-                    int degradeAmount = random.nextInt(3);
+                    int degradeAmount = augProtect ? random.nextInt(2) : random.nextInt(3);
                     level = level - degradeAmount;
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
