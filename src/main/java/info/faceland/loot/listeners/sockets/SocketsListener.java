@@ -88,6 +88,12 @@ public final class SocketsListener implements Listener {
         Entity attacker = event.getDamager();
         Entity defender = event.getEntity();
 
+        if (attacker instanceof Projectile) {
+            if (((Projectile) attacker).getShooter() instanceof LivingEntity) {
+                attacker = (LivingEntity) ((Projectile) attacker).getShooter();
+            }
+        }
+
         if (defender instanceof Player) {
             Set<SocketEffect> defenderEffects = new HashSet<>();
             Player defenderP = (Player) defender;
@@ -97,14 +103,7 @@ public final class SocketsListener implements Listener {
         }
 
         if (!(attacker instanceof Player)) {
-            if (attacker instanceof Projectile) {
-                if (!(((Projectile) attacker).getShooter() instanceof Player)) {
-                    return;
-                }
-                attacker = (Player) ((Projectile) attacker).getShooter();
-            } else {
-                return;
-            }
+            return;
         }
 
         Set<SocketEffect> attackerEffects = new HashSet<>();
