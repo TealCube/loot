@@ -115,16 +115,16 @@ public final class EntityDeathListener implements Listener {
         double xpMult = 1.0D;
         Player killer = event.getEntity().getKiller();
         if (isWater(event.getEntity().getLocation())) {
-            dropPenalty *= 0.4D;
-            xpMult *= 0.4D;
+            dropPenalty *= 0.5D;
+            xpMult *= 0.5D;
         }
         if (isWater(killer.getLocation())) {
-            dropPenalty *= 0.7D;
-            xpMult *= 0.7D;
+            dropPenalty *= 0.8D;
+            xpMult *= 0.8D;
         }
-        if (event.getEntity().getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.LAVA) {
-            dropPenalty *= 0.5D;
-            xpMult *= 0.4D;
+        if (event.getEntity().getLastDamageCause().getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            dropPenalty *= 0.6D;
+            xpMult *= 0.3D;
         }
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
@@ -162,13 +162,15 @@ public final class EntityDeathListener implements Listener {
                         .getCustomName())));
                 int playerLevel = killer.getLevel();
                 int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
-                double levelDiff = mobLevel - playerLevel;
-                if (levelDiff > range) {
-                    dropPenalty *= Math.max(1 - ((levelDiff - range) / 10), 0);
-                    xpMult *= Math.max(1 - ((levelDiff - range) / 20), 0.1D);
-                } else if (range > -levelDiff) {
-                    xpMult *= Math.max(1 - ((-levelDiff - range) / 10), 0.3D);
-                    dropPenalty *= Math.max(1 - ((-levelDiff - range) / 10), 0.4D);
+                double levelDiff = playerLevel - mobLevel;
+                if (Math.abs(levelDiff) > range) {
+                    if (levelDiff > 0) {
+                        dropPenalty *= Math.max(1 - (levelDiff - range) * 0.1, 0.4);
+                        xpMult *= Math.max(1 - (levelDiff - range) * 0.05, 0.3);
+                    } else {
+                        dropPenalty *= Math.max(1 - (-levelDiff - range) * 0.1, 0);
+                        xpMult *= Math.max(1 - (-levelDiff - range) * 0.1, 0.05);
+                    }
                 }
             }
         }
@@ -194,16 +196,16 @@ public final class EntityDeathListener implements Listener {
                 dropBonus = 15.0D;
             }
         }
-        dropBonus *= dropPenalty;
 
         // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
         LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer, 0.0D);
         Bukkit.getPluginManager().callEvent(chanceEvent);
-        dropBonus += chanceEvent.getChance() * dropPenalty;
+        dropBonus += (chanceEvent.getChance() - 1);
         if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
-            dropBonus += 0.2 * dropPenalty;
+            dropBonus += 0.2;
         }
 
+        dropBonus *= dropPenalty;
         World w = event.getEntity().getWorld();
 
         if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
