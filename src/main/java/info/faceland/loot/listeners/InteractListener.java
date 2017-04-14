@@ -110,11 +110,17 @@ public final class InteractListener implements Listener {
             return;
         }
         HiltItemStack itemStack = new HiltItemStack(event.getEntity().getItemStack());
-        if (!itemStack.getName().equals(itemStack.getDefaultName()) && !itemStack.getName().equals(ChatColor.GOLD +
-                "REWARD!")) {
-            event.getEntity().setCustomName(itemStack.getName());
-            event.getEntity().setCustomNameVisible(true);
+        if (itemStack.getName().equals(itemStack.getDefaultName())) {
+            return;
         }
+        if (itemStack.getName().equals(ChatColor.GOLD + "REWARD!")) {
+            return;
+        }
+        if (itemStack.getName().startsWith("***{")) {
+            return;
+        }
+        event.getEntity().setCustomName(itemStack.getName());
+        event.getEntity().setCustomNameVisible(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
