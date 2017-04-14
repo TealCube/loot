@@ -24,9 +24,6 @@ package info.faceland.loot.commands;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
-import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
-import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -38,6 +35,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.*;
 import info.faceland.loot.math.LootRandom;
 
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -183,8 +181,7 @@ public final class LootCommand {
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
-                    sender.getInventory().addItem(
-                            plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.COMMAND).build());
+                    sender.getInventory().addItem(plugin.getNewItemBuilder().withTier(t).build());
                 }
                 MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
@@ -358,7 +355,7 @@ public final class LootCommand {
         } else if (upgradeScroll) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
-                    sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
+                    sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
                 }
                 MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
                                    new String[][]{{"%amount%", amount + ""}});
@@ -538,8 +535,7 @@ public final class LootCommand {
                     return;
                 }
                 for (int i = 0; i < amount; i++) {
-                    target.getInventory().addItem(
-                            plugin.getNewItemBuilder().withItemGenerationReason(ItemGenerationReason.COMMAND).build());
+                    target.getInventory().addItem(plugin.getNewItemBuilder().withTier(t).build());
                 }
                 MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
                                    new String[][]{{"%amount%", amount + ""}});
@@ -548,7 +544,7 @@ public final class LootCommand {
         } else if (upgradeScroll) {
             if (name.equals("")) {
                 for (int i = 0; i < amount; i++) {
-                    target.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
+                    target.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
                 }
                 MessageUtils.sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
                                    new String[][]{{"%amount%", amount + ""}});

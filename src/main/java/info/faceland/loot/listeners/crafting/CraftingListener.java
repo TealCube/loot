@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.listeners.crafting;
 
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

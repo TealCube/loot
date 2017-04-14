@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.items.prefabs;
 
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -52,12 +52,18 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        LESSER("Lesser", 0D, 0, 2, 7000D),
-        STANDARD("Standard", 0.5D, 3, 5, 2500D),
-        STANDARDEST("Standardest", 0.35D, 3, 5, 25D),
-        GREATER("Greater", 0.8D, 6, 8, 500D),
-        GRAND("Grand", 0.7D, 6, 8, 5D),
-        ULTIMATE("Ultimate", 0D, 0, 8, 2D);
+        WEAK("Weak", 0.1D, 0, 2, 9000D),
+        EMPOWERED("Empowered", 0.4D, 3, 5, 3000D),
+        ARCANE("Arcane", 0.5D, 6, 8, 1000D),
+        AWAKENED("Awakened", 0.6D, 9, 11, 300D),
+        ANCIENT("Ancient", 0.7D, 12, 14, 100D),
+        FLAWLESS("Flawless", 0.1D, 0, 14, 10D),
+        LESSER("Lesser", 0D, 0, 2, 0D),
+        STANDARD("Standard", 0.5D, 3, 5, 0D),
+        STANDARDEST("Standardest", 0.35D, 3, 5, 0D),
+        GREATER("Greater", 0.8D, 6, 8, 0D),
+        GRAND("Grand", 0.7D, 6, 8, 0D),
+        ULTIMATE("Ultimate", 0D, 0, 8, 0D);
 
         private final String prettyName;
         private final double chanceToDestroy;

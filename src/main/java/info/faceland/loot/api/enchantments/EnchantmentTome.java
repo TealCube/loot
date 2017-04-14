@@ -22,8 +22,8 @@
  */
 package info.faceland.loot.api.enchantments;
 
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;

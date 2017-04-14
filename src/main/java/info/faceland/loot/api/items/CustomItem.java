@@ -22,7 +22,7 @@
  */
 package info.faceland.loot.api.items;
 
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Material;
 
 import java.util.List;

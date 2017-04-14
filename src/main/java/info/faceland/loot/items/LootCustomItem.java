@@ -23,9 +23,9 @@
 package info.faceland.loot.items;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.api.items.CustomItem;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 

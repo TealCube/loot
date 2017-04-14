@@ -22,9 +22,9 @@
  */
 package info.faceland.loot.api.sockets;
 
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 
 import java.util.List;
 

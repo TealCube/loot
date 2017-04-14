@@ -23,7 +23,6 @@
 package info.faceland.loot.listeners;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -44,6 +43,7 @@ import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 
+import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -275,7 +275,8 @@ public final class EntityDeathListener implements Listener {
             if (bestTaggerLmao != null) {
                 applyOwnerMeta(drop, bestTaggerLmao);
             }
-            if (us.getScrollType() == UpgradeScroll.ScrollType.GRAND || us.getScrollType() == UpgradeScroll.ScrollType.ULTIMATE) {
+            if (us.getScrollType() == UpgradeScroll.ScrollType.ANCIENT || us.getScrollType() == UpgradeScroll.ScrollType.FLAWLESS
+                    || us.getScrollType() == UpgradeScroll.ScrollType.AWAKENED) {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), us);
             }
         }
