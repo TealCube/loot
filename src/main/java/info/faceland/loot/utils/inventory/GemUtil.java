@@ -34,6 +34,9 @@ public final class GemUtil {
             SocketGem gem = manager.getSocketGem(key);
             if (gem == null) {
                 for (SocketGem g : manager.getSocketGems()) {
+                    if (!g.isTriggerable()) {
+                        continue;
+                    }
                     if (key.equals(ChatColor.stripColor(TextUtils.color(
                             g.getTriggerText() != null ? g.getTriggerText() : "")))) {
                         gem = g;
