@@ -61,7 +61,7 @@ public interface SocketGem extends Comparable<SocketGem> {
     GemType getGemType();
 
     enum GemType {
-        ON_HIT, ON_KILL, WHEN_HIT;
+        ON_HIT, ON_KILL, WHEN_HIT, ON_SNEAK;
 
         public static GemType fromName(String name) {
             for (GemType gemType : values()) {

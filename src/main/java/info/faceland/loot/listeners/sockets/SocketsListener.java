@@ -33,6 +33,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.api.sockets.SocketGem.GemType;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
@@ -49,6 +50,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -151,6 +153,19 @@ public final class SocketsListener implements Listener {
         killingEffects.addAll(killingData.getWeaponCache(SocketGem.GemType.ON_KILL));
 
         applyEffects(killingEffects, killingPlayer, dyingEntity);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSneak(PlayerToggleSneakEvent event) {
+        if (!event.isSneaking()) {
+            return;
+        }
+        Set<SocketEffect> killingEffects = new HashSet<>();
+
+        GemCacheData killingData = plugin.getGemCacheManager().getGemCacheData(event.getPlayer().getUniqueId());
+        killingEffects.addAll(killingData.getWeaponCache(GemType.ON_SNEAK));
+
+        applyEffects(killingEffects, event.getPlayer(), null);
     }
 
     private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
