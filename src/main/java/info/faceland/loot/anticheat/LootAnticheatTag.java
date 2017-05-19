@@ -24,14 +24,14 @@ package info.faceland.loot.anticheat;
 
 import info.faceland.loot.api.anticheat.AnticheatTag;
 
-import org.apache.commons.lang.math.RandomUtils;
-import org.bukkit.Bukkit;
+import info.faceland.loot.math.LootRandom;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 public final class LootAnticheatTag implements AnticheatTag {
@@ -40,6 +40,7 @@ public final class LootAnticheatTag implements AnticheatTag {
     private final Location entityLocation;
     private final Map<UUID, Location> taggerLocations;
     private final Map<UUID, Double> taggerDamage;
+    private final LootRandom random;
 
     public LootAnticheatTag(LivingEntity entity) {
         this(entity.getUniqueId(), entity.getLocation());
@@ -50,6 +51,7 @@ public final class LootAnticheatTag implements AnticheatTag {
         this.entityLocation = entityLocation;
         this.taggerLocations = new HashMap<>();
         this.taggerDamage = new HashMap<>();
+        this.random = new LootRandom(System.currentTimeMillis());
     }
 
     @Override
@@ -91,17 +93,20 @@ public final class LootAnticheatTag implements AnticheatTag {
 
     @Override
     public UUID getHighestDamageTagger() {
+        if (random.nextDouble() < 0.25) {
+            List<UUID> damagers = new ArrayList<>(taggerDamage.keySet());
+            return damagers.get(random.nextInt(damagers.size()));
+        }
+
         UUID tagger = null;
-        double damage = 0D;
+        double highestDamage = 0D;
+
         for (Map.Entry<UUID, Double> entry : taggerDamage.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            if (RandomUtils.nextDouble() < 0.5 * (1.0D / taggerDamage.size())) {
-                return entry.getKey();
-            }
-            if (entry.getValue() > damage) {
-                damage = entry.getValue();
+            if (entry.getValue() > highestDamage) {
+                highestDamage = entry.getValue();
                 tagger = entry.getKey();
             }
         }
