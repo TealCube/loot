@@ -168,7 +168,7 @@ public final class SocketsListener implements Listener {
         applyEffects(killingEffects, event.getPlayer(), null);
     }
 
-    private void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
+    public static void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
         for (SocketEffect effect : effects) {
             switch (effect.getTarget()) {
                 case SELF:

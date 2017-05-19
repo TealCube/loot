@@ -2,6 +2,7 @@ name: Loot
 version: ${project.version}
 main: info.faceland.loot.LootPlugin
 depend: [Facecore]
+softdepend: [Loot]
 
 commands:
   loot:

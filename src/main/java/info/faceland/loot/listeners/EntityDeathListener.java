@@ -339,7 +339,7 @@ public final class EntityDeathListener implements Listener {
         }
     }
 
-    public HiltItemStack upgradeItem(HiltItemStack his, int upgradeBonus) {
+    private HiltItemStack upgradeItem(HiltItemStack his, int upgradeBonus) {
         boolean succeed = false;
         List<String> lore = his.getLore();
         for (int i = 0; i < lore.size(); i++) {
