@@ -208,7 +208,7 @@ public final class InteractListener implements Listener {
             }
             if (!gem.getSuffix().isEmpty()) {
                 if (!name.contains(gem.getSuffix())) {
-                    suffix = " " + gem.getPrefix();
+                    suffix = " " + gem.getSuffix();
                 }
             }
             name = start + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + ChatColor.getLastColors(name);
