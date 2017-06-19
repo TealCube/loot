@@ -478,7 +478,7 @@ public final class InteractListener implements Listener {
                 }
             }
             if (random.nextDouble() + augChance < type.getChanceToDestroy()) {
-                double damagePercentage = random.nextDouble() * (0.3 + level * 0.1);
+                double damagePercentage = random.nextDouble() * (0.31 + level * 0.1);
                 int damageAmount = (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability());
                 if (augProtect) {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.protected", ""));
@@ -542,7 +542,7 @@ public final class InteractListener implements Listener {
                     }
                     name = name.replace("+" + lev, "+" + String.valueOf(level));
                     currentItem.setName(name);
-                    if (level >= 7 && currentItem.getEnchantments().isEmpty()) {
+                    if (level >= 10 && currentItem.getEnchantments().isEmpty()) {
                         currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
                     }
                 }
