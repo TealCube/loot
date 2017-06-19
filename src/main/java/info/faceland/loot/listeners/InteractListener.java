@@ -514,6 +514,9 @@ public final class InteractListener implements Listener {
                         lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel - 1)));
                         break;
                     }
+                    if (level < 10 && currentItem.getEnchantments().get(Enchantment.DURABILITY) != null) {
+                        currentItem.removeEnchantment(Enchantment.DURABILITY);
+                    }
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.degraded", ""));
                     currentItem.setLore(lore);
                 }
