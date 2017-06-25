@@ -93,7 +93,7 @@ public final class LootAnticheatTag implements AnticheatTag {
 
     @Override
     public UUID getHighestDamageTagger() {
-        if (random.nextDouble() < 0.25) {
+        if (random.nextDouble() < 0.5) {
             List<UUID> damagers = new ArrayList<>(taggerDamage.keySet());
             return damagers.get(random.nextInt(damagers.size()));
         }
