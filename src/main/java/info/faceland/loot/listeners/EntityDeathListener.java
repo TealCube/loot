@@ -183,7 +183,6 @@ public final class EntityDeathListener implements Listener {
                 }
             }
         }
-        event.setDroppedExp((int) (xpMult * event.getDroppedExp()));
 
         CreatureMod mod = plugin.getCreatureModManager().getCreatureMod(event.getEntity().getType());
         String mobName = event.getEntity().getCustomName();
@@ -193,18 +192,25 @@ public final class EntityDeathListener implements Listener {
         if (mobName != null) {
             if (mobName.startsWith(ChatColor.GRAY + "")) {
                 dropBonus = 1.0D;
+                xpMult *= 1.1D;
             } else if (mobName.startsWith(ChatColor.BLUE + "Magic")) {
                 dropBonus = 6.0D;
+                xpMult *= 1.3D;
             } else if (mobName.startsWith(ChatColor.DARK_PURPLE + "Rare")) {
                 dropBonus = 9.0D;
+                xpMult *= 1.6D;
             } else if (mobName.startsWith(ChatColor.RED + "Epic")) {
                 dropBonus = 11.0D;
+                xpMult *= 2.0D;
             } else if (mobName.startsWith(ChatColor.GOLD + "Legendary")) {
                 dropBonus = 13.0D;
+                xpMult *= 3.0D;
             } else if (mobName.startsWith(ChatColor.DARK_RED + "Boss")) {
                 dropBonus = 15.0D;
             }
         }
+
+        event.setDroppedExp((int) (xpMult * event.getDroppedExp()));
 
         // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
         LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer, 0.0D);
