@@ -51,6 +51,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -113,19 +114,30 @@ public final class EntityDeathListener implements Listener {
         double dropBonus = 1.0D;
         double dropPenalty = 1.0D;
         double xpMult = 1.0D;
+
         Player killer = event.getEntity().getKiller();
-        if (isWater(event.getEntity().getLocation())) {
+
+        if (!isWaterMob(event.getEntity())) {
+            if (isWater(event.getEntity().getLocation())) {
+                dropPenalty *= 0.6D;
+                xpMult *= 0.6D;
+            }
+            if (isWater(killer.getLocation())) {
+                dropPenalty *= 0.8D;
+                xpMult *= 0.8D;
+            }
+        }
+
+        if (isClimbing(killer.getLocation())) {
             dropPenalty *= 0.5D;
             xpMult *= 0.5D;
         }
-        if (isWater(killer.getLocation())) {
-            dropPenalty *= 0.8D;
-            xpMult *= 0.8D;
-        }
+
         if (event.getEntity().getLastDamageCause().getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-            dropPenalty *= 0.6D;
-            xpMult *= 0.3D;
+            dropPenalty *= 0.5D;
+            xpMult *= 0.6D;
         }
+
         double distanceFromWhereTagged = -1D;
         double taggerDistance = -1;
         UUID bestTaggerLmao = null;
@@ -138,19 +150,16 @@ public final class EntityDeathListener implements Listener {
             }
             bestTaggerLmao = plugin.getAnticheatManager().getTag(event.getEntity()).getHighestDamageTagger();
         }
-        if (killer.isSneaking()) {
-            dropPenalty *= 0.5D;
-            xpMult *= 0.5D;
-        }
-        if (distanceFromWhereTagged >= 0 && distanceFromWhereTagged <= 2.6) {
+
+        if (distanceFromWhereTagged < 2) {
             dropPenalty *= 0.8D;
             xpMult *= 0.7D;
-            if (distanceFromWhereTagged <= 1.2) {
+            if (distanceFromWhereTagged < 0.8) {
                 dropPenalty *= 0.4D;
                 xpMult *= 0.4D;
             }
         }
-        if (taggerDistance >= 0 && taggerDistance < 1.9) {
+        if (taggerDistance < 1.5) {
             dropPenalty *= 0.6D;
             xpMult *= 0.8D;
         }
@@ -393,6 +402,24 @@ public final class EntityDeathListener implements Listener {
     private boolean isWater(Location location) {
         Block b = location.getBlock();
         return b.isLiquid();
+    }
+
+    private boolean isClimbing(Location location) {
+        Block b = location.getBlock();
+        return b.getType() == Material.LADDER || b.getType() == Material.VINE;
+    }
+
+    private boolean isWaterMob(Entity entity) {
+        switch (entity.getType()) {
+            case GUARDIAN:
+                return true;
+            case ELDER_GUARDIAN:
+                return true;
+            case SQUID:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private ChatColor getFirstColor(String s) {
