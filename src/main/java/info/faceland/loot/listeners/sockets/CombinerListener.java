@@ -29,25 +29,21 @@ import com.tealcube.minecraft.bukkit.shade.google.common.collect.Iterables;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Lists;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.math.Vec3;
-import info.faceland.loot.api.sockets.effects.SocketEffect;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -66,37 +62,6 @@ public final class CombinerListener implements Listener {
     public CombinerListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.gems = new HashMap<>();
-    }
-
-
-    public static void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {
-        for (SocketEffect effect : effects) {
-            switch (effect.getTarget()) {
-                case SELF:
-                    if (applier instanceof LivingEntity) {
-                        effect.apply((LivingEntity) applier);
-                    }
-                    break;
-                case OTHER:
-                    if (recipient instanceof LivingEntity) {
-                        effect.apply((LivingEntity) recipient);
-                    }
-                    break;
-                case AREA:
-                    for (Entity e : recipient
-                            .getNearbyEntities(effect.getRadius(), effect.getRadius(), effect.getRadius())) {
-                        if (e instanceof LivingEntity) {
-                            effect.apply((LivingEntity) e);
-                        }
-                    }
-                    if (recipient instanceof LivingEntity) {
-                        effect.apply((LivingEntity) recipient);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     @EventHandler
@@ -193,8 +158,8 @@ public final class CombinerListener implements Listener {
         }
         if (toAdd.size() > 0) {
             HumanEntity c = event.getPlayer();
-            c.getWorld().playEffect(c.getLocation().add(0, 1, 0), Effect.SPELL, 0);
-            c.getWorld().playSound(c.getLocation().add(0, 1, 0), Sound.ENTITY_ENDERMEN_SCREAM, 1.0f, 1.0f);
+            c.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, c.getLocation().clone().add(0, 1, 0),30, 5, 5, 5);
+            c.getWorld().playSound(c.getLocation().clone(), Sound.ENTITY_ENDERMEN_SCREAM, 1.0f, 1.0f);
             MessageUtils.sendMessage(event.getPlayer(), "<green>Open the chest again to get your new Socket Gems!");
         }
         gems.put(event.getPlayer().getUniqueId(), toAdd);
