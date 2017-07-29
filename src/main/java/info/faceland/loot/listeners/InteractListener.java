@@ -203,7 +203,12 @@ public final class InteractListener implements Listener {
             String suffix = "";
             if (!gem.getPrefix().isEmpty()) {
                 if (!name.contains(gem.getPrefix())) {
-                    prefix = gem.getPrefix() + " ";
+                    if (ChatColor.stripColor(name).startsWith("The")) {
+                        name = name.replace("The", "");
+                        prefix = "The " + gem.getPrefix() + " ";
+                    } else {
+                        prefix = gem.getPrefix() + " ";
+                    }
                 }
             }
             if (!gem.getSuffix().isEmpty()) {
