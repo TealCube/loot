@@ -28,7 +28,6 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGem.GemType;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 
-import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,12 +134,15 @@ public final class SocketsListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerSneak(PlayerToggleSneakEvent event) {
-        Set<SocketEffect> killingEffects = new HashSet<>();
+        if (!event.isSneaking()) {
+            return;
+        }
+        Set<SocketEffect> sneakingEffects = new HashSet<>();
 
         GemCacheData killingData = plugin.getGemCacheManager().getGemCacheData(event.getPlayer().getUniqueId());
-        killingEffects.addAll(killingData.getArmorCache(GemType.ON_SNEAK));
+        sneakingEffects.addAll(killingData.getArmorCache(GemType.ON_SNEAK));
 
-        applyEffects(killingEffects, event.getPlayer(), null);
+        applyEffects(sneakingEffects, event.getPlayer(), null);
     }
 
     public static void applyEffects(Set<SocketEffect> effects, Entity applier, Entity recipient) {

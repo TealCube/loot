@@ -95,7 +95,7 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
 
         for(PotionEffect effect : effects) {
             if(type == effect.getType()) {
-                if(intensity == effect.getAmplifier()) {
+                if(intensity == Math.abs(effect.getAmplifier())) {
                     if (duration / 50 < effect.getDuration()) {
                         return;
                     }

@@ -7,6 +7,9 @@ command:
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
+  must-be-gem: "<yellow>You can only transmute socket gems!"
+  pls-claim-first: "<yellow>Click your new gem to claim it before making another!"
+  transmute-success: "<green>You have transmuted a brand new socket gem!"
   needs-sockets: "<red>Items must have <gold>(Socket)<red> in their description for you to be able to use a socket gem on them."
 enchant:
   success: "<green>You successfully enchanted your item."
@@ -41,6 +44,7 @@ reveal:
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
   ided-item: "<white>%player%<green> ID'd a %item%<green>!"
+  transmute-gem: "<white>%player%<green> transmuted a %item%<green>!"
 commands:
   give:
     receive: "<green>You received some loot!"
