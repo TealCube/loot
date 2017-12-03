@@ -43,6 +43,7 @@ public final class LootCustomItem implements CustomItem {
     private int levelBase;
     private int levelRange;
     private boolean broadcast;
+    private boolean quality;
 
     public LootCustomItem(String name) {
         this.name = name;
@@ -127,8 +128,17 @@ public final class LootCustomItem implements CustomItem {
         return broadcast;
     }
 
+    @Override
+    public boolean canBeQuality() {
+        return quality;
+    }
+
     void setBroadcast(boolean broadcast) {
         this.broadcast = broadcast;
+    }
+
+    void setQuality(boolean quality) {
+        this.quality = quality;
     }
 
     void setMaterial(Material material) {

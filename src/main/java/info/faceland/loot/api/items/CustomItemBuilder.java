@@ -47,4 +47,6 @@ public interface CustomItemBuilder {
     CustomItemBuilder withLevelRange(int i);
 
     CustomItemBuilder withBroadcast(boolean b);
+
+    CustomItemBuilder withQuality(boolean b);
 }

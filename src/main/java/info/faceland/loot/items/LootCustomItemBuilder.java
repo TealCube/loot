@@ -99,4 +99,10 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
         return this;
     }
 
+    @Override
+    public CustomItemBuilder withQuality(boolean b) {
+        customItem.setQuality(b);
+        return this;
+    }
+
 }

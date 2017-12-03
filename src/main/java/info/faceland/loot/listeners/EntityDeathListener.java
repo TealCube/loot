@@ -232,12 +232,26 @@ public final class EntityDeathListener implements Listener {
                         new HashMap<Tier, Double>());
             }
             HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
-            int upgradeBonus = 0;
-            double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
-            while (random.nextDouble() <= upgradeChance && upgradeBonus < 9) {
-                upgradeBonus++;
+
+            int qualityBonus = 1;
+            double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
+            double multiQualityChance = plugin.getSettings().getDouble("config.multi-quality-chance", 0.1);
+
+            if (random.nextDouble() <= qualityChance) {
+                while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
+                    qualityBonus++;
+                }
+                his = upgradeItemQuality(his, qualityBonus);
             }
-            if (upgradeBonus > 0) {
+
+            int upgradeBonus = 1;
+            double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
+            double multiUpgradeChance = plugin.getSettings().getDouble("config.multi-upgrade-chance", 0.1);
+
+            if (random.nextDouble() <= upgradeChance) {
+                while (random.nextDouble() <= multiUpgradeChance && upgradeBonus < 9) {
+                    upgradeBonus++;
+                }
                 his = upgradeItem(his, upgradeBonus);
             }
 
@@ -246,7 +260,7 @@ public final class EntityDeathListener implements Listener {
                 applyOwnerMeta(drop, bestTaggerLmao);
                 killer = Bukkit.getPlayer(bestTaggerLmao);
             }
-            if (t.isBroadcast() || upgradeBonus > 3) {
+            if (t.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2) {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             }
         }
@@ -318,12 +332,26 @@ public final class EntityDeathListener implements Listener {
                         mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
             }
             HiltItemStack his = ci.toItemStack(1);
+
+            int qualityBonus = 1;
+            if (ci.canBeQuality()) {
+                double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
+                double multiQualityChance = plugin.getSettings().getDouble("config.multi-quality-chance", 0.1);
+
+                if (random.nextDouble() <= qualityChance) {
+                    while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
+                        qualityBonus++;
+                    }
+                    his = upgradeItemQuality(his, qualityBonus);
+                }
+            }
+
             Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
                 applyOwnerMeta(drop, bestTaggerLmao);
                 killer = Bukkit.getPlayer(bestTaggerLmao);
             }
-            if (ci.isBroadcast()) {
+            if (ci.isBroadcast() || qualityBonus > 2) {
                 broadcast(killer, his);
             }
         }
@@ -371,13 +399,36 @@ public final class EntityDeathListener implements Listener {
             his.setName(name);
             break;
         }
-        if (!succeed) {
-            return his;
+        if (succeed) {
+            his.setLore(lore);
+            if (upgradeBonus > 6) {
+                his.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+                his.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
+            }
         }
-        his.setLore(lore);
-        if (upgradeBonus > 6) {
-            his.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-            his.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES));
+        return his;
+    }
+
+    private HiltItemStack upgradeItemQuality(HiltItemStack his, int upgradeBonus) {
+        boolean succeed = false;
+        List<String> lore = his.getLore();
+        for (int i = 0; i < lore.size(); i++) {
+            String s = lore.get(i);
+            String ss = ChatColor.stripColor(s);
+            if (!ss.startsWith("+")) {
+                continue;
+            }
+            succeed = true;
+            String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+            int loreLevel = NumberUtils.toInt(loreLev);
+            lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
+            String qualityEnhanceName = plugin.getSettings().getString("language.quality." + upgradeBonus, "");
+            String name = getFirstColor(his.getName()) + qualityEnhanceName + " " + his.getName();
+            his.setName(name);
+            break;
+        }
+        if (succeed) {
+            his.setLore(lore);
         }
         return his;
     }

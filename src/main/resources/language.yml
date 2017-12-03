@@ -45,6 +45,12 @@ broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
   ided-item: "<white>%player%<green> ID'd a %item%<green>!"
   transmute-gem: "<white>%player%<green> transmuted a %item%<green>!"
+quality:
+  1: "Superior"
+  2: "Artisan"
+  3: "Exceptional"
+  4: "Immaculate"
+  5: "Ultimate"
 commands:
   give:
     receive: "<green>You received some loot!"
