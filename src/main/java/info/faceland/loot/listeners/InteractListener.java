@@ -196,9 +196,11 @@ public final class InteractListener implements Listener {
             // strip color, check against that
             // k
             String name = currentItem.getName();
-            int level = getLevel(ChatColor.stripColor(name));
+            ChatColor firstColor = getFirstColor(name);
+            ChatColor lastColor = getLastColor(name);
+            name = ChatColor.stripColor(name);
+            int level = getLevel(name);
             name = name.replace("+" + level + " ", "");
-            ChatColor start = getFirstColor(name);
             String prefix = "";
             String suffix = "";
             if (!gem.getPrefix().isEmpty()) {
@@ -216,7 +218,7 @@ public final class InteractListener implements Listener {
                     suffix = " " + gem.getSuffix();
                 }
             }
-            name = start + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + ChatColor.getLastColors(name);
+            name = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + lastColor;
             currentItem.setName(TextUtils.color(name));
 
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
@@ -633,6 +635,19 @@ public final class InteractListener implements Listener {
 
     private ChatColor getFirstColor(String s) {
         for (int i = 0; i < s.length() - 1; i++) {
+            if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
+                continue;
+            }
+            ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
+            if (c != null) {
+                return c;
+            }
+        }
+        return ChatColor.RESET;
+    }
+
+    private ChatColor getLastColor(String s) {
+        for (int i = s.length() - 1; i >= 0; i--) {
             if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
                 continue;
             }
