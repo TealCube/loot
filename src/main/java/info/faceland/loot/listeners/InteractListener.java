@@ -36,6 +36,7 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
+import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
@@ -57,6 +58,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.Inventory;
@@ -128,6 +130,13 @@ public final class InteractListener implements Listener {
         if (event.getInventory() instanceof EnchantingInventory && plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
             event.setCancelled(true);
             MessageUtils.sendMessage(event.getPlayer(), plugin.getSettings().getString("language.enchant.no-open", ""));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onAnvilOpenEvent(InventoryOpenEvent event) {
+        if (event.getInventory() instanceof AnvilInventory) {
+            event.setCancelled(true);
         }
     }
 
@@ -205,8 +214,8 @@ public final class InteractListener implements Listener {
             String suffix = "";
             if (!gem.getPrefix().isEmpty()) {
                 if (!name.contains(gem.getPrefix())) {
-                    if (ChatColor.stripColor(name).startsWith("The")) {
-                        name = name.replace("The", "");
+                    if (ChatColor.stripColor(name).startsWith("The ")) {
+                        name = name.replace("The ", "");
                         prefix = "The " + gem.getPrefix() + " ";
                     } else {
                         prefix = gem.getPrefix() + " ";
@@ -388,7 +397,7 @@ public final class InteractListener implements Listener {
             updateItem(event, currentItem);
         } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment - ")) {
             String name = ChatColor.stripColor(currentItem.getName()).replace("Upgrade Scroll", "").trim();
-            UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
+            ScrollType type = ScrollType.getByName(name);
             if (type == null) {
                 return;
             }
@@ -404,6 +413,10 @@ public final class InteractListener implements Listener {
                 }
             }
             if (cursor.getName().endsWith("Chance")) {
+                if (type == ScrollType.FLAWLESS) {
+                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.too-easy", ""));
+                    return;
+                }
                 if (type.getChanceToDestroy() != 0) {
                     lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Chance");
                     lore.add(ChatColor.GRAY + "Success chance increased by 12%");
@@ -420,9 +433,6 @@ public final class InteractListener implements Listener {
                     return;
                 }
             } else if (cursor.getName().endsWith("Bonus")) {
-                if (type == UpgradeScroll.ScrollType.ULTIMATE) {
-                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.not-on-ult", ""));
-                }
                 lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Bonus");
                 lore.add(ChatColor.GRAY + "50% chance of double upgrade");
             } else {
@@ -451,8 +461,8 @@ public final class InteractListener implements Listener {
             if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>()).contains(ChatColor.stripColor(name))) {
                 return;
             }
-            int level = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = level;
-            if (level < type.getMinimumLevel() || level > type.getMaximumLevel()) {
+            int itemUpgradeLevel = ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name)) : 0, lev = itemUpgradeLevel;
+            if (itemUpgradeLevel < type.getMinimumLevel() || itemUpgradeLevel > type.getMaximumLevel()) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
@@ -485,8 +495,9 @@ public final class InteractListener implements Listener {
                 }
             }
             if (random.nextDouble() + augChance < type.getChanceToDestroy()) {
-                double damagePercentage = random.nextDouble() * (0.31 + level * 0.1);
-                int damageAmount = (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability());
+                double damagePercentage = random.nextDouble() * (0.25 + itemUpgradeLevel * 0.115);
+                int damageAmount = (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability()) - 1;
+                damageAmount = Math.max(damageAmount, 1);
                 if (augProtect) {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.protected", ""));
                     player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
@@ -503,58 +514,28 @@ public final class InteractListener implements Listener {
 
                 currentItem.setDurability((short)(currentItem.getDurability() + damageAmount));
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
-
-                if (level > 7 && random.nextDouble() > 0.2) {
-                    level = level - 1;
-                    name = name.replace("+" + lev, "+" + String.valueOf(level));
-                    currentItem.setName(name);
-
-                    List<String> lore = currentItem.getLore();
-                    for (int i = 0; i < lore.size(); i++) {
-                        String s = lore.get(i);
-                        String ss = ChatColor.stripColor(s);
-                        if (!ss.startsWith("+")) {
-                            continue;
-                        }
-                        String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                        int loreLevel = NumberUtils.toInt(loreLev);
-                        lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel - 1)));
-                        break;
-                    }
-                    if (level < 10 && currentItem.getEnchantments().get(Enchantment.DURABILITY) != null) {
-                        currentItem.removeEnchantment(Enchantment.DURABILITY);
-                    }
-                    MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.degraded", ""));
-                    currentItem.setLore(lore);
-                }
                 updateItem(event, currentItem);
             } else {
-                int bonus = 0;
-                if (level == 0) {
-                    level++;
-                    bonus++;
-                    if (augBonus) {
-                        if (random.nextDouble() <= 0.5) {
-                            level++;
-                            bonus++;
-                        }
-                    }
-                    name = getFirstColor(name) + ("+" + level) + " " + name;
-                    currentItem.setName(name);
+                boolean firstTimeUpgrade = false;
+                int attributeIncrease = 0;
+                if (itemUpgradeLevel == 0) {
+                    firstTimeUpgrade = true;
+                }
+                itemUpgradeLevel++;
+                attributeIncrease++;
+                if (augBonus && random.nextDouble() <= 0.5) {
+                    itemUpgradeLevel++;
+                    attributeIncrease++;
+                }
+                itemUpgradeLevel = Math.min(itemUpgradeLevel, 15);
+                if (firstTimeUpgrade) {
+                    name = getFirstColor(name) + ("+" + itemUpgradeLevel) + " " + name;
                 } else {
-                    level++;
-                    bonus++;
-                    if (augBonus) {
-                        if (random.nextDouble() <= 0.5 && level < 15) {
-                            level++;
-                            bonus++;
-                        }
-                    }
-                    name = name.replace("+" + lev, "+" + String.valueOf(level));
-                    currentItem.setName(name);
-                    if (level >= 10 && currentItem.getEnchantments().isEmpty()) {
-                        currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-                    }
+                    name = name.replace("+" + lev, "+" + String.valueOf(itemUpgradeLevel));
+                }
+                currentItem.setName(name);
+                if (itemUpgradeLevel >= 10 && currentItem.getEnchantments().isEmpty()) {
+                    currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
                 }
                 currentItem.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE));
                 List<String> lore = currentItem.getLore();
@@ -564,15 +545,15 @@ public final class InteractListener implements Listener {
                     if (!ss.startsWith("+")) {
                         continue;
                     }
-                    String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
-                    int loreLevel = NumberUtils.toInt(loreLev);
-                    lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + bonus)));
+                    String attributeText = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+                    int attributeValue = NumberUtils.toInt(attributeText);
+                    lore.set(i, s.replace("+" + attributeValue, "+" + (attributeValue + attributeIncrease)));
                     break;
                 }
                 currentItem.setLore(lore);
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
-                if (level >= 7) {
+                if (itemUpgradeLevel >= 7) {
                     broadcast(player, currentItem, "upgraded-item");
                 }
                 updateItem(event, currentItem);
