@@ -35,10 +35,12 @@ import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
-import info.faceland.loot.math.LootRandom;
 
+import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.utils.inventory.InventoryUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -78,7 +80,7 @@ public final class InteractListener implements Listener {
 
     public InteractListener(LootPlugin plugin) {
         this.plugin = plugin;
-        this.random = new LootRandom(System.currentTimeMillis());
+        this.random = new LootRandom();
     }
 
     // Loot protection function. Return out of it before the end to allow an item to be picked up!
@@ -189,7 +191,7 @@ public final class InteractListener implements Listener {
             }
 
             List<String> lore = currentItem.getLore();
-            List<String> strippedLore = stripColor(lore);
+            List<String> strippedLore = InventoryUtil.stripColor(lore);
             if (!strippedLore.contains("(Socket)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.socket.needs-sockets", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
@@ -257,7 +259,7 @@ public final class InteractListener implements Listener {
             }
 
             List<String> lore = currentItem.getLore();
-            List<String> strippedLore = stripColor(lore);
+            List<String> strippedLore = InventoryUtil.stripColor(lore);
             if (!strippedLore.contains("(Enchantable)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
@@ -308,31 +310,12 @@ public final class InteractListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem(event, currentItem);
-        } else if (cursor.getName().equals(ChatColor.YELLOW + "Stat Reveal Powder")) {
-            List<String> lore = currentItem.getLore();
-            List<String> stripColor = stripColor(lore);
-
-            if (!stripColor.contains("(Hidden)")) {
-                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.failure", ""));
-                return;
-            }
-            int index = stripColor.indexOf("(Hidden)");
-
-            List<String> options = plugin.getSettings().getStringList("reveal."+currentItem.getType().name());
-            String stat = options.get(random.nextInt(options.size()));
-
-            lore.set(index, TextUtils.color(stat));
-            currentItem.setLore(lore);
-
-            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.reveal.success", ""));
-            player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
-            updateItem(event, currentItem);
-        } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
+        }  else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
             if (isBannedMaterial(currentItem)) {
                 return;
             }
             List<String> lore = currentItem.getLore();
-            List<String> stripColor = stripColor(lore);
+            List<String> stripColor = InventoryUtil.stripColor(lore);
             if (!stripColor.contains("(+)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
@@ -351,12 +334,17 @@ public final class InteractListener implements Listener {
             }
             int itemLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(currentItem
                     .getItemMeta().getLore().get(0))));
+            ItemRarity r;
             Tier t;
             if (itemLevel != 0) {
-                t = plugin.getTierManager().getRandomLeveledIDTier(itemLevel);
-                currentItem = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-                        .build();
-                if (t.isBroadcast()) {
+                r = plugin.getRarityManager().getRandomIdRarity();
+                t = plugin.getTierManager().getRandomTier();
+                currentItem = plugin.getNewItemBuilder()
+                    .withRarity(r)
+                    .withTier(t)
+                    .withLevel(itemLevel)
+                    .build();
+                if (r.isBroadcast()) {
                     broadcast(player, currentItem, "ided-item");
                 }
             } else {
@@ -375,7 +363,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             boolean succeed = false;
-            List<String> strip = stripColor(currentItem.getLore());
+            List<String> strip = InventoryUtil.stripColor(currentItem.getLore());
             List<String> lore = currentItem.getLore();
             int line = 0;
             for (String s : strip) {
@@ -417,7 +405,7 @@ public final class InteractListener implements Listener {
                     MessageUtils.sendMessage(player, plugin.getSettings().getString("language.augment.too-easy", ""));
                     return;
                 }
-                if (type.getChanceToDestroy() != 0) {
+                if (type.getChanceToFail() != 0) {
                     lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Chance");
                     lore.add(ChatColor.GRAY + "Success chance increased by 12%");
                 } else {
@@ -425,7 +413,7 @@ public final class InteractListener implements Listener {
                     return;
                 }
             } else if (cursor.getName().endsWith("Protect")) {
-                if (type.getChanceToDestroy() != 0) {
+                if (type.getChanceToFail() != 0) {
                     lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Protect");
                     lore.add(ChatColor.GRAY + "Failure will not destroy item");
                 } else {
@@ -468,7 +456,7 @@ public final class InteractListener implements Listener {
                 return;
             }
             boolean succeed = false;
-            List<String> strip = stripColor(currentItem.getLore());
+            List<String> strip = InventoryUtil.stripColor(currentItem.getLore());
             for (String s : strip) {
                 if (s.startsWith("+")) {
                     succeed = true;
@@ -494,7 +482,7 @@ public final class InteractListener implements Listener {
                     break;
                 }
             }
-            if (random.nextDouble() + augChance < type.getChanceToDestroy()) {
+            if (random.nextDouble() + augChance < type.getChanceToFail()) {
                 double damagePercentage = random.nextDouble() * (0.25 + itemUpgradeLevel * 0.115);
                 int damageAmount = (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability()) - 1;
                 damageAmount = Math.max(damageAmount, 1);
@@ -645,14 +633,6 @@ public final class InteractListener implements Listener {
         return NumberUtils.toInt(lev.split(" ")[0], 0);
     }
 
-    private List<String> stripColor(List<String> strings) {
-        List<String> ret = new ArrayList<>();
-        for (String s : strings) {
-            ret.add(ChatColor.stripColor(s));
-        }
-        return ret;
-    }
-
     private void broadcast(Player player, HiltItemStack his, String type) {
         FancyMessage message = new FancyMessage("");
         String mess = plugin.getSettings().getString("language.broadcast." + type, "");
@@ -678,10 +658,9 @@ public final class InteractListener implements Listener {
 
     private boolean isBannedMaterial(HiltItemStack currentItem) {
         return currentItem.getType() == Material.BOOK || currentItem.getType() == Material.EMERALD ||
-                currentItem.getType() == Material.PAPER || currentItem.getType() == Material.NETHER_STAR ||
-                currentItem.getType() == Material.DIAMOND  ||currentItem.getType() == Material.GHAST_TEAR ||
-                currentItem.getType() == Material.GLOWSTONE_DUST || currentItem.getType() == Material.ENCHANTED_BOOK ||
-                currentItem.getType() == Material.NAME_TAG;
+            currentItem.getType() == Material.PAPER || currentItem.getType() == Material.NETHER_STAR ||
+            currentItem.getType() == Material.DIAMOND  ||currentItem.getType() == Material.GHAST_TEAR ||
+            currentItem.getType() == Material.ENCHANTED_BOOK || currentItem.getType() == Material.NAME_TAG;
     }
 
 }

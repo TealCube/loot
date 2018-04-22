@@ -23,6 +23,7 @@
 package info.faceland.loot.api.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.data.ItemStat;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -31,46 +32,22 @@ import java.util.Set;
 
 public interface Tier extends Comparable<Tier> {
 
+    boolean isLevelRequirement();
+
     String getName();
 
-    String getDisplayName();
+    ItemStat getPrimaryStat();
 
-    ChatColor getDisplayColor();
+    List<ItemStat> getSecondaryStats();
 
-    double getMinimumDurability();
-
-    double getMaximumDurability();
+    List<ItemStat> getBonusStats();
 
     double getSpawnWeight();
 
-    double getLevelBase();
-
-    double getLevelRange();
-
     double getIdentifyWeight();
-
-    double getDistanceWeight();
-
-    List<String> getBaseLore();
-
-    List<String> getBonusLore();
 
     Set<ItemGroup> getItemGroups();
 
-    int getMinimumSockets();
-
-    int getMaximumSockets();
-
-    int getMinimumBonusLore();
-
-    int getMaximumBonusLore();
-
     Set<Material> getAllowedMaterials();
-
-    boolean isEnchantable();
-
-    boolean isBroadcast();
-
-    double getExtendableChance();
 
 }

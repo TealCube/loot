@@ -22,7 +22,6 @@
  */
 package info.faceland.loot;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import info.faceland.loot.api.creatures.CreatureMod;
@@ -42,12 +41,15 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
+import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.InteractListener;
+import info.faceland.loot.listeners.SalvageListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
@@ -55,19 +57,23 @@ import info.faceland.loot.listeners.sockets.CombinerListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
 import info.faceland.loot.listeners.EntityDeathListener;
 import info.faceland.loot.managers.*;
+import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
+import info.faceland.strife.StrifePlugin;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
+
 import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
 import java.io.File;
@@ -77,7 +83,10 @@ import java.util.logging.Level;
 public final class LootPlugin extends FacePlugin {
 
     private PluginLogger debugPrinter;
+    private EquipmentRecipeBuilder recipeBuilder;
     private VersionedSmartYamlConfiguration itemsYAML;
+    private VersionedSmartYamlConfiguration statsYAML;
+    private VersionedSmartYamlConfiguration rarityYAML;
     private VersionedSmartYamlConfiguration tierYAML;
     private VersionedSmartYamlConfiguration corestatsYAML;
     private VersionedSmartYamlConfiguration customItemsYAML;
@@ -87,11 +96,12 @@ public final class LootPlugin extends FacePlugin {
     private VersionedSmartYamlConfiguration creaturesYAML;
     private VersionedSmartYamlConfiguration identifyingYAML;
     private VersionedSmartYamlConfiguration enchantmentTomesYAML;
-    private VersionedSmartYamlConfiguration revealPowderYAML;
     private SmartYamlConfiguration chestsYAML;
     private MasterConfiguration settings;
     private ItemGroupManager itemGroupManager;
     private TierManager tierManager;
+    private StatManager statManager;
+    private RarityManager rarityManager;
     private NameManager nameManager;
     private CustomItemManager customItemManager;
     private SocketGemManager socketGemManager;
@@ -101,15 +111,33 @@ public final class LootPlugin extends FacePlugin {
     private ChestManager chestManager;
     private GemCacheManager gemCacheManager;
 
+    private StrifePlugin strifePlugin;
+
     @Override
     public void enable() {
         debugPrinter = new PluginLogger(this);
+        recipeBuilder = new EquipmentRecipeBuilder(this);
+        recipeBuilder.setupAllRecipes();
         itemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "items.yml"),
-                getResource("items.yml"),
-                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+            getResource("items.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (itemsYAML.update()) {
             getLogger().info("Updating items.yml");
             debug("Updating items.yml");
+        }
+        statsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "stats.yml"),
+            getResource("stats.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+        if (statsYAML.update()) {
+            getLogger().info("Updating stats.yml");
+            debug("Updating stats.yml");
+        }
+        rarityYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "rarity.yml"),
+            getResource("rarity.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+        if (rarityYAML.update()) {
+            getLogger().info("Updating rarity.yml");
+            debug("Updating rarity.yml");
         }
         tierYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "tier.yml"),
                 getResource("tier.yml"),
@@ -177,20 +205,15 @@ public final class LootPlugin extends FacePlugin {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
         }
-        revealPowderYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "reveal.yml"),
-                getResource("reveal.yml"),
-                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-        if (revealPowderYAML.update()) {
-            getLogger().info("Updating reveal.yml");
-            debug("Updating reveal.yml");
-        }
         chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
         chestsYAML.load();
 
-        settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML, revealPowderYAML);
+        settings = MasterConfiguration.loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
 
         itemGroupManager = new LootItemGroupManager();
         tierManager = new LootTierManager();
+        statManager = new LootStatManager();
+        rarityManager = new LootRarityManager();
         nameManager = new LootNameManager();
         customItemManager = new LootCustomItemManager();
         socketGemManager = new LootSocketGemManager();
@@ -201,6 +224,8 @@ public final class LootPlugin extends FacePlugin {
         gemCacheManager = new LootGemCacheManager(this);
 
         loadItemGroups();
+        loadStats();
+        loadRarities();
         loadTiers();
         loadNames();
         loadCustomItems();
@@ -209,15 +234,18 @@ public final class LootPlugin extends FacePlugin {
         loadCreatureMods();
         loadChests();
 
+        strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
+
         CommandHandler handler = new CommandHandler(this);
         handler.registerCommands(new LootCommand(this));
         Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new SocketsListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CombinerListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SalvageListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CraftingListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
-        if (Bukkit.getPluginManager().getPlugin("Strife") != null) {
+        if (strifePlugin != null) {
             Bukkit.getPluginManager().registerEvents(new StrifeListener(this), this);
         } else {
             System.out.println("Strife not detected. No load crit/evade gems!");
@@ -264,18 +292,23 @@ public final class LootPlugin extends FacePlugin {
         customItemManager = null;
         nameManager = null;
         tierManager = null;
+        statManager = null;
+        rarityManager = null;
         itemGroupManager = null;
+        gemCacheManager = null;
         settings = null;
         identifyingYAML = null;
         creaturesYAML = null;
         configYAML = null;
         languageYAML = null;
         customItemsYAML = null;
-        revealPowderYAML = null;
         corestatsYAML = null;
         tierYAML = null;
         itemsYAML = null;
+        statsYAML = null;
+        rarityYAML = null;
         debugPrinter = null;
+        strifePlugin = null;
     }
 
     public void debug(String... messages) {
@@ -551,6 +584,56 @@ public final class LootPlugin extends FacePlugin {
         debug("Loaded item groups: " + loadedItemGroups.toString());
     }
 
+    private void loadRarities() {
+        for (String rarityName : getRarityManager().getLoadedRarities().keySet()) {
+            getStatManager().removeStat(rarityName);
+        }
+        for (String key : rarityYAML.getKeys(false)) {
+            if (!rarityYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = rarityYAML.getConfigurationSection(key);
+            ItemRarity rarity = new ItemRarity();
+            rarity.setBroadcast(cs.getBoolean("broadcast"));
+            rarity.setName(cs.getString("name"));
+            rarity.setColor(ChatColor.valueOf(cs.getString("color")));
+            rarity.setWeight(cs.getDouble("weight"));
+            rarity.setIdWeight(cs.getDouble("id-weight"));
+            rarity.setPower(cs.getDouble("power"));
+            rarity.setMinimumBonusStats(cs.getInt("min-bonus-stats"));
+            rarity.setMaximumBonusStats(cs.getInt("max-bonus-stats") + 1);
+            rarity.setEnchantments(cs.getInt("enchantments"));
+            rarity.setMinimumSockets(cs.getInt("min-sockets"));
+            rarity.setMaximumSockets(cs.getInt("max-sockets") + 1);
+            rarity.setExtenderSlots(cs.getInt("extend-slots"));
+            getRarityManager().addRarity(key, rarity);
+        }
+        debug("Loaded rarities: " + getRarityManager().getLoadedRarities().toString());
+    }
+
+    private void loadStats() {
+        for (String statName : getStatManager().getLoadedStats().keySet()) {
+            getStatManager().removeStat(statName);
+        }
+        for (String key : statsYAML.getKeys(false)) {
+            if (!statsYAML.isConfigurationSection(key)) {
+                continue;
+            }
+            ConfigurationSection cs = statsYAML.getConfigurationSection(key);
+            ItemStat stat = new ItemStat();
+            stat.setMinBaseValue(cs.getDouble("min-base-value"));
+            stat.setMaxBaseValue(cs.getDouble("max-base-value"));
+            stat.setPerLevelIncrease(cs.getDouble("per-level-increase"));
+            stat.setPerLevelMultiplier(cs.getDouble("per-level-multiplier"));
+            stat.setPerRarityIncrease(cs.getDouble("per-rarity-increase"));
+            stat.setPerRarityMultiplier(cs.getDouble("per-rarity-multiplier"));
+            stat.setStatString(cs.getString("stat-string"));
+            stat.setPerfectStatString(cs.getString("perfect-stat-string"));
+            getStatManager().addStat(key, stat);
+        }
+        debug("Loaded stats: " + getStatManager().getLoadedStats().keySet().toString());
+    }
+
     private void loadTiers() {
         for (Tier t : getTierManager().getLoadedTiers()) {
             getTierManager().removeTier(t.getName());
@@ -563,19 +646,21 @@ public final class LootPlugin extends FacePlugin {
             }
             ConfigurationSection cs = tierYAML.getConfigurationSection(key);
             TierBuilder builder = getNewTierBuilder(key);
-            builder.withDisplayName(cs.getString("display-name"));
-            builder.withDisplayColor(TextUtils.convertTag(cs.getString("display-color")));
+            builder.withName(cs.getString("tier-name"));
+            builder.withLevelRequirement(cs.getBoolean("level-req"));
+            builder.withPrimaryStat(getStatManager().getLoadedStats().get(cs.getString("primary-stat")));
+            List<ItemStat> secondaryStats = new ArrayList<>();
+            for (String statName : cs.getStringList("secondary-stats")) {
+                secondaryStats.add(getStatManager().getStat(statName));
+            }
+            builder.withSecondaryStats(secondaryStats);
+            List<ItemStat> bonusStats = new ArrayList<>();
+            for (String statName : cs.getStringList("bonus-stats")) {
+                bonusStats.add(getStatManager().getStat(statName));
+            }
+            builder.withBonusStats(bonusStats);
             builder.withSpawnWeight(cs.getDouble("spawn-weight"));
-            builder.withLevelBase(cs.getInt("level-base"));
-            builder.withLevelRange(cs.getInt("level-range"));
             builder.withIdentifyWeight(cs.getDouble("identify-weight"));
-            builder.withDistanceWeight(cs.getDouble("distance-weight"));
-            builder.withMinimumSockets(cs.getInt("minimum-sockets"));
-            builder.withMaximumSockets(cs.getInt("maximum-sockets") + 1);
-            builder.withMinimumBonusLore(cs.getInt("minimum-bonus-lore"));
-            builder.withMaximumBonusLore(cs.getInt("maximum-bonus-lore") + 1);
-            builder.withBaseLore(cs.getStringList("base-lore"));
-            builder.withBonusLore(cs.getStringList("bonus-lore"));
             List<String> sl = cs.getStringList("item-groups");
             Set<ItemGroup> itemGroups = new HashSet<>();
             for (String s : sl) {
@@ -595,11 +680,6 @@ public final class LootPlugin extends FacePlugin {
                 }
             }
             builder.withItemGroups(itemGroups);
-            builder.withMinimumDurability(cs.getDouble("minimum-durability"));
-            builder.withMaximumDurability(cs.getDouble("maximum-durability"));
-            builder.withEnchantable(cs.getBoolean("enchantable"));
-            builder.withBroadcast(cs.getBoolean("broadcast"));
-            builder.withExtendableChance(cs.getDouble("extendable-chance"));
             Tier t = builder.build();
             loadedTiers.add(t.getName());
             tiers.add(t);
@@ -636,6 +716,14 @@ public final class LootPlugin extends FacePlugin {
 
     public TierManager getTierManager() {
         return tierManager;
+    }
+
+    public StatManager getStatManager() {
+        return statManager;
+    }
+
+    public RarityManager getRarityManager() {
+        return rarityManager;
     }
 
     public ItemGroupManager getItemGroupManager() {
@@ -676,5 +764,9 @@ public final class LootPlugin extends FacePlugin {
 
     public GemCacheManager getGemCacheManager() {
         return gemCacheManager;
+    }
+
+    public StrifePlugin getStrifePlugin() {
+        return strifePlugin;
     }
 }

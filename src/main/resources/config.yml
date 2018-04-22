@@ -25,23 +25,23 @@ enchantments-stack: true
 
 # Chance that items will have any random upgrade
 # value applied on drop.
-random-upgrade-chance: 0.1
+random-upgrade-quantityBonus: 0.1
 
 # Chance that items will have additional random upgrades
 # applied to the drop. This stacks, so 0.1 would
-# be 10% chance of +2, 1% chance of +3, 0.1% chance
+# be 10% quantityBonus of +2, 1% quantityBonus of +3, 0.1% quantityBonus
 # of +4, etc.
-multi-upgrade-chance: 0.1
+multi-upgrade-quantityBonus: 0.1
 
 # Chance that items will have a bonus to their
 # quality, increasing its base stat
-random-quality-chance: 0.1
+random-quality-quantityBonus: 0.1
 
 # Chance that items will have additional random quality
 # ups applied to the drop. This stacks, so 0.1 would
-# be 10% chance of Superior, 1% chance of Perfect, 0.1%
-# chance of Ultimate, etc.
-multi-quality-chance: 0.1
+# be 10% quantityBonus of Superior, 1% quantityBonus of Perfect, 0.1%
+# quantityBonus of Ultimate, etc.
+multi-quality-quantityBonus: 0.1
 
 # How long loot drops assigned to a specific player
 # should disallow anyone else to pick it up. The
@@ -68,7 +68,8 @@ drops:
   upgrade-scroll: 0.1
   reveal-powder: 0.1
   identity-tome: 0.01
-  custom-item: 0.1
+  junk-item: 0.1
+  unique-item: 0.1
   socket-extender: 0.000001
   unidentified-item: 0.1
 

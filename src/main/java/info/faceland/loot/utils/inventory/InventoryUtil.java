@@ -22,27 +22,43 @@
  */
 package info.faceland.loot.utils.inventory;
 
-import org.bukkit.inventory.Inventory;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public final class InventoryUtil {
 
     private InventoryUtil() {
-        // do nothing
+        // meh
     }
 
-    public static int firstAtLeast(Inventory inventory, ItemStack itemStack, int amount) {
-        if (inventory == null || itemStack == null) {
-            return -1;
+    public static String getItemType(ItemStack itemStack) {
+        Material material = itemStack.getType();
+        if (isWand(itemStack)) {
+            return "Wand";
         }
-        for (int i = 0; i < inventory.getContents().length; i++) {
-            ItemStack is = inventory.getContents()[i];
-            if (is == null || !is.isSimilar(itemStack) || is.getAmount() < amount) {
-                continue;
-            }
-            return i;
-        }
-        return -1;
+        return WordUtils.capitalizeFully(material.toString().replace("_", " "));
     }
 
+    public static List<String> stripColor(List<String> strings) {
+        List<String> ret = new ArrayList<>();
+        for (String s : strings) {
+            ret.add(ChatColor.stripColor(s));
+        }
+        return ret;
+    }
+
+    // Dirty hardcoded check for Faceland, as wood swords are still a thing, but wands use the item type
+    private static boolean isWand(ItemStack itemStack) {
+        if (!itemStack.hasItemMeta() || !itemStack.getItemMeta().hasLore()) {
+            return false;
+        }
+        if (itemStack.getItemMeta().getLore().size() > 1 && itemStack.getItemMeta().getLore().get(1).endsWith("Wand")) {
+            return true;
+        }
+        return false;
+    }
 }

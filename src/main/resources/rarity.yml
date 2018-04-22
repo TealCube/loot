@@ -1,0 +1,54 @@
+version: "0.0.1"
+COMMON:
+  broadcast: false
+  name: "Common"
+  color: WHITE
+  power: 0
+  weight: 100
+  id-weight: 5
+  min-bonus-stats: 1
+  max-bonus-stats: 2
+  enchantments: 1
+  min-sockets: 0
+  max-sockets: 1
+  extend-slots: 0
+UNCOMMON:
+  broadcast: false
+  name: "Uncommon"
+  color: BLUE
+  power: 1
+  weight: 100
+  id-weight: 5
+  min-bonus-stats: 2
+  max-bonus-stats: 3
+  enchantments: 1
+  min-sockets: 1
+  max-sockets: 1
+  extend-slots: 0
+RARE:
+  broadcast: false
+  name: "Rare"
+  color: DARK_PURPLE
+  power: 2
+  weight: 100
+  id-weight: 5
+  min-bonus-stats: 3
+  max-bonus-stats: 4
+  enchantments: 1
+  min-sockets: 1
+  max-sockets: 2
+  extend-slots: 1
+EPIC:
+  broadcast: true
+  name: "Epic"
+  color: RED
+  power: 3
+  weight: 100
+  id-weight: 5
+  weight-per-bonus: 10
+  min-bonus-stats: 4
+  max-bonus-stats: 5
+  enchantments: 1
+  min-sockets: 2
+  max-sockets: 2
+  extend-slots: 1

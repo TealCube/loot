@@ -35,12 +35,13 @@ import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.events.LootDetermineChanceEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
-import info.faceland.loot.items.prefabs.RevealPowder;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
+import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
@@ -52,14 +53,16 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -79,7 +82,7 @@ public final class EntityDeathListener implements Listener {
 
     public EntityDeathListener(LootPlugin plugin) {
         this.plugin = plugin;
-        this.random = new LootRandom(System.currentTimeMillis());
+        this.random = new LootRandom();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -103,7 +106,7 @@ public final class EntityDeathListener implements Listener {
             return;
         }
         if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false) &&
-                !(event.getEntity() instanceof Monster)) {
+            !(event.getEntity() instanceof Monster || event.getEntity() instanceof Ghast || event.getEntity() instanceof Slime)) {
             return;
         }
         if (!plugin.getSettings().getBoolean("config.spawner-mobs-drop", false)) {
@@ -111,31 +114,32 @@ public final class EntityDeathListener implements Listener {
                 return;
             }
         }
-        double dropBonus = 1.0D;
+        double dropMultiplier = 1D;
+        double rarityMultiplier = 1D;
         double dropPenalty = 1.0D;
-        double xpMult = 1.0D;
+        double expMultiplier = 1.0D;
 
         Player killer = event.getEntity().getKiller();
 
         if (!isWaterMob(event.getEntity())) {
             if (isWater(event.getEntity().getLocation())) {
                 dropPenalty *= 0.6D;
-                xpMult *= 0.6D;
+                expMultiplier *= 0.6D;
             }
             if (isWater(killer.getLocation())) {
                 dropPenalty *= 0.8D;
-                xpMult *= 0.8D;
+                expMultiplier *= 0.8D;
             }
         }
 
         if (isClimbing(killer.getLocation())) {
             dropPenalty *= 0.5D;
-            xpMult *= 0.5D;
+            expMultiplier *= 0.5D;
         }
 
-        if (event.getEntity().getLastDamageCause().getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+        if (!isValidDamageType(event.getEntity().getLastDamageCause().getCause())) {
             dropPenalty *= 0.5D;
-            xpMult *= 0.6D;
+            expMultiplier *= 0.6D;
         }
 
         double distanceFromWhereTagged = -1D;
@@ -153,15 +157,15 @@ public final class EntityDeathListener implements Listener {
 
         if (distanceFromWhereTagged < 2) {
             dropPenalty *= 0.8D;
-            xpMult *= 0.7D;
+            expMultiplier *= 0.7D;
             if (distanceFromWhereTagged < 0.8) {
                 dropPenalty *= 0.4D;
-                xpMult *= 0.4D;
+                expMultiplier *= 0.4D;
             }
         }
         if (taggerDistance < 1.5) {
             dropPenalty *= 0.6D;
-            xpMult *= 0.8D;
+            expMultiplier *= 0.8D;
         }
 
         int mobLevel = 0;
@@ -170,15 +174,17 @@ public final class EntityDeathListener implements Listener {
                 mobLevel = NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(event.getEntity()
                         .getCustomName())));
                 int playerLevel = killer.getLevel();
-                int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
-                double levelDiff = playerLevel - mobLevel;
-                if (Math.abs(levelDiff) > range) {
-                    if (levelDiff > 0) {
-                        dropPenalty *= Math.max(1 - (levelDiff - range) * 0.1, 0.4);
-                        xpMult *= Math.max(1 - (levelDiff - range) * 0.05, 0.3);
-                    } else {
-                        dropPenalty *= Math.max(1 - (-levelDiff - range) * 0.1, 0);
-                        xpMult *= Math.max(1 - (-levelDiff - range) * 0.1, 0.05);
+                if (playerLevel < 100) {
+                    int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
+                    double levelDiff = playerLevel - mobLevel;
+                    if (Math.abs(levelDiff) > range) {
+                        if (levelDiff > 0) {
+                            dropPenalty *= Math.max(1 - (levelDiff - range) * 0.1, 0.4);
+                            expMultiplier *= Math.max(1 - (levelDiff - range) * 0.05, 0.3);
+                        } else {
+                            dropPenalty *= Math.max(1 - (-levelDiff - range) * 0.1, 0);
+                            expMultiplier *= Math.max(1 - (-levelDiff - range) * 0.1, 0.05);
+                        }
                     }
                 }
             }
@@ -191,47 +197,62 @@ public final class EntityDeathListener implements Listener {
         // Adding to drop rate based on rank of Elite Mobs
         if (mobName != null) {
             if (mobName.startsWith(ChatColor.GRAY + "")) {
-                dropBonus = 1.0D;
-                xpMult *= 1.1D;
+                dropMultiplier = 1D;
+                rarityMultiplier = 1D;
             } else if (mobName.startsWith(ChatColor.BLUE + "Magic")) {
-                dropBonus = 6.0D;
-                xpMult *= 1.3D;
+                dropMultiplier = 10D;
+                rarityMultiplier = 2D;
+                expMultiplier *= 2D;
             } else if (mobName.startsWith(ChatColor.DARK_PURPLE + "Rare")) {
-                dropBonus = 9.0D;
-                xpMult *= 1.6D;
+                dropMultiplier = 20D;
+                rarityMultiplier = 3D;
+                expMultiplier *= 3D;
             } else if (mobName.startsWith(ChatColor.RED + "Epic")) {
-                dropBonus = 11.0D;
-                xpMult *= 2.0D;
+                dropMultiplier = 30D;
+                rarityMultiplier = 4D;
+                expMultiplier *= 4D;
             } else if (mobName.startsWith(ChatColor.GOLD + "Legendary")) {
-                dropBonus = 13.0D;
-                xpMult *= 3.0D;
+                dropMultiplier = 40D;
+                rarityMultiplier = 5D;
+                expMultiplier *= 5D;
             } else if (mobName.startsWith(ChatColor.DARK_RED + "Boss")) {
-                dropBonus = 15.0D;
+                dropMultiplier = 35D;
+                rarityMultiplier = 4D;
             }
         }
 
-        event.setDroppedExp((int) (xpMult * event.getDroppedExp()));
+        event.setDroppedExp((int) (expMultiplier * event.getDroppedExp()));
 
         // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
-        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer, 0.0D);
+        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer);
         Bukkit.getPluginManager().callEvent(chanceEvent);
-        dropBonus += (chanceEvent.getChance() - 1);
+
+        dropMultiplier += chanceEvent.getQuantityBonus();
+        rarityMultiplier += chanceEvent.getRarityBonus();
+
         if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
-            dropBonus += 0.2;
+            rarityMultiplier += 0.1;
         }
 
-        dropBonus *= dropPenalty;
+        dropMultiplier *= dropPenalty;
         World w = event.getEntity().getWorld();
 
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
-            Tier t;
-            if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-                t = plugin.getTierManager().getRandomLeveledTier(mobLevel);
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.normal-drop", 0D)) {
+            Tier tier = plugin.getTierManager().getRandomTier();
+            ItemRarity rarity;
+
+            if (rarityMultiplier == 1D) {
+                rarity = plugin.getRarityManager().getRandomRarity();
             } else {
-                t = plugin.getTierManager().getRandomTier(true, distanceSquared, mod != null ? mod.getTierMults() :
-                        new HashMap<Tier, Double>());
+                rarity = plugin.getRarityManager().getRandomRarityWithBonus(rarityMultiplier);
             }
-            HiltItemStack his = plugin.getNewItemBuilder().withTier(t).withItemGenerationReason(ItemGenerationReason.MONSTER).build();
+
+            HiltItemStack his = plugin.getNewItemBuilder()
+                .withTier(tier)
+                .withRarity(rarity)
+                .withLevel(Math.max(1, Math.min(mobLevel - 2 + random.nextIntRange(0, 5), 100)))
+                .withItemGenerationReason(ItemGenerationReason.MONSTER)
+                .build();
 
             int qualityBonus = 1;
             double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
@@ -260,11 +281,11 @@ public final class EntityDeathListener implements Listener {
                 applyOwnerMeta(drop, bestTaggerLmao);
                 killer = Bukkit.getPlayer(bestTaggerLmao);
             }
-            if (t.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2) {
+            if (rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2) {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             }
         }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {
             SocketGem sg;
             if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
                 sg = plugin.getSocketGemManager().getRandomSocketGemByLevel(mobLevel);
@@ -284,7 +305,7 @@ public final class EntityDeathListener implements Listener {
             }
         }
         if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
-            if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
+            if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.enchant-gem", 0D)) {
                 EnchantmentTome es = plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true, distanceSquared,
                         mod != null ? mod.getEnchantmentStoneMults() : new HashMap<EnchantmentTome, Double>());
                 HiltItemStack his = es.toItemStack(1);
@@ -298,32 +319,32 @@ public final class EntityDeathListener implements Listener {
                 }
             }
         }
-        if (random.nextDouble() <  dropBonus * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
+        if (random.nextDouble() <  dropMultiplier * plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D)) {
             UpgradeScroll us = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
             Item drop = w.dropItemNaturally(event.getEntity().getLocation(), us);
             if (bestTaggerLmao != null) {
                 applyOwnerMeta(drop, bestTaggerLmao);
             }
-            if (us.getScrollType() == UpgradeScroll.ScrollType.ANCIENT || us.getScrollType() == UpgradeScroll.ScrollType.FLAWLESS
-                    || us.getScrollType() == UpgradeScroll.ScrollType.AWAKENED) {
+
+            ScrollType scrollType = us.getScrollType();
+            if (scrollType == ScrollType.ANCIENT ||
+                scrollType == ScrollType.AWAKENED ||
+                scrollType == ScrollType.FLAWLESS ||
+                scrollType == ScrollType.DIM ||
+                scrollType == ScrollType.SHINING ||
+                scrollType == ScrollType.ILLUMINATING ||
+                scrollType == ScrollType.RADIANT) {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), us);
             }
         }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
             HiltItemStack his = new IdentityTome();
             Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
             if (bestTaggerLmao != null) {
                 applyOwnerMeta(drop, bestTaggerLmao);
             }
         }
-        if (random.nextDouble() < dropPenalty * plugin.getSettings().getDouble("config.drops.reveal-powder", 0D)) {
-            HiltItemStack his = new RevealPowder();
-            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
-            if (bestTaggerLmao != null) {
-                applyOwnerMeta(drop, bestTaggerLmao);
-            }
-        }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
             CustomItem ci;
             if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
                 ci = plugin.getCustomItemManager().getRandomCustomItemByLevel(mobLevel);
@@ -355,7 +376,7 @@ public final class EntityDeathListener implements Listener {
                 broadcast(killer, his);
             }
         }
-        if (random.nextDouble() < dropBonus * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
             HiltItemStack his = new SocketExtender();
             broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
             Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
@@ -464,6 +485,11 @@ public final class EntityDeathListener implements Listener {
     private boolean isClimbing(Location location) {
         Block b = location.getBlock();
         return b.getType() == Material.LADDER || b.getType() == Material.VINE;
+    }
+
+    private boolean isValidDamageType(DamageCause cause) {
+        return cause == DamageCause.ENTITY_ATTACK || cause == DamageCause.ENTITY_EXPLOSION ||
+            cause == DamageCause.PROJECTILE || cause == DamageCause.MAGIC || cause == DamageCause.FIRE_TICK;
     }
 
     private boolean isWaterMob(Entity entity) {

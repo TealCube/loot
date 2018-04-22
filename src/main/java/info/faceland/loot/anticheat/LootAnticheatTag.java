@@ -51,7 +51,7 @@ public final class LootAnticheatTag implements AnticheatTag {
         this.entityLocation = entityLocation;
         this.taggerLocations = new HashMap<>();
         this.taggerDamage = new HashMap<>();
-        this.random = new LootRandom(System.currentTimeMillis());
+        this.random = new LootRandom();
     }
 
     @Override

@@ -20,22 +20,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package info.faceland.loot.items.prefabs;
+package info.faceland.loot.api.managers;
 
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import info.faceland.loot.data.ItemRarity;
+import java.util.Map;
 
-import java.util.Arrays;
+public interface RarityManager {
 
-public final class RevealPowder extends HiltItemStack {
+    ItemRarity getRarity(String name);
 
-    public RevealPowder() {
-        super(Material.GLOWSTONE_DUST);
-        setAmount(1);
-        setName(ChatColor.YELLOW + "Stat Reveal Powder");
-        setLore(Arrays.asList(ChatColor.GRAY + "Use this item on an item with",
-                              ChatColor.GRAY + "a " + ChatColor.YELLOW + "(Hidden)" + ChatColor.GRAY + " stat to unlock",
-                              ChatColor.GRAY + "its hidden power!"));
-    }
+    void addRarity(String name, ItemRarity rarity);
+
+    void removeRarity(String name);
+
+    Map<String, ItemRarity> getLoadedRarities();
+
+    ItemRarity getRandomRarity();
+
+    ItemRarity getRandomIdRarity();
+
+    ItemRarity getRandomRarityWithBonus(double bonus);
 }

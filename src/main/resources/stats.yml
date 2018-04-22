@@ -1,0 +1,19 @@
+version: "0.0.1"
+SHIELD-ARMOR:
+  min-base-value: 3
+  max-base-value: 5
+  per-level-increase: 0.1
+  per-level-multipler: 0.1
+  per-rarity-increase: 1
+  per-rarity-multipler: 0.1
+  stat-string: "&a+{} Armor"
+  perfect-stat-string: "&e+{} Armor"
+SHIELD-HEALTH:
+  min-base-value: 6
+  max-base-value: 10
+  per-level-increase: 0.1
+  per-level-multipler: 0.1
+  per-rarity-increase: 1
+  per-rarity-multipler: 0.1
+  stat-string: "&a+{} Health"
+  perfect-stat-string: "&e+{} Health"

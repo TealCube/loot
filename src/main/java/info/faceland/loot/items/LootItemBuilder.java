@@ -27,10 +27,11 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.math.LootRandom;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -44,14 +45,15 @@ public final class LootItemBuilder implements ItemBuilder {
     private final LootPlugin plugin;
     private boolean built = false;
     private Tier tier;
+    private ItemRarity rarity;
+    private int level;
     private Material material;
     private ItemGenerationReason itemGenerationReason = ItemGenerationReason.MONSTER;
     private LootRandom random;
-    private double distance;
 
     public LootItemBuilder(LootPlugin plugin) {
         this.plugin = plugin;
-        this.random = new LootRandom(System.currentTimeMillis());
+        this.random = new LootRandom();
     }
 
     @Override
@@ -66,17 +68,6 @@ public final class LootItemBuilder implements ItemBuilder {
         }
         built = true;
         HiltItemStack hiltItemStack;
-        int attempts = 0;
-        while (tier == null && attempts < 10) {
-            tier = chooseTier();
-            if (material != null && tier != null && !tier.getAllowedMaterials().contains(material)) {
-                tier = null;
-            }
-            attempts++;
-        }
-        if (tier == null) {
-            throw new IllegalStateException("tier is null");
-        }
         if (material == null) {
             Set<Material> set = tier.getAllowedMaterials();
             Material[] array = set.toArray(new Material[set.size()]);
@@ -86,30 +77,56 @@ public final class LootItemBuilder implements ItemBuilder {
             material = array[random.nextInt(array.length)];
         }
         hiltItemStack = new HiltItemStack(material);
-        hiltItemStack.setName(tier.getDisplayColor() + plugin.getNameManager().getRandomPrefix() + " " + plugin
-                .getNameManager().getRandomSuffix() + ChatColor.BLACK);
-        List<String> lore = new ArrayList<>(tier.getBaseLore());
-        lore.addAll(plugin.getSettings().getStringList("corestats." + material.name(),
-                                                       new ArrayList<String>()));
-        int bonusLore = random.nextIntRange(tier.getMinimumBonusLore(), tier.getMaximumBonusLore());
-        for (int i = 0; i < bonusLore; i++) {
-            lore.add(tier.getBonusLore().get(random.nextInt(tier.getBonusLore().size())));
+        hiltItemStack.setName(rarity.getColor() + plugin.getNameManager().getRandomPrefix() + " " +
+            plugin.getNameManager().getRandomSuffix());
+        List<String> lore = new ArrayList<>();
+
+        lore.add("&fLevel Requirement: " + level);
+        lore.add("&fTier: " + rarity.getColor() + rarity.getName() + " " + tier.getName());
+
+        lore.add(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), level, rarity));
+        lore.add(plugin.getStatManager().getFinalStat(
+            tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), level, rarity));
+
+        int bonusStats = random.nextIntRange(rarity.getMinimumBonusStats(), rarity.getMaximumBonusStats());
+        List<ItemStat> bonusStatList = new ArrayList<>();
+        bonusStatList.addAll(tier.getBonusStats());
+        for (int i = 0; i < bonusStats; i++) {
+            ItemStat stat = bonusStatList.get(random.nextInt(bonusStatList.size()));
+            lore.add(plugin.getStatManager().getFinalStat(stat, level, rarity));
+            bonusStatList.remove(stat);
         }
-        if (tier.isEnchantable()) {
-            lore.add("<blue>(Enchantable)");
+
+        for (int i = 0; i < rarity.getEnchantments(); i++) {
+            lore.add("&9(Enchantable)");
         }
-        int sockets = random.nextIntRange(tier.getMinimumSockets(), tier.getMaximumSockets());
+
+        int sockets = random.nextIntRange(rarity.getMinimumSockets(), rarity.getMaximumSockets());
         for (int i = 0; i < sockets; i++) {
-            lore.add("<gold>(Socket)");
+            lore.add("&6(Socket)");
         }
-        if (random.nextDouble() < tier.getExtendableChance()) {
-            lore.add("<dark aqua>(+)");
+
+        for (int i = 0; i < rarity.getExtenderSlots(); i++) {
+            lore.add("&3(+)");
         }
+
         hiltItemStack.setLore(TextUtils.color(lore));
         ItemMeta itemMeta = hiltItemStack.getItemMeta();
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         hiltItemStack.setItemMeta(itemMeta);
         return hiltItemStack;
+    }
+
+    @Override
+    public ItemBuilder withRarity(ItemRarity r) {
+        rarity = r;
+        return this;
+    }
+
+    @Override
+    public ItemBuilder withLevel(int l) {
+        level = l;
+        return this;
     }
 
     @Override
@@ -127,32 +144,21 @@ public final class LootItemBuilder implements ItemBuilder {
     @Override
     public ItemBuilder withItemGenerationReason(ItemGenerationReason reason) {
         itemGenerationReason = reason;
-        return this;
-    }
-
-    @Override
-    public ItemBuilder withDistance(double d) {
-        distance = d;
-        return this;
-    }
-
-    private Tier chooseTier() {
         if (itemGenerationReason == ItemGenerationReason.IDENTIFYING) {
+            this.tier = plugin.getTierManager().getRandomTier();
             double totalWeight = 0D;
-            for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                totalWeight += t.getIdentifyWeight();
+            for (ItemRarity rarity : plugin.getRarityManager().getLoadedRarities().values()) {
+                totalWeight += rarity.getIdWeight();
             }
             double chosenWeight = random.nextDouble() * totalWeight;
             double currentWeight = 0D;
-            for (Tier t : plugin.getTierManager().getLoadedTiers()) {
-                currentWeight += t.getIdentifyWeight();
+            for (ItemRarity rarity : plugin.getRarityManager().getLoadedRarities().values()) {
+                currentWeight += rarity.getIdWeight();
                 if (currentWeight >= chosenWeight) {
-                    return t;
+                    this.rarity = rarity;
                 }
             }
-            return null;
         }
-        return plugin.getTierManager().getRandomTier(true, distance);
+        return this;
     }
-
 }

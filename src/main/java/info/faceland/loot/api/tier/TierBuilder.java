@@ -23,6 +23,7 @@
 package info.faceland.loot.api.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.data.ItemStat;
 import org.bukkit.ChatColor;
 
 import java.util.List;
@@ -34,42 +35,20 @@ public interface TierBuilder {
 
     Tier build();
 
-    TierBuilder withDisplayName(String s);
+    TierBuilder withLevelRequirement(boolean b);
 
-    TierBuilder withDisplayColor(ChatColor c);
+    TierBuilder withName(String s);
+
+    TierBuilder withPrimaryStat(ItemStat s);
+
+    TierBuilder withSecondaryStats(List<ItemStat> s);
+
+    TierBuilder withBonusStats(List<ItemStat> s);
 
     TierBuilder withSpawnWeight(double d);
 
-    TierBuilder withLevelBase(int i);
-
-    TierBuilder withLevelRange(int i);
-
     TierBuilder withIdentifyWeight(double d);
 
-    TierBuilder withMinimumSockets(int i);
-
-    TierBuilder withMaximumSockets(int i);
-
-    TierBuilder withMinimumBonusLore(int i);
-
-    TierBuilder withMaximumBonusLore(int i);
-
-    TierBuilder withBaseLore(List<String> l);
-
-    TierBuilder withBonusLore(List<String> l);
-
     TierBuilder withItemGroups(Set<ItemGroup> s);
-
-    TierBuilder withMinimumDurability(double d);
-
-    TierBuilder withMaximumDurability(double d);
-
-    TierBuilder withDistanceWeight(double d);
-
-    TierBuilder withEnchantable(boolean b);
-
-    TierBuilder withBroadcast(boolean b);
-
-    TierBuilder withExtendableChance(double d);
 
 }

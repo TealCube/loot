@@ -26,8 +26,6 @@ import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
 
-import org.bukkit.Bukkit;
-
 import java.util.*;
 
 public final class LootSocketGemManager implements SocketGemManager {
@@ -39,7 +37,7 @@ public final class LootSocketGemManager implements SocketGemManager {
 
     public LootSocketGemManager() {
         this.gemMap = new HashMap<>();
-        this.random = new LootRandom(System.currentTimeMillis());
+        this.random = new LootRandom();
     }
 
     @Override

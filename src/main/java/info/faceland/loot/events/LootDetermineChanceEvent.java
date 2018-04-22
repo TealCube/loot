@@ -30,12 +30,14 @@ public class LootDetermineChanceEvent extends LootEvent {
 
     private final LivingEntity entity;
     private final Player killer;
-    private double chance;
+    private double quantityBonus;
+    private double rarityBonus;
 
-    public LootDetermineChanceEvent(LivingEntity entity, Player killer, double chance) {
+    public LootDetermineChanceEvent(LivingEntity entity, Player killer) {
         this.entity = entity;
         this.killer = killer;
-        this.chance = chance;
+        this.quantityBonus = 0;
+        this.rarityBonus = 0;
     }
 
     public LivingEntity getEntity() {
@@ -46,12 +48,20 @@ public class LootDetermineChanceEvent extends LootEvent {
         return killer;
     }
 
-    public double getChance() {
-        return chance;
+    public double getQuantityBonus() {
+        return quantityBonus;
     }
 
-    public void setChance(double chance) {
-        this.chance = chance;
+    public void setQuantityBonus(double quantityBonus) {
+        this.quantityBonus = quantityBonus;
+    }
+
+    public double getRarityBonus() {
+        return rarityBonus;
+    }
+
+    public void setRarityBonus(double rarityBonus) {
+        this.rarityBonus = rarityBonus;
     }
 
 }

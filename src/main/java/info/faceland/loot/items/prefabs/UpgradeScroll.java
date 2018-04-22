@@ -42,7 +42,7 @@ public final class UpgradeScroll extends HiltItemStack {
                                    ChatColor.GRAY + "stats to upgrade it. The item can be",
                                    ChatColor.WHITE + "destroyed" + ChatColor.GRAY + " if the upgrade fails!",
                                    ChatColor.GREEN + "Success Chance: " + ChatColor.WHITE +
-                                   DECIMAL_FORMAT.format(100D - (scrollType.getChanceToDestroy() * 100D)) + "%",
+                                   DECIMAL_FORMAT.format(100D - (scrollType.getChanceToFail() * 100D)) + "%",
                                    ChatColor.YELLOW + "Level Range: " + ChatColor.WHITE + "+" +
                                    scrollType.getMinimumLevel() + " -> +" + (scrollType.getMaximumLevel() + 1)));
     }
@@ -52,12 +52,21 @@ public final class UpgradeScroll extends HiltItemStack {
     }
 
     public enum ScrollType {
-        WEAK("Weak", 0.1D, 0, 2, 9000D),
+        WEAK("Weak", 0.1D, 0, 2, 8000D),
+
         EMPOWERED("Empowered", 0.4D, 3, 5, 3000D),
+        DIM("Dim", 0.3D, 3, 5, 300D),
+
         ARCANE("Arcane", 0.5D, 6, 8, 1000D),
+        SHINING("Shining", 0.4D, 6, 8, 100D),
+
         AWAKENED("Awakened", 0.6D, 9, 11, 300D),
+        ILLUMINATING("Illuminating", 0.5D, 9, 11, 30D),
+
         ANCIENT("Ancient", 0.7D, 12, 14, 100D),
-        FLAWLESS("Flawless", 0.1D, 0, 14, 10D),
+        RADIANT("Radiant", 0.6D, 12, 14, 10D),
+
+        FLAWLESS("Flawless", 0.1D, 0, 14, 0D),
         LESSER("Lesser", 0D, 0, 2, 0D),
         STANDARD("Standard", 0.5D, 3, 5, 0D),
         STANDARDEST("Standardest", 0.35D, 3, 5, 0D),
@@ -66,14 +75,14 @@ public final class UpgradeScroll extends HiltItemStack {
         ULTIMATE("Ultimate", 0D, 0, 8, 0D);
 
         private final String prettyName;
-        private final double chanceToDestroy;
+        private final double chanceToFail;
         private final int minimumLevel;
         private final int maximumLevel;
         private final double weight;
 
-        ScrollType(String prettyName, double chanceToDestroy, int minimumLevel, int maximumLevel, double weight) {
+        ScrollType(String prettyName, double chanceToFail, int minimumLevel, int maximumLevel, double weight) {
             this.prettyName = prettyName;
-            this.chanceToDestroy = chanceToDestroy;
+            this.chanceToFail = chanceToFail;
             this.minimumLevel = minimumLevel;
             this.maximumLevel = maximumLevel;
             this.weight = weight;
@@ -119,8 +128,8 @@ public final class UpgradeScroll extends HiltItemStack {
             return weight;
         }
 
-        public double getChanceToDestroy() {
-            return chanceToDestroy;
+        public double getChanceToFail() {
+            return chanceToFail;
         }
 
         public int getMinimumLevel() {

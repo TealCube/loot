@@ -23,6 +23,7 @@
 package info.faceland.loot.api.items;
 
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.ItemRarity;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.Material;
 
@@ -34,9 +35,11 @@ public interface ItemBuilder {
 
     ItemBuilder withTier(Tier t);
 
+    ItemBuilder withLevel(int i);
+
+    ItemBuilder withRarity(ItemRarity r);
+
     ItemBuilder withMaterial(Material m);
 
     ItemBuilder withItemGenerationReason(ItemGenerationReason reason);
-
-    ItemBuilder withDistance(double d);
 }

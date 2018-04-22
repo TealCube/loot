@@ -22,24 +22,21 @@
  */
 package info.faceland.loot.api.managers;
 
-import info.faceland.loot.api.tier.Tier;
-import org.bukkit.ChatColor;
-
+import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.ItemStat;
 import java.util.Map;
-import java.util.Set;
 
-public interface TierManager {
+public interface StatManager {
 
-    Tier getTier(String name);
+    ItemStat getStat(String name);
 
-    void addTier(Tier tier);
+    void addStat(String name, ItemStat stat);
 
-    void removeTier(String name);
+    void removeStat(String name);
 
-    Tier getRandomTier();
+    Map<String, ItemStat> getLoadedStats();
 
-    Set<Tier> getLoadedTiers();
+    String getFinalStat(String statName, int level, ItemRarity rarity);
 
-    double getTotalTierWeight();
-
+    String getFinalStat(ItemStat itemStat, int level, ItemRarity rarity);
 }

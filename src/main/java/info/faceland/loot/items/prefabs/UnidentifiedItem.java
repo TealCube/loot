@@ -35,7 +35,7 @@ public final class UnidentifiedItem extends HiltItemStack {
         setName(ChatColor.LIGHT_PURPLE + "Unidentified Item");
         if (level > -1) {
             setLore(Arrays.asList(
-                    ChatColor.WHITE + "Item Level: ~" + level,
+                    ChatColor.WHITE + "Item Level: " + level,
                     ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY + " to",
                     ChatColor.GRAY + "reveal this item's stats!"));
         } else {
