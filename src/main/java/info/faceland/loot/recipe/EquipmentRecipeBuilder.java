@@ -105,7 +105,9 @@ public class EquipmentRecipeBuilder {
         Material.WOOD_AXE,
         Material.WOOD_HOE,
 
-        Material.BOW
+        Material.BOW,
+        Material.ARROW,
+        Material.BOOK
     );
   }
 }
