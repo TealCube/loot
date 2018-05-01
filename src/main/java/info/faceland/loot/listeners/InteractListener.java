@@ -54,6 +54,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -70,6 +71,7 @@ import org.bukkit.inventory.ItemFlag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.bukkit.inventory.PlayerInventory;
 
 public final class InteractListener implements Listener {
 
@@ -86,17 +88,22 @@ public final class InteractListener implements Listener {
     // Loot protection function. Return out of it before the end to allow an item to be picked up!
     // Makes it so only the owner of a drop can pick it up.
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemPickupEvent(PlayerPickupItemEvent event) {
+    public void onItemPickupEvent(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player)) {
+            return;
+        }
         if (!event.getItem().hasMetadata("loot-owner")) {
             return;
         }
-
+        if (event.getItem().getMetadata("loot-owner").get(0) == null) {
+            return;
+        }
         // Fetching item lore that should have been applied in EntityDeathListener
         String owner = event.getItem().getMetadata("loot-owner").get(0).asString();
         Long time = event.getItem().getMetadata("loot-time").get(0).asLong();
 
         // If the event player's UUID is the same as the owner UUID on the item, allow the pickup
-        if (event.getPlayer().getUniqueId().toString().equals(owner)) {
+        if (event.getEntity().getUniqueId().toString().equals(owner)) {
             return;
         }
 
@@ -165,6 +172,9 @@ public final class InteractListener implements Listener {
         if (event.getCurrentItem() == null || event.getCursor() == null
                 || event.getCurrentItem().getType() == Material.AIR || event.getCursor().getType() == Material.AIR ||
                 !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
+            return;
+        }
+        if (!(event.getClickedInventory() instanceof PlayerInventory)) {
             return;
         }
         Player player = (Player) event.getWhoClicked();
@@ -659,8 +669,9 @@ public final class InteractListener implements Listener {
     private boolean isBannedMaterial(HiltItemStack currentItem) {
         return currentItem.getType() == Material.BOOK || currentItem.getType() == Material.EMERALD ||
             currentItem.getType() == Material.PAPER || currentItem.getType() == Material.NETHER_STAR ||
-            currentItem.getType() == Material.DIAMOND  ||currentItem.getType() == Material.GHAST_TEAR ||
-            currentItem.getType() == Material.ENCHANTED_BOOK || currentItem.getType() == Material.NAME_TAG;
+            currentItem.getType() == Material.DIAMOND  || currentItem.getType() == Material.GHAST_TEAR ||
+            currentItem.getType() == Material.ENCHANTED_BOOK || currentItem.getType() == Material.NAME_TAG ||
+            currentItem.getType() == Material.ARROW;
     }
 
 }

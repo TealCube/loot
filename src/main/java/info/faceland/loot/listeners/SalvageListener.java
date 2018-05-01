@@ -22,6 +22,10 @@
  */
 package info.faceland.loot.listeners;
 
+import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
+import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
+import static info.faceland.loot.utils.inventory.MaterialUtil.getItemLevel;
+
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
@@ -29,6 +33,7 @@ import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
+import info.faceland.loot.utils.inventory.MaterialUtil;
 import info.faceland.strife.events.StrifeCraftEvent;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
@@ -37,12 +42,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.potion.PotionEffectType;
 
 public final class SalvageListener implements Listener {
 
@@ -56,6 +68,9 @@ public final class SalvageListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.isCancelled() || !(event.getClickedInventory() instanceof PlayerInventory)) {
+            return;
+        }
         if (event.getClick() != ClickType.RIGHT) {
             return;
         }
@@ -72,21 +87,35 @@ public final class SalvageListener implements Listener {
         if (cursor.getName() == null) {
             return;
         }
-        System.out.println();
         if (!cursor.getName().endsWith("Craftsman's Tools")) {
+            return;
+        }
+        int toolQuality = 1;
+        if (cursor.hasItemMeta()) {
+            toolQuality = (int)cursor.getLore().get(1).chars().filter(ch -> ch == '✪').count();
+        }
+
+        // NO GOING BACK NOW BOYOS
+        event.setCancelled(true);
+
+        if (event.getCurrentItem().getAmount() > 1) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.big-stack", ""));
+            return;
+        }
+
+        if (event.getCursor().getAmount() > 1) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.big-cursor", ""));
             return;
         }
 
         int itemLevel = getItemLevel(currentItem);
         if (itemLevel == -1) {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-level", ""));
-            event.setCancelled(true);
             return;
         }
         int craftingLevel = plugin.getStrifePlugin().getPlayerDataUtil().getCraftLevel(player);
         if (!isHighEnoughCraftingLevel(craftingLevel, itemLevel)) {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
-            event.setCancelled(true);
             return;
         }
 
@@ -94,69 +123,85 @@ public final class SalvageListener implements Listener {
         List<String> possibleStats = new ArrayList<>();
         for (String str : lore) {
             if (str.startsWith("" + ChatColor.GREEN) || str.startsWith("" + ChatColor.YELLOW)) {
+                if (str.contains(":")) {
+                    continue;
+                }
                 possibleStats.add(str);
             }
         }
-        if (possibleStats.size() == 0) {
-            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-stats", ""));
-            event.setCancelled(true);
+
+        List<Material> possibleMaterials = buildPossibleMaterials(currentItem);
+        if (possibleMaterials.size() == 0) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-materials", ""));
             return;
         }
+        Material material = possibleMaterials.get(random.nextInt(possibleMaterials.size()));
+        int quality = 1;
+        while (random.nextDouble() <= plugin.getSettings().getDouble("config.drops.material-quality-up", 0.1D) &&
+            quality < 3) {
+            quality++;
+        }
+        HiltItemStack craftMaterial = MaterialUtil.buildMaterial(
+            material, plugin.getCraftMatManager().getCraftMaterials().get(material), itemLevel, quality);
 
-        String type = InventoryUtil.getItemType(currentItem);
-        // Item Level Req = item level minus 0-5 minus tp to 10% of item level
-        int itemLevelReq = (int)((double)itemLevel-random.nextDouble()*((double)itemLevel / 10)-random.nextDouble()*5);
-        itemLevelReq = Math.max(itemLevelReq, 1);
-
-        String statString = ChatColor.stripColor(possibleStats.get(random.nextInt(possibleStats.size())));
-        double bonus = Math.pow(random.nextDouble(), 2) * (0.3 + craftingLevel * 0.01);
-        int statVal = getDigit(statString);
-        double newVal = Math.max(1, getDigit(statString) * (0.5 + bonus));
-        String newStatString = statString.replace(String.valueOf(statVal), String.valueOf((int)newVal));
-
-        HiltItemStack shard = new HiltItemStack(Material.PRISMARINE_SHARD);
-        shard.setName(ChatColor.YELLOW + "Item Essence");
-        List<String> esslore = shard.getLore();
-        esslore.add(TextUtils.color("&fItem Level Requirement: " + itemLevelReq));
-        esslore.add(TextUtils.color("&fItem Type: " + type));
-        esslore.add(TextUtils.color("&e" + newStatString));
-        esslore.add(TextUtils.color("&7&oCraft this together with an"));
-        esslore.add(TextUtils.color("&7&ounfinished item to have a"));
-        esslore.add(TextUtils.color("&7&ochance of applying this stat!"));
-        esslore.add(TextUtils.color("&e[ Crafting Component ]"));
-        shard.setLore(esslore);
-
+        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 0.8F);
         event.setCurrentItem(null);
-        player.getInventory().addItem(shard);
+        player.getInventory().addItem(craftMaterial);
 
-        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
-        double exp = 2 + itemLevelReq/10 + statVal/100;
-        exp += exp * bonus;
+        if (possibleStats.size() > 0 && random.nextDouble() < 0.05 + 0.15 * toolQuality) {
+            player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
+            String type = InventoryUtil.getItemType(currentItem);
+            HiltItemStack shard = buildEssence(player, type, itemLevel, craftingLevel, possibleStats);
+            if (player.getInventory().firstEmpty() != -1) {
+                player.getInventory().addItem(shard);
+            } else {
+                player.getWorld().dropItem(player.getLocation(), shard);
+            }
+        }
+        List<String> toolLore = cursor.getLore();
+        if (ChatColor.stripColor(toolLore.get(toolLore.size()-1)).startsWith("Remaining Uses: ")) {
+            int uses = getDigit(ChatColor.stripColor(toolLore.get(toolLore.size()-1)));
+            if (uses == 1) {
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.tool-decay", ""));
+                event.setCursor(null);
+            } else {
+                uses--;
+                toolLore.set(toolLore.size() - 1, ChatColor.WHITE + "Remaining Uses: " + uses);
+                cursor.setLore(toolLore);
+                event.setCursor(cursor);
+            }
+        }
+        double exp = 1 + (itemLevel * 0.2);
         Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, (float)exp));
-        event.setCancelled(true);
     }
 
-    private int getItemLevel(HiltItemStack stack) {
-        if (stack.getItemMeta() == null) {
-            return -1;
+    private List<Material> buildPossibleMaterials(ItemStack itemStack) {
+        List<Material> possibleMaterials = new ArrayList<>();
+        for (Recipe recipe : Bukkit.getServer().getRecipesFor(itemStack)) {
+            if (recipe instanceof ShapedRecipe) {
+                ShapedRecipe shaped = (ShapedRecipe)recipe;
+                for (ItemStack i : shaped.getIngredientMap().values()) {
+                    if (i == null) {
+                        continue;
+                    }
+                    if (plugin.getCraftMatManager().getCraftMaterials().keySet().contains(i.getType())) {
+                        possibleMaterials.add(i.getType());
+                    }
+                }
+            } else if (recipe instanceof ShapelessRecipe) {
+                ShapelessRecipe shapeless = (ShapelessRecipe)recipe;
+                for (ItemStack i : shapeless.getIngredientList()) {
+                    if (plugin.getCraftMatManager().getCraftMaterials().keySet().contains(i.getType())) {
+                        possibleMaterials.add(i.getType());
+                    }
+                }
+            }
         }
-        if (stack.getLore().get(0) == null) {
-            return -1;
-        }
-        String lvlReqString = ChatColor.stripColor(stack.getLore().get(0));
-        if (!lvlReqString.startsWith("Level Requirement:")) {
-            return -1;
-        }
-        return getDigit(stack.getLore().get(0));
-    }
-
-    private int getDigit(String string) {
-        String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(ChatColor.stripColor(string), ' ').trim();
-        return NumberUtils.toInt(lev.split(" ")[0], 0);
+        return possibleMaterials;
     }
 
     private boolean isHighEnoughCraftingLevel(int craftLevel, int itemLevel) {
-        int lvlBonus = (int)Math.floor((double)craftLevel/5) * 8;
-        return 10 + lvlBonus >= itemLevel;
+        int lvlBonus = 10 + (int)Math.floor((double)craftLevel/3) * 5;
+        return lvlBonus >= itemLevel;
     }
 }

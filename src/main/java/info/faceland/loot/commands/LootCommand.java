@@ -25,7 +25,6 @@ package info.faceland.loot.commands;
 import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;

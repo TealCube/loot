@@ -84,16 +84,16 @@ public final class LootItemBuilder implements ItemBuilder {
         lore.add("&fLevel Requirement: " + level);
         lore.add("&fTier: " + rarity.getColor() + rarity.getName() + " " + tier.getName());
 
-        lore.add(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), level, rarity));
+        lore.add(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), level, rarity.getPower()));
         lore.add(plugin.getStatManager().getFinalStat(
-            tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), level, rarity));
+            tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), level, rarity.getPower()));
 
         int bonusStats = random.nextIntRange(rarity.getMinimumBonusStats(), rarity.getMaximumBonusStats());
         List<ItemStat> bonusStatList = new ArrayList<>();
         bonusStatList.addAll(tier.getBonusStats());
         for (int i = 0; i < bonusStats; i++) {
             ItemStat stat = bonusStatList.get(random.nextInt(bonusStatList.size()));
-            lore.add(plugin.getStatManager().getFinalStat(stat, level, rarity));
+            lore.add(plugin.getStatManager().getFinalStat(stat, level, rarity.getPower()));
             bonusStatList.remove(stat);
         }
 

@@ -96,6 +96,8 @@ public final class LootPlugin extends FacePlugin {
     private VersionedSmartYamlConfiguration creaturesYAML;
     private VersionedSmartYamlConfiguration identifyingYAML;
     private VersionedSmartYamlConfiguration enchantmentTomesYAML;
+    private VersionedSmartYamlConfiguration craftBasesYAML;
+    private VersionedSmartYamlConfiguration craftMaterialsYAML;
     private SmartYamlConfiguration chestsYAML;
     private MasterConfiguration settings;
     private ItemGroupManager itemGroupManager;
@@ -110,6 +112,8 @@ public final class LootPlugin extends FacePlugin {
     private AnticheatManager anticheatManager;
     private ChestManager chestManager;
     private GemCacheManager gemCacheManager;
+    private LootCraftBaseManager lootCraftBaseManager;
+    private LootCraftMatManager lootCraftMatManager;
 
     private StrifePlugin strifePlugin;
 
@@ -199,11 +203,25 @@ public final class LootPlugin extends FacePlugin {
             debug("Updating identifying.yml");
         }
         enchantmentTomesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "enchantmentTomes.yml"),
-                getResource("enchantmentTomes.yml"),
-                VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+            getResource("enchantmentTomes.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
         if (enchantmentTomesYAML.update()) {
             getLogger().info("Updating enchantmentTomes.yml");
             debug("Updating enchantmentTomes.yml");
+        }
+        craftBasesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "craftBases.yml"),
+            getResource("craftBases.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+        if (craftBasesYAML.update()) {
+            getLogger().info("Updating craftBases.yml");
+            debug("Updating craftBases.yml");
+        }
+        craftMaterialsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "craftMaterials.yml"),
+            getResource("craftMaterials.yml"),
+            VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+        if (craftMaterialsYAML.update()) {
+            getLogger().info("Updating craftMaterials.yml");
+            debug("Updating craftMaterials.yml");
         }
         chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
         chestsYAML.load();
@@ -222,8 +240,12 @@ public final class LootPlugin extends FacePlugin {
         anticheatManager = new LootAnticheatManager();
         chestManager = new LootChestManager();
         gemCacheManager = new LootGemCacheManager(this);
+        lootCraftBaseManager = new LootCraftBaseManager();
+        lootCraftMatManager = new LootCraftMatManager();
 
         loadItemGroups();
+        loadCraftBases();
+        loadCraftMaterials();
         loadStats();
         loadRarities();
         loadTiers();
@@ -296,6 +318,8 @@ public final class LootPlugin extends FacePlugin {
         rarityManager = null;
         itemGroupManager = null;
         gemCacheManager = null;
+        lootCraftBaseManager = null;
+        lootCraftMatManager = null;
         settings = null;
         identifyingYAML = null;
         creaturesYAML = null;
@@ -584,6 +608,36 @@ public final class LootPlugin extends FacePlugin {
         debug("Loaded item groups: " + loadedItemGroups.toString());
     }
 
+    private void loadCraftBases() {
+        Map<Material, String> craftBases = new HashMap<>();
+        for (String key : craftBasesYAML.getKeys(false)) {
+            if (!craftBasesYAML.isString(key)) {
+                continue;
+            }
+            String string = craftBasesYAML.getString(key);
+            craftBases.put(Material.valueOf(key), string);
+        }
+        for (Material mat : craftBases.keySet()) {
+            getCraftBaseManager().addCraftBase(mat, craftBases.get(mat));
+        }
+        debug("Loaded item groups: " + getCraftBaseManager().getCraftBases());
+    }
+
+    private void loadCraftMaterials() {
+        Map<Material, String> craftMaterials = new HashMap<>();
+        for (String key : craftMaterialsYAML.getKeys(false)) {
+            if (!craftMaterialsYAML.isString(key)) {
+                continue;
+            }
+            String string = craftMaterialsYAML.getString(key);
+            craftMaterials.put(Material.valueOf(key), string);
+        }
+        for (Material mat : craftMaterials.keySet()) {
+            getCraftMatManager().addCraftMaterial(mat, craftMaterials.get(mat));
+        }
+        debug("Loaded item groups: " + getCraftBaseManager().getCraftBases());
+    }
+
     private void loadRarities() {
         for (String rarityName : getRarityManager().getLoadedRarities().keySet()) {
             getStatManager().removeStat(rarityName);
@@ -764,6 +818,14 @@ public final class LootPlugin extends FacePlugin {
 
     public GemCacheManager getGemCacheManager() {
         return gemCacheManager;
+    }
+
+    public LootCraftBaseManager getCraftBaseManager() {
+        return lootCraftBaseManager;
+    }
+
+    public LootCraftMatManager getCraftMatManager() {
+        return lootCraftMatManager;
     }
 
     public StrifePlugin getStrifePlugin() {

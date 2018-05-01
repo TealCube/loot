@@ -41,13 +41,13 @@ public class LootStatManager implements StatManager {
   }
 
   @Override
-  public String getFinalStat(String statName, int level, ItemRarity rarity) {
+  public String getFinalStat(String statName, double level, ItemRarity rarity) {
     ItemStat stat = itemStats.get(statName);
-    return getFinalStat(stat, level, rarity);
+    return getFinalStat(stat, level, rarity.getPower());
   }
 
   @Override
-  public String getFinalStat(ItemStat itemStat, int level, ItemRarity rarity) {
+  public String getFinalStat(ItemStat itemStat, double level, double rarity) {
     double statRoll;
     double baseRollMultiplier;
     if (itemStat.getMinBaseValue() == itemStat.getMaxBaseValue()) {
@@ -57,8 +57,8 @@ public class LootStatManager implements StatManager {
       baseRollMultiplier = Math.pow(random.nextDouble(), 2.5);
       statRoll = itemStat.getMinBaseValue() + baseRollMultiplier * (itemStat.getMaxBaseValue() - itemStat.getMinBaseValue());
     }
-    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity.getPower();
-    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity.getPower();
+    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
+    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
     String returnString;
     if (baseRollMultiplier >= 0.9) {
       returnString = itemStat.getPerfectStatString();

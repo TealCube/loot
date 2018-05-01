@@ -42,7 +42,7 @@ public final class LootTierManager implements TierManager {
     @Override
     public Tier getTier(String name) {
         for (Tier t : getLoadedTiers()) {
-            if (t.getName().equals(name)) {
+            if (t.getName().replace(" ","").equalsIgnoreCase(name.replace(" ",""))) {
                 return t;
             }
         }

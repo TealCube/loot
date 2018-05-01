@@ -20,23 +20,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package info.faceland.loot.api.managers;
+package info.faceland.loot.managers;
 
-import info.faceland.loot.data.ItemRarity;
-import info.faceland.loot.data.ItemStat;
+import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.Material;
 
-public interface StatManager {
+public final class LootCraftBaseManager {
 
-    ItemStat getStat(String name);
+    private final Map<Material, String> craftBases;
 
-    void addStat(String name, ItemStat stat);
+    public LootCraftBaseManager() {
+        craftBases = new HashMap<>();
+    }
 
-    void removeStat(String name);
+    public void addCraftBase(Material material, String tier) {
+        craftBases.put(material, tier);
+    }
 
-    Map<String, ItemStat> getLoadedStats();
-
-    String getFinalStat(String statName, double level, ItemRarity rarity);
-
-    String getFinalStat(ItemStat itemStat, double level, double rarity);
+    public Map<Material, String> getCraftBases() {
+        return craftBases;
+    }
 }

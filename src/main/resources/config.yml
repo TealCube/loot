@@ -49,6 +49,8 @@ multi-quality-quantityBonus: 0.1
 # list of attackers, with weight based on dmg dealt
 loot-protect-time: 10
 
+material-quality-up: 0.05
+
 # Worlds where loot items wlll drop
 enabled-worlds:
 - main
@@ -63,6 +65,7 @@ beast:
 # type when it is killed
 drops:
   normal-drop: 0.2
+  craft-mat: 0.01
   socket-gem: 0.4
   enchant-gem: 0.1
   upgrade-scroll: 0.1

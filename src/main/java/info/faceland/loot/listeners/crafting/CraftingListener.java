@@ -24,23 +24,31 @@ package info.faceland.loot.listeners.crafting;
 
 import static info.faceland.loot.utils.inventory.InventoryUtil.stripColor;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
+import info.faceland.strife.events.StrifeCraftEvent;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public final class CraftingListener implements Listener {
 
@@ -54,6 +62,9 @@ public final class CraftingListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCraftItemEvent(CraftItemEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
         for (ItemStack is : event.getInventory().getMatrix()) {
             if (is == null || is.getType() == Material.AIR) {
                 continue;
@@ -69,8 +80,143 @@ public final class CraftingListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCraftEquipment(CraftItemEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (!(event.getCursor() == null || event.getCursor().getType() == Material.AIR)) {
+            event.setCancelled(true);
+            return;
+        }
+        ItemStack resultStack = event.getCurrentItem();
+        if (resultStack.getItemMeta().hasDisplayName()) {
+            return;
+        }
+        if (!plugin.getCraftBaseManager().getCraftBases().containsKey(resultStack.getType())) {
+            return;
+        }
+
+        event.setCancelled(true);
+        Player player = (Player) event.getWhoClicked();
+
+        if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT || event.getClick() == ClickType.NUMBER_KEY) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-shift", ""));
+            return;
+        }
+
+        String strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
+        Tier tier = plugin.getTierManager().getTier(strTier);
+
+        int craftingLevel = plugin.getStrifePlugin().getPlayerDataUtil().getCraftLevel(player);
+
+        int numMaterials = 0;
+        double totalQuality = 0;
+        double totalItemLevel = 0;
+        double totalActualItemLevel = 0;
+        for (ItemStack is : event.getInventory().getMatrix()) {
+            if (is == null || is.getType() == Material.AIR || is.getType() == resultStack.getType()) {
+                continue;
+            }
+            HiltItemStack loopItem = new HiltItemStack(is);
+            if (hasItemLevel(loopItem)) {
+                int iLevel = NumberUtils.toInt(CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(
+                    ChatColor.stripColor(loopItem.getLore().get(0)), ' ').trim());
+                totalItemLevel += iLevel;
+                totalActualItemLevel += iLevel;
+                numMaterials++;
+            } else {
+                totalItemLevel += craftingLevel;
+                numMaterials++;
+            }
+            if (hasQuality(loopItem)) {
+                long count = loopItem.getLore().get(1).chars().filter(ch -> ch == '✪').count();
+                totalQuality += count;
+            }
+        }
+
+        double itemLevel = totalItemLevel / numMaterials;
+        double actualItemLevel = totalActualItemLevel / numMaterials;
+
+        if (maxCraftingLevel(craftingLevel) < (int)itemLevel) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level-craft", ""));
+            return;
+        }
+
+        double overLvlMult = Math.max(1, Math.min(2.0 , (craftingLevel - itemLevel) / 30));
+
+        double quality = totalQuality / numMaterials;
+        double missingQuality = 5 - quality;
+        double qualityScore = quality * random.nextDouble() + missingQuality * Math.pow(random.nextDouble(), 2);
+
+        double statScore = (1 + (qualityScore / 4)) * overLvlMult;
+        double socketScore = 1 + (random.nextDouble() * (qualityScore / 5)) * overLvlMult;
+
+        double moddedItemLevel = itemLevel * (1 + overLvlMult/10);
+
+        itemLevel = (int) Math.max(1, Math.min(100, itemLevel - 2 + random.nextInt(5)));
+
+        HiltItemStack newResult = new HiltItemStack(event.getCurrentItem().getType());
+        newResult.setName(TextUtils.color(
+            "&b" + plugin.getNameManager().getRandomPrefix() + " " + plugin.getNameManager().getRandomSuffix()));
+        List<String> lore = new ArrayList<>();
+
+        lore.add(TextUtils.color("&fLevel Requirement: " + (int)itemLevel));
+        lore.add(TextUtils.color("&fTier: " + "&bCrafted " + tier.getName()));
+
+        lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), moddedItemLevel, qualityScore)));
+        lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(
+            tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), moddedItemLevel, qualityScore)));
+
+        boolean masterwork = false;
+        if (actualItemLevel >= 1 && random.nextDouble() <= 0.01 + craftingLevel * 0.001) {
+            masterwork = true;
+        }
+
+        if (statScore < 2 && random.nextDouble() < 0.3) statScore++;
+        if (masterwork) statScore++;
+        while (statScore >= 1) {
+            lore.add(TextUtils.color("&b[ Crafted Stat Slot ]"));
+            statScore--;
+        }
+
+        lore.add(TextUtils.color("&9(Enchantable)"));
+
+        if (masterwork) socketScore++;
+        if (socketScore < 2 && random.nextDouble() < 0.1) socketScore++;
+        while (socketScore >= 1) {
+            lore.add(TextUtils.color("&6(Socket)"));
+            socketScore--;
+        }
+        if (masterwork || random.nextDouble() < 0.1 * Math.pow(overLvlMult, 3)) {
+            lore.add(TextUtils.color("&3(+)"));
+        }
+        if (masterwork) {
+            lore.add(TextUtils.color("&8&o-- " + player.getName() + " --"));
+            lore.add(TextUtils.color("&8&o[ Flavor Text Slot ]"));
+        }
+        double exp = (1 + qualityScore + actualItemLevel * 0.7) * (numMaterials * 0.35) * (masterwork ? 2.5 : 1.0);
+        if (craftingLevel > actualItemLevel + 5) {
+            exp = exp / Math.max((craftingLevel-actualItemLevel), 1);
+        }
+        newResult.setLore(lore);
+        ItemMeta meta = newResult.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        newResult.setItemMeta(meta);
+        event.setCurrentItem(newResult);
+        event.setCancelled(false);
+        Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, (float)exp));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftEvent(CraftItemEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (!(event.getCursor() == null || event.getCursor().getType() == Material.AIR)) {
+            event.setCancelled(true);
+            return;
+        }
         ItemStack resultStack = event.getCurrentItem();
         if (!resultStack.hasItemMeta() || !resultStack.getItemMeta().hasDisplayName()) {
             return;
@@ -82,6 +228,7 @@ public final class CraftingListener implements Listener {
         Player player = (Player)event.getWhoClicked();
         List<String> essenceStats = new ArrayList<>();
         HiltItemStack baseItem = null;
+        int highestEssLevel = 0;
         for (ItemStack is : event.getInventory().getMatrix()) {
             if (is == null || is.getType() == Material.AIR) {
                 continue;
@@ -93,6 +240,7 @@ public final class CraftingListener implements Listener {
                         .sendMessage(player, plugin.getSettings().getString("language.craft.wrong-ess-type", ""));
                     return;
                 }
+                highestEssLevel = Math.max(getEssenceLevel(loopItem), highestEssLevel);
                 essenceStats.add(getEssenceStat(loopItem));
                 continue;
             }
@@ -108,6 +256,12 @@ public final class CraftingListener implements Listener {
         }
         List<String> lore = baseItem.getLore();
         List<String> strippedLore = stripColor(lore);
+        int itemLevel = NumberUtils.toInt(CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(
+            ChatColor.stripColor(strippedLore.get(0)), ' ').trim());
+        if (highestEssLevel > itemLevel) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.item-too-low", ""));
+            return;
+        }
         if (!strippedLore.contains("[ Crafted Stat Slot ]")) {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-slots", ""));
             return;
@@ -126,7 +280,7 @@ public final class CraftingListener implements Listener {
                 return;
             }
         }
-        int selectedSlot = random.nextInt(8);
+        int selectedSlot = random.nextDouble() > 0.5 ? random.nextInt(essenceStats.size()) : random.nextInt(8);
         if (selectedSlot > essenceStats.size() - 1) {
             event.setCurrentItem(baseItem);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
@@ -139,6 +293,7 @@ public final class CraftingListener implements Listener {
         baseItem.setLore(lore);
 
         event.setCurrentItem(baseItem);
+        Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, 0.5f + essenceStats.size()));
         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
         event.setCancelled(false);
     }
@@ -179,5 +334,24 @@ public final class CraftingListener implements Listener {
 
     private String getEssenceStat(HiltItemStack itemStack) {
         return itemStack.getLore().get(2);
+    }
+
+    private boolean hasQuality(HiltItemStack h) {
+        return !StringUtils.isBlank(h.getName()) && h.hasItemMeta() && h.getLore().get(1) != null &&
+            ChatColor.stripColor(h.getLore().get(1)).startsWith("Quality: ");
+    }
+
+    private boolean hasItemLevel(HiltItemStack h) {
+        return !StringUtils.isBlank(h.getName()) && h.hasItemMeta() && h.getLore().get(0) != null &&
+            ChatColor.stripColor(h.getLore().get(0)).startsWith("Item Level: ");
+    }
+
+    private int getEssenceLevel(HiltItemStack h) {
+        return NumberUtils.toInt(CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(
+            ChatColor.stripColor(h.getLore().get(0)), ' ').trim());
+    }
+
+    private int maxCraftingLevel(int craftLevel) {
+        return 5 + (int)Math.floor((double)craftLevel/5) * 8;
     }
 }

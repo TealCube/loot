@@ -44,7 +44,10 @@ import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 
+import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -283,6 +286,27 @@ public final class EntityDeathListener implements Listener {
             }
             if (rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2) {
                 broadcast(Bukkit.getPlayer(bestTaggerLmao), his);
+            }
+        }
+        if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.craft-mat", 0D)) {
+            Object[] matArr = plugin.getCraftMatManager().getCraftMaterials().keySet().toArray();
+            Material m = (Material)matArr[random.nextInt(matArr.length)];
+
+            int quality = 2;
+            while (random.nextDouble() <= plugin.getSettings().getDouble("config.drops.material-quality-up", 0.1D) &&
+                quality < 3) {
+                quality++;
+            }
+
+            double materialLevel = mobLevel - (mobLevel * 0.3 * random.nextDouble());
+            HiltItemStack his = MaterialUtil.buildMaterial(
+                m, plugin.getCraftMatManager().getCraftMaterials().get(m), (int)materialLevel, quality);
+            his.setAmount(1 + random.nextInt(2));
+
+            Item drop = w.dropItemNaturally(event.getEntity().getLocation(), his);
+            if (bestTaggerLmao != null) {
+                applyOwnerMeta(drop, bestTaggerLmao);
+                killer = Bukkit.getPlayer(bestTaggerLmao);
             }
         }
         if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.socket-gem", 0D)) {

@@ -44,7 +44,11 @@ public class EquipmentRecipeBuilder {
     itemStack.setItemMeta(meta);
     ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(plugin, material.toString()+"_"+index), itemStack);
     recipe.addIngredient(1, material).addIngredient(1 + index, Material.PRISMARINE_SHARD);
-    plugin.getServer().addRecipe(recipe);
+    try {
+      plugin.getServer().addRecipe(recipe);
+    } catch (Exception e) {
+      // Spigot doesn't allow you to remove recipes... so just catching the error...
+    }
   }
 
   private List<String> setupInfusionItem() {
