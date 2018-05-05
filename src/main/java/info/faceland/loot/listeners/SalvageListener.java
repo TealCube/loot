@@ -171,7 +171,7 @@ public final class SalvageListener implements Listener {
                 event.setCursor(cursor);
             }
         }
-        double exp = 1 + (itemLevel * 0.2);
+        double exp = 0.6 + (itemLevel * 0.25);
         Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, (float)exp));
     }
 

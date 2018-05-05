@@ -113,7 +113,6 @@ public final class CraftingListener implements Listener {
         int numMaterials = 0;
         double totalQuality = 0;
         double totalItemLevel = 0;
-        double totalActualItemLevel = 0;
         for (ItemStack is : event.getInventory().getMatrix()) {
             if (is == null || is.getType() == Material.AIR || is.getType() == resultStack.getType()) {
                 continue;
@@ -123,10 +122,9 @@ public final class CraftingListener implements Listener {
                 int iLevel = NumberUtils.toInt(CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(
                     ChatColor.stripColor(loopItem.getLore().get(0)), ' ').trim());
                 totalItemLevel += iLevel;
-                totalActualItemLevel += iLevel;
                 numMaterials++;
             } else {
-                totalItemLevel += craftingLevel;
+                totalItemLevel += 0.5;
                 numMaterials++;
             }
             if (hasQuality(loopItem)) {
@@ -136,7 +134,6 @@ public final class CraftingListener implements Listener {
         }
 
         double itemLevel = totalItemLevel / numMaterials;
-        double actualItemLevel = totalActualItemLevel / numMaterials;
 
         if (maxCraftingLevel(craftingLevel) < (int)itemLevel) {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level-craft", ""));
@@ -169,7 +166,7 @@ public final class CraftingListener implements Listener {
             tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), moddedItemLevel, qualityScore)));
 
         boolean masterwork = false;
-        if (actualItemLevel >= 1 && random.nextDouble() <= 0.01 + craftingLevel * 0.001) {
+        if (itemLevel >= 1 && random.nextDouble() <= 0.01 + craftingLevel * 0.001) {
             masterwork = true;
         }
 
@@ -195,9 +192,9 @@ public final class CraftingListener implements Listener {
             lore.add(TextUtils.color("&8&o-- " + player.getName() + " --"));
             lore.add(TextUtils.color("&8&o[ Flavor Text Slot ]"));
         }
-        double exp = (1 + qualityScore + actualItemLevel * 0.7) * (numMaterials * 0.35) * (masterwork ? 2.5 : 1.0);
-        if (craftingLevel > actualItemLevel + 5) {
-            exp = exp / Math.max((craftingLevel-actualItemLevel), 1);
+        double exp = (0.25 + qualityScore / 2 + itemLevel * 0.7) * (0.8 + qualityScore / 5) * (numMaterials * 0.35) * (masterwork ? 2.5 : 1.0);
+        if (craftingLevel > itemLevel + 5) {
+            exp = exp / Math.max((craftingLevel-itemLevel), 1);
         }
         newResult.setLore(lore);
         ItemMeta meta = newResult.getItemMeta();
