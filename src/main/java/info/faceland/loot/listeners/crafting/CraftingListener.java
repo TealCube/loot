@@ -70,6 +70,15 @@ public final class CraftingListener implements Listener {
                 continue;
             }
             HiltItemStack his = new HiltItemStack(is);
+            if (event.getInventory().getResult().getType() == Material.DIAMOND_BLOCK) {
+                for (String str : his.getLore()) {
+                    if (ChatColor.stripColor(str).equals("[ Crafting Component ]")) {
+                        MessageUtils.sendMessage(event.getWhoClicked(), plugin.getSettings().getString("language.craft.nope", ""));
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
             if (his.getName().equals(ChatColor.DARK_AQUA + "Socket Extender") ||
                 his.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
                 his.getName().startsWith(ChatColor.GOLD + "Socket Gem -") ||
