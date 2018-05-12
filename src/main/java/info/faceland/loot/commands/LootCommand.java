@@ -613,7 +613,8 @@ public final class LootCommand {
         newLore.equals(ChatColor.DARK_AQUA + "Feacguy's Tears") ||
         newLore.equals(ChatColor.DARK_PURPLE + "Identity Tome") ||
         newLore.equals(ChatColor.LIGHT_PURPLE + "Unidentified Item") ||
-        newLore.equals(ChatColor.WHITE + "Item Rename Tag")) {
+        newLore.equals(ChatColor.WHITE + "Item Rename Tag") ||
+        newLore.endsWith("Magic Crystal")) {
       sendMessage(sender, plugin.getSettings().getString("language.command.invalidname", ""));
       return;
     }

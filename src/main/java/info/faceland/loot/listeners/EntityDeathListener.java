@@ -36,7 +36,6 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
-import info.faceland.loot.events.LootDetermineChanceEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
@@ -45,9 +44,9 @@ import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 
 import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.strife.attributes.StrifeAttribute;
+import info.faceland.strife.data.AttributedEntity;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -226,12 +225,11 @@ public final class EntityDeathListener implements Listener {
 
         event.setDroppedExp((int) (expMultiplier * event.getDroppedExp()));
 
-        // Adding to bonus drop based on Strife stat Item Discovery. It is added on, not multiplied!
-        LootDetermineChanceEvent chanceEvent = new LootDetermineChanceEvent(event.getEntity(), killer);
-        Bukkit.getPluginManager().callEvent(chanceEvent);
+        AttributedEntity pStats = plugin.getStrifePlugin().getEntityStatCache().getAttributedEntity(killer);
+        double dropMultBonus = plugin.getStrifePlugin().getMultiplierManager().getDropMult();
 
-        dropMultiplier += chanceEvent.getQuantityBonus();
-        rarityMultiplier += chanceEvent.getRarityBonus();
+        dropMultiplier += dropMultBonus + pStats.getAttribute(StrifeAttribute.ITEM_DISCOVERY) / 100;
+        rarityMultiplier += pStats.getAttribute(StrifeAttribute.ITEM_RARITY) / 100;
 
         if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
             rarityMultiplier += 0.1;

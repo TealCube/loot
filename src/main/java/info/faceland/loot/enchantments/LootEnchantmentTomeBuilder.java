@@ -54,8 +54,14 @@ public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder 
     }
 
     @Override
-    public EnchantmentTomeBuilder withLore(List<String> l) {
-        stone.setLore(l);
+    public EnchantmentTomeBuilder withStat(String s) {
+        stone.setStat(s);
+        return this;
+    }
+
+    @Override
+    public EnchantmentTomeBuilder withBar(boolean b) {
+        stone.setBar(b);
         return this;
     }
 
@@ -68,18 +74,6 @@ public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder 
     @Override
     public EnchantmentTomeBuilder withDistanceWeight(double d) {
         stone.setDistanceWeight(d);
-        return this;
-    }
-
-    @Override
-    public EnchantmentTomeBuilder withMinStats(int i) {
-        stone.setMinStats(i);
-        return this;
-    }
-
-    @Override
-    public EnchantmentTomeBuilder withMaxStats(int i) {
-        stone.setMaxStats(i);
         return this;
     }
 

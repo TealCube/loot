@@ -34,15 +34,13 @@ public interface EnchantmentTomeBuilder {
 
     EnchantmentTome build();
 
-    EnchantmentTomeBuilder withLore(List<String> l);
+    EnchantmentTomeBuilder withStat(String s);
+
+    EnchantmentTomeBuilder withBar(boolean b);
 
     EnchantmentTomeBuilder withWeight(double d);
 
     EnchantmentTomeBuilder withDistanceWeight(double d);
-
-    EnchantmentTomeBuilder withMinStats(int i);
-
-    EnchantmentTomeBuilder withMaxStats(int i);
 
     EnchantmentTomeBuilder withBroadcast(boolean b);
 

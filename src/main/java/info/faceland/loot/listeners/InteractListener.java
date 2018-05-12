@@ -24,6 +24,7 @@ package info.faceland.loot.listeners;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -36,12 +37,17 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
+import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.strife.events.StrifeEnchantEvent;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -275,17 +281,32 @@ public final class InteractListener implements Listener {
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
                 return;
             }
-            int index = strippedLore.indexOf("(Enchantable)");
 
-            List<String> added = new ArrayList<>();
-            for (int i = 0; i < random.nextIntRange(stone.getMinStats(), stone.getMaxStats()); i++) {
-                added.add(stone.getLore().get(random.nextInt(stone.getLore().size())));
+            int index = strippedLore.indexOf("(Enchantable)");
+            lore.remove(index);
+
+            if (!StringUtils.isBlank(stone.getStat())) {
+                double enchantLevel = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player);
+                double enchantProgress = enchantLevel / 60;
+                double bonus =
+                    enchantProgress * random.nextDouble() + (1 - enchantProgress) * Math.pow(random.nextDouble(), 2);
+                double rarity =
+                    enchantProgress * random.nextDouble() + (1 - enchantProgress) * Math.pow(random.nextDouble(), 2);
+                int size = 5 + (int) (30 * bonus);
+
+                int itemLevel = MaterialUtil.getItemLevel(currentItem);
+                double effectiveLevel = Math.min(enchantLevel * 2, itemLevel);
+
+                List<String> added = new ArrayList<>();
+                ItemStat stat = plugin.getStatManager().getStat(stone.getStat());
+                added.add(plugin.getStatManager().getFinalStat(stat, effectiveLevel, rarity));
+                if (stone.getBar()) {
+                    String bars = IntStream.range(0, size).mapToObj(i -> "|").collect(Collectors.joining(""));
+                    added.add(TextUtils.color("&9[" + bars + "&0&9]"));
+                }
+                lore.addAll(index, TextUtils.color(added));
             }
 
-            lore.remove(index);
-            lore.addAll(index, TextUtils.color(added));
-
-            currentItem.setLore(lore);
             if (plugin.getSettings().getBoolean("config.enchantments-stack", true)) {
                 for (Map.Entry<Enchantment, Integer> entry : stone.getEnchantments().entrySet()) {
                     if (currentItem.containsEnchantment(entry.getKey())) {
@@ -317,6 +338,11 @@ public final class InteractListener implements Listener {
                 }
             }
 
+            currentItem.setLore(lore);
+
+            float weightDivisor = stone.getWeight() == 0 ? 2000 : (float)stone.getWeight();
+            float exp = 3 + 2000 / weightDivisor;
+            Bukkit.getServer().getPluginManager().callEvent(new StrifeEnchantEvent(player, exp));
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem(event, currentItem);
@@ -479,6 +505,7 @@ public final class InteractListener implements Listener {
             boolean augProtect = false;
             boolean augBonus = false;
             double augChance = 0;
+            double enchBonus = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player) * 0.001;
             List<String> scrollLore = cursor.getLore();
             for (String s : scrollLore) {
                 if (s.startsWith(ChatColor.DARK_AQUA + "Augment")) {
@@ -492,7 +519,7 @@ public final class InteractListener implements Listener {
                     break;
                 }
             }
-            if (random.nextDouble() + augChance < type.getChanceToFail()) {
+            if (random.nextDouble() + augChance + enchBonus < type.getChanceToFail()) {
                 double damagePercentage = random.nextDouble() * (0.25 + itemUpgradeLevel * 0.115);
                 int damageAmount = (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability()) - 1;
                 damageAmount = Math.max(damageAmount, 1);
@@ -549,6 +576,8 @@ public final class InteractListener implements Listener {
                     break;
                 }
                 currentItem.setLore(lore);
+                Bukkit.getServer().getPluginManager().callEvent(
+                    new StrifeEnchantEvent(player, 0.5f + (float)Math.pow(1.4, itemUpgradeLevel)));
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
                 if (itemUpgradeLevel >= 7) {
@@ -578,6 +607,38 @@ public final class InteractListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
             player.playSound(player.getEyeLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 0.8F);
             updateItem(event, currentItem);
+        } else if (cursor.getName().startsWith(ChatColor.DARK_PURPLE + "Magic Crystal")) {
+            List<String> lore = currentItem.getLore();
+            boolean valid = false;
+            int index = 0;
+            int addAmount = 0;
+            for (String str : currentItem.getLore()) {
+                if (str.startsWith(ChatColor.BLUE + "[") && str.contains("" + ChatColor.BLACK)) {
+                    valid = true;
+                    int barIndex = str.indexOf("" + ChatColor.BLACK);
+                    if (barIndex == str.length() - 5) {
+                        MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
+                        return;
+                    }
+                    double enchantLevel = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player);
+                    double itemLevel = MaterialUtil.getItemLevel(currentItem);
+                    addAmount = 2 + (int)(random.nextDouble() * (2 + Math.max(0, (enchantLevel - itemLevel) * 0.2)));
+                    str = str.replace("" + ChatColor.BLACK, "");
+                    str = new StringBuilder(str)
+                        .insert(Math.min(str.length()-3, barIndex + addAmount), ChatColor.BLACK + "").toString();
+                    lore.set(index, str);
+                    break;
+                }
+                index++;
+            }
+            if (valid) {
+                currentItem.setLore(lore);
+                Bukkit.getServer().getPluginManager().callEvent(new StrifeEnchantEvent(player, 8.5f + addAmount));
+                MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
+                player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
+                updateItem(event, currentItem);
+            }
         }
     }
 

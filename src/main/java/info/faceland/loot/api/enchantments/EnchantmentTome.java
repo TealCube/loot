@@ -23,6 +23,7 @@
 package info.faceland.loot.api.enchantments;
 
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.data.ItemStat;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.enchantments.Enchantment;
 
@@ -33,21 +34,19 @@ public interface EnchantmentTome {
 
     String getName();
 
-    List<String> getLore();
-
     double getWeight();
 
     double getDistanceWeight();
-
-    int getMinStats();
-
-    int getMaxStats();
 
     HiltItemStack toItemStack(int amount);
 
     boolean isBroadcast();
 
     List<ItemGroup> getItemGroups();
+
+    String getStat();
+
+    boolean getBar();
 
     String getDescription();
 

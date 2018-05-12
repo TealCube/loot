@@ -3,11 +3,9 @@ Fire I:
   weight: 100
   distance-weight: 0
   broadcast: true
-  lore:
-  - '<red>+1 Fire Damage'
-  - '<red>+2 Fire Damage'
-  - '<white>+1 Melee Damage'
-  - '<white>+2 Melee Damage'
+  stat: SHIELD-HEALTH
+  ## enable bar true if left undefined
+  enable-bar: false
   min-stats: 1
   max-stats: 2
   enchantments:

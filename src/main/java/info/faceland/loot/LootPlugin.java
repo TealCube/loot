@@ -48,6 +48,7 @@ import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.SalvageListener;
 import info.faceland.loot.listeners.StrifeListener;
@@ -267,6 +268,7 @@ public final class LootPlugin extends FacePlugin {
         Bukkit.getPluginManager().registerEvents(new SalvageListener(this), this);
         Bukkit.getPluginManager().registerEvents(new CraftingListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
         if (strifePlugin != null) {
             Bukkit.getPluginManager().registerEvents(new StrifeListener(this), this);
         } else {
@@ -360,10 +362,9 @@ public final class LootPlugin extends FacePlugin {
             builder.withDescription(cs.getString("description"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
-            builder.withLore(cs.getStringList("lore"));
-            builder.withMinStats(cs.getInt("min-stats"));
-            builder.withMaxStats(cs.getInt("max-stats"));
-            builder.withBroadcast(cs.getBoolean("broadcast"));
+            builder.withStat(cs.getString("stat"));
+            builder.withBar(cs.getBoolean("enable-bar", true));
+            builder.withBroadcast(cs.getBoolean("broadcast", false));
             List<ItemGroup> groups = new ArrayList<>();
             for (String groop : cs.getStringList("item-groups")) {
                 ItemGroup g = itemGroupManager.getItemGroup(groop);

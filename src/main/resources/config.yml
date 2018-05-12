@@ -23,6 +23,11 @@ custom-enchanting: true
 # enchantment.
 enchantments-stack: true
 
+
+# Chance that killing an enemy will degrade enchantments
+# On word equipment that has them.
+enchantment-degrade: 1.0
+
 # Chance that items will have any random upgrade
 # value applied on drop.
 random-upgrade-quantityBonus: 0.1

@@ -36,19 +36,17 @@ import java.util.*;
 public final class LootEnchantmentTome implements EnchantmentTome {
 
     private final String name;
-    private List<String> lore;
     private double weight;
     private double distanceWeight;
-    private int minStats;
-    private int maxStats;
     private boolean broadcast;
     private List<ItemGroup> itemGroups;
+    private String stat;
+    private boolean bar;
     private String description;
     private Map<Enchantment, Integer> enchantments;
 
     public LootEnchantmentTome(String name) {
         this.name = name;
-        this.lore = new ArrayList<>();
         this.itemGroups = new ArrayList<>();
     }
 
@@ -78,12 +76,21 @@ public final class LootEnchantmentTome implements EnchantmentTome {
 
 
     @Override
-    public List<String> getLore() {
-        return new ArrayList<>(lore);
+    public String getStat() {
+        return stat;
     }
 
-    void setLore(List<String> lore) {
-        this.lore = lore;
+    void setStat(String stat) {
+        this.stat = stat;
+    }
+
+    @Override
+    public boolean getBar() {
+        return bar;
+    }
+
+    void setBar(boolean bar) {
+        this.bar = bar;
     }
 
     @Override
@@ -102,24 +109,6 @@ public final class LootEnchantmentTome implements EnchantmentTome {
 
     void setDistanceWeight(double distanceWeight) {
         this.distanceWeight = distanceWeight;
-    }
-
-    @Override
-    public int getMinStats() {
-        return minStats;
-    }
-
-    void setMinStats(int minStats) {
-        this.minStats = minStats;
-    }
-
-    @Override
-    public int getMaxStats() {
-        return maxStats;
-    }
-
-    void setMaxStats(int maxStats) {
-        this.maxStats = maxStats;
     }
 
     @Override
