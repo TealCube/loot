@@ -287,15 +287,12 @@ public final class InteractListener implements Listener {
 
             if (!StringUtils.isBlank(stone.getStat())) {
                 double enchantLevel = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player);
-                double enchantProgress = enchantLevel / 60;
-                double bonus =
-                    enchantProgress * random.nextDouble() + (1 - enchantProgress) * Math.pow(random.nextDouble(), 2);
-                double rarity =
-                    enchantProgress * random.nextDouble() + (1 - enchantProgress) * Math.pow(random.nextDouble(), 2);
-                int size = 5 + (int) (30 * bonus);
+                double bonus = getBonusMultiplier(enchantLevel);
+                double rarity = getBonusMultiplier(enchantLevel);
+                int size = 6 + (int) (25 * bonus);
 
                 int itemLevel = MaterialUtil.getItemLevel(currentItem);
-                double effectiveLevel = Math.min(enchantLevel * 2, itemLevel);
+                double effectiveLevel = Math.max(1, Math.min(enchantLevel * 2, itemLevel));
 
                 List<String> added = new ArrayList<>();
                 ItemStat stat = plugin.getStatManager().getStat(stone.getStat());
@@ -697,6 +694,11 @@ public final class InteractListener implements Listener {
             }
         }
         return ChatColor.RESET;
+    }
+
+    private double getBonusMultiplier(double enchantLevel) {
+        double enchant = Math.max(0, Math.min(1, enchantLevel / 60));
+        return enchant * random.nextDouble() + (1 - enchant) * Math.pow(random.nextDouble(), 2);
     }
 
     private int getLevel(String name) {
