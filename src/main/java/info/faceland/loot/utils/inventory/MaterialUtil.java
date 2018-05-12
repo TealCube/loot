@@ -120,6 +120,20 @@ public final class MaterialUtil {
         return getDigit(stack.getLore().get(0));
     }
 
+    public static int getToolLevel(HiltItemStack stack) {
+        if (stack.getItemMeta() == null) {
+            return -1;
+        }
+        if (stack.getLore().get(0) == null) {
+            return -1;
+        }
+        String lvlReqString = ChatColor.stripColor(stack.getLore().get(0));
+        if (!lvlReqString.startsWith("Craft Skill Requirement:")) {
+            return -1;
+        }
+        return getDigit(stack.getLore().get(0));
+    }
+
     public static int getDigit(String string) {
         String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(ChatColor.stripColor(string), ' ').trim();
         return NumberUtils.toInt(lev.split(" ")[0], 0);

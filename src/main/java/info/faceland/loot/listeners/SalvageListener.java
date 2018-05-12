@@ -25,11 +25,9 @@ package info.faceland.loot.listeners;
 import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getItemLevel;
+import static info.faceland.loot.utils.inventory.MaterialUtil.getToolLevel;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
-import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
@@ -42,7 +40,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -54,7 +51,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.potion.PotionEffectType;
 
 public final class SalvageListener implements Listener {
 
@@ -118,6 +114,10 @@ public final class SalvageListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
             return;
         }
+        if (craftingLevel < getToolLevel(cursor)) {
+            MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level-tool", ""));
+            return;
+        }
 
         List<String> lore = currentItem.getLore();
         List<String> possibleStats = new ArrayList<>();
@@ -148,7 +148,9 @@ public final class SalvageListener implements Listener {
         event.setCurrentItem(null);
         player.getInventory().addItem(craftMaterial);
 
-        if (possibleStats.size() > 0 && random.nextDouble() < 0.05 + 0.15 * toolQuality) {
+        double levelSurplus = Math.max(0, (craftingLevel * 2) - itemLevel);
+        double essChance = 0.1 + 0.1 * toolQuality + Math.min(levelSurplus * 0.01, 0.35);
+        if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
             player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
             String type = InventoryUtil.getItemType(currentItem);
             HiltItemStack shard = buildEssence(player, type, itemLevel, craftingLevel, possibleStats);
