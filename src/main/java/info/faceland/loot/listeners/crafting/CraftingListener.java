@@ -33,11 +33,11 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
-import info.faceland.strife.events.StrifeCraftEvent;
+import info.faceland.strife.util.PlayerDataUtil;
+import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -117,7 +117,7 @@ public final class CraftingListener implements Listener {
         String strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
         Tier tier = plugin.getTierManager().getTier(strTier);
 
-        int craftingLevel = plugin.getStrifePlugin().getPlayerDataUtil().getCraftLevel(player);
+        int craftingLevel = PlayerDataUtil.getCraftLevel(player);
 
         int numMaterials = 0;
         double totalQuality = 0;
@@ -211,7 +211,7 @@ public final class CraftingListener implements Listener {
         newResult.setItemMeta(meta);
         event.setCurrentItem(newResult);
         event.setCancelled(false);
-        Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, (float)exp));
+        SkillExperienceUtil.addCraftExperience(player, exp);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -286,7 +286,7 @@ public final class CraftingListener implements Listener {
                 return;
             }
         }
-        int selectedSlot = random.nextDouble() > 0.5 ? random.nextInt(essenceStats.size()) : random.nextInt(8);
+        int selectedSlot = random.nextDouble() > 0.35 ? random.nextInt(essenceStats.size()) : random.nextInt(8);
         if (selectedSlot > essenceStats.size() - 1) {
             event.setCurrentItem(baseItem);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
@@ -299,7 +299,7 @@ public final class CraftingListener implements Listener {
         baseItem.setLore(lore);
 
         event.setCurrentItem(baseItem);
-        Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, 0.5f + essenceStats.size()));
+        SkillExperienceUtil.addCraftExperience(player, 0.5f + essenceStats.size());
         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
         event.setCancelled(false);
     }

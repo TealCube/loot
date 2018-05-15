@@ -44,7 +44,8 @@ import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
-import info.faceland.strife.events.StrifeEnchantEvent;
+import info.faceland.strife.util.PlayerDataUtil;
+import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -66,7 +67,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.EnchantingInventory;
@@ -286,7 +286,7 @@ public final class InteractListener implements Listener {
             lore.remove(index);
 
             if (!StringUtils.isBlank(stone.getStat())) {
-                double enchantLevel = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player);
+                double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
                 double bonus = getBonusMultiplier(enchantLevel);
                 double rarity = getBonusMultiplier(enchantLevel);
                 int size = 6 + (int) (25 * bonus);
@@ -339,7 +339,7 @@ public final class InteractListener implements Listener {
 
             float weightDivisor = stone.getWeight() == 0 ? 2000 : (float)stone.getWeight();
             float exp = 3 + 2000 / weightDivisor;
-            Bukkit.getServer().getPluginManager().callEvent(new StrifeEnchantEvent(player, exp));
+            SkillExperienceUtil.addCraftExperience(player, exp);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem(event, currentItem);
@@ -502,7 +502,7 @@ public final class InteractListener implements Listener {
             boolean augProtect = false;
             boolean augBonus = false;
             double augChance = 0;
-            double enchBonus = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player) * 0.001;
+            double enchBonus = PlayerDataUtil.getEnchantLevel(player) * 0.001;
             List<String> scrollLore = cursor.getLore();
             for (String s : scrollLore) {
                 if (s.startsWith(ChatColor.DARK_AQUA + "Augment")) {
@@ -573,8 +573,8 @@ public final class InteractListener implements Listener {
                     break;
                 }
                 currentItem.setLore(lore);
-                Bukkit.getServer().getPluginManager().callEvent(
-                    new StrifeEnchantEvent(player, 0.5f + (float)Math.pow(1.4, itemUpgradeLevel)));
+                double exp = 0.5f + (float)Math.pow(1.4, itemUpgradeLevel);
+                SkillExperienceUtil.addCraftExperience(player, exp);
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
                 if (itemUpgradeLevel >= 7) {
@@ -617,7 +617,7 @@ public final class InteractListener implements Listener {
                         MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
                         return;
                     }
-                    double enchantLevel = plugin.getStrifePlugin().getPlayerDataUtil().getEnchantLevel(player);
+                    double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
                     double itemLevel = MaterialUtil.getItemLevel(currentItem);
                     addAmount = 2 + (int)(random.nextDouble() * (2 + Math.max(0, (enchantLevel - itemLevel) * 0.2)));
                     str = str.replace("" + ChatColor.BLACK, "");
@@ -630,7 +630,7 @@ public final class InteractListener implements Listener {
             }
             if (valid) {
                 currentItem.setLore(lore);
-                Bukkit.getServer().getPluginManager().callEvent(new StrifeEnchantEvent(player, 8.5f + addAmount));
+                SkillExperienceUtil.addCraftExperience(player, 8.5f + addAmount);
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);

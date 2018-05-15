@@ -32,7 +32,8 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
-import info.faceland.strife.events.StrifeCraftEvent;
+import info.faceland.strife.util.PlayerDataUtil;
+import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +110,7 @@ public final class SalvageListener implements Listener {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.no-level", ""));
             return;
         }
-        int craftingLevel = plugin.getStrifePlugin().getPlayerDataUtil().getCraftLevel(player);
+        int craftingLevel = PlayerDataUtil.getCraftLevel(player);
         if (!isHighEnoughCraftingLevel(craftingLevel, itemLevel)) {
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
             return;
@@ -174,7 +175,7 @@ public final class SalvageListener implements Listener {
             }
         }
         double exp = 0.6 + (itemLevel * 0.25);
-        Bukkit.getServer().getPluginManager().callEvent(new StrifeCraftEvent(player, (float)exp));
+        SkillExperienceUtil.addCraftExperience(player, exp);
     }
 
     private List<Material> buildPossibleMaterials(ItemStack itemStack) {

@@ -24,7 +24,6 @@ package info.faceland.loot.listeners;
 
 import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.math.LootRandom;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
@@ -89,7 +88,7 @@ public final class EnchantDegradeListener implements Listener {
 
     private ItemStack degrade(ItemStack itemStack, Player player) {
         if (itemStack == null || itemStack.getItemMeta() == null || itemStack.getItemMeta().getLore() == null) {
-            return null;
+            return itemStack;
         }
         HiltItemStack item = new HiltItemStack(itemStack);
         List<String> lore = new ArrayList<>();
