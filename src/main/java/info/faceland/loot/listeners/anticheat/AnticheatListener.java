@@ -1,24 +1,20 @@
 /**
- * The MIT License
- * Copyright (c) 2015 Teal Cube Games
+ * The MIT License Copyright (c) 2015 Teal Cube Games
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.listeners.anticheat;
 
@@ -32,43 +28,83 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 public final class AnticheatListener implements Listener {
 
-    private final LootPlugin plugin;
+  private final LootPlugin plugin;
+  private static final long MILLIS_PER_SEC = 1000;
 
-    public AnticheatListener(LootPlugin plugin) {
-        this.plugin = plugin;
+  public AnticheatListener(LootPlugin plugin) {
+    this.plugin = plugin;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onCreatureSpawn(CreatureSpawnEvent event) {
+    if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+      event.getEntity().setMetadata("SPAWNED", new FixedMetadataValue(plugin, true));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    if (!(event.getEntity() instanceof Monster)) {
+      return;
+    }
+    LivingEntity li = null;
+    if (event.getDamager() instanceof Player) {
+      li = (Player) event.getDamager();
+    } else if (event.getDamager() instanceof Projectile) {
+      if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
+        li = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
+      }
+    }
+    if (li == null) {
+      return;
+    }
+    if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
+      plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
+    }
+    AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
+    if (tag.getTaggerLocation(li.getUniqueId()) == null) {
+      tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
+    } else {
+      tag.setTaggerLocation(li.getUniqueId(), tag.getTaggerLocation(li.getUniqueId()));
+    }
+    tag.setTaggerDamage(li.getUniqueId(), event.getFinalDamage());
+    plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
+  }
+
+  // Loot protection function. Return out of it before the end to allow an item to be picked up!
+  // Makes it so only the owner of a drop can pick it up.
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onItemPickupEvent(EntityPickupItemEvent event) {
+    if (!(event.getEntity() instanceof Player)) {
+      return;
+    }
+    if (!event.getItem().hasMetadata("loot-owner")) {
+      return;
+    }
+    if (event.getItem().getMetadata("loot-owner").get(0) == null) {
+      return;
+    }
+    // Fetching item lore that should have been applied in EntityDeathListener
+    String owner = event.getItem().getMetadata("loot-owner").get(0).asString();
+    Long time = event.getItem().getMetadata("loot-time").get(0).asLong();
+
+    // If the event player's UUID is the same as the owner UUID on the item, allow the pickup
+    if (event.getEntity().getUniqueId().toString().equals(owner)) {
+      return;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Monster)) {
-            return;
-        }
-        LivingEntity li = null;
-        if (event.getDamager() instanceof Player) {
-            li = (Player) event.getDamager();
-        } else if (event.getDamager() instanceof Projectile) {
-            if ( ((Projectile)event.getDamager()).getShooter() instanceof Player) {
-                li = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
-            }
-        }
-        if (li == null) {
-            return;
-        }
-        if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
-            plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
-        }
-        AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
-        if (tag.getTaggerLocation(li.getUniqueId()) == null) {
-            tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
-        } else {
-            tag.setTaggerLocation(li.getUniqueId(), tag.getTaggerLocation(li.getUniqueId()));
-        }
-        tag.setTaggerDamage(li.getUniqueId(), event.getFinalDamage());
-        plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
+    // If loot-protect-time seconds have passed, allow the item to be picked up!
+    if ((System.currentTimeMillis() - time) >= plugin.getSettings().getInt("config.loot-protect-time", 10) *
+        MILLIS_PER_SEC) {
+      return;
     }
-
+    event.setCancelled(true);
+  }
 }

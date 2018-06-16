@@ -43,6 +43,7 @@ import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
@@ -362,7 +363,8 @@ public final class LootPlugin extends FacePlugin {
             builder.withDescription(cs.getString("description"));
             builder.withWeight(cs.getDouble("weight"));
             builder.withDistanceWeight(cs.getDouble("distance-weight"));
-            builder.withStat(cs.getString("stat"));
+            builder.withLore(cs.getStringList("lore"));
+            builder.withStat(cs.getString("stat", ""));
             builder.withBar(cs.getBoolean("enable-bar", true));
             builder.withBroadcast(cs.getBoolean("broadcast", false));
             List<ItemGroup> groups = new ArrayList<>();
@@ -464,6 +466,31 @@ public final class LootPlugin extends FacePlugin {
                     map.put(es, cs.getDouble("enchantment-stones." + k));
                 }
                 builder.withEnchantmentStoneMults(map);
+            }
+            if (cs.isConfigurationSection("drops")) {
+                Map<JunkItemData, Double> map = new HashMap<>();
+                for (String k : cs.getConfigurationSection("drops").getKeys(false)) {
+                    if (!cs.isConfigurationSection("drops." + k)) {
+                        continue;
+                    }
+                    Material material;
+                    try {
+                        material = Material.valueOf(cs.getString("drops." + k + ".material"));
+                    } catch (Exception e) {
+                        getLogger().warning("Invalid material in creature junk drops!");
+                        continue;
+                    }
+                    int min = cs.getInt("drops." + k + ".min-amount");
+                    int max = cs.getInt("drops." + k + ".max-amount");
+                    double chance = cs.getDouble("drops." + k + ".chance");
+                    JunkItemData jid = new JunkItemData(material, min, max);
+                    CustomItem ci = customItemManager.getCustomItem(k);
+                    if (ci == null) {
+                        continue;
+                    }
+                    map.put(jid, chance);
+                }
+                builder.withJunkMults(map);
             }
             CreatureMod mod = builder.build();
             mods.add(mod);

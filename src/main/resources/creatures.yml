@@ -1,8 +1,293 @@
 version: "0.0.1"
-CREEPER:
+PIG_ZOMBIE:
+  experience: 5 - LEVEL + (LEVEL^1.7)
   custom-items:
     fuckyeah-sword: 2.0
   socket-gems:
     Steroids_I: 2.0
   tiers:
     common: 2.0
+  drops:
+    drop1:
+      material: GOLD_NUGGET
+      min-amount: 1
+      max-amount: 1
+      chance: 0.2
+    drop2:
+      material: ROTTEN_FLESH
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+SLIME:
+  experience: 1 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: SLIME_BALL
+      min-amount: 1
+      max-amount: 2
+      chance: 1.0
+ZOMBIE:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: FEATHER
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+    drop2:
+      material: ROTTEN_FLESH
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+HUSK:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: FEATHER
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+    drop2:
+      material: ROTTEN_FLESH
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+ZOMBIE_VILLAGER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: FEATHER
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+    drop2:
+      material: ROTTEN_FLESH
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+GHAST:
+  experience: 15 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: GHAST_TEAR
+      min-amount: 1
+      max-amount: 2
+      chance: 1.0
+SILVERFISH:
+  experience: 3 - LEVEL + (LEVEL^1.65)
+ENDERMITE:
+  experience: 3 - LEVEL + (LEVEL^1.65)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+WITCH:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+EVOKER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+ILLUSIONER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+WOLF:
+  experience: 3
+IRON_GOLEM:
+  experience: 5
+  drops:
+    drop1:
+      material: IRON_INGOT
+      min-amount: 1
+      max-amount: 1
+      chance: 0.3
+BLAZE:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: BLAZE_ROD
+      min-amount: 1
+      max-amount: 1
+      chance: 0.2
+    drop2:
+      material: BLAZE_POWDER
+      min-amount: 1
+      max-amount: 1
+      chance: 0.4
+CREEPER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: SULPHUR
+      min-amount: 1
+      max-amount: 2
+      chance: 0.2
+SKELETON:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: BONE
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+STRAY:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: BONE
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+WITHER_SKELETON:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: BONE
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+    drop2:
+      material: NETHER_QUARTZ
+      min-amount: 1
+      max-amount: 2
+      chance: 0.1
+SNOWMAN:
+  experience: 3
+  drops:
+    drop1:
+      material: SNOW_BALL
+      min-amount: 1
+      max-amount: 2
+      chance: 1.0
+SPIDER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: STRING
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+    drop2:
+      material: SPIDER_EYE
+      min-amount: 1
+      max-amount: 1
+      chance: 0.2
+    drop3:
+      material: WEB
+      min-amount: 1
+      max-amount: 1
+      chance: 0.05
+RABBIT:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: RABBIT_FOOT
+      min-amount: 1
+      max-amount: 1
+      chance: 1.0
+    drop2:
+      material: RABBIT_HIDE
+      min-amount: 1
+      max-amount: 2
+      chance: 1.0
+    drop3:
+      material: RABBIT
+      min-amount: 1
+      max-amount: 1
+      chance: 1.0
+CAVE_SPIDER:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: STRING
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+    drop2:
+      material: SPIDER_EYE
+      min-amount: 1
+      max-amount: 1
+      chance: 0.2
+    drop3:
+      material: WEB
+      min-amount: 1
+      max-amount: 1
+      chance: 0.05
+GUARDIAN:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: PRISMARINE_SHARD
+      min-amount: 1
+      max-amount: 2
+      chance: 0.5
+    drop2:
+      material: PRISMARINE_CRYSTALS
+      min-amount: 1
+      max-amount: 1
+      chance: 0.2
+    drop3:
+      material: RAW_FISH
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1
+ENDERMAN:
+  experience: 25 - LEVEL + (LEVEL^1.8)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 1
+      max-amount: 1
+      chance: 1.0
+ENDER_DRAGON:
+  experience: 100 - LEVEL + (LEVEL^1.9)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 3
+      max-amount: 3
+      chance: 1.0
+WITHER:
+  experience: 100 - LEVEL + (LEVEL^1.9)
+  drops:
+    drop1:
+      material: ENDER_PEARL
+      min-amount: 3
+      max-amount: 3
+      chance: 1.0
+    drop2:
+      material: NETHER_STAR
+      min-amount: 1
+      max-amount: 1
+      chance: 1.0
+VEX:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: GLOWSTONE_DUST
+      min-amount: 1
+      max-amount: 2
+      chance: 0.1
+VINDICATOR:
+  experience: 5 - LEVEL + (LEVEL^1.7)
+  drops:
+    drop1:
+      material: IRON_NUGGET
+      min-amount: 1
+      max-amount: 1
+      chance: 0.4
+    drop2:
+      material: EMERALD
+      min-amount: 1
+      max-amount: 1
+      chance: 0.1

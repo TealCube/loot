@@ -28,6 +28,8 @@ import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.JunkItemData;
+import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 import org.bukkit.entity.EntityType;
 
 import java.util.Map;
@@ -76,6 +78,18 @@ public final class LootCreatureModBuilder implements CreatureModBuilder {
     @Override
     public CreatureModBuilder withEnchantmentStoneMults(Map<EnchantmentTome, Double> map) {
         mod.setEnchantmentStoneDoubleMap(map);
+        return this;
+    }
+
+    @Override
+    public CreatureModBuilder withJunkMults(Map<JunkItemData, Double> map) {
+        mod.setJunkItemDataDoubleMap(map);
+        return this;
+    }
+
+    @Override
+    public CreatureModBuilder withExpression(Expression expression) {
+        mod.setExperienceExpression(expression);
         return this;
     }
 

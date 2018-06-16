@@ -44,6 +44,8 @@ public interface EnchantmentTome {
 
     List<ItemGroup> getItemGroups();
 
+    List<String> getLore();
+
     String getStat();
 
     boolean getBar();

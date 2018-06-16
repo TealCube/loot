@@ -54,6 +54,12 @@ public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder 
     }
 
     @Override
+    public EnchantmentTomeBuilder withLore(List<String> s) {
+        stone.setLore(s);
+        return this;
+    }
+
+    @Override
     public EnchantmentTomeBuilder withStat(String s) {
         stone.setStat(s);
         return this;

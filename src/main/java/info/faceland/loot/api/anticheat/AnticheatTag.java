@@ -40,5 +40,5 @@ public interface AnticheatTag {
 
     void setTaggerDamage(UUID uuid, double damage);
 
-    UUID getHighestDamageTagger();
+    UUID getRandomWeightedLooter();
 }

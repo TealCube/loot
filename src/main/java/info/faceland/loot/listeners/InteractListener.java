@@ -22,11 +22,14 @@
  */
 package info.faceland.loot.listeners;
 
+import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
+import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
+import static info.faceland.loot.utils.inventory.InventoryUtil.getLastColor;
+
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
-import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 
@@ -81,44 +84,12 @@ import org.bukkit.inventory.PlayerInventory;
 
 public final class InteractListener implements Listener {
 
-    private static final long MILLIS_PER_SEC = 1000;
-
     private final LootPlugin plugin;
     private LootRandom random;
 
     public InteractListener(LootPlugin plugin) {
         this.plugin = plugin;
         this.random = new LootRandom();
-    }
-
-    // Loot protection function. Return out of it before the end to allow an item to be picked up!
-    // Makes it so only the owner of a drop can pick it up.
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemPickupEvent(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-        if (!event.getItem().hasMetadata("loot-owner")) {
-            return;
-        }
-        if (event.getItem().getMetadata("loot-owner").get(0) == null) {
-            return;
-        }
-        // Fetching item lore that should have been applied in EntityDeathListener
-        String owner = event.getItem().getMetadata("loot-owner").get(0).asString();
-        Long time = event.getItem().getMetadata("loot-time").get(0).asLong();
-
-        // If the event player's UUID is the same as the owner UUID on the item, allow the pickup
-        if (event.getEntity().getUniqueId().toString().equals(owner)) {
-            return;
-        }
-
-        // If loot-protect-time seconds have passed, allow the item to be picked up!
-        if ((System.currentTimeMillis() - time) >= plugin.getSettings().getInt("config.loot-protect-time", 10) *
-                MILLIS_PER_SEC) {
-            return;
-        }
-        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -285,24 +256,31 @@ public final class InteractListener implements Listener {
             int index = strippedLore.indexOf("(Enchantable)");
             lore.remove(index);
 
+            double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
+
+            List<String> added = new ArrayList<>();
+            if (!stone.getLore().isEmpty()) {
+                added.addAll(TextUtils.color(stone.getLore()));
+            }
+
             if (!StringUtils.isBlank(stone.getStat())) {
-                double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
-                double bonus = getBonusMultiplier(enchantLevel);
                 double rarity = getBonusMultiplier(enchantLevel);
-                int size = 6 + (int) (25 * bonus);
 
                 int itemLevel = MaterialUtil.getItemLevel(currentItem);
                 double effectiveLevel = Math.max(1, Math.min(enchantLevel * 2, itemLevel));
 
-                List<String> added = new ArrayList<>();
                 ItemStat stat = plugin.getStatManager().getStat(stone.getStat());
                 added.add(plugin.getStatManager().getFinalStat(stat, effectiveLevel, rarity));
-                if (stone.getBar()) {
-                    String bars = IntStream.range(0, size).mapToObj(i -> "|").collect(Collectors.joining(""));
-                    added.add(TextUtils.color("&9[" + bars + "&0&9]"));
-                }
-                lore.addAll(index, TextUtils.color(added));
             }
+
+            if (stone.getBar()) {
+                double bonus = getBonusMultiplier(enchantLevel);
+                int size = 6 + (int) (25 * bonus);
+                String bars = IntStream.range(0, size).mapToObj(i -> "|").collect(Collectors.joining(""));
+                added.add(TextUtils.color("&9[" + bars + "&0&9]"));
+            }
+
+            lore.addAll(index, TextUtils.color(added));
 
             if (plugin.getSettings().getBoolean("config.enchantments-stack", true)) {
                 for (Map.Entry<Enchantment, Integer> entry : stone.getEnchantments().entrySet()) {
@@ -339,15 +317,11 @@ public final class InteractListener implements Listener {
 
             float weightDivisor = stone.getWeight() == 0 ? 2000 : (float)stone.getWeight();
             float exp = 3 + 2000 / weightDivisor;
-            SkillExperienceUtil.addCraftExperience(player, exp);
+            SkillExperienceUtil.addEnchantExperience(player, exp);
             MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
             player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
             updateItem(event, currentItem);
-        }  else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
-            if (isBannedMaterial(currentItem)) {
-                return;
-            }
-            List<String> lore = currentItem.getLore();
+        }  else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {List<String> lore = currentItem.getLore();
             List<String> stripColor = InventoryUtil.stripColor(lore);
             if (!stripColor.contains("(+)")) {
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
@@ -574,7 +548,7 @@ public final class InteractListener implements Listener {
                 }
                 currentItem.setLore(lore);
                 double exp = 0.5f + (float)Math.pow(1.4, itemUpgradeLevel);
-                SkillExperienceUtil.addCraftExperience(player, exp);
+                SkillExperienceUtil.addEnchantExperience(player, exp);
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
                 player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
                 if (itemUpgradeLevel >= 7) {
@@ -630,7 +604,7 @@ public final class InteractListener implements Listener {
             }
             if (valid) {
                 currentItem.setLore(lore);
-                SkillExperienceUtil.addCraftExperience(player, 8.5f + addAmount);
+                SkillExperienceUtil.addEnchantExperience(player, 8.5f + addAmount);
                 MessageUtils.sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
                 player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
@@ -670,32 +644,6 @@ public final class InteractListener implements Listener {
         return false;
     }
 
-    private ChatColor getFirstColor(String s) {
-        for (int i = 0; i < s.length() - 1; i++) {
-            if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
-                continue;
-            }
-            ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
-            if (c != null) {
-                return c;
-            }
-        }
-        return ChatColor.RESET;
-    }
-
-    private ChatColor getLastColor(String s) {
-        for (int i = s.length() - 1; i >= 0; i--) {
-            if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
-                continue;
-            }
-            ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
-            if (c != null) {
-                return c;
-            }
-        }
-        return ChatColor.RESET;
-    }
-
     private double getBonusMultiplier(double enchantLevel) {
         double enchant = Math.max(0, Math.min(1, enchantLevel / 60));
         return enchant * random.nextDouble() + (1 - enchant) * Math.pow(random.nextDouble(), 2);
@@ -706,35 +654,12 @@ public final class InteractListener implements Listener {
         return NumberUtils.toInt(lev.split(" ")[0], 0);
     }
 
-    private void broadcast(Player player, HiltItemStack his, String type) {
-        FancyMessage message = new FancyMessage("");
-        String mess = plugin.getSettings().getString("language.broadcast." + type, "");
-        String[] split = mess.split(" ");
-        for (int i = 0; i < split.length; i++) {
-            String s = split[i];
-            String str = TextUtils.color(s);
-            if (str.contains("%player%")) {
-                message.then(str.replace("%player%", player.getDisplayName()));
-            } else if (str.contains("%item%")) {
-                message.then(str.replace("%item%", his.getName())).itemTooltip(his);
-            } else {
-                message.then(str);
-            }
-            if (i != split.length - 1) {
-                message.then(" ");
-            }
-        }
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            message.send(p);
-        }
-    }
-
-    private boolean isBannedMaterial(HiltItemStack currentItem) {
-        return currentItem.getType() == Material.BOOK || currentItem.getType() == Material.EMERALD ||
-            currentItem.getType() == Material.PAPER || currentItem.getType() == Material.NETHER_STAR ||
-            currentItem.getType() == Material.DIAMOND  || currentItem.getType() == Material.GHAST_TEAR ||
-            currentItem.getType() == Material.ENCHANTED_BOOK || currentItem.getType() == Material.NAME_TAG ||
-            currentItem.getType() == Material.ARROW;
+    private boolean isBannedMaterial(HiltItemStack item) {
+        return item.getType() == Material.BOOK || item.getType() == Material.EMERALD ||
+            item.getType() == Material.PAPER || item.getType() == Material.NETHER_STAR ||
+            item.getType() == Material.DIAMOND  || item.getType() == Material.GHAST_TEAR ||
+            item.getType() == Material.ENCHANTED_BOOK || item.getType() == Material.NAME_TAG ||
+            item.getType() == Material.ARROW || item.getType() == Material.QUARTZ;
     }
 
 }

@@ -34,6 +34,8 @@ public interface EnchantmentTomeBuilder {
 
     EnchantmentTome build();
 
+    EnchantmentTomeBuilder withLore(List<String> s);
+
     EnchantmentTomeBuilder withStat(String s);
 
     EnchantmentTomeBuilder withBar(boolean b);

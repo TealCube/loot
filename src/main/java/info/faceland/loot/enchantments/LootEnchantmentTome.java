@@ -40,6 +40,7 @@ public final class LootEnchantmentTome implements EnchantmentTome {
     private double distanceWeight;
     private boolean broadcast;
     private List<ItemGroup> itemGroups;
+    private List<String> lore;
     private String stat;
     private boolean bar;
     private String description;
@@ -74,6 +75,14 @@ public final class LootEnchantmentTome implements EnchantmentTome {
         return name;
     }
 
+    @Override
+    public List<String> getLore() {
+        return lore;
+    }
+
+    public void setLore(List<String> lore) {
+        this.lore = lore;
+    }
 
     @Override
     public String getStat() {

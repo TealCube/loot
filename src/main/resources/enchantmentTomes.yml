@@ -4,6 +4,10 @@ Fire I:
   distance-weight: 0
   broadcast: true
   stat: SHIELD-HEALTH
+  ## lore is always added, if present. optional.
+  lore:
+  - "meme dreams"
+  - "exdee"
   ## enable bar true if left undefined
   enable-bar: false
   min-stats: 1

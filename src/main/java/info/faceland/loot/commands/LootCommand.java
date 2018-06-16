@@ -605,16 +605,7 @@ public final class LootCommand {
       sendMessage(sender, plugin.getSettings().getString("language.command.renamefail", ""));
       return;
     }
-    if (newLore.equals(ChatColor.DARK_AQUA + "Socket Extender") ||
-        newLore.startsWith(ChatColor.BLUE + "Enchantment Tome - ") ||
-        newLore.startsWith(ChatColor.GOLD + "Socket Gem -") ||
-        newLore.startsWith(ChatColor.DARK_AQUA + "Scroll Augment -") ||
-        newLore.endsWith("Upgrade Scroll") ||
-        newLore.equals(ChatColor.DARK_AQUA + "Feacguy's Tears") ||
-        newLore.equals(ChatColor.DARK_PURPLE + "Identity Tome") ||
-        newLore.equals(ChatColor.LIGHT_PURPLE + "Unidentified Item") ||
-        newLore.equals(ChatColor.WHITE + "Item Rename Tag") ||
-        newLore.endsWith("Magic Crystal")) {
+    if (isIllegalName(ChatColor.stripColor(newLore))) {
       sendMessage(sender, plugin.getSettings().getString("language.command.invalidname", ""));
       return;
     }
@@ -633,5 +624,14 @@ public final class LootCommand {
 
   private void giveItem(Player player, ItemStack itemStack) {
     player.getInventory().addItem(itemStack);
+  }
+
+  private boolean isIllegalName(String name) {
+    return name.equals("Socket Extender") || name.startsWith("Enchantment Tome") ||
+        name.startsWith("Socket Gem") || name.startsWith("Scroll Augment") ||
+        name.endsWith("Upgrade Scroll") || name.equals("Faceguy's Tears") ||
+        name.equals("Identity Tome") || name.equals("Unidentified Item") ||
+        name.equals("Item Rename Tag") || name.equals("Magic Crystal") ||
+        name.equals("Soul Stone");
   }
 }
