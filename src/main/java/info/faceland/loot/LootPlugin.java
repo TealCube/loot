@@ -20,6 +20,8 @@ package info.faceland.loot;
 
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
+import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
+import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.ExpressionBuilder;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -47,6 +49,7 @@ import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.InteractListener;
+import info.faceland.loot.listeners.LootDropListener;
 import info.faceland.loot.listeners.SalvageListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
@@ -64,6 +67,7 @@ import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -273,6 +277,8 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new CraftingListener(this), this);
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
+    Bukkit.getPluginManager().registerEvents(new LootDropListener(this), this);
+
     if (strifePlugin != null) {
       Bukkit.getPluginManager().registerEvents(new StrifeListener(this), this);
     } else {
@@ -414,86 +420,89 @@ public final class LootPlugin extends FacePlugin {
       }
       ConfigurationSection cs = creaturesYAML.getConfigurationSection(key);
       CreatureModBuilder builder = getNewCreatureModBuilder(EntityType.valueOf(key));
-      if (cs.isConfigurationSection("custom-items")) {
-        Map<CustomItem, Double> map = new HashMap<>();
-        for (String k : cs.getConfigurationSection("custom-items").getKeys(false)) {
-          if (!cs.isConfigurationSection("custom-items." + k)) {
-            continue;
+      for (String fieldKey : cs.getKeys(false)) {
+        if (fieldKey.equals("custom-items")) {
+          Map<CustomItem, Double> map = new HashMap<>();
+          for (String k : cs.getConfigurationSection("custom-items").getKeys(false)) {
+            if (!cs.isConfigurationSection("custom-items." + k)) {
+              continue;
+            }
+            CustomItem ci = customItemManager.getCustomItem(k);
+            if (ci == null) {
+              continue;
+            }
+            map.put(ci, cs.getDouble("custom-items." + k));
           }
-          CustomItem ci = customItemManager.getCustomItem(k);
-          if (ci == null) {
-            continue;
-          }
-          map.put(ci, cs.getDouble("custom-items." + k));
+          builder.withCustomItemMults(map);
         }
-        builder.withCustomItemMults(map);
-      }
-      if (cs.isConfigurationSection("socket-gems")) {
-        Map<SocketGem, Double> map = new HashMap<>();
-        for (String k : cs.getConfigurationSection("socket-gems").getKeys(false)) {
-          if (!cs.isConfigurationSection("socket-gems." + k)) {
-            continue;
+        if (fieldKey.equals("experience")) {
+          String expStr = cs.getString("experience", "");
+          if (StringUtils.isBlank(expStr)) {
+            builder.withExpression(null);
+          } else {
+            builder.withExpression(new ExpressionBuilder(expStr).variables("LEVEL").build());
           }
-          SocketGem sg = socketGemManager.getSocketGem(k);
-          if (sg == null) {
-            continue;
-          }
-          map.put(sg, cs.getDouble("socket-gems." + k));
         }
-        builder.withSocketGemMults(map);
-      }
-      if (cs.isConfigurationSection("tiers")) {
-        Map<Tier, Double> map = new HashMap<>();
-        for (String k : cs.getConfigurationSection("tiers").getKeys(false)) {
-          if (!cs.isConfigurationSection("tiers." + k)) {
-            continue;
+        if (fieldKey.equals("socket-gems")) {
+          Map<SocketGem, Double> map = new HashMap<>();
+          for (String k : cs.getConfigurationSection("socket-gems").getKeys(false)) {
+            if (!cs.isConfigurationSection("socket-gems." + k)) {
+              continue;
+            }
+            SocketGem sg = socketGemManager.getSocketGem(k);
+            if (sg == null) {
+              continue;
+            }
+            map.put(sg, cs.getDouble("socket-gems." + k));
           }
-          Tier t = tierManager.getTier(k);
-          if (t == null) {
-            continue;
-          }
-          map.put(t, cs.getDouble("tiers." + k));
+          builder.withSocketGemMults(map);
         }
-        builder.withTierMults(map);
-      }
-      if (cs.isConfigurationSection("enchantment-stone")) {
-        Map<EnchantmentTome, Double> map = new HashMap<>();
-        for (String k : cs.getConfigurationSection("enchantment-stones").getKeys(false)) {
-          if (!cs.isConfigurationSection("enchantment-stones." + k)) {
-            continue;
+        if (fieldKey.equals("tiers")) {
+          Map<Tier, Double> map = new HashMap<>();
+          for (String k : cs.getConfigurationSection("tiers").getKeys(false)) {
+            if (!cs.isConfigurationSection("tiers." + k)) {
+              continue;
+            }
+            Tier t = tierManager.getTier(k);
+            if (t == null) {
+              continue;
+            }
+            map.put(t, cs.getDouble("tiers." + k));
           }
-          EnchantmentTome es = enchantmentStoneManager.getEnchantmentStone(k);
-          if (es == null) {
-            continue;
-          }
-          map.put(es, cs.getDouble("enchantment-stones." + k));
+          builder.withTierMults(map);
         }
-        builder.withEnchantmentStoneMults(map);
-      }
-      if (cs.isConfigurationSection("drops")) {
-        Map<JunkItemData, Double> map = new HashMap<>();
-        for (String k : cs.getConfigurationSection("drops").getKeys(false)) {
-          if (!cs.isConfigurationSection("drops." + k)) {
-            continue;
+        if (fieldKey.equals("enchantment-stone")) {
+          Map<EnchantmentTome, Double> map = new HashMap<>();
+          for (String k : cs.getConfigurationSection("enchantment-stones").getKeys(false)) {
+            if (!cs.isConfigurationSection("enchantment-stones." + k)) {
+              continue;
+            }
+            EnchantmentTome es = enchantmentStoneManager.getEnchantmentStone(k);
+            if (es == null) {
+              continue;
+            }
+            map.put(es, cs.getDouble("enchantment-stones." + k));
           }
-          Material material;
-          try {
-            material = Material.valueOf(cs.getString("drops." + k + ".material"));
-          } catch (Exception e) {
-            getLogger().warning("Invalid material in creature junk drops!");
-            continue;
-          }
-          int min = cs.getInt("drops." + k + ".min-amount");
-          int max = cs.getInt("drops." + k + ".max-amount");
-          double chance = cs.getDouble("drops." + k + ".chance");
-          JunkItemData jid = new JunkItemData(material, min, max);
-          CustomItem ci = customItemManager.getCustomItem(k);
-          if (ci == null) {
-            continue;
-          }
-          map.put(jid, chance);
+          builder.withEnchantmentStoneMults(map);
         }
-        builder.withJunkMults(map);
+        if (fieldKey.equals("drops")) {
+          Map<JunkItemData, Double> map = new HashMap<>();
+          for (String k : cs.getConfigurationSection("drops").getKeys(false)) {
+            Material material;
+            try {
+              material = Material.valueOf(cs.getString("drops." + k + ".material"));
+            } catch (Exception e) {
+              getLogger().warning("Invalid material in creature junk drops!");
+              continue;
+            }
+            int min = cs.getInt("drops." + k + ".min-amount");
+            int max = cs.getInt("drops." + k + ".max-amount");
+            double chance = cs.getDouble("drops." + k + ".chance");
+            JunkItemData jid = new JunkItemData(material, min, max);
+            map.put(jid, chance);
+          }
+          builder.withJunkMults(map);
+        }
       }
       CreatureMod mod = builder.build();
       mods.add(mod);
@@ -502,7 +511,7 @@ public final class LootPlugin extends FacePlugin {
     for (CreatureMod cm : mods) {
       creatureModManager.addCreatureMod(cm);
     }
-    debug("Loaded creature mods: " + loadedMods.toString());
+    System.out.println("Loaded creature mods: " + loadedMods.toString());
   }
 
   private void loadSocketGems() {

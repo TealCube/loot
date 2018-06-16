@@ -32,11 +32,15 @@ import info.faceland.strife.attributes.StrifeAttribute;
 import info.faceland.strife.data.AttributedEntity;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -64,7 +68,18 @@ public final class EntityDeathListener implements Listener {
     this.violationMap = new HashMap<>();
   }
 
-  @EventHandler(priority = EventPriority.NORMAL)
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntityDeathAutoOrb(EntityDeathEvent event) {
+    if (event.getEntity().getKiller() == null) {
+      return;
+    }
+    World w = event.getEntity().getWorld();
+    Entity e = w.spawnEntity(event.getEntity().getKiller().getEyeLocation(), EntityType.EXPERIENCE_ORB);
+    ((ExperienceOrb) e).setExperience(event.getDroppedExp());
+    event.setDroppedExp(0);
+  }
+
+  @EventHandler(priority = EventPriority.HIGH)
   public void onEntityDeathEvent(EntityDeathEvent event) {
     if (event instanceof PlayerDeathEvent) {
       return;
@@ -87,10 +102,12 @@ public final class EntityDeathListener implements Listener {
       }
     }
     dropDrops(event, creatureMod);
-    if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false) &&
-        !(event.getEntity() instanceof Monster || event.getEntity() instanceof Ghast || event
-            .getEntity() instanceof Slime)) {
-      return;
+    if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false)) {
+      if (!(event.getEntity() instanceof Monster)) {
+        if (!(event.getEntity() instanceof Ghast || event.getEntity() instanceof Slime)) {
+          return;
+        }
+      }
     }
 
     Player killer = event.getEntity().getKiller();
@@ -98,6 +115,10 @@ public final class EntityDeathListener implements Listener {
     double bonusDropMult = 1D;
     double bonusRarityMult = 1D;
     double penaltyMult = 1D;
+
+    if (!isValidDamageType(event.getEntity().getLastDamageCause().getCause())) {
+      penaltyMult *= 0.3D;
+    }
 
     if (plugin.getStrifePlugin().getUniqueEntityManager().isUnique(event.getEntity())) {
 
@@ -109,7 +130,8 @@ public final class EntityDeathListener implements Listener {
     }
 
     handleAntiCheeseViolations(killer, event.getEntity());
-    penaltyMult *= Math.min(1, 4 / (1 + violationMap.get(killer).getViolationLevel()));
+    double vl = violationMap.get(killer).getViolationLevel();
+    penaltyMult *= Math.max(0.1, Math.min(1, 2.25 - vl * 0.5));
 
     double distance = event.getEntity().getLocation().distanceSquared(event.getEntity()
         .getWorld().getSpawnLocation());
@@ -141,8 +163,10 @@ public final class EntityDeathListener implements Listener {
       }
     }
 
-    double exp = creatureMod.getExperienceExpression().setVariable("LEVEL", level).evaluate();
-    event.setDroppedExp((int) (exp * bonusExpMult * penaltyMult));
+    if (creatureMod.getExperienceExpression() != null) {
+      double exp = creatureMod.getExperienceExpression().setVariable("LEVEL", level).evaluate();
+      event.setDroppedExp((int) (exp * bonusExpMult * penaltyMult));
+    }
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
@@ -152,9 +176,13 @@ public final class EntityDeathListener implements Listener {
     lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
     lootEvent.setCreatureMod(creatureMod);
+    Bukkit.getPluginManager().callEvent(lootEvent);
   }
 
   private void handleAntiCheeseViolations(Player killer, Entity victim) {
+    if (!violationMap.containsKey(killer)) {
+      violationMap.put(killer, new ViolationData());
+    }
     boolean violation = false;
     if (!isWaterMob(victim)) {
       if (isWater(victim.getLocation()) || isWater(killer.getLocation())) {
@@ -164,18 +192,12 @@ public final class EntityDeathListener implements Listener {
     if (isClimbing(killer.getLocation())) {
       violation = true;
     }
-    if (!isValidDamageType(victim.getLastDamageCause().getCause())) {
-      violation = true;
-    }
-    if (!violationMap.containsKey(killer)) {
-      violationMap.put(killer, new ViolationData());
-    } else if (violationMap.get(killer)
-        .isEntityTooClose(killer.getLocation(), victim.getLocation())) {
+    if (violationMap.get(killer).isEntityTooClose(killer.getLocation(), victim.getLocation())) {
       violation = true;
     }
     ViolationData data = violationMap.get(killer);
     if (violation) {
-      data.setViolationLevel(data.getViolationLevel() + 1);
+      data.setViolationLevel(Math.min(4, data.getViolationLevel() + 1));
     } else {
       data.setViolationLevel(Math.max(0, data.getViolationLevel() - 1));
     }
@@ -206,7 +228,7 @@ public final class EntityDeathListener implements Listener {
   private boolean isValidDamageType(DamageCause cause) {
     return cause == DamageCause.ENTITY_ATTACK || cause == DamageCause.ENTITY_EXPLOSION ||
         cause == DamageCause.PROJECTILE || cause == DamageCause.MAGIC
-        || cause == DamageCause.FIRE_TICK;
+        || cause == DamageCause.FIRE_TICK || cause == DamageCause.WITHER;
   }
 
   private boolean isWaterMob(Entity entity) {

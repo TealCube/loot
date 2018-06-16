@@ -37,13 +37,17 @@ public class ViolationData {
   }
 
   public boolean isEntityTooClose(Location newPlayerLoc, Location newEnemyLoc) {
-    if (newPlayerLoc.distanceSquared(lastPlayerLoc) < 2) {
-      return true;
+    boolean tooClose = false;
+    if (lastPlayerLoc == null || lastEnemyLoc == null) {
+      tooClose = false;
+    } else if (newPlayerLoc.distanceSquared(lastPlayerLoc) < 2) {
+      tooClose = true;
+    } else if (newEnemyLoc.distanceSquared(lastEnemyLoc) < 2) {
+      tooClose = true;
     }
-    if (newEnemyLoc.distanceSquared(lastEnemyLoc) < 2) {
-      return true;
-    }
-    return false;
+    lastPlayerLoc = newPlayerLoc;
+    lastEnemyLoc = newEnemyLoc;
+    return tooClose;
   }
 
 }

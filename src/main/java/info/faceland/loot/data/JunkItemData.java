@@ -10,10 +10,10 @@ public class JunkItemData {
   private final int max;
   private final int min;
 
-  public JunkItemData(Material material, int max, int min) {
+  public JunkItemData(Material material, int min, int max) {
     this.material = material;
-    this.max = max;
     this.min = min;
+    this.max = max;
   }
 
   public Material getMaterial() {
