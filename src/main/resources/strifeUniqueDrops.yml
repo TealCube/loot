@@ -1,0 +1,41 @@
+version: "0.0.1"
+
+# The entity name as defined in strife config
+tutzombo:
+    quantity-multiplier: 1.0
+    rarity-multiplier: 1.0
+    # Chance of gems, 0.3 is 30%
+    gem-drops:
+        gemNameHere: 0.3
+    # Chance of tomes, 0.3 is 30%
+    tome-drops:
+        enchantTomeName: 0.3
+    # loot tables for customs, uses weights. Use NO_DROP_WEIGHT for chance
+    # of nothing dropping
+    custom-drops:
+        equipment-table:
+            NO_DROP_WEIGHT: 10
+            fuckyeah-sword: 5
+            fuckyeah-armor: 5
+        whatever table:
+            NO_DROP_WEIGHT: 10
+            meme: 5
+frozenking:
+    quantity-multiplier: 5.0
+    rarity-multiplier: 5.0
+    # Chance of gems, 0.3 is 30%
+    gem-drops:
+        icegem: 0.3
+    # Chance of tomes, 0.3 is 30%
+    tome-drops:
+        someTome: 0.3
+    # loot tables for customs, uses weights. Use NO_DROP_WEIGHT for chance
+    # of nothing dropping
+    custom-drops:
+        equipment-table:
+            NO_DROP_WEIGHT: 10
+            fuckyeah-sword: 5
+            fuckyeah-armor: 5
+        whatever table:
+            NO_DROP_WEIGHT: 10
+            meme: 5

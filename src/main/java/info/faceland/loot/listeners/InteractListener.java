@@ -647,7 +647,7 @@ public final class InteractListener implements Listener {
       }
       if (valid) {
         currentItem.setLore(lore);
-        SkillExperienceUtil.addEnchantExperience(player, 8.5f + addAmount);
+        SkillExperienceUtil.addEnchantExperience(player, 10f + addAmount);
         MessageUtils
             .sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);

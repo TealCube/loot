@@ -20,7 +20,6 @@ package info.faceland.loot;
 
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.ExpressionBuilder;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
@@ -42,6 +41,7 @@ import info.faceland.loot.creatures.LootCreatureModBuilder;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.JunkItemData;
+import info.faceland.loot.data.UniqueLoot;
 import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
@@ -100,6 +100,7 @@ public final class LootPlugin extends FacePlugin {
   private VersionedSmartYamlConfiguration enchantmentTomesYAML;
   private VersionedSmartYamlConfiguration craftBasesYAML;
   private VersionedSmartYamlConfiguration craftMaterialsYAML;
+  private VersionedSmartYamlConfiguration uniqueDropsYAML;
   private SmartYamlConfiguration chestsYAML;
   private MasterConfiguration settings;
   private ItemGroupManager itemGroupManager;
@@ -116,6 +117,7 @@ public final class LootPlugin extends FacePlugin {
   private GemCacheManager gemCacheManager;
   private LootCraftBaseManager lootCraftBaseManager;
   private LootCraftMatManager lootCraftMatManager;
+  private UniqueDropsManager uniqueDropsManager;
 
   private StrifePlugin strifePlugin;
 
@@ -124,113 +126,21 @@ public final class LootPlugin extends FacePlugin {
     debugPrinter = new PluginLogger(this);
     recipeBuilder = new EquipmentRecipeBuilder(this);
     recipeBuilder.setupAllRecipes();
-    itemsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "items.yml"),
-        getResource("items.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (itemsYAML.update()) {
-      getLogger().info("Updating items.yml");
-      debug("Updating items.yml");
-    }
-    statsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "stats.yml"),
-        getResource("stats.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (statsYAML.update()) {
-      getLogger().info("Updating stats.yml");
-      debug("Updating stats.yml");
-    }
-    rarityYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "rarity.yml"),
-        getResource("rarity.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (rarityYAML.update()) {
-      getLogger().info("Updating rarity.yml");
-      debug("Updating rarity.yml");
-    }
-    tierYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "tier.yml"),
-        getResource("tier.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (tierYAML.update()) {
-      getLogger().info("Updating tier.yml");
-      debug("Updating tier.yml");
-    }
-    corestatsYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "corestats.yml"),
-        getResource("corestats.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (corestatsYAML.update()) {
-      getLogger().info("Updating corestats.yml");
-      debug("Updating corestats.yml");
-    }
-    customItemsYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "customItems.yml"),
-        getResource("customItems.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (customItemsYAML.update()) {
-      getLogger().info("Updating customItems.yml");
-      debug("Updating customItems.yml");
-    }
-    socketGemsYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "socketGems.yml"),
-        getResource("socketGems.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (socketGemsYAML.update()) {
-      getLogger().info("Updating socketGems.yml");
-      debug("Updating socketGems.yml");
-    }
-    languageYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "language.yml"),
-        getResource("language.yml"),
-        VersionedConfiguration.VersionUpdateType
-            .BACKUP_AND_UPDATE);
-    if (languageYAML.update()) {
-      getLogger().info("Updating language.yml");
-      debug("Updating language.yml");
-    }
-    configYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "config.yml"),
-        getResource("config.yml"),
-        VersionedConfiguration.VersionUpdateType
-            .BACKUP_AND_UPDATE);
-    if (configYAML.update()) {
-      getLogger().info("Updating config.yml");
-      debug("Updating config.yml");
-    }
-    creaturesYAML = new VersionedSmartYamlConfiguration(new File(getDataFolder(), "creatures.yml"),
-        getResource("creatures.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (creaturesYAML.update()) {
-      getLogger().info("Updating creatures.yml");
-      debug("Updating creatures.yml");
-    }
-    identifyingYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "identifying.yml"),
-        getResource("identifying.yml"),
-        VersionedConfiguration.VersionUpdateType
-            .BACKUP_AND_UPDATE);
-    if (identifyingYAML.update()) {
-      getLogger().info("Updating identifying.yml");
-      debug("Updating identifying.yml");
-    }
-    enchantmentTomesYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "enchantmentTomes.yml"),
-        getResource("enchantmentTomes.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (enchantmentTomesYAML.update()) {
-      getLogger().info("Updating enchantmentTomes.yml");
-      debug("Updating enchantmentTomes.yml");
-    }
-    craftBasesYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "craftBases.yml"),
-        getResource("craftBases.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (craftBasesYAML.update()) {
-      getLogger().info("Updating craftBases.yml");
-      debug("Updating craftBases.yml");
-    }
-    craftMaterialsYAML = new VersionedSmartYamlConfiguration(
-        new File(getDataFolder(), "craftMaterials.yml"),
-        getResource("craftMaterials.yml"),
-        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
-    if (craftMaterialsYAML.update()) {
-      getLogger().info("Updating craftMaterials.yml");
-      debug("Updating craftMaterials.yml");
-    }
+    configYAML = defaultLoadConfig("config.yml");
+    itemsYAML = defaultLoadConfig("items.yml");
+    statsYAML = defaultLoadConfig("stats.yml");
+    rarityYAML = defaultLoadConfig("rarity.yml");
+    tierYAML = defaultLoadConfig("tier.yml");
+    corestatsYAML = defaultLoadConfig("corestats.yml");
+    customItemsYAML = defaultLoadConfig("customItems.yml");
+    socketGemsYAML = defaultLoadConfig("socketGems.yml");
+    languageYAML = defaultLoadConfig("language.yml");
+    creaturesYAML = defaultLoadConfig("creatures.yml");
+    identifyingYAML = defaultLoadConfig("identifying.yml");
+    enchantmentTomesYAML = defaultLoadConfig("enchantmentTomes.yml");
+    craftBasesYAML = defaultLoadConfig("craftBases.yml");
+    craftMaterialsYAML = defaultLoadConfig("craftMaterials.yml");
+    uniqueDropsYAML = defaultLoadConfig("strifeUniqueDrops.yml");
     chestsYAML = new SmartYamlConfiguration(new File(getDataFolder(), "chests.yml"));
     chestsYAML.load();
 
@@ -251,6 +161,7 @@ public final class LootPlugin extends FacePlugin {
     gemCacheManager = new LootGemCacheManager(this);
     lootCraftBaseManager = new LootCraftBaseManager();
     lootCraftMatManager = new LootCraftMatManager();
+    uniqueDropsManager = new LootUniqueDropsManager();
 
     loadItemGroups();
     loadCraftBases();
@@ -263,6 +174,7 @@ public final class LootPlugin extends FacePlugin {
     loadSocketGems();
     loadEnchantmentStones();
     loadCreatureMods();
+    loadUniqueDrops();
     loadChests();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
@@ -332,6 +244,7 @@ public final class LootPlugin extends FacePlugin {
     gemCacheManager = null;
     lootCraftBaseManager = null;
     lootCraftMatManager = null;
+    uniqueDropsManager = null;
     settings = null;
     identifyingYAML = null;
     creaturesYAML = null;
@@ -408,6 +321,39 @@ public final class LootPlugin extends FacePlugin {
     debug("Loaded enchantment stones: " + loadedStones.toString());
   }
 
+  private void loadUniqueDrops() {
+    for (String key : uniqueDropsYAML.getKeys(false)) {
+      if (!uniqueDropsYAML.isConfigurationSection(key)) {
+        continue;
+      }
+      ConfigurationSection cs = uniqueDropsYAML.getConfigurationSection(key);
+      UniqueLoot uniqueLoot = new UniqueLoot();
+      uniqueLoot.setQuantityMultiplier(cs.getDouble("quantity-multiplier", 1D));
+      uniqueLoot.setQuantityMultiplier(cs.getDouble("rarity-multiplier", 1D));
+      if (cs.getConfigurationSection("gem-drops") != null) {
+        for (String g : cs.getConfigurationSection("gem-drops").getKeys(false)) {
+          uniqueLoot.getGemMap().put(g, cs.getConfigurationSection("gem-drops").getDouble(g));
+        }
+      }
+      if (cs.getConfigurationSection("tome-drops") != null) {
+        for (String t : cs.getConfigurationSection("tome-drops").getKeys(false)) {
+          uniqueLoot.getTomeMap().put(t, cs.getConfigurationSection("tome-drops").getDouble(t));
+        }
+      }
+      ConfigurationSection cds = cs.getConfigurationSection("custom-drops");
+      if (cds != null) {
+        for (String tableName : cds.getKeys(false)) {
+          Map<String, Double> tableMap = new HashMap<>();
+          for (String customName : cds.getConfigurationSection(tableName).getKeys(false)) {
+            tableMap.put(customName, cds.getConfigurationSection(tableName).getDouble(customName));
+          }
+          uniqueLoot.getCustomItemMap().put(tableName, tableMap);
+        }
+      }
+      uniqueDropsManager.addData(key, uniqueLoot);
+    }
+  }
+
   private void loadCreatureMods() {
     for (CreatureMod cm : getCreatureModManager().getCreatureMods()) {
       getCreatureModManager().removeCreatureMod(cm.getEntityType());
@@ -434,16 +380,14 @@ public final class LootPlugin extends FacePlugin {
             map.put(ci, cs.getDouble("custom-items." + k));
           }
           builder.withCustomItemMults(map);
-        }
-        if (fieldKey.equals("experience")) {
+        } else if (fieldKey.equals("experience")) {
           String expStr = cs.getString("experience", "");
           if (StringUtils.isBlank(expStr)) {
             builder.withExpression(null);
           } else {
             builder.withExpression(new ExpressionBuilder(expStr).variables("LEVEL").build());
           }
-        }
-        if (fieldKey.equals("socket-gems")) {
+        } else if (fieldKey.equals("socket-gems")) {
           Map<SocketGem, Double> map = new HashMap<>();
           for (String k : cs.getConfigurationSection("socket-gems").getKeys(false)) {
             if (!cs.isConfigurationSection("socket-gems." + k)) {
@@ -456,8 +400,7 @@ public final class LootPlugin extends FacePlugin {
             map.put(sg, cs.getDouble("socket-gems." + k));
           }
           builder.withSocketGemMults(map);
-        }
-        if (fieldKey.equals("tiers")) {
+        } else if (fieldKey.equals("tiers")) {
           Map<Tier, Double> map = new HashMap<>();
           for (String k : cs.getConfigurationSection("tiers").getKeys(false)) {
             if (!cs.isConfigurationSection("tiers." + k)) {
@@ -470,8 +413,7 @@ public final class LootPlugin extends FacePlugin {
             map.put(t, cs.getDouble("tiers." + k));
           }
           builder.withTierMults(map);
-        }
-        if (fieldKey.equals("enchantment-stone")) {
+        } else if (fieldKey.equals("enchantment-stone")) {
           Map<EnchantmentTome, Double> map = new HashMap<>();
           for (String k : cs.getConfigurationSection("enchantment-stones").getKeys(false)) {
             if (!cs.isConfigurationSection("enchantment-stones." + k)) {
@@ -484,8 +426,7 @@ public final class LootPlugin extends FacePlugin {
             map.put(es, cs.getDouble("enchantment-stones." + k));
           }
           builder.withEnchantmentStoneMults(map);
-        }
-        if (fieldKey.equals("drops")) {
+        } else if (fieldKey.equals("drops")) {
           Map<JunkItemData, Double> map = new HashMap<>();
           for (String k : cs.getConfigurationSection("drops").getKeys(false)) {
             Material material;
@@ -785,6 +726,17 @@ public final class LootPlugin extends FacePlugin {
     }
   }
 
+  private VersionedSmartYamlConfiguration defaultLoadConfig(String fileName) {
+    VersionedSmartYamlConfiguration config = new VersionedSmartYamlConfiguration(
+        new File(getDataFolder(), fileName), getResource(fileName),
+        VersionedConfiguration.VersionUpdateType.BACKUP_NO_UPDATE);
+    if (config.update()) {
+      getLogger().info("Updating " + fileName);
+      debug("Updating " + fileName);
+    }
+    return config;
+  }
+
   public TierBuilder getNewTierBuilder(String name) {
     return new LootTierBuilder(name);
   }
@@ -867,6 +819,10 @@ public final class LootPlugin extends FacePlugin {
 
   public LootCraftMatManager getCraftMatManager() {
     return lootCraftMatManager;
+  }
+
+  public UniqueDropsManager getUniqueDropsManager() {
+    return uniqueDropsManager;
   }
 
   public StrifePlugin getStrifePlugin() {

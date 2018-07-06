@@ -21,6 +21,7 @@ public class LootDropEvent extends Event {
   private UUID looterUUID;
   private int monsterLevel;
   private CreatureMod creatureMod;
+  private String uniqueEntity;
 
   @Override
   public HandlerList getHandlers() {
@@ -81,6 +82,14 @@ public class LootDropEvent extends Event {
 
   public void setCreatureMod(CreatureMod creatureMod) {
     this.creatureMod = creatureMod;
+  }
+
+  public String getUniqueEntity() {
+    return uniqueEntity;
+  }
+
+  public void setUniqueEntity(String uniqueEntity) {
+    this.uniqueEntity = uniqueEntity;
   }
 
 }

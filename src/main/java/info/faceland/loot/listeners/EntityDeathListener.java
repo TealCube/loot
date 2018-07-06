@@ -41,10 +41,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -68,46 +66,26 @@ public final class EntityDeathListener implements Listener {
     this.violationMap = new HashMap<>();
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onEntityDeathAutoOrb(EntityDeathEvent event) {
-    if (event.getEntity().getKiller() == null) {
-      return;
-    }
-    World w = event.getEntity().getWorld();
-    Entity e = w.spawnEntity(event.getEntity().getKiller().getEyeLocation(), EntityType.EXPERIENCE_ORB);
-    ((ExperienceOrb) e).setExperience(event.getDroppedExp());
-    event.setDroppedExp(0);
-  }
-
   @EventHandler(priority = EventPriority.HIGH)
   public void onEntityDeathEvent(EntityDeathEvent event) {
     if (event instanceof PlayerDeathEvent) {
       return;
     }
-    if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
+    String uniqueEntity = fetchUniqueId(event.getEntity());
+    CreatureMod creatureMod;
+    if (uniqueEntity == null && !plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
         .contains(event.getEntity().getWorld().getName())) {
       return;
     }
-    CreatureMod creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
-    if (creatureMod == null || event.getEntity().getKiller() == null) {
+    creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
+    if (creatureMod != null) {
+      dropDrops(event, creatureMod);
+    }
+    if (creatureMod == null && uniqueEntity == null) {
       return;
     }
-    if (event.getEntity().getCustomName() == null) {
+    if (event.getEntity().getKiller() == null) {
       return;
-    }
-    if (!plugin.getSettings().getBoolean("config.spawner-mobs-drop", false)) {
-      if (event.getEntity().hasMetadata("SPAWNED")) {
-        dropDrops(event, creatureMod);
-        return;
-      }
-    }
-    dropDrops(event, creatureMod);
-    if (!plugin.getSettings().getBoolean("config.neutral-mobs-drop", false)) {
-      if (!(event.getEntity() instanceof Monster)) {
-        if (!(event.getEntity() instanceof Ghast || event.getEntity() instanceof Slime)) {
-          return;
-        }
-      }
     }
 
     Player killer = event.getEntity().getKiller();
@@ -118,10 +96,6 @@ public final class EntityDeathListener implements Listener {
 
     if (!isValidDamageType(event.getEntity().getLastDamageCause().getCause())) {
       penaltyMult *= 0.3D;
-    }
-
-    if (plugin.getStrifePlugin().getUniqueEntityManager().isUnique(event.getEntity())) {
-
     }
 
     UUID looter = null;
@@ -163,10 +137,15 @@ public final class EntityDeathListener implements Listener {
       }
     }
 
-    if (creatureMod.getExperienceExpression() != null) {
-      double exp = creatureMod.getExperienceExpression().setVariable("LEVEL", level).evaluate();
-      event.setDroppedExp((int) (exp * bonusExpMult * penaltyMult));
+    double exp = 0;
+    if (creatureMod != null && creatureMod.getExperienceExpression() != null) {
+      exp = creatureMod.getExperienceExpression().setVariable("LEVEL", level).evaluate();
     }
+    if (uniqueEntity != null) {
+      exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap()
+          .get(uniqueEntity).getExperience();
+    }
+    event.setDroppedExp((int) (exp * bonusExpMult * penaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
@@ -175,8 +154,29 @@ public final class EntityDeathListener implements Listener {
     lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
     lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
-    lootEvent.setCreatureMod(creatureMod);
+    if (uniqueEntity != null) {
+      lootEvent.setUniqueEntity(uniqueEntity);
+    }
     Bukkit.getPluginManager().callEvent(lootEvent);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntityDeathMonitor(EntityDeathEvent event) {
+    if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
+      plugin.getAnticheatManager().removeTag(event.getEntity());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntityDeathAutoOrb(EntityDeathEvent event) {
+    if (event.getEntity().getKiller() == null) {
+      return;
+    }
+    World w = event.getEntity().getWorld();
+    Entity e = w
+        .spawnEntity(event.getEntity().getKiller().getEyeLocation(), EntityType.EXPERIENCE_ORB);
+    ((ExperienceOrb) e).setExperience(event.getDroppedExp());
+    event.setDroppedExp(0);
   }
 
   private void handleAntiCheeseViolations(Player killer, Entity victim) {
@@ -248,10 +248,21 @@ public final class EntityDeathListener implements Listener {
     return NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(string)));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onEntityDeathMonitor(EntityDeathEvent event) {
-    if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-      plugin.getAnticheatManager().removeTag(event.getEntity());
+  private boolean isUnique(LivingEntity livingEntity) {
+    if (plugin.getStrifePlugin() == null) {
+      return false;
     }
+    return plugin.getStrifePlugin().getUniqueEntityManager().isUnique(livingEntity);
+  }
+
+  private String fetchUniqueId(LivingEntity livingEntity) {
+    if (plugin.getStrifePlugin() == null) {
+      return null;
+    }
+    if (!plugin.getStrifePlugin().getUniqueEntityManager().isUnique(livingEntity)) {
+      return null;
+    }
+    return plugin.getStrifePlugin().getUniqueEntityManager().getLiveUniquesMap().get(livingEntity)
+        .getUniqueEntity().getId();
   }
 }

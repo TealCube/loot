@@ -3,17 +3,18 @@ package info.faceland.loot.listeners;
 import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
 import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
 
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.UniqueLoot;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
@@ -23,7 +24,6 @@ import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -53,13 +53,21 @@ public class LootDropListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
-  public void onEntityDeath(LootDropEvent event) {
+  public void onLootDrop(LootDropEvent event) {
     double dropMultiplier = event.getQuantityMultiplier();
     double rarityMultiplier = event.getQualityMultiplier();
     int mobLevel = event.getMonsterLevel();
     UUID looterUUID = event.getLooterUUID();
     Player killer = Bukkit.getPlayer(looterUUID);
-    CreatureMod mod = event.getCreatureMod();
+
+    if (StringUtils.isNotBlank(event.getUniqueEntity())) {
+      if (plugin.getUniqueDropsManager().getData(event.getUniqueEntity()) != null) {
+        UniqueLoot loot = plugin.getUniqueDropsManager().getData(event.getUniqueEntity());
+        dropMultiplier *= loot.getQuantityMultiplier();
+        rarityMultiplier *= loot.getQualityMultiplier();
+        doUniqueDrops(loot, event.getLocation(), killer);
+      }
+    }
 
     if (random.nextDouble() < dropMultiplier * plugin.getSettings()
         .getDouble("config.drops.normal-drop", 0D)) {
@@ -131,9 +139,7 @@ public class LootDropListener implements Listener {
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
         sg = plugin.getSocketGemManager().getRandomSocketGemByLevel(mobLevel);
       } else {
-        sg = plugin.getSocketGemManager()
-            .getRandomSocketGem(true, event.getDistance(), mod != null ?
-                mod.getSocketGemMults() : new HashMap<>());
+        sg = plugin.getSocketGemManager().getRandomSocketGem(true, event.getDistance());
       }
 
       HiltItemStack his = sg.toItemStack(1);
@@ -143,8 +149,7 @@ public class LootDropListener implements Listener {
       if (random.nextDouble() < dropMultiplier * plugin.getSettings()
           .getDouble("config.drops.enchant-gem", 0D)) {
         EnchantmentTome es = plugin.getEnchantmentStoneManager()
-            .getRandomEnchantmentStone(true, event.getDistance(),
-                mod != null ? mod.getEnchantmentStoneMults() : new HashMap<>());
+            .getRandomEnchantmentStone(true, event.getDistance());
         HiltItemStack his = es.toItemStack(1);
         dropItem(event.getLocation(), his, killer, es.isBroadcast());
       }
@@ -173,8 +178,7 @@ public class LootDropListener implements Listener {
         ci = plugin.getCustomItemManager().getRandomCustomItemByLevel(mobLevel);
       } else {
         ci = plugin.getCustomItemManager()
-            .getRandomCustomItem(true, event.getDistance(), mod != null ?
-                mod.getCustomItemMults() : new HashMap<CustomItem, Double>());
+            .getRandomCustomItem(true, event.getDistance());
       }
       HiltItemStack his = ci.toItemStack(1);
 
@@ -213,6 +217,52 @@ public class LootDropListener implements Listener {
       his.setItemMeta(itemMeta);
 
       dropItem(event.getLocation(), his, null, false);
+    }
+  }
+
+  private void doUniqueDrops(UniqueLoot uniqueLoot, Location location, Player killer) {
+    for (String gemString : uniqueLoot.getGemMap().keySet()) {
+      if (uniqueLoot.getGemMap().get(gemString) > random.nextDouble()) {
+        SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemString);
+        if (gem == null) {
+          continue;
+        }
+        HiltItemStack his = gem.toItemStack(1);
+        dropItem(location, his, killer, gem.isBroadcast());
+      }
+    }
+    for (String tomeString : uniqueLoot.getTomeMap().keySet()) {
+      if (uniqueLoot.getTomeMap().get(tomeString) > random.nextDouble()) {
+        EnchantmentTome tome = plugin.getEnchantmentStoneManager().getEnchantmentStone(tomeString);
+        if (tome == null) {
+          continue;
+        }
+        HiltItemStack his = tome.toItemStack(1);
+        dropItem(location, his, killer, tome.isBroadcast());
+      }
+    }
+    for (String tableName : uniqueLoot.getCustomItemMap().keySet()) {
+      double totalWeight = 0;
+      for (double weight : uniqueLoot.getCustomItemMap().get(tableName).values()) {
+        totalWeight += weight;
+      }
+      totalWeight *= random.nextDouble();
+      double currentWeight = 0;
+      for (String customName : uniqueLoot.getCustomItemMap().get(tableName).keySet()) {
+        currentWeight += uniqueLoot.getCustomItemMap().get(tableName).get(customName);
+        if (currentWeight >= totalWeight) {
+          if ("NO_DROP_WEIGHT".equalsIgnoreCase(customName)) {
+            break;
+          }
+          CustomItem ci = plugin.getCustomItemManager().getCustomItem(customName);
+          if (ci == null) {
+            break;
+          }
+          HiltItemStack his = ci.toItemStack(1);
+          dropItem(location, his, killer, ci.isBroadcast());
+          break;
+        }
+      }
     }
   }
 
