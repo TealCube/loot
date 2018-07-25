@@ -73,18 +73,23 @@ public final class EntityDeathListener implements Listener {
     }
     String uniqueEntity = fetchUniqueId(event.getEntity());
     CreatureMod creatureMod;
-    if (uniqueEntity == null && !plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
+    if (uniqueEntity == null) {
+      if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
         .contains(event.getEntity().getWorld().getName())) {
-      return;
+        return;
+      }
     }
     creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
     if (creatureMod != null) {
-      dropDrops(event, creatureMod);
+      dropJunkLoot(event, creatureMod);
     }
     if (creatureMod == null && uniqueEntity == null) {
       return;
     }
     if (event.getEntity().getKiller() == null) {
+      return;
+    }
+    if (uniqueEntity == null && event.getEntity().hasMetadata("SPAWNED")) {
       return;
     }
 
@@ -203,7 +208,7 @@ public final class EntityDeathListener implements Listener {
     }
   }
 
-  private void dropDrops(EntityDeathEvent event, CreatureMod mod) {
+  private void dropJunkLoot(EntityDeathEvent event, CreatureMod mod) {
     if (mod.getJunkMults().isEmpty()) {
       return;
     }
