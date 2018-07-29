@@ -66,6 +66,20 @@ beast:
   beast-mode-activate: false
   range-before-penalty: 15
 
+crafting:
+  base-craft-exp: 1
+  craft-item-level-mult: 3
+  craft-quality-mult: 0.2
+  craft-master-mult: 3.0
+  craft-max-quality: 5
+  craft-max-craft-slots: 5
+  craft-max-sockets: 3
+  infusion-base-success-chance: 0.3
+  base-infusion-exp: 4
+  infusion-exp-per-essence: 2
+  infusion-item-level-mult: 0.05
+  infusion-success-mult: 2.5
+
 # Probability that mobs will drop an item of each
 # type when it is killed
 drops:

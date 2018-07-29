@@ -22,7 +22,6 @@ import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.send
 import static info.faceland.loot.utils.inventory.InventoryUtil.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -51,11 +50,48 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class CraftingListener implements Listener {
 
   private final LootPlugin plugin;
+  private final double CRAFT_EXP;
+  private final double CRAFT_LEVEL_MULT;
+  private final double CRAFT_QUALITY_MULT;
+  private final double CRAFT_MASTER_MULT;
+  private final double BASE_INFUSE_EXP;
+  private final double BONUS_ESS_EXP;
+  private final double INFUSE_LEVEL_MULT;
+  private final double INFUSE_SUCCESS_MULT;
+  private final double INFUSE_BASE_CHANCE;
+  private final double MAX_QUALITY;
+  private final double MAX_SLOTS;
+  private final double MAX_SOCKETS;
   private LootRandom random;
 
   public CraftingListener(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom();
+
+    this.CRAFT_EXP = plugin.getSettings()
+        .getDouble("config.crafting.base-craft-exp", 1);
+    this.CRAFT_LEVEL_MULT = plugin.getSettings()
+        .getDouble("config.crafting.craft-item-level-mult", 0.01);
+    this.CRAFT_QUALITY_MULT = plugin.getSettings()
+        .getDouble("config.crafting.craft-quality-mult", 0.1);
+    this.CRAFT_MASTER_MULT = plugin.getSettings()
+        .getDouble("config.crafting.craft-master-mult", 2.5);
+    this.BASE_INFUSE_EXP = plugin.getSettings()
+        .getDouble("config.crafting.base-infusion-exp", 4);
+    this.BONUS_ESS_EXP = plugin.getSettings()
+        .getDouble("config.crafting.infusion-exp-per-essence", 2);
+    this.INFUSE_LEVEL_MULT = plugin.getSettings()
+        .getDouble("config.crafting.infusion-item-level-mult", 0.05);
+    this.INFUSE_SUCCESS_MULT = plugin.getSettings()
+        .getDouble("config.crafting.infusion-success-mult", 2);
+    this.INFUSE_BASE_CHANCE = plugin.getSettings()
+        .getDouble("config.crafting.infusion-base-success-chance", 0.3);
+    this.MAX_QUALITY = plugin.getSettings()
+        .getDouble("config.crafting.craft-max-quality", 5);
+    this.MAX_SLOTS = plugin.getSettings()
+        .getDouble("config.crafting.craft-max-craft-slots", 5);
+    this.MAX_SOCKETS = plugin.getSettings()
+        .getDouble("config.crafting.craft-max-sockets", 3);
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -143,84 +179,73 @@ public final class CraftingListener implements Listener {
       }
     }
 
-    double itemLevel = totalItemLevel / numMaterials;
+    double rawItemLevel = totalItemLevel / numMaterials;
 
-    if (maxCraftingLevel(craftingLevel) < (int) itemLevel) {
+    int maxCraftedItemLevel = maxCraftingLevel(craftingLevel);
+
+    if (maxCraftedItemLevel < (int) rawItemLevel) {
       sendMessage(player,
           plugin.getSettings().getString("language.craft.low-level-craft", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
     }
 
-    double overLvlMult = Math.max(1, Math.min(2.0, (craftingLevel - itemLevel) / 30));
+    int overSkillBonus = maxCraftedItemLevel - (int) rawItemLevel;
 
-    double quality = totalQuality / numMaterials;
-    double missingQuality = 5 - quality;
+    double quality = Math.min(totalQuality / numMaterials, MAX_QUALITY);
     double qualityScore =
-        quality * random.nextDouble() + missingQuality * Math.pow(random.nextDouble(), 2);
+        quality * random.nextDouble() + (MAX_QUALITY - quality) * Math.pow(random.nextDouble(), 2);
 
-    double statScore = (1 + (qualityScore / 4)) * overLvlMult;
-    double socketScore = 1 + (random.nextDouble() * (qualityScore / 5)) * overLvlMult;
+    double effectiveCraftSkill = Math.min(overSkillBonus + (quality - 1) * 8, 100) / 100;
+    effectiveCraftSkill = Math.max(effectiveCraftSkill, 0);
 
-    double moddedItemLevel = itemLevel * (1 + overLvlMult / 10);
+    double skillSlotRoll = effectiveCraftSkill * random.nextDouble();
+    double luckSlotRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 4);
+    double craftedSlotScore = Math.max(1, (skillSlotRoll + luckSlotRoll) * MAX_SLOTS);
 
-    itemLevel = (int) Math.max(1, Math.min(100, itemLevel - 2 + random.nextInt(5)));
+    double skillSocketRoll = effectiveCraftSkill * random.nextDouble();
+    double luckSocketRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 3);
+    double craftedSocketScore = Math.max(1, (skillSocketRoll + luckSocketRoll) * MAX_SOCKETS);
+
+    int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - 2 + random.nextInt(5)));
 
     HiltItemStack newResult = new HiltItemStack(event.getCurrentItem().getType());
-    newResult.setName(TextUtils.color(
-        "&b" + plugin.getNameManager().getRandomPrefix() + " " + plugin.getNameManager()
-            .getRandomSuffix()));
+    newResult.setName(
+        ChatColor.AQUA + plugin.getNameManager().getRandomPrefix() + " " + plugin.getNameManager()
+            .getRandomSuffix());
     List<String> lore = new ArrayList<>();
 
-    lore.add(TextUtils.color("&fLevel Requirement: " + (int) itemLevel));
-    lore.add(TextUtils.color("&fTier: " + "&bCrafted " + tier.getName()));
+    lore.add(ChatColor.WHITE + "Level Requirement: " + itemLevel);
+    lore.add(ChatColor.WHITE + "Tier: " + ChatColor.AQUA + "Crafted " + tier.getName());
 
     lore.add(TextUtils.color(plugin.getStatManager()
-        .getFinalStat(tier.getPrimaryStat(), moddedItemLevel, qualityScore)));
+        .getFinalStat(tier.getPrimaryStat(), itemLevel, qualityScore)));
     lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(
         tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())),
-        moddedItemLevel, qualityScore)));
+        itemLevel, qualityScore)));
 
-    boolean masterwork = false;
-    if (itemLevel >= 1 && random.nextDouble() <= 0.01 + craftingLevel * 0.001) {
-      masterwork = true;
-    }
+    boolean masterwork =
+        craftedSlotScore / MAX_SLOTS > 0.8 && craftedSocketScore / MAX_SOCKETS > 0.8;
 
-    if (statScore < 2 && random.nextDouble() < 0.3) {
-      statScore++;
-    }
     if (masterwork) {
-      statScore++;
+      craftedSlotScore++;
+      craftedSocketScore++;
     }
-    while (statScore >= 1) {
+
+    while (craftedSlotScore >= 1) {
       lore.add(TextUtils.color("&b[ Crafted Stat Slot ]"));
-      statScore--;
+      craftedSlotScore--;
     }
 
     lore.add(TextUtils.color("&9(Enchantable)"));
 
-    if (masterwork) {
-      socketScore++;
-    }
-    if (socketScore < 2 && random.nextDouble() < 0.1) {
-      socketScore++;
-    }
-    while (socketScore >= 1) {
+    while (craftedSocketScore >= 1) {
       lore.add(TextUtils.color("&6(Socket)"));
-      socketScore--;
-    }
-    if (masterwork || random.nextDouble() < 0.1 * Math.pow(overLvlMult, 3)) {
-      lore.add(TextUtils.color("&3(+)"));
+      craftedSocketScore--;
     }
     if (masterwork) {
       lore.add(TextUtils.color("&8&o-- " + player.getName() + " --"));
       lore.add(TextUtils.color("&8&o[ Flavor Text Slot ]"));
-    }
-    double exp =
-        (0.25 + qualityScore / 2 + itemLevel * 0.7) * (0.8 + qualityScore / 5) * (numMaterials
-            * 0.35) * (masterwork ? 2.5 : 1.0);
-    if (craftingLevel > itemLevel + 5) {
-      exp = exp / Math.max((craftingLevel - itemLevel), 1);
     }
     newResult.setLore(lore);
     ItemMeta meta = newResult.getItemMeta();
@@ -228,6 +253,20 @@ public final class CraftingListener implements Listener {
     newResult.setItemMeta(meta);
     event.setCurrentItem(newResult);
     event.setCancelled(false);
+
+    double exp = CRAFT_EXP * (numMaterials * 0.25);
+    exp *= 1 + (itemLevel * CRAFT_LEVEL_MULT);
+    exp *= 1 + (qualityScore * CRAFT_QUALITY_MULT);
+    if (masterwork) {
+      exp *= CRAFT_MASTER_MULT;
+    }
+    if (craftingLevel > rawItemLevel) {
+      exp *= rawItemLevel / craftingLevel;
+    }
+    if (rawItemLevel * 8 < craftingLevel) {
+      exp *= 0.01;
+    }
+
     SkillExperienceUtil.addCraftExperience(player, exp);
     player.playSound(player.getEyeLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1F, 1F);
     player.playSound(player.getEyeLocation(), Sound.BLOCK_ANVIL_FALL, 0.5F, 1F);
@@ -254,6 +293,7 @@ public final class CraftingListener implements Listener {
     List<String> essenceStats = new ArrayList<>();
     HiltItemStack baseItem = null;
     int highestEssLevel = 0;
+    double totalEssenceLevel = 0;
     for (ItemStack is : event.getInventory().getMatrix()) {
       if (is == null || is.getType() == Material.AIR) {
         continue;
@@ -265,7 +305,9 @@ public final class CraftingListener implements Listener {
           player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
           return;
         }
-        highestEssLevel = Math.max(getEssenceLevel(loopItem), highestEssLevel);
+        int essLevel = getEssenceLevel(loopItem);
+        totalEssenceLevel += essLevel;
+        highestEssLevel = Math.max(essLevel, highestEssLevel);
         essenceStats.add(getEssenceStat(loopItem));
         continue;
       }
@@ -311,10 +353,17 @@ public final class CraftingListener implements Listener {
         return;
       }
     }
+
+    int essenceCount = essenceStats.size();
+
+    double craftExp = BASE_INFUSE_EXP + (essenceCount * BONUS_ESS_EXP);
+    craftExp *= 1 + INFUSE_LEVEL_MULT * (totalEssenceLevel / essenceCount);
+
     int selectedSlot =
-        random.nextDouble() > 0.35 ? random.nextInt(essenceStats.size()) : random.nextInt(8);
-    if (selectedSlot > essenceStats.size() - 1) {
+        random.nextDouble() > INFUSE_BASE_CHANCE ? random.nextInt(essenceCount) : random.nextInt(8);
+    if (selectedSlot > essenceCount - 1) {
       event.setCurrentItem(baseItem);
+      SkillExperienceUtil.addCraftExperience(player, craftExp);
       sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 0.5F);
       event.setCancelled(false);
@@ -326,7 +375,7 @@ public final class CraftingListener implements Listener {
     baseItem.setLore(lore);
 
     event.setCurrentItem(baseItem);
-    SkillExperienceUtil.addCraftExperience(player, 0.5f + essenceStats.size());
+    SkillExperienceUtil.addCraftExperience(player, craftExp * INFUSE_SUCCESS_MULT);
     sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
     player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1.5F);
     player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 0.7F);
