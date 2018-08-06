@@ -96,7 +96,7 @@ public class LootDropListener implements Listener {
         while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
           qualityBonus++;
         }
-        his = upgradeItemQuality(his, qualityBonus);
+        upgradeItemQuality(his, qualityBonus);
       }
 
       int upgradeBonus = 1;
@@ -108,7 +108,7 @@ public class LootDropListener implements Listener {
         while (random.nextDouble() <= multiUpgradeChance && upgradeBonus < 9) {
           upgradeBonus++;
         }
-        his = upgradeItem(his, upgradeBonus);
+        upgradeItem(his, upgradeBonus);
       }
 
       boolean broadcast = rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2;
