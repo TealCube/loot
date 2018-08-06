@@ -22,7 +22,6 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.anticheat.AnticheatTag;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -51,31 +50,40 @@ public final class AnticheatListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-    if (!(event.getEntity() instanceof Monster)) {
+    if (!(event.getEntity() instanceof LivingEntity)) {
       return;
     }
-    LivingEntity li = null;
-    if (event.getDamager() instanceof Player) {
-      li = (Player) event.getDamager();
-    } else if (event.getDamager() instanceof Projectile) {
-      if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
-        li = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
+    LivingEntity victim = (LivingEntity) event.getEntity();
+    if (plugin.getCreatureModManager().getCreatureMod(victim.getType()) == null) {
+      if (plugin.getStrifePlugin() == null) {
+        return;
+      }
+      if (!plugin.getStrifePlugin().getUniqueEntityManager().isUnique(victim)) {
+        return;
       }
     }
-    if (li == null) {
+    LivingEntity attacker = null;
+    if (event.getDamager() instanceof Player) {
+      attacker = (Player) event.getDamager();
+    } else if (event.getDamager() instanceof Projectile) {
+      if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
+        attacker = ((Player) ((Projectile) event.getDamager()).getShooter()).getPlayer();
+      }
+    }
+    if (attacker == null) {
       return;
     }
-    if (!plugin.getAnticheatManager().isTagged((LivingEntity) event.getEntity())) {
-      plugin.getAnticheatManager().addTag((LivingEntity) event.getEntity());
+    if (!plugin.getAnticheatManager().isTagged(victim)) {
+      plugin.getAnticheatManager().addTag(victim);
     }
-    AnticheatTag tag = plugin.getAnticheatManager().getTag((LivingEntity) event.getEntity());
-    if (tag.getTaggerLocation(li.getUniqueId()) == null) {
-      tag.setTaggerLocation(li.getUniqueId(), li.getLocation());
+    AnticheatTag tag = plugin.getAnticheatManager().getTag(victim);
+    if (tag.getTaggerLocation(attacker.getUniqueId()) == null) {
+      tag.setTaggerLocation(attacker.getUniqueId(), attacker.getLocation());
     } else {
-      tag.setTaggerLocation(li.getUniqueId(), tag.getTaggerLocation(li.getUniqueId()));
+      tag.setTaggerLocation(attacker.getUniqueId(), tag.getTaggerLocation(attacker.getUniqueId()));
     }
-    tag.setTaggerDamage(li.getUniqueId(), event.getFinalDamage());
-    plugin.getAnticheatManager().pushTag((LivingEntity) event.getEntity(), tag);
+    tag.setTaggerDamage(attacker.getUniqueId(), event.getFinalDamage());
+    plugin.getAnticheatManager().pushTag(victim, tag);
   }
 
   // Loot protection function. Return out of it before the end to allow an item to be picked up!
@@ -93,7 +101,7 @@ public final class AnticheatListener implements Listener {
     }
     // Fetching item lore that should have been applied in EntityDeathListener
     String owner = event.getItem().getMetadata("loot-owner").get(0).asString();
-    Long time = event.getItem().getMetadata("loot-time").get(0).asLong();
+    long time = event.getItem().getMetadata("loot-time").get(0).asLong();
 
     // If the event player's UUID is the same as the owner UUID on the item, allow the pickup
     if (event.getEntity().getUniqueId().toString().equals(owner)) {
