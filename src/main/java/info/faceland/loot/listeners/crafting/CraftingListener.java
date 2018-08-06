@@ -190,21 +190,19 @@ public final class CraftingListener implements Listener {
       return;
     }
 
-    int overSkillBonus = maxCraftedItemLevel - (int) rawItemLevel;
+    double overSkillBonus = maxCraftedItemLevel - (int) rawItemLevel;
 
     double quality = Math.min(totalQuality / numMaterials, MAX_QUALITY);
-    double qualityScore =
-        quality * random.nextDouble() + (MAX_QUALITY - quality) * Math.pow(random.nextDouble(), 2);
 
-    double effectiveCraftSkill = Math.min(overSkillBonus + (quality - 1) * 8, 100) / 100;
+    double effectiveCraftSkill = Math.min(overSkillBonus / 3 + (quality - 1) * 6, 100) / 100;
     effectiveCraftSkill = Math.max(effectiveCraftSkill, 0);
 
     double skillSlotRoll = effectiveCraftSkill * random.nextDouble();
-    double luckSlotRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 4);
+    double luckSlotRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 5);
     double craftedSlotScore = Math.max(1, (skillSlotRoll + luckSlotRoll) * MAX_SLOTS);
 
     double skillSocketRoll = effectiveCraftSkill * random.nextDouble();
-    double luckSocketRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 3);
+    double luckSocketRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 4);
     double craftedSocketScore = Math.max(1, (skillSocketRoll + luckSocketRoll) * MAX_SOCKETS);
 
     int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - 2 + random.nextInt(5)));
@@ -219,16 +217,18 @@ public final class CraftingListener implements Listener {
     lore.add(ChatColor.WHITE + "Tier: " + ChatColor.AQUA + "Crafted " + tier.getName());
 
     lore.add(TextUtils.color(plugin.getStatManager()
-        .getFinalStat(tier.getPrimaryStat(), itemLevel, qualityScore)));
+        .getFinalStat(tier.getPrimaryStat(), itemLevel, quality)));
     lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(
         tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())),
-        itemLevel, qualityScore)));
+        itemLevel, quality)));
 
-    boolean masterwork =
-        craftedSlotScore / MAX_SLOTS > 0.8 && craftedSocketScore / MAX_SOCKETS > 0.8;
-
-    if (masterwork) {
+    boolean masterwork = false;
+    if (craftedSlotScore / MAX_SLOTS > 0.9 && craftedSocketScore / MAX_SOCKETS > 0.5) {
+      masterwork = true;
       craftedSlotScore++;
+    }
+    if (craftedSocketScore / MAX_SOCKETS > 0.9 && craftedSlotScore / MAX_SLOTS > 0.5) {
+      masterwork = true;
       craftedSocketScore++;
     }
 
@@ -256,7 +256,7 @@ public final class CraftingListener implements Listener {
 
     double exp = CRAFT_EXP * (numMaterials * 0.25);
     exp *= 1 + (itemLevel * CRAFT_LEVEL_MULT);
-    exp *= 1 + (qualityScore * CRAFT_QUALITY_MULT);
+    exp *= 1 + (quality * CRAFT_QUALITY_MULT);
     if (masterwork) {
       exp *= CRAFT_MASTER_MULT;
     }
