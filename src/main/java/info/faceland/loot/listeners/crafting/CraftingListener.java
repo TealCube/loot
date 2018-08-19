@@ -30,7 +30,6 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.strife.util.PlayerDataUtil;
-import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
@@ -267,7 +266,7 @@ public final class CraftingListener implements Listener {
       exp *= 0.01;
     }
 
-    SkillExperienceUtil.addCraftExperience(player, exp);
+    plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, exp, false);
     player.playSound(player.getEyeLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1F, 1F);
     player.playSound(player.getEyeLocation(), Sound.BLOCK_ANVIL_FALL, 0.5F, 1F);
   }
@@ -363,7 +362,7 @@ public final class CraftingListener implements Listener {
         random.nextDouble() > INFUSE_BASE_CHANCE ? random.nextInt(essenceCount) : random.nextInt(8);
     if (selectedSlot > essenceCount - 1) {
       event.setCurrentItem(baseItem);
-      SkillExperienceUtil.addCraftExperience(player, craftExp);
+      plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, craftExp, false);
       sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 0.5F);
       event.setCancelled(false);
@@ -375,7 +374,7 @@ public final class CraftingListener implements Listener {
     baseItem.setLore(lore);
 
     event.setCurrentItem(baseItem);
-    SkillExperienceUtil.addCraftExperience(player, craftExp * INFUSE_SUCCESS_MULT);
+    plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, craftExp, false);
     sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
     player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1.5F);
     player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 0.7F);

@@ -44,11 +44,9 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import info.faceland.strife.util.PlayerDataUtil;
-import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -326,7 +324,8 @@ public final class InteractListener implements Listener {
 
       float weightDivisor = stone.getWeight() == 0 ? 2000 : (float) stone.getWeight();
       float exp = 3 + 2000 / weightDivisor;
-      SkillExperienceUtil.addEnchantExperience(player, exp);
+      plugin.getStrifePlugin().getEnchantExperienceManager()
+          .addExperience(player, exp, false);
       MessageUtils
           .sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
@@ -366,7 +365,8 @@ public final class InteractListener implements Listener {
             .withLevel(itemLevel)
             .build();
         if (r.isBroadcast()) {
-          broadcast(player, currentItem, plugin.getSettings().getString("language.broadcast.ided-item"));
+          broadcast(player, currentItem,
+              plugin.getSettings().getString("language.broadcast.ided-item"));
         }
       } else {
         currentItem = plugin.getNewItemBuilder()
@@ -536,7 +536,8 @@ public final class InteractListener implements Listener {
           MessageUtils.sendMessage(player,
               plugin.getSettings().getString("language.upgrade.destroyed", ""));
           player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
-          broadcast(player, currentItem, plugin.getSettings().getString("language.broadcast.destroyed-item"));
+          broadcast(player, currentItem,
+              plugin.getSettings().getString("language.broadcast.destroyed-item"));
           updateItem(event, null);
           return;
         }
@@ -583,12 +584,14 @@ public final class InteractListener implements Listener {
         }
         currentItem.setLore(lore);
         double exp = 0.5f + (float) Math.pow(1.4, itemUpgradeLevel);
-        SkillExperienceUtil.addEnchantExperience(player, exp);
+        plugin.getStrifePlugin().getEnchantExperienceManager()
+            .addExperience(player, exp, false);
         MessageUtils
             .sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
         player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
         if (itemUpgradeLevel >= 7) {
-          broadcast(player, currentItem, plugin.getSettings().getString("language.broadcast.upgraded-item"));
+          broadcast(player, currentItem,
+              plugin.getSettings().getString("language.broadcast.upgraded-item"));
         }
         updateItem(event, currentItem);
       }
@@ -647,7 +650,8 @@ public final class InteractListener implements Listener {
       }
       if (valid) {
         currentItem.setLore(lore);
-        SkillExperienceUtil.addEnchantExperience(player, 10f + addAmount);
+        plugin.getStrifePlugin().getEnchantExperienceManager()
+            .addExperience(player, 10f + addAmount, false);
         MessageUtils
             .sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);

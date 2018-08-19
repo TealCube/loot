@@ -16,7 +16,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package info.faceland.loot.listeners;
+package info.faceland.loot.listeners.crafting;
 
 import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
@@ -29,7 +29,6 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import info.faceland.strife.util.PlayerDataUtil;
-import info.faceland.strife.util.SkillExperienceUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,7 +179,7 @@ public final class SalvageListener implements Listener {
       }
     }
     double exp = 0.6 + (itemLevel * 0.25);
-    SkillExperienceUtil.addCraftExperience(player, exp);
+    plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, exp, false);
   }
 
   private List<Material> buildPossibleMaterials(ItemStack itemStack) {

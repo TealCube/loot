@@ -50,7 +50,7 @@ import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.LootDropListener;
-import info.faceland.loot.listeners.SalvageListener;
+import info.faceland.loot.listeners.crafting.SalvageListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
