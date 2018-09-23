@@ -111,7 +111,8 @@ public class EquipmentRecipeBuilder {
 
         Material.BOW,
         Material.ARROW,
-        Material.BOOK
+        Material.BOOK,
+        Material.SHIELD
     );
   }
 }
