@@ -108,7 +108,10 @@ public final class SalvageListener implements Listener {
           .sendMessage(player, plugin.getSettings().getString("language.craft.no-level", ""));
       return;
     }
+
     int craftingLevel = PlayerDataUtil.getCraftLevel(player);
+    int effectiveCraftLevel = PlayerDataUtil.getCraftSkill(player, true);
+
     if (!isHighEnoughCraftingLevel(craftingLevel, itemLevel)) {
       MessageUtils
           .sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
@@ -152,8 +155,8 @@ public final class SalvageListener implements Listener {
     event.setCurrentItem(null);
     player.getInventory().addItem(craftMaterial);
 
-    double levelSurplus = Math.max(0, (craftingLevel * 2) - itemLevel);
-    double essChance = 0.1 + 0.1 * toolQuality + Math.min(levelSurplus * 0.01, 0.35);
+    double levelSurplus = Math.max(0, (effectiveCraftLevel * 2) - itemLevel);
+    double essChance = 0.1 + 0.1 * toolQuality + Math.min(levelSurplus * 0.015, 0.35);
     if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
       String type = InventoryUtil.getItemType(currentItem);

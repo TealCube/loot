@@ -153,6 +153,7 @@ public final class CraftingListener implements Listener {
     Tier tier = plugin.getTierManager().getTier(strTier);
 
     int craftingLevel = PlayerDataUtil.getCraftLevel(player);
+    int effectiveCraftLevel = PlayerDataUtil.getCraftSkill(player, true);
 
     int numMaterials = 0;
     double totalQuality = 0;
@@ -180,16 +181,14 @@ public final class CraftingListener implements Listener {
 
     double rawItemLevel = totalItemLevel / numMaterials;
 
-    int maxCraftedItemLevel = maxCraftingLevel(craftingLevel);
-
-    if (maxCraftedItemLevel < (int) rawItemLevel) {
+    if (maxCraftingLevel(craftingLevel) < (int) rawItemLevel) {
       sendMessage(player,
           plugin.getSettings().getString("language.craft.low-level-craft", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
     }
 
-    double overSkillBonus = maxCraftedItemLevel - (int) rawItemLevel;
+    double overSkillBonus = effectiveCraftLevel - (int) rawItemLevel;
 
     double quality = Math.min(totalQuality / numMaterials, MAX_QUALITY);
 
@@ -287,8 +286,11 @@ public final class CraftingListener implements Listener {
     if (!resultStack.getItemMeta().getDisplayName().equals(EquipmentRecipeBuilder.INFUSE_NAME)) {
       return;
     }
+
     event.setCancelled(true);
+
     Player player = (Player) event.getWhoClicked();
+    double effectiveCraftLevel = PlayerDataUtil.getCraftSkill(player, true);
     List<String> essenceStats = new ArrayList<>();
     HiltItemStack baseItem = null;
     int highestEssLevel = 0;
@@ -358,8 +360,8 @@ public final class CraftingListener implements Listener {
     double craftExp = BASE_INFUSE_EXP + (essenceCount * BONUS_ESS_EXP);
     craftExp *= 1 + INFUSE_LEVEL_MULT * (totalEssenceLevel / essenceCount);
 
-    int selectedSlot =
-        random.nextDouble() > INFUSE_BASE_CHANCE ? random.nextInt(essenceCount) : random.nextInt(8);
+    double forceSuccessChance = INFUSE_BASE_CHANCE * (1 + effectiveCraftLevel / 100);
+    int selectedSlot = random.nextDouble() > forceSuccessChance ? random.nextInt(essenceCount) : random.nextInt(8);
     if (selectedSlot > essenceCount - 1) {
       event.setCurrentItem(baseItem);
       plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, craftExp, false);
