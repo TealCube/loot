@@ -18,12 +18,13 @@
  */
 package info.faceland.loot.listeners;
 
+import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
 import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
 import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
 import static info.faceland.loot.utils.inventory.InventoryUtil.getLastColor;
+import static org.bukkit.ChatColor.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -37,6 +38,7 @@ import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 
@@ -58,7 +60,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -80,6 +81,8 @@ public final class InteractListener implements Listener {
 
   private final LootPlugin plugin;
   private LootRandom random;
+
+  private static final String FAILURE_BONUS = ChatColor.RED + "Failure Bonus";
 
   public InteractListener(LootPlugin plugin) {
     this.plugin = plugin;
@@ -110,7 +113,7 @@ public final class InteractListener implements Listener {
     if (event.getInventory() instanceof EnchantingInventory && plugin.getSettings()
         .getBoolean("config.custom-enchanting", true)) {
       event.setCancelled(true);
-      MessageUtils.sendMessage(event.getPlayer(),
+      sendMessage(event.getPlayer(),
           plugin.getSettings().getString("language.enchant.no-open", ""));
     }
   }
@@ -160,8 +163,7 @@ public final class InteractListener implements Listener {
     }
 
     if (cursor.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
-      String gemName = ChatColor
-          .stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
+      String gemName = stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
       SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemName);
 
       if (gem == null) {
@@ -170,8 +172,7 @@ public final class InteractListener implements Listener {
 
       if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
           gem.getItemGroups())) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
+        sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
@@ -179,7 +180,7 @@ public final class InteractListener implements Listener {
       List<String> lore = currentItem.getLore();
       List<String> strippedLore = InventoryUtil.stripColor(lore);
       if (!strippedLore.contains("(Socket)")) {
-        MessageUtils.sendMessage(player,
+        sendMessage(player,
             plugin.getSettings().getString("language.socket.needs-sockets", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
@@ -196,14 +197,14 @@ public final class InteractListener implements Listener {
       String name = currentItem.getName();
       ChatColor firstColor = getFirstColor(name);
       ChatColor lastColor = getLastColor(name);
-      name = ChatColor.stripColor(name);
+      name = stripColor(name);
       int level = getLevel(name);
       name = name.replace("+" + level + " ", "");
       String prefix = "";
       String suffix = "";
       if (!gem.getPrefix().isEmpty()) {
         if (!name.contains(gem.getPrefix())) {
-          if (ChatColor.stripColor(name).startsWith("The ")) {
+          if (stripColor(name).startsWith("The ")) {
             name = name.replace("The ", "");
             prefix = "The " + gem.getPrefix() + " ";
           } else {
@@ -219,20 +220,19 @@ public final class InteractListener implements Listener {
       name = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + lastColor;
       currentItem.setName(TextUtils.color(name));
 
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 2.0F);
       updateItem(event, currentItem);
     } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") && plugin
         .getSettings()
         .getBoolean("config.custom-enchanting", true)) {
-      String stoneName = ChatColor.stripColor(
+      String stoneName = stripColor(
           cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
       EnchantmentTome stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
       if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(),
           5)) {
-        MessageUtils.sendMessage(player,
+        sendMessage(player,
             plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
@@ -244,8 +244,7 @@ public final class InteractListener implements Listener {
 
       if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
           stone.getItemGroups())) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
+        sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
@@ -253,7 +252,7 @@ public final class InteractListener implements Listener {
       List<String> lore = currentItem.getLore();
       List<String> strippedLore = InventoryUtil.stripColor(lore);
       if (!strippedLore.contains("(Enchantable)")) {
-        MessageUtils.sendMessage(player,
+        sendMessage(player,
             plugin.getSettings().getString("language.enchant.needs-enchantable", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
@@ -314,7 +313,7 @@ public final class InteractListener implements Listener {
           }
         }
         if (fail) {
-          MessageUtils.sendMessage(player,
+          sendMessage(player,
               plugin.getSettings().getString("language.enchant.pointless", ""));
           return;
         }
@@ -326,16 +325,14 @@ public final class InteractListener implements Listener {
       float exp = 3 + 2000 / weightDivisor;
       plugin.getStrifePlugin().getEnchantExperienceManager()
           .addExperience(player, exp, false);
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
       updateItem(event, currentItem);
     } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
       List<String> lore = currentItem.getLore();
       List<String> stripColor = InventoryUtil.stripColor(lore);
       if (!stripColor.contains("(+)")) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
+        sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
@@ -343,8 +340,7 @@ public final class InteractListener implements Listener {
       lore.set(index, ChatColor.GOLD + "(Socket)");
       currentItem.setLore(lore);
 
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
       updateItem(event, currentItem);
     } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
@@ -352,7 +348,7 @@ public final class InteractListener implements Listener {
         return;
       }
       int itemLevel = NumberUtils
-          .toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(currentItem
+          .toInt(CharMatcher.DIGIT.retainFrom(stripColor(currentItem
               .getItemMeta().getLore().get(0))));
       ItemRarity r;
       Tier t;
@@ -373,8 +369,7 @@ public final class InteractListener implements Listener {
             .withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
             .build();
       }
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
       updateItem(event, currentItem);
     } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Faceguy's Tears")) {
@@ -383,7 +378,7 @@ public final class InteractListener implements Listener {
       }
       String name = currentItem.getName();
       if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>())
-          .contains(ChatColor.stripColor(name))) {
+          .contains(stripColor(name))) {
         return;
       }
       boolean succeed = false;
@@ -404,42 +399,38 @@ public final class InteractListener implements Listener {
         return;
       }
       currentItem.setLore(lore);
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
       updateItem(event, currentItem);
     } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment - ")) {
-      String name = ChatColor.stripColor(currentItem.getName()).replace("Upgrade Scroll", "")
+      String name = stripColor(currentItem.getName()).replace("Upgrade Scroll", "")
           .trim();
       ScrollType type = ScrollType.getByName(name);
       if (type == null) {
         return;
       }
       if (currentItem.getAmount() > 1) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
+        sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
         return;
       }
       List<String> lore = currentItem.getLore();
       for (String s : lore) {
         if (s.startsWith(ChatColor.DARK_AQUA + "Augment")) {
-          MessageUtils.sendMessage(player,
+          sendMessage(player,
               plugin.getSettings().getString("language.augment.already-has", ""));
           return;
         }
       }
       if (cursor.getName().endsWith("Chance")) {
         if (type == ScrollType.FLAWLESS) {
-          MessageUtils
-              .sendMessage(player, plugin.getSettings().getString("language.augment.too-easy", ""));
+          sendMessage(player, plugin.getSettings().getString("language.augment.too-easy", ""));
           return;
         }
         if (type.getChanceToFail() != 0) {
           lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Chance");
           lore.add(ChatColor.GRAY + "Success chance increased by 12%");
         } else {
-          MessageUtils
-              .sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
+          sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
           return;
         }
       } else if (cursor.getName().endsWith("Protect")) {
@@ -447,8 +438,7 @@ public final class InteractListener implements Listener {
           lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Protect");
           lore.add(ChatColor.GRAY + "Failure will not destroy item");
         } else {
-          MessageUtils
-              .sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
+          sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
           return;
         }
       } else if (cursor.getName().endsWith("Bonus")) {
@@ -465,29 +455,66 @@ public final class InteractListener implements Listener {
       event.setResult(Event.Result.DENY);
       player.updateInventory();
       player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 1.7F);
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.augment.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.augment.success", ""));
 
+    } else if (cursor.getName().equals(ChatColor.RED + "Shard Of Failure")) {
+      String name = stripColor(currentItem.getName()).replace("Upgrade Scroll", "").trim();
+      ScrollType type = ScrollType.getByName(name);
+      if (type == null) {
+        return;
+      }
+      if (currentItem.getAmount() > 1) {
+        sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
+        return;
+      }
+      List<String> lore = currentItem.getLore();
+      boolean hasFailureBonus = false;
+      for (String s : lore) {
+        if (s.startsWith(FAILURE_BONUS)) {
+          hasFailureBonus = true;
+          break;
+        }
+      }
+      if (hasFailureBonus) {
+        int oldAmount = getLevel(stripColor(lore.get(0)));
+        lore.set(0, TextUtils.color(FAILURE_BONUS + " +" + (oldAmount + 1)));
+      } else {
+        lore.add(0, TextUtils.color(FAILURE_BONUS + " +1"));
+      }
+      currentItem.setLore(lore);
+      event.setCurrentItem(currentItem);
+      cursor.setAmount(cursor.getAmount() - 1);
+      event.setCursor(cursor.getAmount() == 0 ? null : cursor);
+      event.setCancelled(true);
+      event.setResult(Event.Result.DENY);
+      player.updateInventory();
+      player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
+      plugin.getStrifePlugin().getEnchantExperienceManager().addExperience(player, 1, false);
     } else if (cursor.getName().endsWith("Upgrade Scroll")) {
       if (isBannedMaterial(currentItem)) {
         return;
       }
-      String name = ChatColor.stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
+      String name = stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
       UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
       if (type == null) {
         return;
       }
       name = currentItem.getName();
       if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>())
-          .contains(ChatColor.stripColor(name))) {
+          .contains(stripColor(name))) {
         return;
       }
-      int itemUpgradeLevel =
-          ChatColor.stripColor(name).startsWith("+") ? getLevel(ChatColor.stripColor(name))
-              : 0, lev = itemUpgradeLevel;
+      if (currentItem.hasItemMeta() && currentItem.getItemMeta().hasLore()) {
+        for (String s : currentItem.getLore()) {
+          if ("< Cannot be upgraded >".equals(stripColor(s))) {
+            return;
+          }
+        }
+      }
+      int itemUpgradeLevel = stripColor(name).startsWith("+") ? getLevel(stripColor(name)) : 0,
+          lev = itemUpgradeLevel;
       if (itemUpgradeLevel < type.getMinimumLevel() || itemUpgradeLevel > type.getMaximumLevel()) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
+        sendMessage(player, plugin.getSettings().getString("language.upgrade.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
@@ -506,8 +533,13 @@ public final class InteractListener implements Listener {
       boolean augBonus = false;
       double augChance = 0;
       double enchBonus = PlayerDataUtil.getEnchantLevel(player) * 0.001;
+      double failureBonus = 1;
       List<String> scrollLore = cursor.getLore();
       for (String s : scrollLore) {
+        if (s.startsWith(FAILURE_BONUS)) {
+          failureBonus = 200D / (200 + getLevel(ChatColor.stripColor(s)));
+          continue;
+        }
         if (s.startsWith(ChatColor.DARK_AQUA + "Augment")) {
           if (s.endsWith("Chance")) {
             augChance = 0.12;
@@ -516,16 +548,15 @@ public final class InteractListener implements Listener {
           } else if (s.endsWith("Bonus")) {
             augBonus = true;
           }
-          break;
         }
       }
-      if (random.nextDouble() + augChance + enchBonus < type.getChanceToFail()) {
+      if (random.nextDouble() + augChance + enchBonus < type.getChanceToFail() * failureBonus) {
         double damagePercentage = random.nextDouble() * (0.25 + itemUpgradeLevel * 0.115);
         int damageAmount =
             (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability()) - 1;
         damageAmount = Math.max(damageAmount, 1);
         if (augProtect) {
-          MessageUtils.sendMessage(player,
+          sendMessage(player,
               plugin.getSettings().getString("language.augment.protected", ""));
           player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
           updateItem(event, currentItem);
@@ -533,18 +564,29 @@ public final class InteractListener implements Listener {
         }
         if (damageAmount + currentItem.getDurability() >= currentItem.getType()
             .getMaxDurability()) {
-          MessageUtils.sendMessage(player,
+          sendMessage(player,
               plugin.getSettings().getString("language.upgrade.destroyed", ""));
           player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
           broadcast(player, currentItem,
               plugin.getSettings().getString("language.broadcast.destroyed-item"));
           updateItem(event, null);
+          if (random.nextDouble() > 0.5) {
+            ShardOfFailure shardOfFailure = new ShardOfFailure();
+            List<String> lore = shardOfFailure.getLore();
+            for (int i=lore.size(); i>0; i--) {
+              if (lore.get(i-1).contains("PLAYERNAME")) {
+                lore.set(i-1, lore.get(i-1).replace("PLAYERNAME", player.getName()));
+                break;
+              }
+            }
+            shardOfFailure.setLore(lore);
+            shardOfFailure.setAmount(1 + random.nextIntRange(0, itemUpgradeLevel + 1));
+            player.getInventory().addItem(shardOfFailure);
+          }
           return;
         }
-
         currentItem.setDurability((short) (currentItem.getDurability() + damageAmount));
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
+        sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
         updateItem(event, currentItem);
       } else {
         boolean firstTimeUpgrade = false;
@@ -573,7 +615,7 @@ public final class InteractListener implements Listener {
         List<String> lore = currentItem.getLore();
         for (int i = 0; i < lore.size(); i++) {
           String s = lore.get(i);
-          String ss = ChatColor.stripColor(s);
+          String ss = stripColor(s);
           if (!ss.startsWith("+")) {
             continue;
           }
@@ -586,8 +628,7 @@ public final class InteractListener implements Listener {
         double exp = 0.5f + (float) Math.pow(1.4, itemUpgradeLevel);
         plugin.getStrifePlugin().getEnchantExperienceManager()
             .addExperience(player, exp, false);
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
+        sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
         player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
         if (itemUpgradeLevel >= 7) {
           broadcast(player, currentItem,
@@ -597,28 +638,33 @@ public final class InteractListener implements Listener {
       }
     } else if (cursor.getName().equals(ChatColor.WHITE + "Item Rename Tag")) {
       if (cursor.getLore().get(3).equals(ChatColor.WHITE + "none")) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
+        sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
         return;
       }
       if (isBannedMaterial(currentItem)) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
+        sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
         return;
       }
-      int level = ChatColor.stripColor(currentItem.getName()).startsWith("+") ? getLevel(
-          ChatColor.stripColor
+      if (currentItem.hasItemMeta() && currentItem.getItemMeta().hasLore()) {
+        for (String s : currentItem.getLore()) {
+          if ("[ Crafting Component ]".equals(stripColor(s))) {
+            sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
+            return;
+          }
+        }
+      }
+      int level = stripColor(currentItem.getName()).startsWith("+") ? getLevel(
+          stripColor
               (currentItem.getName())) : 0;
       if (level > 0) {
         currentItem.setName(getFirstColor(currentItem.getName()) + "+" + level + " "
-            + ChatColor.stripColor(cursor.getLore().get(3)));
+            + stripColor(cursor.getLore().get(3)));
       } else {
         currentItem.setName(getFirstColor(currentItem.getName())
-            + ChatColor.stripColor(cursor.getLore().get(3)));
+            + stripColor(cursor.getLore().get(3)));
       }
 
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
+      sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 0.8F);
       updateItem(event, currentItem);
     } else if (cursor.getName().startsWith(ChatColor.DARK_PURPLE + "Magic Crystal")) {
@@ -631,8 +677,7 @@ public final class InteractListener implements Listener {
           valid = true;
           int barIndex = str.indexOf("" + ChatColor.BLACK);
           if (barIndex == str.length() - 5) {
-            MessageUtils
-                .sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
+            sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
             return;
           }
           double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
@@ -652,8 +697,7 @@ public final class InteractListener implements Listener {
         currentItem.setLore(lore);
         plugin.getStrifePlugin().getEnchantExperienceManager()
             .addExperience(player, 10f + addAmount, false);
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
+        sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
         player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
         updateItem(event, currentItem);
