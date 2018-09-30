@@ -103,7 +103,10 @@ public final class CraftingListener implements Listener {
         continue;
       }
       HiltItemStack his = new HiltItemStack(is);
-      if (event.getInventory().getResult().getType() == Material.DIAMOND_BLOCK) {
+      Material material = event.getInventory().getResult().getType();
+      // TODO: Configurable material type restriction
+      if (material == Material.DIAMOND_BLOCK || material == Material.IRON_BLOCK ||
+          material == Material.GOLD_BLOCK || material == Material.EMERALD_BLOCK) {
         for (String str : his.getLore()) {
           if (ChatColor.stripColor(str).equals("[ Crafting Component ]")) {
             sendMessage(event.getWhoClicked(),
@@ -188,19 +191,18 @@ public final class CraftingListener implements Listener {
       return;
     }
 
-    double overSkillBonus = effectiveCraftLevel - (int) rawItemLevel;
-
+    double overSkillBonus = maxCraftingLevel(effectiveCraftLevel) - (int) rawItemLevel;
     double quality = Math.min(totalQuality / numMaterials, MAX_QUALITY);
 
-    double effectiveCraftSkill = Math.min(overSkillBonus / 3 + (quality - 1) * 6, 100) / 100;
-    effectiveCraftSkill = Math.max(effectiveCraftSkill, 0);
+    double craftedItemBonus = quality * 5.5 + (overSkillBonus * 0.65 * (1 + 0.1 * quality));
+    craftedItemBonus = Math.min(craftedItemBonus, 100) / 100;
 
-    double skillSlotRoll = effectiveCraftSkill * random.nextDouble();
-    double luckSlotRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 5);
+    double skillSlotRoll = craftedItemBonus * random.nextDouble();
+    double luckSlotRoll = (1 - craftedItemBonus) * Math.pow(random.nextDouble(), 4);
     double craftedSlotScore = Math.max(1, (skillSlotRoll + luckSlotRoll) * MAX_SLOTS);
 
-    double skillSocketRoll = effectiveCraftSkill * random.nextDouble();
-    double luckSocketRoll = (1 - effectiveCraftSkill) * Math.pow(random.nextDouble(), 4);
+    double skillSocketRoll = craftedItemBonus * random.nextDouble();
+    double luckSocketRoll = (1 - craftedItemBonus) * Math.pow(random.nextDouble(), 3);
     double craftedSocketScore = Math.max(1, (skillSocketRoll + luckSocketRoll) * MAX_SOCKETS);
 
     int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - 2 + random.nextInt(5)));
