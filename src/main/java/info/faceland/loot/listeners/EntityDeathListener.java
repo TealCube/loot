@@ -232,8 +232,9 @@ public final class EntityDeathListener implements Listener {
 
   private boolean isValidDamageType(DamageCause cause) {
     return cause == DamageCause.ENTITY_ATTACK || cause == DamageCause.ENTITY_EXPLOSION ||
-        cause == DamageCause.PROJECTILE || cause == DamageCause.MAGIC
-        || cause == DamageCause.FIRE_TICK || cause == DamageCause.WITHER;
+        cause == DamageCause.PROJECTILE || cause == DamageCause.MAGIC ||
+        cause == DamageCause.FIRE_TICK || cause == DamageCause.WITHER ||
+        cause == DamageCause.CUSTOM;
   }
 
   private boolean isWaterMob(Entity entity) {
