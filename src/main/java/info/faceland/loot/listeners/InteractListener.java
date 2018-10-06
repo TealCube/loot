@@ -570,17 +570,10 @@ public final class InteractListener implements Listener {
           broadcast(player, currentItem,
               plugin.getSettings().getString("language.broadcast.destroyed-item"));
           updateItem(event, null);
-          if (random.nextDouble() > 0.5) {
-            ShardOfFailure shardOfFailure = new ShardOfFailure();
-            List<String> lore = shardOfFailure.getLore();
-            for (int i=lore.size(); i>0; i--) {
-              if (lore.get(i-1).contains("PLAYERNAME")) {
-                lore.set(i-1, lore.get(i-1).replace("PLAYERNAME", player.getName()));
-                break;
-              }
-            }
-            shardOfFailure.setLore(lore);
-            shardOfFailure.setAmount(1 + random.nextIntRange(0, itemUpgradeLevel + 1));
+          if (itemUpgradeLevel > 6) {
+            ShardOfFailure shardOfFailure = new ShardOfFailure(player.getName());
+            shardOfFailure.setAmount(
+                1 + random.nextIntRange(5, (int) (Math.pow(itemUpgradeLevel, 1.7) / 3)));
             player.getInventory().addItem(shardOfFailure);
           }
           return;

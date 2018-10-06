@@ -1,23 +1,6 @@
-/**
- * The MIT License Copyright (c) 2015 Teal Cube Games
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-package info.faceland.loot.listeners.crafting;
+package info.faceland.loot.listeners;
 
+import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
 import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getItemLevel;
@@ -25,6 +8,9 @@ import static info.faceland.loot.utils.inventory.MaterialUtil.getToolLevel;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.events.LootDeconstructEvent;
+import info.faceland.loot.events.LootDeconstructEvent.DeconstructType;
+import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
@@ -32,6 +18,7 @@ import info.faceland.strife.util.PlayerDataUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -48,12 +35,12 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
-public final class SalvageListener implements Listener {
+public class DeconstructListener implements Listener {
 
   private final LootPlugin plugin;
   private LootRandom random;
 
-  public SalvageListener(LootPlugin plugin) {
+  public DeconstructListener(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom();
   }
@@ -76,54 +63,91 @@ public final class SalvageListener implements Listener {
     Player player = (Player) event.getWhoClicked();
     HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
     HiltItemStack cursor = new HiltItemStack(event.getCursor());
-    if (cursor.getName() == null) {
+
+    String curName = cursor.getName();
+    if (StringUtils.isBlank(curName)) {
       return;
     }
-    if (!cursor.getName().endsWith("Craftsman's Tools")) {
+
+    DeconstructType type;
+    if (curName.endsWith("Craftsman's Tools")) {
+      type = DeconstructType.CRAFTING;
+    } else if (curName.endsWith("Enchanter's Arcana")) {
+      type = DeconstructType.ENCHANTING;
+    } else {
       return;
     }
-    int toolQuality = 1;
-    if (cursor.hasItemMeta()) {
-      toolQuality = (int) cursor.getLore().get(1).chars().filter(ch -> ch == '✪').count();
+
+    int itemLevel = getItemLevel(currentItem);
+    if (itemLevel == -1) {
+      MessageUtils.sendMessage(
+          player, plugin.getSettings().getString("language.craft.no-level", ""));
+      return;
     }
 
     // NO GOING BACK NOW BOYOS
     event.setCancelled(true);
 
     if (event.getCurrentItem().getAmount() > 1) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.big-stack", ""));
+      MessageUtils.sendMessage(
+          player, plugin.getSettings().getString("language.craft.big-stack", ""));
       return;
     }
 
     if (event.getCursor().getAmount() > 1) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.big-cursor", ""));
+      MessageUtils.sendMessage(
+          player, plugin.getSettings().getString("language.craft.big-cursor", ""));
       return;
     }
 
-    int itemLevel = getItemLevel(currentItem);
-    if (itemLevel == -1) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.no-level", ""));
+    LootDeconstructEvent deconstructEvent = new LootDeconstructEvent();
+    deconstructEvent.setDeconstructType(type);
+    deconstructEvent.setCursorItem(cursor);
+    deconstructEvent.setTargetItem(currentItem);
+    deconstructEvent.setPlayer(player);
+    Bukkit.getPluginManager().callEvent(deconstructEvent);
+
+    if (deconstructEvent.isCancelled()) {
       return;
     }
+    event.setCurrentItem(deconstructEvent.getTargetItem());
+    event.setCursor(deconstructEvent.getCursorItem());
+  }
+
+  @EventHandler
+  public void onDeconstruct(LootDeconstructEvent event) {
+    if (event.getDeconstructType() == DeconstructType.CRAFTING) {
+      doCraftDeconstruct(event);
+    } else if (event.getDeconstructType() == DeconstructType.ENCHANTING) {
+      doEnchantDeconstruct(event);
+    }
+  }
+
+  private void doCraftDeconstruct(LootDeconstructEvent event) {
+    Player player = event.getPlayer();
+    HiltItemStack targetItem = event.getTargetItem();
+    HiltItemStack cursorItem = event.getCursorItem();
+
+    int itemLevel = getItemLevel(targetItem);
 
     int craftingLevel = PlayerDataUtil.getCraftLevel(player);
     int effectiveCraftLevel = PlayerDataUtil.getCraftSkill(player, true);
 
+    int toolQuality = 1;
+    if (cursorItem.hasItemMeta()) {
+      toolQuality = (int) cursorItem.getLore().get(1).chars().filter(ch -> ch == '✪').count();
+    }
+
     if (!isHighEnoughCraftingLevel(craftingLevel, itemLevel)) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
+      sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
       return;
     }
-    if (craftingLevel < getToolLevel(cursor)) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.low-level-tool", ""));
+    if (craftingLevel < getToolLevel(cursorItem)) {
+      sendMessage(player, plugin.getSettings().getString("language.craft.low-level-tool", ""));
       return;
     }
 
-    List<String> lore = currentItem.getLore();
+    List<String> lore = targetItem.getLore();
     List<String> possibleStats = new ArrayList<>();
     for (String str : lore) {
       if (str.startsWith("" + ChatColor.GREEN) || str.startsWith("" + ChatColor.YELLOW)) {
@@ -134,32 +158,29 @@ public final class SalvageListener implements Listener {
       }
     }
 
-    List<Material> possibleMaterials = buildPossibleMaterials(currentItem);
+    List<Material> possibleMaterials = buildPossibleMaterials(targetItem);
     if (possibleMaterials.size() == 0) {
-      MessageUtils
-          .sendMessage(player, plugin.getSettings().getString("language.craft.no-materials", ""));
+      sendMessage(player, plugin.getSettings().getString("language.craft.no-materials", ""));
       return;
     }
     Material material = possibleMaterials.get(random.nextInt(possibleMaterials.size()));
     int quality = 1;
     while (random.nextDouble() <= plugin.getSettings()
-        .getDouble("config.drops.material-quality-up", 0.1D) &&
-        quality < 3) {
+        .getDouble("config.drops.material-quality-up", 0.1D) && quality < 5) {
       quality++;
     }
-    HiltItemStack craftMaterial = MaterialUtil.buildMaterial(
-        material, plugin.getCraftMatManager().getCraftMaterials().get(material), itemLevel,
-        quality);
+    HiltItemStack craftMaterial = MaterialUtil.buildMaterial(material,
+        plugin.getCraftMatManager().getCraftMaterials().get(material), itemLevel, quality);
 
     player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 0.8F);
-    event.setCurrentItem(null);
+    event.setTargetItem(null);
     player.getInventory().addItem(craftMaterial);
 
     double levelSurplus = Math.max(0, (effectiveCraftLevel * 2) - itemLevel);
     double essChance = 0.1 + 0.1 * toolQuality + Math.min(levelSurplus * 0.015, 0.35);
     if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
-      String type = InventoryUtil.getItemType(currentItem);
+      String type = InventoryUtil.getItemType(targetItem);
       HiltItemStack shard = buildEssence(player, type, itemLevel, craftingLevel, possibleStats);
       if (player.getInventory().firstEmpty() != -1) {
         player.getInventory().addItem(shard);
@@ -167,22 +188,43 @@ public final class SalvageListener implements Listener {
         player.getWorld().dropItem(player.getLocation(), shard);
       }
     }
-    List<String> toolLore = cursor.getLore();
+    List<String> toolLore = cursorItem.getLore();
     if (ChatColor.stripColor(toolLore.get(toolLore.size() - 1)).startsWith("Remaining Uses: ")) {
       int uses = getDigit(ChatColor.stripColor(toolLore.get(toolLore.size() - 1)));
       if (uses == 1) {
-        MessageUtils
-            .sendMessage(player, plugin.getSettings().getString("language.craft.tool-decay", ""));
-        event.setCursor(null);
+        sendMessage(player, plugin.getSettings().getString("language.craft.tool-decay", ""));
+        event.setCursorItem(null);
       } else {
         uses--;
         toolLore.set(toolLore.size() - 1, ChatColor.WHITE + "Remaining Uses: " + uses);
-        cursor.setLore(toolLore);
-        event.setCursor(cursor);
+        cursorItem.setLore(toolLore);
+        event.setCursorItem(cursorItem);
       }
     }
     double exp = 0.6 + (itemLevel * 0.25);
     plugin.getStrifePlugin().getCraftExperienceManager().addExperience(player, exp, false);
+  }
+
+  private void doEnchantDeconstruct(LootDeconstructEvent event) {
+    Player player = event.getPlayer();
+    HiltItemStack targetItem = event.getTargetItem();
+
+    int itemPlus = MaterialUtil.getDigit(targetItem.getName());
+    if (itemPlus == 0) {
+      sendMessage(player, plugin.getSettings().getString("language.enchant.too-low-to-deconstruct", ""));
+      event.setCancelled(true);
+      return;
+    }
+
+    event.setTargetItem(null);
+    player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1.5F);
+    player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
+
+    double maxBonus = Math.pow(MaterialUtil.getDigit(targetItem.getName()), 1.5);
+    ShardOfFailure shardOfFailure = new ShardOfFailure(player.getName());
+    shardOfFailure.setAmount(1 + random.nextIntRange(0, Math.max((int)(maxBonus / 2) - 4, 1)));
+    player.getInventory().addItem(shardOfFailure);
+    plugin.getStrifePlugin().getEnchantExperienceManager().addExperience(player, maxBonus, false);
   }
 
   private List<Material> buildPossibleMaterials(ItemStack itemStack) {

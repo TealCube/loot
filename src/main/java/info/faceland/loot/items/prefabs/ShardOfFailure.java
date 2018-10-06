@@ -26,7 +26,7 @@ import org.bukkit.Material;
 
 public final class ShardOfFailure extends HiltItemStack {
 
-  public ShardOfFailure() {
+  public ShardOfFailure(String name) {
     super(Material.PRISMARINE_SHARD);
     setName(ChatColor.RED + "Shard Of Failure");
     setLore(TextUtils.color(Arrays.asList(
@@ -34,7 +34,7 @@ public final class ShardOfFailure extends HiltItemStack {
         "&7to slightly increase the chance of",
         "&7upgrade success!",
         "&8&oThis failure is special because it",
-        "&8&owas created by PLAYERNAME :)"
+        "&8&owas created by " + name + " :)"
     )));
   }
 }
