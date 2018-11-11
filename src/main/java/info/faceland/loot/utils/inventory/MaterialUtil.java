@@ -21,25 +21,22 @@ package info.faceland.loot.utils.inventory;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-import info.faceland.loot.math.LootRandom;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 public final class MaterialUtil {
 
-  private static final double MAX_ESSENCE_BONUS = 0.35;
-  private static final double BASE_ESSENCE_MULT = 0.8;
-
-  private MaterialUtil() {
-    // meh
-  }
+  private static final double BONUS_ESS_MULT = 0.21;
+  private static final double TOOL_QUALITY_ESS_MULT = 0.06;
+  private static final double MIN_BONUS_ESS_MULT = 0.08;
+  private static final double BASE_ESSENCE_MULT = 0.65;
+  private static final Random random = new Random();
 
   public static HiltItemStack buildMaterial(Material m, String name, int level, int quality) {
     HiltItemStack his = new HiltItemStack(m);
@@ -69,8 +66,7 @@ public final class MaterialUtil {
     }
     his.setName(color + prefix + " " + name);
     List<String> lore = new ArrayList<>();
-    lore.add(
-        ChatColor.WHITE + "Item Level: " + Math.min(100, Math.max(1, 3 * (Math.round(level / 3)))));
+    lore.add(ChatColor.WHITE + "Item Level: " + Math.min(100, Math.max(1, 3 * (level / 3))));
     lore.add(ChatColor.WHITE + "Quality: " + color + IntStream.range(0, quality).mapToObj(i -> "✪")
         .collect(Collectors.joining("")));
     lore.add(ChatColor.YELLOW + "[ Crafting Component ]");
@@ -79,31 +75,28 @@ public final class MaterialUtil {
     return his;
   }
 
-  public static HiltItemStack buildEssence(Player player, String type, int itemLevel,
-      double craftingLevel, List<String> possibleStats) {
-    // Item Level Req = item level minus 0-5 minus tp to 10% of item level
-    LootRandom random = new LootRandom();
-    int itemLevelReq = (int) ((double) itemLevel - random.nextDouble() * ((double) itemLevel / 10)
-        - random.nextDouble() * 5);
-    itemLevelReq = Math.max(itemLevelReq, 1);
+  public static HiltItemStack buildEssence(String type, int itemLevel, double craftLevel,
+      int toolQuality, List<String> possibleStats, boolean lucky) {
+    int essLevel = 1 + (itemLevel / 4) * 3;
 
-    String statString = ChatColor
-        .stripColor(possibleStats.get(random.nextInt(possibleStats.size())));
-    double craftBonus = MAX_ESSENCE_BONUS * (craftingLevel / 100) * random.nextDouble();
-    double luckMult = Math.pow(random.nextDouble(), 2);
-    if (player.hasPotionEffect(PotionEffectType.LUCK)) {
-      luckMult = Math.max(luckMult, Math.pow(random.nextDouble(), 2));
-    }
-    double luckyBonus = (MAX_ESSENCE_BONUS - craftBonus) * luckMult;
+    String statString = ChatColor.stripColor(
+        possibleStats.get(random.nextInt(possibleStats.size())));
     int statVal = getDigit(statString);
-    double newVal = BASE_ESSENCE_MULT + craftBonus + luckyBonus;
+
+    double toolQualityBonus = rollMult(lucky) * (TOOL_QUALITY_ESS_MULT * toolQuality);
+    double baseCraftBonus = MIN_BONUS_ESS_MULT * (craftLevel / 100);
+    double bonusCraftBonus = rollMult(lucky, 1.3) * (BONUS_ESS_MULT * (craftLevel / 100));
+
+    double essMult = BASE_ESSENCE_MULT + baseCraftBonus + bonusCraftBonus + toolQualityBonus;
+
     String newStatString = statString.replace(String.valueOf(statVal),
-        String.valueOf((int) Math.max(newVal * statVal, 1.0)));
+        String.valueOf((int)(statVal * essMult)));
 
     HiltItemStack shard = new HiltItemStack(Material.PRISMARINE_SHARD);
     shard.setName(ChatColor.YELLOW + "Item Essence");
+
     List<String> esslore = shard.getLore();
-    esslore.add(TextUtils.color("&fItem Level Requirement: " + itemLevelReq));
+    esslore.add(TextUtils.color("&fItem Level Requirement: " + essLevel));
     esslore.add(TextUtils.color("&fItem Type: " + type));
     esslore.add(TextUtils.color("&e" + newStatString));
     esslore.add(TextUtils.color("&7&oCraft this together with an"));
@@ -111,6 +104,7 @@ public final class MaterialUtil {
     esslore.add(TextUtils.color("&7&ochance of applying this stat!"));
     esslore.add(TextUtils.color("&e[ Crafting Component ]"));
     shard.setLore(esslore);
+
     return shard;
   }
 
@@ -146,5 +140,16 @@ public final class MaterialUtil {
     String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate()
         .collapseFrom(ChatColor.stripColor(string), ' ').trim();
     return NumberUtils.toInt(lev.split(" ")[0], 0);
+  }
+
+  private static double rollMult(boolean lucky) {
+    return rollMult(lucky, 2);
+  }
+
+  private static double rollMult(boolean lucky, double exponent) {
+    if (!lucky) {
+      return Math.pow(random.nextDouble(), exponent);
+    }
+    return random.nextDouble();
   }
 }

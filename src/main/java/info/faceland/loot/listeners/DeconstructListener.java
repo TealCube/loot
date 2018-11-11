@@ -34,6 +34,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.potion.PotionEffectType;
 
 public class DeconstructListener implements Listener {
 
@@ -181,11 +182,12 @@ public class DeconstructListener implements Listener {
     if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
       String type = InventoryUtil.getItemType(targetItem);
-      HiltItemStack shard = buildEssence(player, type, itemLevel, craftingLevel, possibleStats);
+      HiltItemStack essence = buildEssence(type, itemLevel, craftingLevel, toolQuality,
+          possibleStats, player.hasPotionEffect(PotionEffectType.LUCK));
       if (player.getInventory().firstEmpty() != -1) {
-        player.getInventory().addItem(shard);
+        player.getInventory().addItem(essence);
       } else {
-        player.getWorld().dropItem(player.getLocation(), shard);
+        player.getWorld().dropItem(player.getLocation(), essence);
       }
     }
     List<String> toolLore = cursorItem.getLore();
