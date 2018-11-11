@@ -75,9 +75,9 @@ public final class MaterialUtil {
     return his;
   }
 
-  public static HiltItemStack buildEssence(String type, int itemLevel, double craftLevel,
+  public static HiltItemStack buildEssence(String type, double itemLevel, double craftLevel,
       int toolQuality, List<String> possibleStats, boolean lucky) {
-    int essLevel = 1 + (itemLevel / 4) * 3;
+    int essLevel = 1 + (int)(itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);
 
     String statString = ChatColor.stripColor(
         possibleStats.get(random.nextInt(possibleStats.size())));
