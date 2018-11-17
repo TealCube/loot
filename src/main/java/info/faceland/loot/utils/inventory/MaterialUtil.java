@@ -90,7 +90,7 @@ public final class MaterialUtil {
     double essMult = BASE_ESSENCE_MULT + baseCraftBonus + bonusCraftBonus + toolQualityBonus;
 
     String newStatString = statString.replace(String.valueOf(statVal),
-        String.valueOf((int)(statVal * essMult)));
+        String.valueOf((int)Math.max(1, statVal * essMult)));
 
     HiltItemStack shard = new HiltItemStack(Material.PRISMARINE_SHARD);
     shard.setName(ChatColor.YELLOW + "Item Essence");
