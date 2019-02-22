@@ -261,7 +261,7 @@ public final class InteractListener implements Listener {
       int index = strippedLore.indexOf("(Enchantable)");
       lore.remove(index);
 
-      double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
+      double enchantLevel = PlayerDataUtil.getEnchantSkill(player, true);
 
       List<String> added = new ArrayList<>();
       if (!stone.getLore().isEmpty()) {
@@ -272,7 +272,7 @@ public final class InteractListener implements Listener {
         double rarity = getBonusMultiplier(enchantLevel);
 
         int itemLevel = MaterialUtil.getItemLevel(currentItem);
-        double effectiveLevel = Math.max(1, Math.min(enchantLevel * 2, itemLevel));
+        double effectiveLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
 
         ItemStat stat = plugin.getStatManager().getStat(stone.getStat());
         added.add(plugin.getStatManager().getFinalStat(stat, effectiveLevel, rarity));
@@ -280,8 +280,8 @@ public final class InteractListener implements Listener {
 
       if (stone.getBar()) {
         double bonus = getBonusMultiplier(enchantLevel);
-        int size = 6 + (int) (25 * bonus);
-        String bars = IntStream.range(0, size).mapToObj(i -> "|").collect(Collectors.joining(""));
+        double size = 8 + (25 * bonus);
+        String bars = IntStream.range(0, (int) size).mapToObj(i -> "|").collect(Collectors.joining(""));
         added.add(TextUtils.color("&9[" + bars + "&0&9]"));
       }
 
@@ -323,8 +323,7 @@ public final class InteractListener implements Listener {
 
       float weightDivisor = stone.getWeight() == 0 ? 2000 : (float) stone.getWeight();
       float exp = 3 + 2000 / weightDivisor;
-      plugin.getStrifePlugin().getEnchantExperienceManager()
-          .addExperience(player, exp, false);
+      plugin.getStrifePlugin().getEnchantExperienceManager().addExperience(player, exp, false);
       sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
       updateItem(event, currentItem);
@@ -729,9 +728,12 @@ public final class InteractListener implements Listener {
     return false;
   }
 
-  private double getBonusMultiplier(double enchantLevel) {
-    double enchant = Math.max(0, Math.min(1, enchantLevel / 60));
-    return enchant * random.nextDouble() + (1 - enchant) * Math.pow(random.nextDouble(), 2);
+  private double getBonusMultiplier(double enchantSkill) {
+    double enchantPower = Math.max(0, Math.min(1, enchantSkill / 100));
+    double baseEnchantingBonus = enchantSkill * 0.005;
+    double skillRoll = enchantPower * random.nextDouble();
+    double dumbLuckRoll = (1 - enchantPower) * Math.pow(random.nextDouble(), 2.5);
+    return baseEnchantingBonus + skillRoll + dumbLuckRoll;
   }
 
   private int getLevel(String name) {
