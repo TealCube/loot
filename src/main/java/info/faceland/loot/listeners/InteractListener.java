@@ -127,6 +127,9 @@ public final class InteractListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onInventoryCloseEvent(InventoryCloseEvent event) {
+    if (!plugin.getSettings().getBoolean("config.socket-gems.use-potion-triggers")) {
+      return;
+    }
     Inventory inv = event.getInventory();
     if (!(inv instanceof CraftingInventory)) {
       return;
