@@ -66,6 +66,9 @@ beast:
   beast-mode-activate: false
   range-before-penalty: 15
 
+socket-gems:
+  use-potion-triggers:  true
+
 crafting:
   base-craft-exp: 1
   craft-item-level-mult: 3

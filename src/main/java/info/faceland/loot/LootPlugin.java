@@ -178,11 +178,14 @@ public final class LootPlugin extends FacePlugin {
     loadChests();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
+    boolean potionTriggersEnabled = configYAML.getBoolean("socket-gems.use-potion-triggers", true);
 
     CommandHandler handler = new CommandHandler(this);
     handler.registerCommands(new LootCommand(this));
     Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
-    Bukkit.getPluginManager().registerEvents(new SocketsListener(this), this);
+    if (potionTriggersEnabled) {
+      Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
+    }
     Bukkit.getPluginManager().registerEvents(new CombinerListener(this), this);
     Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
     Bukkit.getPluginManager().registerEvents(new DeconstructListener(this), this);
