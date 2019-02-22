@@ -147,6 +147,8 @@ public final class LootPlugin extends FacePlugin {
     settings = MasterConfiguration
         .loadFromFiles(corestatsYAML, languageYAML, configYAML, identifyingYAML);
 
+    boolean potionTriggersEnabled = configYAML.getBoolean("socket-gems.use-potion-triggers", true);
+
     itemGroupManager = new LootItemGroupManager();
     tierManager = new LootTierManager();
     statManager = new LootStatManager();
@@ -158,7 +160,9 @@ public final class LootPlugin extends FacePlugin {
     enchantmentStoneManager = new LootEnchantmentTomeManager();
     anticheatManager = new LootAnticheatManager();
     chestManager = new LootChestManager();
-    gemCacheManager = new LootGemCacheManager(this);
+    if (potionTriggersEnabled) {
+      gemCacheManager = new LootGemCacheManager(this);
+    }
     lootCraftBaseManager = new LootCraftBaseManager();
     lootCraftMatManager = new LootCraftMatManager();
     uniqueDropsManager = new LootUniqueDropsManager();
@@ -178,14 +182,10 @@ public final class LootPlugin extends FacePlugin {
     loadChests();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
-    boolean potionTriggersEnabled = configYAML.getBoolean("socket-gems.use-potion-triggers", true);
 
     CommandHandler handler = new CommandHandler(this);
     handler.registerCommands(new LootCommand(this));
     Bukkit.getPluginManager().registerEvents(new EntityDeathListener(this), this);
-    if (potionTriggersEnabled) {
-      Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
-    }
     Bukkit.getPluginManager().registerEvents(new CombinerListener(this), this);
     Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
     Bukkit.getPluginManager().registerEvents(new DeconstructListener(this), this);
@@ -193,11 +193,11 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
     Bukkit.getPluginManager().registerEvents(new LootDropListener(this), this);
-
-    if (strifePlugin != null) {
+    if (potionTriggersEnabled) {
+      Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
+    }
+    if (strifePlugin != null && potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new StrifeListener(this), this);
-    } else {
-      System.out.println("Strife not detected. No load crit/evade gems!");
     }
     debug("v" + getDescription().getVersion() + " enabled");
   }
