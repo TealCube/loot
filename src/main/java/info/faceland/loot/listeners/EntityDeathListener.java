@@ -75,7 +75,7 @@ public final class EntityDeathListener implements Listener {
     CreatureMod creatureMod;
     if (uniqueEntity == null) {
       if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
-        .contains(event.getEntity().getWorld().getName())) {
+          .contains(event.getEntity().getWorld().getName())) {
         return;
       }
     }
@@ -123,37 +123,22 @@ public final class EntityDeathListener implements Listener {
       bonusRarityMult += 0.5;
     }
 
-    int level = 0;
-    if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-      level = levelFromString(event.getEntity().getCustomName());
-      int playerLevel = event.getEntity().getKiller().getLevel();
-      if (playerLevel < 100) {
-        int range = plugin.getSettings().getInt("config.range-before-penalty", 15);
-        double levelDiff = playerLevel - level;
-        if (Math.abs(levelDiff) > range) {
-          if (levelDiff > 0) {
-            penaltyMult *= Math.max(1 - (levelDiff - range) * 0.05, 0.4);
-          } else {
-            penaltyMult *= Math.max(1 - (-levelDiff - range) * 0.1, 0.05);
-          }
-        }
-      }
-    }
+    int mobLevel = levelFromString(event.getEntity().getCustomName());
 
     double exp = 0;
-    if (creatureMod != null && creatureMod.getExperienceExpression() != null) {
-      exp = creatureMod.getExperienceExpression().setVariable("LEVEL", level).evaluate();
-    }
     if (uniqueEntity != null) {
       exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap()
           .get(uniqueEntity).getExperience();
+    } else if (creatureMod.getExperienceExpression() != null) {
+      exp = creatureMod.getExperienceExpression().setVariable("LEVEL", mobLevel).evaluate();
     }
+
     event.setDroppedExp((int) (exp * penaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
     lootEvent.setLooterUUID(looter);
-    lootEvent.setMonsterLevel(level);
+    lootEvent.setMonsterLevel(mobLevel);
     lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
     lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
@@ -246,6 +231,9 @@ public final class EntityDeathListener implements Listener {
   }
 
   private int levelFromString(String string) {
+    if (!plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
+      return 1;
+    }
     if (StringUtils.isBlank(string)) {
       return 1;
     }
