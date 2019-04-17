@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class LootDeconstructEvent extends Event{
+public class LootDeconstructEvent extends Event {
 
   private static final HandlerList HANDLER_LIST = new HandlerList();
 
@@ -65,7 +65,7 @@ public class LootDeconstructEvent extends Event{
     this.cancelled = cancelled;
   }
 
-    public enum DeconstructType {
+  public enum DeconstructType {
     CRAFTING,
     ENCHANTING
   }
