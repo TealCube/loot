@@ -1,8 +1,8 @@
 package info.faceland.loot.events;
 
-import info.faceland.loot.api.creatures.CreatureMod;
 import java.util.UUID;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -20,7 +20,7 @@ public class LootDropEvent extends Event {
   private double distance;
   private UUID looterUUID;
   private int monsterLevel;
-  private CreatureMod creatureMod;
+  private LivingEntity entity;
   private String uniqueEntity;
 
   @Override
@@ -76,12 +76,12 @@ public class LootDropEvent extends Event {
     this.location = location;
   }
 
-  public CreatureMod getCreatureMod() {
-    return creatureMod;
+  public LivingEntity getEntity() {
+    return entity;
   }
 
-  public void setCreatureMod(CreatureMod creatureMod) {
-    this.creatureMod = creatureMod;
+  public void setEntity(LivingEntity entity) {
+    this.entity = entity;
   }
 
   public String getUniqueEntity() {
