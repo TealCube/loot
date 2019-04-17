@@ -124,6 +124,8 @@ public final class EntityDeathListener implements Listener {
     }
 
     int mobLevel = levelFromString(event.getEntity().getCustomName());
+    double expPenaltyMult = Math
+        .max(0.1D, Math.min(1D, 1 - ((mobLevel + 15 - killer.getLevel()) * 0.05)));
 
     double exp = 0;
     if (uniqueEntity != null) {
@@ -133,7 +135,7 @@ public final class EntityDeathListener implements Listener {
       exp = creatureMod.getExperienceExpression().setVariable("LEVEL", mobLevel).evaluate();
     }
 
-    event.setDroppedExp((int) (exp * penaltyMult));
+    event.setDroppedExp((int) (exp * penaltyMult * expPenaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
