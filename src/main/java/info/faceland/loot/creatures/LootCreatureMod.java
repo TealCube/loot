@@ -38,7 +38,7 @@ public final class LootCreatureMod implements CreatureMod {
   private Map<SocketGem, Double> socketGemDoubleMap;
   private Map<Tier, Double> tierDoubleMap;
   private Map<EnchantmentTome, Double> enchantmentStoneDoubleMap;
-  private Map<JunkItemData, Double> junkItemDataDoubleMap;
+  private Map<String, Map<JunkItemData, Double>> junkItemDataDoubleMap;
 
   public LootCreatureMod(EntityType entityType) {
     this.entityType = entityType;
@@ -104,7 +104,7 @@ public final class LootCreatureMod implements CreatureMod {
   }
 
   @Override
-  public Map<JunkItemData, Double> getJunkMults() {
+  public Map<String, Map<JunkItemData, Double>> getJunkMaps() {
     return junkItemDataDoubleMap;
   }
 
@@ -129,7 +129,7 @@ public final class LootCreatureMod implements CreatureMod {
   }
 
   public void setJunkItemDataDoubleMap(
-      Map<JunkItemData, Double> junkItemDataDoubleMap) {
+      Map<String, Map<JunkItemData, Double>> junkItemDataDoubleMap) {
     this.junkItemDataDoubleMap = junkItemDataDoubleMap;
   }
 

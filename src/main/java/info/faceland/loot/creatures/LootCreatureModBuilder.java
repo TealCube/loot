@@ -82,7 +82,7 @@ public final class LootCreatureModBuilder implements CreatureModBuilder {
     }
 
     @Override
-    public CreatureModBuilder withJunkMults(Map<JunkItemData, Double> map) {
+    public CreatureModBuilder withJunkMap(Map<String, Map<JunkItemData, Double>> map) {
         mod.setJunkItemDataDoubleMap(map);
         return this;
     }

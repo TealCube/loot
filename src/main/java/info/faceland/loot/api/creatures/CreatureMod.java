@@ -38,7 +38,7 @@ public interface CreatureMod {
 
   Map<Tier, Double> getTierMults();
 
-  Map<JunkItemData, Double> getJunkMults();
+  Map<String, Map<JunkItemData, Double>> getJunkMaps();
 
   double getCustomItemMult(CustomItem ci);
 

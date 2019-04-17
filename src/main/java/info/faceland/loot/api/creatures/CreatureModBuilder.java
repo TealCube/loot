@@ -41,7 +41,7 @@ public interface CreatureModBuilder {
 
   CreatureModBuilder withEnchantmentStoneMults(Map<EnchantmentTome, Double> map);
 
-  CreatureModBuilder withJunkMults(Map<JunkItemData, Double> map);
+  CreatureModBuilder withJunkMap(Map<String, Map<JunkItemData, Double>> map);
 
   CreatureModBuilder withExpression(Expression expression);
 }
