@@ -9,7 +9,9 @@ public class ItemStat {
   private double perRarityIncrease;
   private double perRarityMultiplier;
   private String statString;
-  private String perfectStatString;
+  private String statPrefix;
+  private String perfectStatPrefix;
+  private String specialStatPrefix;
 
   public double getMinBaseValue() {
     return minBaseValue;
@@ -67,11 +69,27 @@ public class ItemStat {
     this.statString = statString;
   }
 
-  public String getPerfectStatString() {
-    return perfectStatString;
+  public String getStatPrefix() {
+    return statPrefix;
   }
 
-  public void setPerfectStatString(String perfectStatString) {
-    this.perfectStatString = perfectStatString;
+  public void setStatPrefix(String statPrefix) {
+    this.statPrefix = statPrefix;
+  }
+
+  public String getPerfectStatPrefix() {
+    return perfectStatPrefix;
+  }
+
+  public void setPerfectStatPrefix(String perfectStatPrefix) {
+    this.perfectStatPrefix = perfectStatPrefix;
+  }
+
+  public String getSpecialStatPrefix() {
+    return specialStatPrefix;
+  }
+
+  public void setSpecialStatPrefix(String specialStatPrefix) {
+    this.specialStatPrefix = specialStatPrefix;
   }
 }

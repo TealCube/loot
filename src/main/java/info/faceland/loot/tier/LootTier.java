@@ -40,6 +40,7 @@ public final class LootTier implements Tier {
     private ItemStat primaryStat;
     private List<ItemStat> secondaryStats;
     private List<ItemStat> bonusStats;
+    private List<ItemStat> specialStats;
     private double spawnWeight;
     private double identifyWeight;
     private Set<ItemGroup> itemGroups;
@@ -94,6 +95,15 @@ public final class LootTier implements Tier {
 
     public void setBonusStats(List<ItemStat> bonusStats) {
         this.bonusStats = bonusStats;
+    }
+
+    @Override
+    public List<ItemStat> getSpecialStats() {
+        return specialStats;
+    }
+
+    public void setSpecialStats(List<ItemStat> specialStats) {
+        this.specialStats = specialStats;
     }
 
     @Override

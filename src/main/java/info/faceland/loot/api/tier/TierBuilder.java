@@ -45,6 +45,8 @@ public interface TierBuilder {
 
     TierBuilder withBonusStats(List<ItemStat> s);
 
+    TierBuilder withSpecialStats(List<ItemStat> s);
+
     TierBuilder withSpawnWeight(double d);
 
     TierBuilder withIdentifyWeight(double d);

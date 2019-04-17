@@ -37,6 +37,8 @@ public interface ItemBuilder {
 
     ItemBuilder withLevel(int i);
 
+    ItemBuilder withSpecialStat(boolean b);
+
     ItemBuilder withRarity(ItemRarity r);
 
     ItemBuilder withMaterial(Material m);

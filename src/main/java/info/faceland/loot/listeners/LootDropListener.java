@@ -25,12 +25,14 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,11 +47,23 @@ public class LootDropListener implements Listener {
   private final LootPlugin plugin;
   private final LootRandom random;
   private final String itemFoundFormat;
+  private final Map<EntityType, Double> specialStatEntities;
+  private final Map<String, Double> specialStatWorlds;
+
+  private final double normalDropChance;
+  private final double socketDropChance;
+  private final double tomeDropChance;
 
   public LootDropListener(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom();
     this.itemFoundFormat = plugin.getSettings().getString("language.broadcast.found-item", "");
+    this.specialStatEntities = plugin.fetchSpecialStatEntities();
+    this.specialStatWorlds = plugin.fetchSpecialStatWorlds();
+
+    this.normalDropChance = plugin.getSettings().getDouble("config.drops.normal-drop", 0D);
+    this.socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
+    this.tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -69,8 +83,11 @@ public class LootDropListener implements Listener {
       }
     }
 
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.normal-drop", 0D)) {
+    EntityType entityType = event.getEntity().getType();
+    String worldName = event.getLocation().getWorld().getName();
+    boolean specialStat = addSpecialStat(entityType, worldName);
+
+    if (random.nextDouble() < dropMultiplier * normalDropChance) {
       Tier tier = plugin.getTierManager().getRandomTier();
       ItemRarity rarity;
 
@@ -85,6 +102,7 @@ public class LootDropListener implements Listener {
           .withRarity(rarity)
           .withLevel(Math.max(1, Math.min(mobLevel - 2 + random.nextIntRange(0, 5), 100)))
           .withItemGenerationReason(ItemGenerationReason.MONSTER)
+          .withSpecialStat(specialStat)
           .build();
 
       int qualityBonus = 1;
@@ -133,8 +151,7 @@ public class LootDropListener implements Listener {
 
       dropItem(event.getLocation(), his, killer, false);
     }
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.socket-gem", 0D)) {
+    if (random.nextDouble() < dropMultiplier * socketDropChance) {
       SocketGem sg;
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
         sg = plugin.getSocketGemManager().getRandomSocketGemByLevel(mobLevel);
@@ -146,8 +163,7 @@ public class LootDropListener implements Listener {
       dropItem(event.getLocation(), his, killer, sg.isBroadcast());
     }
     if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
-      if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-          .getDouble("config.drops.enchant-gem", 0D)) {
+      if (random.nextDouble() < dropMultiplier * tomeDropChance) {
         EnchantmentTome es = plugin.getEnchantmentStoneManager()
             .getRandomEnchantmentStone(true, event.getDistance());
         HiltItemStack his = es.toItemStack(1);
@@ -331,5 +347,12 @@ public class LootDropListener implements Listener {
   private void applyOwnerMeta(Item drop, UUID owner) {
     drop.setMetadata("loot-owner", new FixedMetadataValue(plugin, owner));
     drop.setMetadata("loot-time", new FixedMetadataValue(plugin, System.currentTimeMillis()));
+  }
+
+  private boolean addSpecialStat(EntityType entityType, String worldName) {
+    return (specialStatEntities.containsKey(entityType) && random.nextDouble() < specialStatEntities
+        .get(entityType))
+        || ((specialStatWorlds.containsKey(worldName)) && random.nextDouble() < specialStatWorlds
+        .get(worldName));
   }
 }

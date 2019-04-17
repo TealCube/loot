@@ -84,6 +84,12 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
+    public TierBuilder withSpecialStats(List<ItemStat> itemStats) {
+        tier.setSpecialStats(itemStats);
+        return this;
+    }
+
+    @Override
     public TierBuilder withSpawnWeight(double d) {
         tier.setSpawnWeight(d);
         return this;

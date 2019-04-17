@@ -42,6 +42,8 @@ public interface Tier extends Comparable<Tier> {
 
     List<ItemStat> getBonusStats();
 
+    List<ItemStat> getSpecialStats();
+
     double getSpawnWeight();
 
     double getIdentifyWeight();

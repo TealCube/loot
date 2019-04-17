@@ -36,11 +36,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -59,6 +56,8 @@ public final class EntityDeathListener implements Listener {
   private final LootPlugin plugin;
   private final LootRandom random;
   private final Map<Player, ViolationData> violationMap;
+
+  private static final String DEFAULT_WORLD_CONFIG = "DEFAULT";
 
   public EntityDeathListener(LootPlugin plugin) {
     this.plugin = plugin;
@@ -94,7 +93,6 @@ public final class EntityDeathListener implements Listener {
     }
 
     Player killer = event.getEntity().getKiller();
-    double bonusExpMult = 1D;
     double bonusDropMult = 1D;
     double bonusRarityMult = 1D;
     double penaltyMult = 1D;
@@ -115,11 +113,10 @@ public final class EntityDeathListener implements Listener {
     double distance = event.getEntity().getLocation().distanceSquared(event.getEntity()
         .getWorld().getSpawnLocation());
 
-    AttributedEntity pStats = plugin.getStrifePlugin().getEntityStatCache()
+    AttributedEntity pStats = plugin.getStrifePlugin().getAttributedEntityManager()
         .getAttributedEntity(killer);
-    double dropMultBonus = plugin.getStrifePlugin().getMultiplierManager().getDropMult();
 
-    bonusDropMult += dropMultBonus + pStats.getAttribute(StrifeAttribute.ITEM_DISCOVERY) / 100;
+    bonusDropMult += pStats.getAttribute(StrifeAttribute.ITEM_DISCOVERY) / 100;
     bonusRarityMult += pStats.getAttribute(StrifeAttribute.ITEM_RARITY) / 100;
     if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
       bonusRarityMult += 0.5;
@@ -150,7 +147,7 @@ public final class EntityDeathListener implements Listener {
       exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap()
           .get(uniqueEntity).getExperience();
     }
-    event.setDroppedExp((int) (exp * bonusExpMult * penaltyMult));
+    event.setDroppedExp((int) (exp * penaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
@@ -159,6 +156,7 @@ public final class EntityDeathListener implements Listener {
     lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
     lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
+    lootEvent.setEntity(event.getEntity());
     if (uniqueEntity != null) {
       lootEvent.setUniqueEntity(uniqueEntity);
     }
@@ -170,18 +168,6 @@ public final class EntityDeathListener implements Listener {
     if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
       plugin.getAnticheatManager().removeTag(event.getEntity());
     }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onEntityDeathAutoOrb(EntityDeathEvent event) {
-    if (event.getEntity().getKiller() == null) {
-      return;
-    }
-    World w = event.getEntity().getWorld();
-    Entity e = w
-        .spawnEntity(event.getEntity().getKiller().getEyeLocation(), EntityType.EXPERIENCE_ORB);
-    ((ExperienceOrb) e).setExperience(event.getDroppedExp());
-    event.setDroppedExp(0);
   }
 
   private void handleAntiCheeseViolations(Player killer, Entity victim) {
@@ -209,12 +195,20 @@ public final class EntityDeathListener implements Listener {
   }
 
   private void dropJunkLoot(EntityDeathEvent event, CreatureMod mod) {
-    if (mod.getJunkMults().isEmpty()) {
+    if (mod.getJunkMaps().isEmpty()) {
       return;
     }
     event.getDrops().clear();
-    for (JunkItemData drop : mod.getJunkMults().keySet()) {
-      if (mod.getJunkMults().get(drop) >= random.nextDouble()) {
+    Map<JunkItemData, Double> dropMap;
+    dropMap = mod.getJunkMaps().get(event.getEntity().getWorld().getName());
+    if (dropMap == null) {
+      dropMap = mod.getJunkMaps().get(DEFAULT_WORLD_CONFIG);
+      if (dropMap == null) {
+        return;
+      }
+    }
+    for (JunkItemData drop : dropMap.keySet()) {
+      if (dropMap.get(drop) >= random.nextDouble()) {
         event.getDrops().add(drop.toItemStack());
       }
     }

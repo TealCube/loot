@@ -273,6 +273,30 @@ public final class LootPlugin extends FacePlugin {
     }
   }
 
+  public Map<EntityType, Double> fetchSpecialStatEntities() {
+    Map<EntityType, Double> entityChanceMap = new HashMap<>();
+    ConfigurationSection entities = configYAML.getConfigurationSection("special-stats.entities");
+    for (String key : entities.getKeys(false)) {
+      EntityType entityType;
+      try {
+        entityType = EntityType.valueOf(key);
+      } catch (Exception e) {
+        continue;
+      }
+      entityChanceMap.put(entityType, entities.getDouble(key, 0D));
+    }
+    return entityChanceMap;
+  }
+
+  public Map<String, Double> fetchSpecialStatWorlds() {
+    Map<String, Double> worldChanceMap = new HashMap<>();
+    ConfigurationSection entities = configYAML.getConfigurationSection("special-stats.worlds");
+    for (String key : entities.getKeys(false)) {
+      worldChanceMap.put(key, entities.getDouble(key, 0D));
+    }
+    return worldChanceMap;
+  }
+
   private void loadEnchantmentStones() {
     for (EnchantmentTome es : getEnchantmentStoneManager().getEnchantmentStones()) {
       getEnchantmentStoneManager().removeEnchantmentStone(es.getName());
@@ -358,9 +382,7 @@ public final class LootPlugin extends FacePlugin {
   }
 
   private void loadCreatureMods() {
-    for (CreatureMod cm : getCreatureModManager().getCreatureMods()) {
-      getCreatureModManager().removeCreatureMod(cm.getEntityType());
-    }
+    getCreatureModManager().getCreatureMods().clear();
     Set<CreatureMod> mods = new HashSet<>();
     List<String> loadedMods = new ArrayList<>();
     for (String key : creaturesYAML.getKeys(false)) {
@@ -430,22 +452,37 @@ public final class LootPlugin extends FacePlugin {
           }
           builder.withEnchantmentStoneMults(map);
         } else if (fieldKey.equals("drops")) {
-          Map<JunkItemData, Double> map = new HashMap<>();
-          for (String k : cs.getConfigurationSection("drops").getKeys(false)) {
-            Material material;
-            try {
-              material = Material.valueOf(cs.getString("drops." + k + ".material"));
-            } catch (Exception e) {
-              getLogger().warning("Invalid material in creature junk drops!");
+          Map<String, Map<JunkItemData, Double>> map = new HashMap<>();
+          ConfigurationSection worldSection = cs.getConfigurationSection("drops");
+          if (worldSection == null) {
+            continue;
+          }
+          for (String worldKey : worldSection.getKeys(false)) {
+            ConfigurationSection dropSection = worldSection.getConfigurationSection(worldKey);
+            if (dropSection == null) {
+              map.put(worldKey, new HashMap<>());
               continue;
             }
-            int min = cs.getInt("drops." + k + ".min-amount");
-            int max = cs.getInt("drops." + k + ".max-amount");
-            double chance = cs.getDouble("drops." + k + ".chance");
-            JunkItemData jid = new JunkItemData(material, min, max);
-            map.put(jid, chance);
+            for (String dropKey : dropSection.getKeys(false)) {
+              String matStr = dropSection.getString(dropKey + ".material");
+              Material material;
+              try {
+                material = Material.valueOf(matStr);
+              } catch (Exception e) {
+                getLogger().warning("Invalid material " + matStr + " in " + key + " junk drops!");
+                continue;
+              }
+              int min = dropSection.getInt(dropKey + ".min-amount");
+              int max = dropSection.getInt(dropKey + ".max-amount");
+              double chance = dropSection.getDouble(dropKey + ".chance");
+
+              JunkItemData jid = new JunkItemData(material, min, max);
+
+              map.putIfAbsent(worldKey, new HashMap<>());
+              map.get(worldKey).put(jid, chance);
+            }
           }
-          builder.withJunkMults(map);
+          builder.withJunkMap(map);
         }
       }
       CreatureMod mod = builder.build();
@@ -667,7 +704,9 @@ public final class LootPlugin extends FacePlugin {
       stat.setPerRarityIncrease(cs.getDouble("per-rarity-increase"));
       stat.setPerRarityMultiplier(cs.getDouble("per-rarity-multiplier"));
       stat.setStatString(cs.getString("stat-string"));
-      stat.setPerfectStatString(cs.getString("perfect-stat-string"));
+      stat.setStatPrefix(cs.getString("stat-prefix"));
+      stat.setPerfectStatPrefix(cs.getString("perfect-stat-prefix", stat.getStatPrefix()));
+      stat.setSpecialStatPrefix(cs.getString("special-stat-prefix", stat.getStatPrefix()));
       getStatManager().addStat(key, stat);
     }
     debug("Loaded stats: " + getStatManager().getLoadedStats().keySet().toString());
@@ -688,16 +727,25 @@ public final class LootPlugin extends FacePlugin {
       builder.withName(cs.getString("tier-name"));
       builder.withLevelRequirement(cs.getBoolean("level-req"));
       builder.withPrimaryStat(getStatManager().getLoadedStats().get(cs.getString("primary-stat")));
+
       List<ItemStat> secondaryStats = new ArrayList<>();
       for (String statName : cs.getStringList("secondary-stats")) {
         secondaryStats.add(getStatManager().getStat(statName));
       }
       builder.withSecondaryStats(secondaryStats);
+
       List<ItemStat> bonusStats = new ArrayList<>();
       for (String statName : cs.getStringList("bonus-stats")) {
         bonusStats.add(getStatManager().getStat(statName));
       }
       builder.withBonusStats(bonusStats);
+
+      List<ItemStat> specialStats = new ArrayList<>();
+      for (String statName : cs.getStringList("special-stats")) {
+        specialStats.add(getStatManager().getStat(statName));
+      }
+      builder.withSpecialStats(specialStats);
+
       builder.withSpawnWeight(cs.getDouble("spawn-weight"));
       builder.withIdentifyWeight(cs.getDouble("identify-weight"));
       List<String> sl = cs.getStringList("item-groups");

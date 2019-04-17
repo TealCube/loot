@@ -22,7 +22,6 @@
  */
 package info.faceland.loot.api.managers;
 
-import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public interface StatManager {
 
     Map<String, ItemStat> getLoadedStats();
 
-    String getFinalStat(String statName, double level, ItemRarity rarity);
-
     String getFinalStat(ItemStat itemStat, double level, double rarity);
+
+    String getFinalStat(ItemStat itemStat, double level, double rarity, boolean special);
 }
