@@ -6,8 +6,10 @@ SHIELD-ARMOR:
   per-level-multipler: 0.1
   per-rarity-increase: 1
   per-rarity-multipler: 0.1
-  stat-string: "&a+{} Armor"
-  perfect-stat-string: "&e+{} Armor"
+  stat-string: "+{} Armor"
+  stat-prefix: "&a"
+  perfect-stat-prefix: "&c"
+  special-stat-prefix: "&b"
 SHIELD-HEALTH:
   min-base-value: 6
   max-base-value: 10
@@ -15,5 +17,7 @@ SHIELD-HEALTH:
   per-level-multipler: 0.1
   per-rarity-increase: 1
   per-rarity-multipler: 0.1
-  stat-string: "&a+{} Health"
-  perfect-stat-string: "&e+{} Health"
+  stat-string: "+{} Health"
+  stat-prefix: "&a"
+  perfect-stat-prefix: "&c"
+  special-stat-prefix: "&b"
