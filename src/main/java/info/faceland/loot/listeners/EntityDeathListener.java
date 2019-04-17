@@ -124,8 +124,11 @@ public final class EntityDeathListener implements Listener {
     }
 
     int mobLevel = levelFromString(event.getEntity().getCustomName());
-    double expPenaltyMult = Math
-        .max(0.1D, Math.min(1D, 1 - ((mobLevel + 15 - killer.getLevel()) * 0.05)));
+    int levelDiff = Math.abs(mobLevel - killer.getLevel());
+    double expPenaltyMult = 1;
+    if (levelDiff > 10) {
+      expPenaltyMult = Math.max(0.1D, 1 - ((levelDiff-10) * 0.05));
+    }
 
     double exp = 0;
     if (uniqueEntity != null) {
