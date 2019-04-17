@@ -18,6 +18,7 @@
  */
 package info.faceland.loot.listeners;
 
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 
@@ -245,6 +246,9 @@ public final class EntityDeathListener implements Listener {
   }
 
   private int levelFromString(String string) {
+    if (StringUtils.isBlank(string)) {
+      return 1;
+    }
     return NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(string)));
   }
 
