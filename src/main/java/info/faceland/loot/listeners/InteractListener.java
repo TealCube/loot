@@ -684,7 +684,6 @@ public final class InteractListener implements Listener {
               .insert(Math.min(str.length() - 3, barIndex + addAmount), ChatColor.BLACK + "")
               .toString();
           lore.set(index, str);
-          break;
         }
         index++;
       }
