@@ -26,10 +26,11 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.text.WordUtils;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.groups.ItemGroup;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -121,10 +122,10 @@ public final class LootEnchantmentTome implements EnchantmentTome {
     }
 
     @Override
-    public HiltItemStack toItemStack(int amount) {
-        HiltItemStack is = new HiltItemStack(Material.BOOK);
+    public ItemStack toItemStack(int amount) {
+        ItemStack is = new ItemStack(Material.BOOK);
         is.setAmount(amount);
-        is.setName(ChatColor.BLUE + "Enchantment Tome - " + getName());
+        ItemStackExtensionsKt.setDisplayName(is, ChatColor.BLUE + "Enchantment Tome - " + getName());
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.WHITE + "Type: " + (itemGroups.isEmpty() ? "Any" : itemGroupsToString()));
         lore.addAll(Arrays.asList(ChatColor.GRAY + "Place this tome on an item that is",
@@ -134,7 +135,7 @@ public final class LootEnchantmentTome implements EnchantmentTome {
         if (description != null && !description.isEmpty()) {
             lore.add(description);
         }
-        is.setLore(TextUtils.color(lore));
+        ItemStackExtensionsKt.setLore(is, TextUtils.color(lore));
         return is;
     }
 
@@ -145,7 +146,6 @@ public final class LootEnchantmentTome implements EnchantmentTome {
         }
         return WordUtils.capitalizeFully(sb.toString().trim());
     }
-
 
     @Override
     public boolean isBroadcast() {

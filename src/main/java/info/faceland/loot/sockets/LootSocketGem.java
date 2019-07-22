@@ -27,9 +27,10 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.text.WordUtils;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -124,9 +125,9 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
-    public HiltItemStack toItemStack(int amount) {
-        HiltItemStack itemStack = new HiltItemStack(Material.EMERALD);
-        itemStack.setName(ChatColor.GOLD + "Socket Gem - " + getName());
+    public ItemStack toItemStack(int amount) {
+        ItemStack itemStack = new ItemStack(Material.EMERALD);
+        ItemStackExtensionsKt.setDisplayName(itemStack, ChatColor.GOLD + "Socket Gem - " + getName());
         itemStack.setAmount(amount);
         List<String> lore = new ArrayList<>();
         Collections.addAll(lore, ChatColor.WHITE + "Type: " + (!itemGroups.isEmpty() ? itemGroupsToString() : "Any"),
@@ -134,7 +135,7 @@ public final class LootSocketGem implements SocketGem {
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY + "to upgrade it!",
                            ChatColor.WHITE + "Bonuses Applied:");
         lore.addAll(getLore());
-        itemStack.setLore(TextUtils.color(lore));
+        ItemStackExtensionsKt.setLore(itemStack, TextUtils.color(lore));
         return itemStack;
     }
 

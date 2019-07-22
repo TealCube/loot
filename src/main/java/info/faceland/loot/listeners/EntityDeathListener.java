@@ -29,10 +29,11 @@ import info.faceland.loot.data.ViolationData;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.math.LootRandom;
 
-import info.faceland.strife.attributes.StrifeAttribute;
-import info.faceland.strife.data.AttributedEntity;
 import java.util.HashMap;
 import java.util.Map;
+
+import info.faceland.strife.data.StrifeMob;
+import info.faceland.strife.stats.StrifeStat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -114,11 +115,11 @@ public final class EntityDeathListener implements Listener {
     double distance = event.getEntity().getLocation().distanceSquared(event.getEntity()
         .getWorld().getSpawnLocation());
 
-    AttributedEntity pStats = plugin.getStrifePlugin().getAttributedEntityManager()
-        .getAttributedEntity(killer);
+    StrifeMob pStats = plugin.getStrifePlugin().getStrifeMobManager()
+        .getStatMob(killer);
 
-    bonusDropMult += pStats.getAttribute(StrifeAttribute.ITEM_DISCOVERY) / 100;
-    bonusRarityMult += pStats.getAttribute(StrifeAttribute.ITEM_RARITY) / 100;
+    bonusDropMult += pStats.getStat(StrifeStat.ITEM_DISCOVERY) / 100;
+    bonusRarityMult += pStats.getStat(StrifeStat.ITEM_RARITY) / 100;
     if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
       bonusRarityMult += 0.5;
     }
@@ -225,9 +226,7 @@ public final class EntityDeathListener implements Listener {
   private boolean isWaterMob(Entity entity) {
     switch (entity.getType()) {
       case GUARDIAN:
-        return true;
       case ELDER_GUARDIAN:
-        return true;
       case SQUID:
         return true;
       default:
@@ -242,7 +241,7 @@ public final class EntityDeathListener implements Listener {
     if (StringUtils.isBlank(string)) {
       return 1;
     }
-    return NumberUtils.toInt(CharMatcher.DIGIT.retainFrom(ChatColor.stripColor(string)));
+    return NumberUtils.toInt(CharMatcher.digit().retainFrom(ChatColor.stripColor(string)));
   }
 
   private boolean isUnique(LivingEntity livingEntity) {

@@ -1,7 +1,10 @@
 name: Loot
 version: ${project.version}
 main: info.faceland.loot.LootPlugin
-depend: [Facecore]
+depend:
+  - Facecore
+softdepend:
+  - Strife
 
 commands:
   loot:

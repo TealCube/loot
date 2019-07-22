@@ -23,9 +23,11 @@
 package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.sockets.SocketGem;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface SocketGemManager {
 
@@ -65,4 +67,5 @@ public interface SocketGemManager {
 
     double getTotalBonusWeight();
 
+    Set<SocketGem> getGems(ItemStack itemStack);
 }

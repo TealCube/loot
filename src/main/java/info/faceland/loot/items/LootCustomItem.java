@@ -23,11 +23,11 @@
 package info.faceland.loot.items;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.api.items.CustomItem;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,15 +75,15 @@ public final class LootCustomItem implements CustomItem {
     }
 
     @Override
-    public HiltItemStack toItemStack(int amount) {
-        HiltItemStack itemStack = new HiltItemStack(this.material);
+    public ItemStack toItemStack(int amount) {
+        ItemStack itemStack = new ItemStack(this.material);
         if (itemStack.getType() == Material.AIR) {
             return itemStack;
         }
         itemStack.setAmount(amount);
-        itemStack.setName(TextUtils.color(this.displayName));
-        itemStack.setLore(TextUtils.color(this.lore));
-        itemStack.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ATTRIBUTES));
+        ItemStackExtensionsKt.setDisplayName(itemStack, TextUtils.color(this.displayName));
+        ItemStackExtensionsKt.setLore(itemStack, TextUtils.color(this.lore));
+        ItemStackExtensionsKt.addItemFlags(itemStack, ItemFlag.HIDE_ATTRIBUTES);
         return itemStack;
     }
 

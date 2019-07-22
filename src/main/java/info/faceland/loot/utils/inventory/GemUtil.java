@@ -3,7 +3,7 @@ package info.faceland.loot.utils.inventory;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -24,8 +24,8 @@ public final class GemUtil {
             return new HashSet<>();
         }
         Set<SocketGem> gems = new HashSet<>();
-        HiltItemStack item = new HiltItemStack(itemStack);
-        List<String> lore = item.getLore();
+        ItemStack item = new ItemStack(itemStack);
+        List<String> lore = ItemStackExtensionsKt.getLore(item);
         List<String> strippedLore = new ArrayList<>();
         for (String s : lore) {
             strippedLore.add(ChatColor.stripColor(s));

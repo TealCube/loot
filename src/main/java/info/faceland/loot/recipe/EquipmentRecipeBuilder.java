@@ -2,16 +2,18 @@ package info.faceland.loot.recipe;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class EquipmentRecipeBuilder {
 
@@ -35,10 +37,10 @@ public class EquipmentRecipeBuilder {
   }
 
   private void setupEssenceRecipe(Material material, int index) {
-    HiltItemStack itemStack = new HiltItemStack(material);
+    ItemStack itemStack = new ItemStack(material);
 
-    itemStack.setName(INFUSE_NAME);
-    itemStack.setLore(INFUSE_LORE);
+    ItemStackExtensionsKt.setDisplayName(itemStack, INFUSE_NAME);
+    ItemStackExtensionsKt.setLore(itemStack, INFUSE_LORE);
     ItemMeta meta = itemStack.getItemMeta();
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
     itemStack.setItemMeta(meta);
@@ -83,13 +85,13 @@ public class EquipmentRecipeBuilder {
         Material.DIAMOND_AXE,
         Material.DIAMOND_HOE,
 
-        Material.GOLD_HELMET,
-        Material.GOLD_CHESTPLATE,
-        Material.GOLD_LEGGINGS,
-        Material.GOLD_BOOTS,
-        Material.GOLD_SWORD,
-        Material.GOLD_AXE,
-        Material.GOLD_HOE,
+        Material.GOLDEN_HELMET,
+        Material.GOLDEN_CHESTPLATE,
+        Material.GOLDEN_LEGGINGS,
+        Material.GOLDEN_BOOTS,
+        Material.GOLDEN_SWORD,
+        Material.GOLDEN_AXE,
+        Material.GOLDEN_HOE,
 
         Material.LEATHER_HELMET,
         Material.LEATHER_CHESTPLATE,
@@ -105,9 +107,9 @@ public class EquipmentRecipeBuilder {
         Material.STONE_AXE,
         Material.STONE_HOE,
 
-        Material.WOOD_SWORD,
-        Material.WOOD_AXE,
-        Material.WOOD_HOE,
+        Material.WOODEN_SWORD,
+        Material.WOODEN_AXE,
+        Material.WOODEN_HOE,
 
         Material.BOW,
         Material.ARROW,

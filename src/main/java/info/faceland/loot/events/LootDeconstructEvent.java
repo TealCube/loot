@@ -1,9 +1,9 @@
 package info.faceland.loot.events;
 
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 
 public class LootDeconstructEvent extends Event {
 
@@ -14,8 +14,8 @@ public class LootDeconstructEvent extends Event {
   }
 
   private DeconstructType deconstructType;
-  private HiltItemStack cursorItem;
-  private HiltItemStack targetItem;
+  private ItemStack cursorItem;
+  private ItemStack targetItem;
   private Player player;
   private boolean cancelled;
 
@@ -33,19 +33,19 @@ public class LootDeconstructEvent extends Event {
     this.deconstructType = deconstructType;
   }
 
-  public HiltItemStack getCursorItem() {
+  public ItemStack getCursorItem() {
     return cursorItem;
   }
 
-  public void setCursorItem(HiltItemStack cursorItem) {
+  public void setCursorItem(ItemStack cursorItem) {
     this.cursorItem = cursorItem;
   }
 
-  public HiltItemStack getTargetItem() {
+  public ItemStack getTargetItem() {
     return targetItem;
   }
 
-  public void setTargetItem(HiltItemStack targetItem) {
+  public void setTargetItem(ItemStack targetItem) {
     this.targetItem = targetItem;
   }
 

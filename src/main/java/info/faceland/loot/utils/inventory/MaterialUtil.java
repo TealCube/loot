@@ -21,14 +21,16 @@ package info.faceland.loot.utils.inventory;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class MaterialUtil {
 
@@ -38,8 +40,8 @@ public final class MaterialUtil {
   private static final double BASE_ESSENCE_MULT = 0.65;
   private static final Random random = new Random();
 
-  public static HiltItemStack buildMaterial(Material m, String name, int level, int quality) {
-    HiltItemStack his = new HiltItemStack(m);
+  public static ItemStack buildMaterial(Material m, String name, int level, int quality) {
+    ItemStack his = new ItemStack(m);
 
     ChatColor color;
     String prefix;
@@ -64,18 +66,18 @@ public final class MaterialUtil {
         prefix = "Old";
         color = ChatColor.WHITE;
     }
-    his.setName(color + prefix + " " + name);
+    ItemStackExtensionsKt.setDisplayName(his, color + prefix + " " + name);
     List<String> lore = new ArrayList<>();
     lore.add(ChatColor.WHITE + "Item Level: " + Math.min(100, Math.max(1, 3 * (level / 3))));
     lore.add(ChatColor.WHITE + "Quality: " + color + IntStream.range(0, quality).mapToObj(i -> "✪")
         .collect(Collectors.joining("")));
     lore.add(ChatColor.YELLOW + "[ Crafting Component ]");
-    his.setLore(lore);
+    ItemStackExtensionsKt.setLore(his, lore);
 
     return his;
   }
 
-  public static HiltItemStack buildEssence(String type, double itemLevel, double craftLevel,
+  public static ItemStack buildEssence(String type, double itemLevel, double craftLevel,
       int toolQuality, List<String> possibleStats, boolean lucky) {
     int essLevel = 1 + (int)(itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);
 
@@ -92,10 +94,10 @@ public final class MaterialUtil {
     String newStatString = statString.replace(String.valueOf(statVal),
         String.valueOf((int)Math.max(1, statVal * essMult)));
 
-    HiltItemStack shard = new HiltItemStack(Material.PRISMARINE_SHARD);
-    shard.setName(ChatColor.YELLOW + "Item Essence");
+    ItemStack shard = new ItemStack(Material.PRISMARINE_SHARD);
+    ItemStackExtensionsKt.setDisplayName(shard, ChatColor.YELLOW + "Item Essence");
 
-    List<String> esslore = shard.getLore();
+    List<String> esslore = ItemStackExtensionsKt.getLore(shard);
     esslore.add(TextUtils.color("&fItem Level Requirement: " + essLevel));
     esslore.add(TextUtils.color("&fItem Type: " + type));
     esslore.add(TextUtils.color("&e" + newStatString));
@@ -103,41 +105,41 @@ public final class MaterialUtil {
     esslore.add(TextUtils.color("&7&ounfinished item to have a"));
     esslore.add(TextUtils.color("&7&ochance of applying this stat!"));
     esslore.add(TextUtils.color("&e[ Crafting Component ]"));
-    shard.setLore(esslore);
+    ItemStackExtensionsKt.setLore(shard, esslore);
 
     return shard;
   }
 
-  public static int getItemLevel(HiltItemStack stack) {
+  public static int getItemLevel(ItemStack stack) {
     if (stack.getItemMeta() == null) {
       return -1;
     }
-    if (stack.getLore().get(0) == null) {
+    if (ItemStackExtensionsKt.getLore(stack).get(0) == null) {
       return -1;
     }
-    String lvlReqString = ChatColor.stripColor(stack.getLore().get(0));
+    String lvlReqString = ChatColor.stripColor(ItemStackExtensionsKt.getLore(stack).get(0));
     if (!lvlReqString.startsWith("Level Requirement:")) {
       return -1;
     }
-    return getDigit(stack.getLore().get(0));
+    return getDigit(ItemStackExtensionsKt.getLore(stack).get(0));
   }
 
-  public static int getToolLevel(HiltItemStack stack) {
+  public static int getToolLevel(ItemStack stack) {
     if (stack.getItemMeta() == null) {
       return -1;
     }
-    if (stack.getLore().get(0) == null) {
+    if (ItemStackExtensionsKt.getLore(stack).get(0) == null) {
       return -1;
     }
-    String lvlReqString = ChatColor.stripColor(stack.getLore().get(0));
+    String lvlReqString = ChatColor.stripColor(ItemStackExtensionsKt.getLore(stack).get(0));
     if (!lvlReqString.startsWith("Craft Skill Requirement:")) {
       return -1;
     }
-    return getDigit(stack.getLore().get(0));
+    return getDigit(ItemStackExtensionsKt.getLore(stack).get(0));
   }
 
   public static int getDigit(String string) {
-    String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate()
+    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate()
         .collapseFrom(ChatColor.stripColor(string), ' ').trim();
     return NumberUtils.toInt(lev.split(" ")[0], 0);
   }

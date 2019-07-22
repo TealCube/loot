@@ -22,9 +22,14 @@
  */
 package info.faceland.loot.managers;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -202,5 +207,39 @@ public final class LootSocketGemManager implements SocketGemManager {
         }
         return totalWeight;
     }
+
+    @Override
+    public Set<SocketGem> getGems(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType() == Material.AIR) {
+            return new HashSet<>();
+        }
+        Set<SocketGem> gems = new HashSet<>();
+        List<String> lore = ItemStackExtensionsKt.getLore(itemStack);
+        List<String> strippedLore = new ArrayList<>();
+        for (String s : lore) {
+            strippedLore.add(ChatColor.stripColor(s));
+        }
+        for (String key : strippedLore) {
+            SocketGem gem = getSocketGem(key);
+            if (gem == null) {
+                for (SocketGem g : getSocketGems()) {
+                    if (!g.isTriggerable()) {
+                        continue;
+                    }
+                    if (key.equals(ChatColor.stripColor(TextUtils.color(
+                            g.getTriggerText() != null ? g.getTriggerText() : "")))) {
+                        gem = g;
+                        break;
+                    }
+                }
+                if (gem == null) {
+                    continue;
+                }
+            }
+            gems.add(gem);
+        }
+        return gems;
+    }
+
 
 }

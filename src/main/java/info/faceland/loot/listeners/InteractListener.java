@@ -18,18 +18,10 @@
  */
 package info.faceland.loot.listeners;
 
-import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
-import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
-import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
-import static info.faceland.loot.utils.inventory.InventoryUtil.getLastColor;
-import static org.bukkit.ChatColor.stripColor;
-
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
-
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
@@ -41,14 +33,12 @@ import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.items.prefabs.UpgradeScroll;
 import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
-
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.strife.data.champion.LifeSkillType;
 import info.faceland.strife.util.PlayerDataUtil;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -65,17 +55,17 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.EnchantingInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.bukkit.inventory.PlayerInventory;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
+import static info.faceland.loot.utils.inventory.InventoryUtil.*;
+import static org.bukkit.ChatColor.stripColor;
 
 public final class InteractListener implements Listener {
 
@@ -94,17 +84,18 @@ public final class InteractListener implements Listener {
     if (!plugin.getSettings().getBoolean("config.show-item-nameplates", true)) {
       return;
     }
-    HiltItemStack itemStack = new HiltItemStack(event.getEntity().getItemStack());
-    if (itemStack.getName().equals(itemStack.getDefaultName())) {
+    ItemStack itemStack = new ItemStack(event.getEntity().getItemStack());
+    String name = ItemStackExtensionsKt.getDisplayName(itemStack);
+    if (StringUtils.isBlank(name)) {
       return;
     }
-    if (itemStack.getName().equals(ChatColor.GOLD + "REWARD!")) {
+    if (name.equals(ChatColor.GOLD + "REWARD!")) {
       return;
     }
-    if (itemStack.getName().startsWith("***{")) {
+    if (name.startsWith("***{")) {
       return;
     }
-    event.getEntity().setCustomName(itemStack.getName());
+    event.getEntity().setCustomName(name);
     event.getEntity().setCustomNameVisible(true);
   }
 
@@ -154,33 +145,35 @@ public final class InteractListener implements Listener {
         !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
       return;
     }
-    if (!(event.getClickedInventory() instanceof PlayerInventory)) {
+    if (!(event.getInventory() instanceof PlayerInventory)) {
       return;
     }
     Player player = (Player) event.getWhoClicked();
-    HiltItemStack currentItem = new HiltItemStack(event.getCurrentItem());
-    HiltItemStack cursor = new HiltItemStack(event.getCursor());
+    ItemStack targetItem = new ItemStack(event.getCurrentItem());
+    ItemStack cursor = new ItemStack(event.getCursor());
+    String targetItemName = ItemStackExtensionsKt.getDisplayName(targetItem);
+    String cursorName = ItemStackExtensionsKt.getDisplayName(cursor);
 
-    if (cursor.getName() == null) {
+    if (StringUtils.isBlank(targetItemName) || StringUtils.isBlank(cursorName)) {
       return;
     }
 
-    if (cursor.getName().startsWith(ChatColor.GOLD + "Socket Gem - ")) {
-      String gemName = stripColor(cursor.getName().replace(ChatColor.GOLD + "Socket Gem - ", ""));
+    if (cursorName.startsWith(ChatColor.GOLD + "Socket Gem - ")) {
+      String gemName = stripColor(cursorName.replace(ChatColor.GOLD + "Socket Gem - ", ""));
       SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemName);
 
       if (gem == null) {
         return;
       }
 
-      if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
+      if (!plugin.getItemGroupManager().getMatchingItemGroups(targetItem.getType()).containsAll(
           gem.getItemGroups())) {
         sendMessage(player, plugin.getSettings().getString("language.socket.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
 
-      List<String> lore = currentItem.getLore();
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       List<String> strippedLore = InventoryUtil.stripColor(lore);
       if (!strippedLore.contains("(Socket)")) {
         sendMessage(player,
@@ -193,22 +186,21 @@ public final class InteractListener implements Listener {
       lore.remove(index);
       lore.addAll(index, TextUtils.color(gem.getLore()));
 
-      currentItem.setLore(lore);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
 
       // strip color, check against that
       // k
-      String name = currentItem.getName();
-      ChatColor firstColor = getFirstColor(name);
-      ChatColor lastColor = getLastColor(name);
-      name = stripColor(name);
-      int level = getLevel(name);
-      name = name.replace("+" + level + " ", "");
+      ChatColor firstColor = getFirstColor(targetItemName);
+      ChatColor lastColor = getLastColor(targetItemName);
+      targetItemName = stripColor(targetItemName);
+      int level = getLevel(targetItemName);
+      targetItemName = targetItemName.replace("+" + level + " ", "");
       String prefix = "";
       String suffix = "";
       if (!gem.getPrefix().isEmpty()) {
-        if (!name.contains(gem.getPrefix())) {
-          if (stripColor(name).startsWith("The ")) {
-            name = name.replace("The ", "");
+        if (!targetItemName.contains(gem.getPrefix())) {
+          if (stripColor(targetItemName).startsWith("The ")) {
+            targetItemName = targetItemName.replace("The ", "");
             prefix = "The " + gem.getPrefix() + " ";
           } else {
             prefix = gem.getPrefix() + " ";
@@ -216,24 +208,24 @@ public final class InteractListener implements Listener {
         }
       }
       if (!gem.getSuffix().isEmpty()) {
-        if (!name.contains(gem.getSuffix())) {
+        if (!targetItemName.contains(gem.getSuffix())) {
           suffix = " " + gem.getSuffix();
         }
       }
-      name = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + name + suffix + lastColor;
-      currentItem.setName(TextUtils.color(name));
+      targetItemName = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + targetItemName + suffix + lastColor;
+      ItemStackExtensionsKt.setDisplayName(targetItem, targetItemName);
 
       sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 2.0F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().startsWith(ChatColor.BLUE + "Enchantment Tome - ") && plugin
+      updateItem(event, targetItem);
+    } else if (cursorName.startsWith(ChatColor.BLUE + "Enchantment Tome - ") && plugin
         .getSettings()
         .getBoolean("config.custom-enchanting", true)) {
       String stoneName = stripColor(
-          cursor.getName().replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
+          cursorName.replace(ChatColor.BLUE + "Enchantment Tome - ", ""));
       EnchantmentTome stone = plugin.getEnchantmentStoneManager().getEnchantmentStone(stoneName);
 
-      if (!isBlockWithinRadius(Material.ENCHANTMENT_TABLE, event.getWhoClicked().getLocation(),
+      if (!isBlockWithinRadius(Material.ENCHANTING_TABLE, event.getWhoClicked().getLocation(),
           5)) {
         sendMessage(player,
             plugin.getSettings().getString("language.enchant.no-enchantment-table", ""));
@@ -245,14 +237,14 @@ public final class InteractListener implements Listener {
         return;
       }
 
-      if (!plugin.getItemGroupManager().getMatchingItemGroups(currentItem.getType()).containsAll(
+      if (!plugin.getItemGroupManager().getMatchingItemGroups(targetItem.getType()).containsAll(
           stone.getItemGroups())) {
         sendMessage(player, plugin.getSettings().getString("language.enchant.failure", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 1F, 0.5F);
         return;
       }
 
-      List<String> lore = currentItem.getLore();
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       List<String> strippedLore = InventoryUtil.stripColor(lore);
       if (!strippedLore.contains("(Enchantable)")) {
         sendMessage(player,
@@ -264,7 +256,7 @@ public final class InteractListener implements Listener {
       int index = strippedLore.indexOf("(Enchantable)");
       lore.remove(index);
 
-      double enchantLevel = PlayerDataUtil.getEnchantSkill(player, true);
+      double enchantLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
 
       List<String> added = new ArrayList<>();
       if (!stone.getLore().isEmpty()) {
@@ -274,7 +266,7 @@ public final class InteractListener implements Listener {
       if (!StringUtils.isBlank(stone.getStat())) {
         double rarity = getBonusMultiplier(enchantLevel);
 
-        int itemLevel = MaterialUtil.getItemLevel(currentItem);
+        int itemLevel = MaterialUtil.getItemLevel(targetItem);
         double effectiveLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
 
         ItemStat stat = plugin.getStatManager().getStat(stone.getStat());
@@ -292,26 +284,26 @@ public final class InteractListener implements Listener {
 
       if (plugin.getSettings().getBoolean("config.enchantments-stack", true)) {
         for (Map.Entry<Enchantment, Integer> entry : stone.getEnchantments().entrySet()) {
-          if (currentItem.containsEnchantment(entry.getKey())) {
-            int previousLevel = currentItem.getEnchantmentLevel(entry.getKey());
+          if (targetItem.containsEnchantment(entry.getKey())) {
+            int previousLevel = targetItem.getEnchantmentLevel(entry.getKey());
             int newLevel = previousLevel + entry.getValue();
-            currentItem.removeEnchantment(entry.getKey());
-            currentItem.addUnsafeEnchantment(entry.getKey(), newLevel);
+            targetItem.removeEnchantment(entry.getKey());
+            targetItem.addUnsafeEnchantment(entry.getKey(), newLevel);
           } else {
-            currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+            targetItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
           }
         }
       } else {
         boolean fail = true;
         for (Map.Entry<Enchantment, Integer> entry : stone.getEnchantments().entrySet()) {
-          if (currentItem.containsEnchantment(entry.getKey())) {
-            if (currentItem.getEnchantmentLevel(entry.getKey()) < entry.getValue()) {
-              currentItem.removeEnchantment(entry.getKey());
-              currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+          if (targetItem.containsEnchantment(entry.getKey())) {
+            if (targetItem.getEnchantmentLevel(entry.getKey()) < entry.getValue()) {
+              targetItem.removeEnchantment(entry.getKey());
+              targetItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
               fail = false;
             }
           } else {
-            currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+            targetItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
             fail = false;
           }
         }
@@ -322,16 +314,16 @@ public final class InteractListener implements Listener {
         }
       }
 
-      currentItem.setLore(lore);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
 
       float weightDivisor = stone.getWeight() == 0 ? 2000 : (float) stone.getWeight();
       float exp = 3 + 2000 / weightDivisor;
-      plugin.getStrifePlugin().getEnchantExperienceManager().addExperience(player, exp, false);
+      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player, LifeSkillType.ENCHANTING, exp, false);
       sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Socket Extender")) {
-      List<String> lore = currentItem.getLore();
+      updateItem(event, targetItem);
+    } else if (cursorName.equals(ChatColor.DARK_AQUA + "Socket Extender")) {
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       List<String> stripColor = InventoryUtil.stripColor(lore);
       if (!stripColor.contains("(+)")) {
         sendMessage(player, plugin.getSettings().getString("language.extend.failure", ""));
@@ -340,56 +332,56 @@ public final class InteractListener implements Listener {
       }
       int index = stripColor.indexOf("(+)");
       lore.set(index, ChatColor.GOLD + "(Socket)");
-      currentItem.setLore(lore);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
 
       sendMessage(player, plugin.getSettings().getString("language.extend.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
-      if (!currentItem.getName().equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
+      updateItem(event, targetItem);
+    } else if (cursorName.equals(ChatColor.DARK_PURPLE + "Identity Tome")) {
+      if (!targetItemName.equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
         return;
       }
       int itemLevel = NumberUtils
-          .toInt(CharMatcher.DIGIT.retainFrom(stripColor(currentItem
+          .toInt(CharMatcher.digit().retainFrom(stripColor(targetItem
               .getItemMeta().getLore().get(0))));
       ItemRarity r;
       Tier t;
       if (itemLevel != 0) {
         r = plugin.getRarityManager().getRandomIdRarity();
         t = plugin.getTierManager().getRandomTier();
-        currentItem = plugin.getNewItemBuilder()
+        targetItem = plugin.getNewItemBuilder()
             .withRarity(r)
             .withTier(t)
             .withLevel(itemLevel)
             .build();
         if (r.isBroadcast()) {
-          broadcast(player, currentItem,
+          broadcast(player, targetItem,
               plugin.getSettings().getString("language.broadcast.ided-item"));
         }
       } else {
-        currentItem = plugin.getNewItemBuilder()
+        targetItem = plugin.getNewItemBuilder()
             .withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
             .build();
       }
       sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().equals(ChatColor.DARK_AQUA + "Faceguy's Tears")) {
-      if (isBannedMaterial(currentItem)) {
+      updateItem(event, targetItem);
+    } else if (cursorName.equals(ChatColor.DARK_AQUA + "Faceguy's Tears")) {
+      if (isBannedMaterial(targetItem)) {
         return;
       }
-      String name = currentItem.getName();
+      String name = targetItemName;
       if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>())
           .contains(stripColor(name))) {
         return;
       }
       boolean succeed = false;
-      List<String> strip = InventoryUtil.stripColor(currentItem.getLore());
-      List<String> lore = currentItem.getLore();
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
+      List<String> strip = InventoryUtil.stripColor(lore);
       int line = 0;
       for (String s : strip) {
         if (s.startsWith("+")) {
-          String loreLev = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(s);
+          String loreLev = CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(s);
           int loreLevel = NumberUtils.toInt(loreLev);
           lore.set(line, s.replace("+" + loreLevel, ChatColor.DARK_AQUA + "+" + (loreLevel + 1)));
           succeed = true;
@@ -400,22 +392,22 @@ public final class InteractListener implements Listener {
       if (!succeed) {
         return;
       }
-      currentItem.setLore(lore);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
       sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().startsWith(ChatColor.DARK_AQUA + "Scroll Augment - ")) {
-      String name = stripColor(currentItem.getName()).replace("Upgrade Scroll", "")
+      updateItem(event, targetItem);
+    } else if (cursorName.startsWith(ChatColor.DARK_AQUA + "Scroll Augment - ")) {
+      String name = stripColor(targetItemName).replace("Upgrade Scroll", "")
           .trim();
       ScrollType type = ScrollType.getByName(name);
       if (type == null) {
         return;
       }
-      if (currentItem.getAmount() > 1) {
+      if (targetItem.getAmount() > 1) {
         sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
         return;
       }
-      List<String> lore = currentItem.getLore();
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       for (String s : lore) {
         if (s.startsWith(ChatColor.DARK_AQUA + "Augment")) {
           sendMessage(player,
@@ -423,7 +415,7 @@ public final class InteractListener implements Listener {
           return;
         }
       }
-      if (cursor.getName().endsWith("Chance")) {
+      if (cursorName.endsWith("Chance")) {
         if (type == ScrollType.FLAWLESS) {
           sendMessage(player, plugin.getSettings().getString("language.augment.too-easy", ""));
           return;
@@ -435,7 +427,7 @@ public final class InteractListener implements Listener {
           sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
           return;
         }
-      } else if (cursor.getName().endsWith("Protect")) {
+      } else if (cursorName.endsWith("Protect")) {
         if (type.getChanceToFail() != 0) {
           lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Protect");
           lore.add(ChatColor.GRAY + "Failure will not destroy item");
@@ -443,14 +435,14 @@ public final class InteractListener implements Listener {
           sendMessage(player, plugin.getSettings().getString("language.augment.nonsense", ""));
           return;
         }
-      } else if (cursor.getName().endsWith("Bonus")) {
+      } else if (cursorName.endsWith("Bonus")) {
         lore.add(ChatColor.DARK_AQUA + "Augmented: " + ChatColor.WHITE + "Bonus");
         lore.add(ChatColor.GRAY + "50% chance of double upgrade");
       } else {
         return;
       }
-      currentItem.setLore(lore);
-      event.setCurrentItem(currentItem);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
+      event.setCurrentItem(targetItem);
       cursor.setAmount(cursor.getAmount() - 1);
       event.setCursor(cursor.getAmount() == 0 ? null : cursor);
       event.setCancelled(true);
@@ -459,17 +451,17 @@ public final class InteractListener implements Listener {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1L, 1.7F);
       sendMessage(player, plugin.getSettings().getString("language.augment.success", ""));
 
-    } else if (cursor.getName().equals(ChatColor.RED + "Shard Of Failure")) {
-      String name = stripColor(currentItem.getName()).replace("Upgrade Scroll", "").trim();
+    } else if (cursorName.equals(ChatColor.RED + "Shard Of Failure")) {
+      String name = stripColor(targetItemName).replace("Upgrade Scroll", "").trim();
       ScrollType type = ScrollType.getByName(name);
       if (type == null) {
         return;
       }
-      if (currentItem.getAmount() > 1) {
+      if (targetItem.getAmount() > 1) {
         sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
         return;
       }
-      List<String> lore = currentItem.getLore();
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       boolean hasFailureBonus = false;
       for (String s : lore) {
         if (s.startsWith(FAILURE_BONUS)) {
@@ -483,31 +475,31 @@ public final class InteractListener implements Listener {
       } else {
         lore.add(0, TextUtils.color(FAILURE_BONUS + " +1"));
       }
-      currentItem.setLore(lore);
-      event.setCurrentItem(currentItem);
+      ItemStackExtensionsKt.setLore(targetItem, lore);
+      event.setCurrentItem(targetItem);
       cursor.setAmount(cursor.getAmount() - 1);
       event.setCursor(cursor.getAmount() == 0 ? null : cursor);
       event.setCancelled(true);
       event.setResult(Event.Result.DENY);
       player.updateInventory();
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
-      plugin.getStrifePlugin().getEnchantExperienceManager().addExperience(player, 1, false);
-    } else if (cursor.getName().endsWith("Upgrade Scroll")) {
-      if (isBannedMaterial(currentItem)) {
+      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player, LifeSkillType.ENCHANTING, 1, false);
+    } else if (cursorName.endsWith("Upgrade Scroll")) {
+      if (isBannedMaterial(targetItem)) {
         return;
       }
-      String name = stripColor(cursor.getName()).replace("Upgrade Scroll", "").trim();
+      String name = stripColor(cursorName).replace("Upgrade Scroll", "").trim();
       UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
       if (type == null) {
         return;
       }
-      name = currentItem.getName();
+      name = targetItemName;
       if (plugin.getSettings().getStringList("config.cannot-be-upgraded", new ArrayList<String>())
           .contains(stripColor(name))) {
         return;
       }
-      if (currentItem.hasItemMeta() && currentItem.getItemMeta().hasLore()) {
-        for (String s : currentItem.getLore()) {
+      if (targetItem.hasItemMeta() && targetItem.getItemMeta().hasLore()) {
+        for (String s : ItemStackExtensionsKt.getLore(targetItem)) {
           if ("< Cannot be upgraded >".equals(stripColor(s))) {
             return;
           }
@@ -521,7 +513,7 @@ public final class InteractListener implements Listener {
         return;
       }
       boolean succeed = false;
-      List<String> strip = InventoryUtil.stripColor(currentItem.getLore());
+      List<String> strip = InventoryUtil.stripColor(ItemStackExtensionsKt.getLore(targetItem));
       for (String s : strip) {
         if (s.startsWith("+")) {
           succeed = true;
@@ -534,9 +526,9 @@ public final class InteractListener implements Listener {
       boolean augProtect = false;
       boolean augBonus = false;
       double augChance = 0;
-      double enchBonus = PlayerDataUtil.getEnchantLevel(player) * 0.001;
+      double enchBonus = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.ENCHANTING) * 0.001;
       double failureBonus = 1;
-      List<String> scrollLore = cursor.getLore();
+      List<String> scrollLore = ItemStackExtensionsKt.getLore(cursor);
       for (String s : scrollLore) {
         if (s.startsWith(FAILURE_BONUS)) {
           failureBonus = 200D / (200 + getLevel(ChatColor.stripColor(s)));
@@ -555,21 +547,21 @@ public final class InteractListener implements Listener {
       if (random.nextDouble() + augChance + enchBonus < type.getChanceToFail() * failureBonus) {
         double damagePercentage = random.nextDouble() * (0.25 + itemUpgradeLevel * 0.115);
         int damageAmount =
-            (int) Math.floor(damagePercentage * currentItem.getType().getMaxDurability()) - 1;
+            (int) Math.floor(damagePercentage * targetItem.getType().getMaxDurability()) - 1;
         damageAmount = Math.max(damageAmount, 1);
         if (augProtect) {
           sendMessage(player,
               plugin.getSettings().getString("language.augment.protected", ""));
           player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
-          updateItem(event, currentItem);
+          updateItem(event, targetItem);
           return;
         }
-        if (damageAmount + currentItem.getDurability() >= currentItem.getType()
+        if (damageAmount + targetItem.getDurability() >= targetItem.getType()
             .getMaxDurability()) {
           sendMessage(player,
               plugin.getSettings().getString("language.upgrade.destroyed", ""));
           player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
-          broadcast(player, currentItem,
+          broadcast(player, targetItem,
               plugin.getSettings().getString("language.broadcast.destroyed-item"));
           updateItem(event, null);
           if (itemUpgradeLevel > 6) {
@@ -580,9 +572,9 @@ public final class InteractListener implements Listener {
           }
           return;
         }
-        currentItem.setDurability((short) (currentItem.getDurability() + damageAmount));
+        targetItem.setDurability((short) (targetItem.getDurability() + damageAmount));
         sendMessage(player, plugin.getSettings().getString("language.upgrade.damaged", ""));
-        updateItem(event, currentItem);
+        updateItem(event, targetItem);
       } else {
         boolean firstTimeUpgrade = false;
         int attributeIncrease = 0;
@@ -601,73 +593,74 @@ public final class InteractListener implements Listener {
         } else {
           name = name.replace("+" + lev, "+" + String.valueOf(itemUpgradeLevel));
         }
-        currentItem.setName(name);
-        if (itemUpgradeLevel >= 10 && currentItem.getEnchantments().isEmpty()) {
-          currentItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+        ItemStackExtensionsKt.setDisplayName(targetItem, name);
+        if (itemUpgradeLevel >= 10 && targetItem.getEnchantments().isEmpty()) {
+          targetItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         }
-        currentItem.setItemFlags(Sets.newHashSet(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES,
-            ItemFlag.HIDE_UNBREAKABLE));
-        List<String> lore = currentItem.getLore();
+        ItemStackExtensionsKt.addItemFlags(targetItem, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
         for (int i = 0; i < lore.size(); i++) {
           String s = lore.get(i);
           String ss = stripColor(s);
           if (!ss.startsWith("+")) {
             continue;
           }
-          String attributeText = CharMatcher.DIGIT.or(CharMatcher.is('-')).retainFrom(ss);
+          String attributeText = CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(ss);
           int attributeValue = NumberUtils.toInt(attributeText);
           lore.set(i, s.replace("+" + attributeValue, "+" + (attributeValue + attributeIncrease)));
           break;
         }
-        currentItem.setLore(lore);
+        ItemStackExtensionsKt.setLore(targetItem, lore);
         double exp = 0.5f + (float) Math.pow(1.4, itemUpgradeLevel);
-        plugin.getStrifePlugin().getEnchantExperienceManager()
-            .addExperience(player, exp, false);
+        plugin.getStrifePlugin().getSkillExperienceManager()
+            .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
         sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
         player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
         if (itemUpgradeLevel >= 7) {
-          broadcast(player, currentItem,
+          broadcast(player, targetItem,
               plugin.getSettings().getString("language.broadcast.upgraded-item"));
         }
-        updateItem(event, currentItem);
+        updateItem(event, targetItem);
       }
-    } else if (cursor.getName().equals(ChatColor.WHITE + "Item Rename Tag")) {
-      if (cursor.getLore().get(3).equals(ChatColor.WHITE + "none")) {
+    } else if (cursorName.equals(ChatColor.WHITE + "Item Rename Tag")) {
+      if (ItemStackExtensionsKt.getLore(cursor).get(3).equals(ChatColor.WHITE + "none")) {
         sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
         return;
       }
-      if (isBannedMaterial(currentItem)) {
+      if (isBannedMaterial(targetItem)) {
         sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
         return;
       }
-      if (currentItem.hasItemMeta() && currentItem.getItemMeta().hasLore()) {
-        for (String s : currentItem.getLore()) {
+      if (targetItem.hasItemMeta() && targetItem.getItemMeta().hasLore()) {
+        for (String s : ItemStackExtensionsKt.getLore(targetItem)) {
           if ("[ Crafting Component ]".equals(stripColor(s))) {
             sendMessage(player, plugin.getSettings().getString("language.rename.invalid", ""));
             return;
           }
         }
       }
-      int level = stripColor(currentItem.getName()).startsWith("+") ? getLevel(
+      int level = stripColor(targetItemName).startsWith("+") ? getLevel(
           stripColor
-              (currentItem.getName())) : 0;
+              (targetItemName)) : 0;
       if (level > 0) {
-        currentItem.setName(getFirstColor(currentItem.getName()) + "+" + level + " "
-            + stripColor(cursor.getLore().get(3)));
+        ItemStackExtensionsKt.setDisplayName(
+        targetItem, getFirstColor(targetItemName) + "+" + level + " "
+            + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
       } else {
-        currentItem.setName(getFirstColor(currentItem.getName())
-            + stripColor(cursor.getLore().get(3)));
+        ItemStackExtensionsKt.setDisplayName(
+                targetItem,getFirstColor(targetItemName)
+            + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
       }
 
       sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 0.8F);
-      updateItem(event, currentItem);
-    } else if (cursor.getName().startsWith(ChatColor.DARK_PURPLE + "Magic Crystal")) {
-      List<String> lore = currentItem.getLore();
+      updateItem(event, targetItem);
+    } else if (cursorName.startsWith(ChatColor.DARK_PURPLE + "Magic Crystal")) {
+      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
       boolean valid = false;
       int index = 0;
       int addAmount = 0;
-      for (String str : currentItem.getLore()) {
+      for (String str : ItemStackExtensionsKt.getLore(targetItem)) {
         if (str.startsWith(ChatColor.BLUE + "[") && str.contains("" + ChatColor.BLACK)) {
           valid = true;
           int barIndex = str.indexOf("" + ChatColor.BLACK);
@@ -675,8 +668,8 @@ public final class InteractListener implements Listener {
             sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
             return;
           }
-          double enchantLevel = PlayerDataUtil.getEnchantLevel(player);
-          double itemLevel = MaterialUtil.getItemLevel(currentItem);
+          double enchantLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.ENCHANTING);
+          double itemLevel = MaterialUtil.getItemLevel(targetItem);
           addAmount =
               2 + (int) (random.nextDouble() * (2 + Math.max(0, (enchantLevel - itemLevel) * 0.2)));
           str = str.replace("" + ChatColor.BLACK, "");
@@ -688,18 +681,18 @@ public final class InteractListener implements Listener {
         index++;
       }
       if (valid) {
-        currentItem.setLore(lore);
-        plugin.getStrifePlugin().getEnchantExperienceManager()
-            .addExperience(player, 10f + addAmount, false);
+        ItemStackExtensionsKt.setLore(targetItem, lore);
+        plugin.getStrifePlugin().getSkillExperienceManager()
+            .addExperience(player, LifeSkillType.ENCHANTING, 10f + addAmount, false);
         sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
         player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
-        updateItem(event, currentItem);
+        updateItem(event, targetItem);
       }
     }
   }
 
-  private void updateItem(InventoryClickEvent e, HiltItemStack currentItem) {
+  private void updateItem(InventoryClickEvent e, ItemStack currentItem) {
     e.setCurrentItem(currentItem);
     e.getCursor().setAmount(e.getCursor().getAmount() - 1);
     if (e.getCursor().getAmount() <= 0) {
@@ -739,11 +732,11 @@ public final class InteractListener implements Listener {
   }
 
   private int getLevel(String name) {
-    String lev = CharMatcher.DIGIT.or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
+    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
     return NumberUtils.toInt(lev.split(" ")[0], 0);
   }
 
-  private boolean isBannedMaterial(HiltItemStack item) {
+  private boolean isBannedMaterial(ItemStack item) {
     return item.getType() == Material.BOOK || item.getType() == Material.EMERALD ||
         item.getType() == Material.PAPER || item.getType() == Material.NETHER_STAR ||
         item.getType() == Material.DIAMOND || item.getType() == Material.GHAST_TEAR ||

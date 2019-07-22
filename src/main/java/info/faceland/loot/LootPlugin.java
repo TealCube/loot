@@ -20,6 +20,7 @@ package info.faceland.loot;
 
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.ExpressionBuilder;
 import info.faceland.loot.api.creatures.CreatureMod;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
@@ -67,7 +68,6 @@ import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -83,6 +83,8 @@ import java.util.*;
 import java.util.logging.Level;
 
 public final class LootPlugin extends FacePlugin {
+
+  private static LootPlugin instance;
 
   private PluginLogger debugPrinter;
   private EquipmentRecipeBuilder recipeBuilder;
@@ -118,11 +120,16 @@ public final class LootPlugin extends FacePlugin {
   private LootCraftBaseManager lootCraftBaseManager;
   private LootCraftMatManager lootCraftMatManager;
   private UniqueDropsManager uniqueDropsManager;
-
   private StrifePlugin strifePlugin;
+
+  public static LootPlugin getInstance() {
+    return instance;
+  }
 
   @Override
   public void enable() {
+    instance = this;
+
     debugPrinter = new PluginLogger(this);
     recipeBuilder = new EquipmentRecipeBuilder(this);
     recipeBuilder.setupAllRecipes();
@@ -230,37 +237,7 @@ public final class LootPlugin extends FacePlugin {
   @Override
   public void disable() {
     HandlerList.unregisterAll(this);
-
     saveChests();
-
-    chestManager = null;
-    anticheatManager = null;
-    enchantmentStoneManager = null;
-    creatureModManager = null;
-    socketGemManager = null;
-    customItemManager = null;
-    nameManager = null;
-    tierManager = null;
-    statManager = null;
-    rarityManager = null;
-    itemGroupManager = null;
-    gemCacheManager = null;
-    lootCraftBaseManager = null;
-    lootCraftMatManager = null;
-    uniqueDropsManager = null;
-    settings = null;
-    identifyingYAML = null;
-    creaturesYAML = null;
-    configYAML = null;
-    languageYAML = null;
-    customItemsYAML = null;
-    corestatsYAML = null;
-    tierYAML = null;
-    itemsYAML = null;
-    statsYAML = null;
-    rarityYAML = null;
-    debugPrinter = null;
-    strifePlugin = null;
   }
 
   public void debug(String... messages) {

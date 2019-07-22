@@ -20,9 +20,10 @@ package info.faceland.loot.utils.inventory;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
-import io.pixeloutlaw.minecraft.spigot.hilt.HiltItemStack;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -36,7 +37,7 @@ public final class InventoryUtil {
     // meh
   }
 
-  public static void broadcast(Player player, HiltItemStack his, String format) {
+  public static void broadcast(Player player, ItemStack his, String format) {
     FancyMessage message = new FancyMessage("");
     String[] split = format.split(" ");
     for (int i = 0; i < split.length; i++) {
@@ -45,7 +46,7 @@ public final class InventoryUtil {
       if (str.contains("%player%")) {
         message.then(str.replace("%player%", player.getDisplayName()));
       } else if (str.contains("%item%")) {
-        message.then(str.replace("%item%", his.getName())).itemTooltip(his);
+        message.then(str.replace("%item%", ItemStackExtensionsKt.getDisplayName(his))).itemTooltip(his);
       } else {
         message.then(str);
       }
