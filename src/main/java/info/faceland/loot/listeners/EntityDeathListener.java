@@ -72,25 +72,30 @@ public final class EntityDeathListener implements Listener {
     if (event instanceof PlayerDeathEvent) {
       return;
     }
-    String uniqueEntity = fetchUniqueId(event.getEntity());
+    StrifeMob mob = plugin.getStrifePlugin().getStrifeMobManager().getStatMob(event.getEntity());
     CreatureMod creatureMod;
-    if (uniqueEntity == null) {
+    if (mob.getUniqueEntityId() == null) {
       if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
           .contains(event.getEntity().getWorld().getName())) {
         return;
       }
     }
+    if (mob.getUniqueEntityId() == null && mob.isDespawnOnUnload()) {
+      event.setDroppedExp(0);
+      event.getDrops().clear();
+      return;
+    }
     creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
     if (creatureMod != null) {
       dropJunkLoot(event, creatureMod);
     }
-    if (creatureMod == null && uniqueEntity == null) {
+    if (creatureMod == null && mob.getUniqueEntityId() == null) {
       return;
     }
     if (event.getEntity().getKiller() == null) {
       return;
     }
-    if (uniqueEntity == null && event.getEntity().hasMetadata("SPAWNED")) {
+    if (event.getEntity().hasMetadata("SPAWNED")) {
       return;
     }
 
@@ -128,16 +133,17 @@ public final class EntityDeathListener implements Listener {
     int levelDiff = Math.abs(mobLevel - killer.getLevel());
     double expPenaltyMult = 1;
     if (levelDiff > 10) {
-      expPenaltyMult = Math.max(0.1D, 1 - ((levelDiff-10) * 0.05));
+      expPenaltyMult = Math.max(0.1D, 1 - ((levelDiff - 10) * 0.05));
     }
 
     double exp = 0;
-    if (uniqueEntity != null) {
-      exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap()
-          .get(uniqueEntity).getExperience();
+    if (mob.getUniqueEntityId() != null) {
+      exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap().get(
+          mob.getUniqueEntityId()).getExperience();
     } else if (creatureMod.getExperienceExpression() != null) {
       exp = creatureMod.getExperienceExpression().setVariable("LEVEL", mobLevel).evaluate();
     }
+    exp *= 1 + mob.getStat(StrifeStat.XP_GAIN) / 100;
 
     event.setDroppedExp((int) (exp * penaltyMult * expPenaltyMult));
 
@@ -145,12 +151,14 @@ public final class EntityDeathListener implements Listener {
     lootEvent.setLocation(event.getEntity().getLocation());
     lootEvent.setLooterUUID(looter);
     lootEvent.setMonsterLevel(mobLevel);
-    lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
-    lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
+    lootEvent.setQualityMultiplier(
+        bonusRarityMult * penaltyMult * (1 + mob.getStat(StrifeStat.ITEM_RARITY) / 100));
+    lootEvent.setQuantityMultiplier(
+        bonusDropMult * penaltyMult * (1 + mob.getStat(StrifeStat.ITEM_DISCOVERY) / 100));
     lootEvent.setDistance(distance);
     lootEvent.setEntity(event.getEntity());
-    if (uniqueEntity != null) {
-      lootEvent.setUniqueEntity(uniqueEntity);
+    if (mob.getUniqueEntityId() != null) {
+      lootEvent.setUniqueEntity(mob.getUniqueEntityId());
     }
     Bukkit.getPluginManager().callEvent(lootEvent);
   }
@@ -242,23 +250,5 @@ public final class EntityDeathListener implements Listener {
       return 1;
     }
     return NumberUtils.toInt(CharMatcher.digit().retainFrom(ChatColor.stripColor(string)));
-  }
-
-  private boolean isUnique(LivingEntity livingEntity) {
-    if (plugin.getStrifePlugin() == null) {
-      return false;
-    }
-    return plugin.getStrifePlugin().getUniqueEntityManager().isUnique(livingEntity);
-  }
-
-  private String fetchUniqueId(LivingEntity livingEntity) {
-    if (plugin.getStrifePlugin() == null) {
-      return null;
-    }
-    if (!plugin.getStrifePlugin().getUniqueEntityManager().isUnique(livingEntity)) {
-      return null;
-    }
-    return plugin.getStrifePlugin().getUniqueEntityManager().getLiveUniquesMap().get(livingEntity)
-        .getUniqueEntity().getId();
   }
 }

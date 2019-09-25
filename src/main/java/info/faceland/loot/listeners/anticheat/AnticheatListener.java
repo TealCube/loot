@@ -58,9 +58,6 @@ public final class AnticheatListener implements Listener {
       if (plugin.getStrifePlugin() == null) {
         return;
       }
-      if (!plugin.getStrifePlugin().getUniqueEntityManager().isUnique(victim)) {
-        return;
-      }
     }
     LivingEntity attacker = null;
     if (event.getDamager() instanceof Player) {
