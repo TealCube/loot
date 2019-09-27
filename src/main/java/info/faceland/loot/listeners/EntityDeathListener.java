@@ -80,7 +80,11 @@ public final class EntityDeathListener implements Listener {
         return;
       }
     }
-    if (mob.getUniqueEntityId() == null && mob.isDespawnOnUnload()) {
+    if (mob.getMaster() != null) {
+      event.setDroppedExp(0);
+      event.getDrops().clear();
+    }
+    if (mob.isDespawnOnUnload() && mob.getUniqueEntityId() == null ) {
       event.setDroppedExp(0);
       event.getDrops().clear();
       return;
