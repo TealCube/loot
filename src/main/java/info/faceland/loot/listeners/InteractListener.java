@@ -38,6 +38,7 @@ import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import info.faceland.strife.data.champion.LifeSkillType;
 import info.faceland.strife.util.PlayerDataUtil;
+import info.faceland.strife.util.StatUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -137,17 +138,18 @@ public final class InteractListener implements Listener {
     gemCacheData.updateArmorCache();
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
-  public void onInventoryClick(InventoryClickEvent event) {
-    if (event.getCurrentItem() == null || event.getCursor() == null
-        || event.getCurrentItem().getType() == Material.AIR
-        || event.getCursor().getType() == Material.AIR ||
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onRightClickUse(InventoryClickEvent event) {
+    if (!(event.getClickedInventory() instanceof PlayerInventory)) {
+      return;
+    }
+    if (event.getCurrentItem() == null || event.getCursor() == null ||
+        event.getCurrentItem().getType() == Material.AIR ||
+        event.getCursor().getType() == Material.AIR ||
         !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
       return;
     }
-    if (!(event.getInventory() instanceof PlayerInventory)) {
-      return;
-    }
+
     Player player = (Player) event.getWhoClicked();
     ItemStack targetItem = new ItemStack(event.getCurrentItem());
     ItemStack cursor = new ItemStack(event.getCursor());
@@ -737,11 +739,21 @@ public final class InteractListener implements Listener {
   }
 
   private boolean isBannedMaterial(ItemStack item) {
-    return item.getType() == Material.BOOK || item.getType() == Material.EMERALD ||
-        item.getType() == Material.PAPER || item.getType() == Material.NETHER_STAR ||
-        item.getType() == Material.DIAMOND || item.getType() == Material.GHAST_TEAR ||
-        item.getType() == Material.ENCHANTED_BOOK || item.getType() == Material.NAME_TAG ||
-        item.getType() == Material.ARROW || item.getType() == Material.QUARTZ;
+    switch (item.getType()) {
+      case BOOK:
+      case EMERALD:
+      case PAPER:
+      case NETHER_STAR:
+      case DIAMOND:
+      case GHAST_TEAR:
+      case ENCHANTED_BOOK:
+      case NAME_TAG:
+      case ARROW:
+      case QUARTZ:
+        return true;
+      default:
+        return false;
+    }
   }
 
 }

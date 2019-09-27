@@ -15,41 +15,41 @@ import java.util.Set;
 
 public final class GemUtil {
 
-    private GemUtil() {
-        // do nothing
-    }
+  private GemUtil() {
+    // do nothing
+  }
 
-    public static Set<SocketGem> getGems(SocketGemManager manager, ItemStack itemStack) {
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return new HashSet<>();
-        }
-        Set<SocketGem> gems = new HashSet<>();
-        ItemStack item = new ItemStack(itemStack);
-        List<String> lore = ItemStackExtensionsKt.getLore(item);
-        List<String> strippedLore = new ArrayList<>();
-        for (String s : lore) {
-            strippedLore.add(ChatColor.stripColor(s));
-        }
-        for (String key : strippedLore) {
-            SocketGem gem = manager.getSocketGem(key);
-            if (gem == null) {
-                for (SocketGem g : manager.getSocketGems()) {
-                    if (!g.isTriggerable()) {
-                        continue;
-                    }
-                    if (key.equals(ChatColor.stripColor(TextUtils.color(
-                            g.getTriggerText() != null ? g.getTriggerText() : "")))) {
-                        gem = g;
-                        break;
-                    }
-                }
-                if (gem == null) {
-                    continue;
-                }
-            }
-            gems.add(gem);
-        }
-        return gems;
+  public static Set<SocketGem> getGems(SocketGemManager manager, ItemStack itemStack) {
+    if (itemStack == null || itemStack.getType() == Material.AIR) {
+      return new HashSet<>();
     }
+    Set<SocketGem> gems = new HashSet<>();
+    ItemStack item = new ItemStack(itemStack);
+    List<String> lore = ItemStackExtensionsKt.getLore(item);
+    List<String> strippedLore = new ArrayList<>();
+    for (String s : lore) {
+      strippedLore.add(ChatColor.stripColor(s));
+    }
+    for (String key : strippedLore) {
+      SocketGem gem = manager.getSocketGem(key);
+      if (gem == null) {
+        for (SocketGem g : manager.getSocketGems()) {
+          if (!g.isTriggerable()) {
+            continue;
+          }
+          if (key.equals(ChatColor.stripColor(TextUtils.color(
+              g.getTriggerText() != null ? g.getTriggerText() : "")))) {
+            gem = g;
+            break;
+          }
+        }
+        if (gem == null) {
+          continue;
+        }
+      }
+      gems.add(gem);
+    }
+    return gems;
+  }
 
 }
