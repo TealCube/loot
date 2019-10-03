@@ -94,6 +94,12 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     }
 
     @Override
+    public CustomItemBuilder withCustomData(int i) {
+        customItem.setCustomDataNumber(i);
+        return this;
+    }
+
+    @Override
     public CustomItemBuilder withBroadcast(boolean b) {
         customItem.setBroadcast(b);
         return this;

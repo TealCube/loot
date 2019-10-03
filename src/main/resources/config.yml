@@ -112,6 +112,11 @@ special-stats:
     end-world-name: 1.0
     meme-world-name: 0.1
 
+
+custom-model-data:
+  tier-start-value: 12000
+  tier-per-level: 10
+
 # Items that cannot be altered by upgrade scrolls
 cannot-be-upgraded:
 - Fuck

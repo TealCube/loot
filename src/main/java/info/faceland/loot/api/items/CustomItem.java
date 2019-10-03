@@ -46,6 +46,8 @@ public interface CustomItem {
 
     int getLevelRange();
 
+    int getCustomDataNumber();
+
     boolean isBroadcast();
 
     boolean canBeQuality();

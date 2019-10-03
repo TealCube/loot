@@ -54,19 +54,24 @@ public final class LootItemBuilder implements ItemBuilder {
   private int level;
   private Material material;
   private ItemGenerationReason itemGenerationReason = ItemGenerationReason.MONSTER;
-  private LootRandom random;
+  private LootRandom random = new LootRandom();
 
-  private final double specialStatChance;
+  private double specialStatChance;
+  private int levelDataStart;
+  private int levelDataInterval;
 
   public LootItemBuilder(LootPlugin plugin) {
-    this.tierManager = plugin.getTierManager();
-    this.statManager = plugin.getStatManager();
-    this.rarityManager = plugin.getRarityManager();
-    this.nameManager = plugin.getNameManager();
-    this.random = new LootRandom();
+    tierManager = plugin.getTierManager();
+    statManager = plugin.getStatManager();
+    rarityManager = plugin.getRarityManager();
+    nameManager = plugin.getNameManager();
 
-    this.specialStatChance = plugin.getSettings()
+    specialStatChance = plugin.getSettings()
         .getDouble("config.special-stats.pool-chance", 0.5D);
+    levelDataStart = plugin.getSettings()
+        .getInt("config.custom-model-data.tier-start-value", 9000);
+    levelDataInterval = plugin.getSettings()
+        .getInt("config.custom-model-data.tier-per-level", 10);
   }
 
   @Override
@@ -133,9 +138,13 @@ public final class LootItemBuilder implements ItemBuilder {
       lore.add("&3(+)");
     }
 
+    double modelLevel = Math.max(0, level - 1);
+    int customModel = levelDataStart + (int) Math.floor(modelLevel / levelDataInterval);
+
     ItemStackExtensionsKt.setLore(hiltItemStack, TextUtils.color(lore));
     ItemMeta itemMeta = hiltItemStack.getItemMeta();
     itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+    itemMeta.setCustomModelData(customModel);
     hiltItemStack.setItemMeta(itemMeta);
     return hiltItemStack;
   }
