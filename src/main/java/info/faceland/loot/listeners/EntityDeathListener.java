@@ -32,15 +32,14 @@ import info.faceland.loot.math.LootRandom;
 import java.util.HashMap;
 import java.util.Map;
 
-import info.faceland.strife.data.StrifeMob;
-import info.faceland.strife.stats.StrifeStat;
+import land.face.strife.data.StrifeMob;
+import land.face.strife.stats.StrifeStat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -83,6 +82,7 @@ public final class EntityDeathListener implements Listener {
     if (mob.getMaster() != null) {
       event.setDroppedExp(0);
       event.getDrops().clear();
+      return;
     }
     if (mob.isDespawnOnUnload() && mob.getUniqueEntityId() == null ) {
       event.setDroppedExp(0);

@@ -15,13 +15,13 @@ import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
-import info.faceland.strife.data.champion.LifeSkillType;
-import info.faceland.strife.util.PlayerDataUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import land.face.strife.data.champion.LifeSkillType;
+import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

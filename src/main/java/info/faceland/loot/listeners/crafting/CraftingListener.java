@@ -26,9 +26,9 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
-import info.faceland.strife.data.champion.LifeSkillType;
-import info.faceland.strife.util.PlayerDataUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import land.face.strife.data.champion.LifeSkillType;
+import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -158,7 +158,8 @@ public final class CraftingListener implements Listener {
         Tier tier = plugin.getTierManager().getTier(strTier);
 
         int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
-        double effectiveCraftLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
+        double effectiveCraftLevel = PlayerDataUtil
+            .getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
 
         int numMaterials = 0;
         double totalQuality = 0;
