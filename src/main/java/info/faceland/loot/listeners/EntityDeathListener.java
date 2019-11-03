@@ -34,6 +34,7 @@ import java.util.Map;
 
 import land.face.strife.data.StrifeMob;
 import land.face.strife.stats.StrifeStat;
+import land.face.strife.util.StatUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -66,33 +67,13 @@ public final class EntityDeathListener implements Listener {
     this.violationMap = new HashMap<>();
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onEntityDeathEvent(EntityDeathEvent event) {
     if (event instanceof PlayerDeathEvent) {
       return;
     }
+    CreatureMod creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
     StrifeMob mob = plugin.getStrifePlugin().getStrifeMobManager().getStatMob(event.getEntity());
-    CreatureMod creatureMod;
-    if (mob.getUniqueEntityId() == null) {
-      if (!plugin.getSettings().getStringList("config.enabled-worlds", new ArrayList<>())
-          .contains(event.getEntity().getWorld().getName())) {
-        return;
-      }
-    }
-    if (mob.getMaster() != null) {
-      event.setDroppedExp(0);
-      event.getDrops().clear();
-      return;
-    }
-    if (mob.isDespawnOnUnload() && mob.getUniqueEntityId() == null ) {
-      event.setDroppedExp(0);
-      event.getDrops().clear();
-      return;
-    }
-    creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
-    if (creatureMod != null) {
-      dropJunkLoot(event, creatureMod);
-    }
     if (creatureMod == null && mob.getUniqueEntityId() == null) {
       return;
     }
@@ -129,36 +110,19 @@ public final class EntityDeathListener implements Listener {
 
     bonusDropMult += pStats.getStat(StrifeStat.ITEM_DISCOVERY) / 100;
     bonusRarityMult += pStats.getStat(StrifeStat.ITEM_RARITY) / 100;
+
     if (killer.hasPotionEffect(PotionEffectType.LUCK)) {
       bonusRarityMult += 0.5;
     }
 
-    int mobLevel = levelFromString(event.getEntity().getCustomName());
-    int levelDiff = Math.abs(mobLevel - killer.getLevel());
-    double expPenaltyMult = 1;
-    if (levelDiff > 10) {
-      expPenaltyMult = Math.max(0.1D, 1 - ((levelDiff - 10) * 0.05));
-    }
-
-    double exp = 0;
-    if (mob.getUniqueEntityId() != null) {
-      exp = plugin.getStrifePlugin().getUniqueEntityManager().getLoadedUniquesMap().get(
-          mob.getUniqueEntityId()).getExperience();
-    } else if (creatureMod.getExperienceExpression() != null) {
-      exp = creatureMod.getExperienceExpression().setVariable("LEVEL", mobLevel).evaluate();
-    }
-    exp *= 1 + mob.getStat(StrifeStat.XP_GAIN) / 100;
-
-    event.setDroppedExp((int) (exp * penaltyMult * expPenaltyMult));
+    event.setDroppedExp((int) (event.getDroppedExp() * penaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
     lootEvent.setLooterUUID(looter);
-    lootEvent.setMonsterLevel(mobLevel);
-    lootEvent.setQualityMultiplier(
-        bonusRarityMult * penaltyMult * (1 + mob.getStat(StrifeStat.ITEM_RARITY) / 100));
-    lootEvent.setQuantityMultiplier(
-        bonusDropMult * penaltyMult * (1 + mob.getStat(StrifeStat.ITEM_DISCOVERY) / 100));
+    lootEvent.setMonsterLevel(StatUtil.getMobLevel(event.getEntity()));
+    lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
+    lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
     lootEvent.setEntity(event.getEntity());
     if (mob.getUniqueEntityId() != null) {

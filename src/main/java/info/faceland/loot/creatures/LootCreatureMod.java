@@ -99,11 +99,6 @@ public final class LootCreatureMod implements CreatureMod {
   }
 
   @Override
-  public Expression getExperienceExpression() {
-    return experienceExpression;
-  }
-
-  @Override
   public Map<String, Map<JunkItemData, Double>> getJunkMaps() {
     return junkItemDataDoubleMap;
   }

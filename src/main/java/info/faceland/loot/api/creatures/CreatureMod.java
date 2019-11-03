@@ -46,8 +46,6 @@ public interface CreatureMod {
 
   double getTierMult(Tier t);
 
-  Expression getExperienceExpression();
-
   Map<EnchantmentTome, Double> getEnchantmentStoneMults();
 
 }

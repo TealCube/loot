@@ -87,10 +87,4 @@ public final class LootCreatureModBuilder implements CreatureModBuilder {
         return this;
     }
 
-    @Override
-    public CreatureModBuilder withExpression(Expression expression) {
-        mod.setExperienceExpression(expression);
-        return this;
-    }
-
 }
