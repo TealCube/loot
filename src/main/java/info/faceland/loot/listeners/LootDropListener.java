@@ -24,8 +24,10 @@ import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
@@ -53,29 +55,35 @@ public class LootDropListener implements Listener {
   private final Map<EntityType, Double> specialStatEntities;
   private final Map<String, Double> specialStatWorlds;
 
+  private final double customizedTierChance;
+
   private final double normalDropChance;
   private final double socketDropChance;
   private final double tomeDropChance;
 
   public LootDropListener(LootPlugin plugin) {
     this.plugin = plugin;
-    this.random = new LootRandom();
-    this.itemFoundFormat = plugin.getSettings().getString("language.broadcast.found-item", "");
-    this.specialStatEntities = plugin.fetchSpecialStatEntities();
-    this.specialStatWorlds = plugin.fetchSpecialStatWorlds();
+    random = new LootRandom();
+    itemFoundFormat = plugin.getSettings().getString("language.broadcast.found-item", "");
+    specialStatEntities = plugin.fetchSpecialStatEntities();
+    specialStatWorlds = plugin.fetchSpecialStatWorlds();
 
-    this.normalDropChance = plugin.getSettings().getDouble("config.drops.normal-drop", 0D);
-    this.socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
-    this.tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
+    customizedTierChance = plugin.getSettings().getDouble("config.drops.customized-tier-chance", 0D);
+
+    normalDropChance = plugin.getSettings().getDouble("config.drops.normal-drop", 0D);
+    socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
+    tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onLootDrop(LootDropEvent event) {
+    Player killer = Bukkit.getPlayer(event.getLooterUUID());
+    if (killer == null) {
+      return;
+    }
     double dropMultiplier = event.getQuantityMultiplier();
     double rarityMultiplier = event.getQualityMultiplier();
     int mobLevel = event.getMonsterLevel();
-    UUID looterUUID = event.getLooterUUID();
-    Player killer = Bukkit.getPlayer(looterUUID);
 
     if (StringUtils.isNotBlank(event.getUniqueEntity())) {
       if (plugin.getUniqueDropsManager().getData(event.getUniqueEntity()) != null) {
@@ -91,7 +99,7 @@ public class LootDropListener implements Listener {
     boolean specialStat = addSpecialStat(entityType, worldName);
 
     if (random.nextDouble() < dropMultiplier * normalDropChance) {
-      Tier tier = plugin.getTierManager().getRandomTier();
+      Tier tier = getTier(killer);
       ItemRarity rarity;
 
       if (rarityMultiplier == 1D) {
@@ -361,5 +369,42 @@ public class LootDropListener implements Listener {
         .get(entityType))
         || ((specialStatWorlds.containsKey(worldName)) && random.nextDouble() < specialStatWorlds
         .get(worldName));
+  }
+
+  private Tier getTier(Player killer) {
+    if (customizedTierChance < random.nextDouble()) {
+      return plugin.getTierManager().getRandomTier();
+    }
+    List<Material> wornMaterials = getWornMaterials(killer);
+    List<Tier> wornTiers = new ArrayList<>();
+    for (Material m : wornMaterials) {
+      Set<Tier> tiers = plugin.getItemGroupManager().getMaterialGroup(m);
+      if (tiers != null) {
+        wornTiers.addAll(tiers);
+      }
+    }
+    if (wornTiers.isEmpty()) {
+      return plugin.getTierManager().getRandomTier();
+    }
+    return wornTiers.get(random.nextIntRange(0, wornTiers.size()));
+  }
+
+  private List<Material> getWornMaterials(Player player) {
+    List<Material> materials = new ArrayList<>();
+    for (ItemStack stack : player.getEquipment().getArmorContents()) {
+      if (stack == null || stack.getType() == Material.AIR) {
+        continue;
+      }
+      materials.add(stack.getType());
+    }
+    ItemStack handItem = player.getEquipment().getItemInMainHand();
+    if (handItem.getType() != Material.AIR) {
+      materials.add(handItem.getType());
+    }
+    ItemStack offItem = player.getEquipment().getItemInMainHand();
+    if (offItem.getType() != Material.AIR) {
+      materials.add(offItem.getType());
+    }
+    return materials;
   }
 }

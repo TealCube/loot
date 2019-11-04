@@ -33,8 +33,8 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     private boolean built = false;
     private LootCustomItem customItem;
 
-    public LootCustomItemBuilder(String name) {
-        this.customItem = new LootCustomItem(name);
+    public LootCustomItemBuilder(String name, Material material) {
+        this.customItem = new LootCustomItem(name, material);
     }
 
     @Override
@@ -60,12 +60,6 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     @Override
     public CustomItemBuilder withLore(List<String> lore) {
         customItem.setLore(lore);
-        return this;
-    }
-
-    @Override
-    public CustomItemBuilder withMaterial(Material material) {
-        customItem.setMaterial(material);
         return this;
     }
 

@@ -89,6 +89,7 @@ public final class LootPlugin extends FacePlugin {
   private PluginLogger debugPrinter;
   private EquipmentRecipeBuilder recipeBuilder;
   private VersionedSmartYamlConfiguration itemsYAML;
+  private VersionedSmartYamlConfiguration materialsYAML;
   private VersionedSmartYamlConfiguration statsYAML;
   private VersionedSmartYamlConfiguration rarityYAML;
   private VersionedSmartYamlConfiguration tierYAML;
@@ -135,6 +136,7 @@ public final class LootPlugin extends FacePlugin {
     recipeBuilder.setupAllRecipes();
     configYAML = defaultLoadConfig("config.yml");
     itemsYAML = defaultLoadConfig("items.yml");
+    materialsYAML = defaultLoadConfig("material-to-tier.yml");
     statsYAML = defaultLoadConfig("stats.yml");
     rarityYAML = defaultLoadConfig("rarity.yml");
     tierYAML = defaultLoadConfig("tier.yml");
@@ -180,6 +182,8 @@ public final class LootPlugin extends FacePlugin {
     loadStats();
     loadRarities();
     loadTiers();
+    // Load material to tier AFTER tiers or this will not work...
+    loadMaterialToTierMapping();
     loadNames();
     loadCustomItems();
     loadSocketGems();
@@ -382,13 +386,6 @@ public final class LootPlugin extends FacePlugin {
             map.put(ci, cs.getDouble("custom-items." + k));
           }
           builder.withCustomItemMults(map);
-        } else if (fieldKey.equals("experience")) {
-          String expStr = cs.getString("experience", "");
-          if (StringUtils.isBlank(expStr)) {
-            builder.withExpression(null);
-          } else {
-            builder.withExpression(new ExpressionBuilder(expStr).variables("LEVEL").build());
-          }
         } else if (fieldKey.equals("socket-gems")) {
           Map<SocketGem, Double> map = new HashMap<>();
           for (String k : cs.getConfigurationSection("socket-gems").getKeys(false)) {
@@ -530,8 +527,16 @@ public final class LootPlugin extends FacePlugin {
         continue;
       }
       ConfigurationSection cs = customItemsYAML.getConfigurationSection(key);
-      CustomItemBuilder builder = getNewCustomItemBuilder(key);
-      builder.withMaterial(Material.getMaterial(cs.getString("material")));
+      String matString = cs.getString("material");
+      Material material;
+      try {
+        material = Material.valueOf(matString);
+      } catch (Exception e) {
+        Bukkit.getLogger().warning(
+            "Invalid material " + matString + " for item " + key + "! Skipping...");
+        continue;
+      }
+      CustomItemBuilder builder = getNewCustomItemBuilder(key, material);
       builder.withDisplayName(cs.getString("display-name"));
       builder.withLore(cs.getStringList("lore"));
       builder.withWeight(cs.getDouble("weight"));
@@ -606,6 +611,27 @@ public final class LootPlugin extends FacePlugin {
       getItemGroupManager().addItemGroup(ig);
     }
     debug("Loaded item groups: " + loadedItemGroups.toString());
+  }
+
+  private void loadMaterialToTierMapping() {
+    getItemGroupManager().getMaterialGroups().clear();
+    for (String key : materialsYAML.getKeys(false)) {
+      if (!materialsYAML.isList(key)) {
+        continue;
+      }
+      Material m = Material.getMaterial(key);
+      if (m == null || m == Material.AIR) {
+        continue;
+      }
+      Set<Tier> tiers = new HashSet<>();
+      for (String s : materialsYAML.getStringList(key)) {
+        Tier tier = getTierManager().getTier(s);
+        if (tier != null) {
+          tiers.add(tier);
+        }
+      }
+      getItemGroupManager().addMaterialGroup(m, tiers);
+    }
   }
 
   private void loadCraftBases() {
@@ -774,8 +800,8 @@ public final class LootPlugin extends FacePlugin {
     return new LootItemBuilder(this);
   }
 
-  public CustomItemBuilder getNewCustomItemBuilder(String name) {
-    return new LootCustomItemBuilder(name);
+  public CustomItemBuilder getNewCustomItemBuilder(String name, Material material) {
+    return new LootCustomItemBuilder(name, material);
   }
 
   public SocketGemBuilder getNewSocketGemBuilder(String name) {

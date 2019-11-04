@@ -42,8 +42,9 @@ public final class LootCustomItem implements CustomItem {
   private boolean broadcast;
   private boolean quality;
 
-  public LootCustomItem(String name) {
+  public LootCustomItem(String name, Material material) {
     this.name = name;
+    this.material = material;
     this.lore = new ArrayList<>();
   }
 
@@ -73,7 +74,7 @@ public final class LootCustomItem implements CustomItem {
 
   @Override
   public ItemStack toItemStack(int amount) {
-    ItemStack itemStack = new ItemStack(this.material);
+    ItemStack itemStack = new ItemStack(material);
     if (itemStack.getType() == Material.AIR) {
       return itemStack;
     }

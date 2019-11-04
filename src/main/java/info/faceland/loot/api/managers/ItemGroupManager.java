@@ -23,6 +23,8 @@
 package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.groups.ItemGroup;
+import info.faceland.loot.api.tier.Tier;
+import java.util.Map;
 import org.bukkit.Material;
 
 import java.util.Set;
@@ -37,6 +39,14 @@ public interface ItemGroupManager {
 
     ItemGroup getItemGroup(String name);
 
+    void addMaterialGroup(Material material, Set<Tier> tierIds);
+
+    void removeMaterialGroup(Material material);
+
+    Set<Tier> getMaterialGroup(Material material);
+
     Set<ItemGroup> getMatchingItemGroups(Material m);
+
+    Map<Material, Set<Tier>> getMaterialGroups();
 
 }
