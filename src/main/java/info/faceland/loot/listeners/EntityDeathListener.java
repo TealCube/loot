@@ -41,7 +41,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Rabbit.Type;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -70,6 +73,10 @@ public final class EntityDeathListener implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onEntityDeathEvent(EntityDeathEvent event) {
     if (event instanceof PlayerDeathEvent) {
+      return;
+    }
+    if (event.getEntity().getType() == EntityType.RABBIT
+        && ((Rabbit) event.getEntity()).getRabbitType() != Type.THE_KILLER_BUNNY) {
       return;
     }
     CreatureMod creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
