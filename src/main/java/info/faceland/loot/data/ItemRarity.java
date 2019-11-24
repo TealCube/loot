@@ -16,6 +16,7 @@ public class ItemRarity {
   private int minimumSockets;
   private int maximumSockets;
   private int extenderSlots;
+  private int livedTicks;
 
   public boolean isBroadcast() {
     return broadcast;
@@ -71,6 +72,14 @@ public class ItemRarity {
 
   public void setExtenderSlots(int extenderSlots) {
     this.extenderSlots = extenderSlots;
+  }
+
+  public int getLivedTicks() {
+    return livedTicks;
+  }
+
+  public void setLivedTicks(int livedTicks) {
+    this.livedTicks = livedTicks;
   }
 
   public double getPower() {

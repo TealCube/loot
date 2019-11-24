@@ -44,6 +44,10 @@ public interface Tier extends Comparable<Tier> {
 
     List<ItemStat> getSpecialStats();
 
+    int getCustomDataStart();
+
+    int getCustomDataInterval();
+
     double getSpawnWeight();
 
     double getIdentifyWeight();

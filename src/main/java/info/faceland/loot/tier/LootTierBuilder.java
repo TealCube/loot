@@ -102,6 +102,18 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
+    public TierBuilder withStartingCustomData(int i) {
+        tier.setCustomDataStart(i);
+        return this;
+    }
+
+    @Override
+    public TierBuilder withCustomDataInterval(int i) {
+        tier.setCustomDataInterval(i);
+        return this;
+    }
+
+    @Override
     public TierBuilder withItemGroups(Set<ItemGroup> s) {
         tier.setItemGroups(s);
         return this;

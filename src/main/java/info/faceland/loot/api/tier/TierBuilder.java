@@ -51,6 +51,10 @@ public interface TierBuilder {
 
     TierBuilder withIdentifyWeight(double d);
 
+    TierBuilder withStartingCustomData(int i);
+
+    TierBuilder withCustomDataInterval(int i);
+
     TierBuilder withItemGroups(Set<ItemGroup> s);
 
 }

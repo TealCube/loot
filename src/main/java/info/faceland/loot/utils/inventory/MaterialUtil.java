@@ -21,6 +21,7 @@ package info.faceland.loot.utils.inventory;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
+import info.faceland.loot.api.tier.Tier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -79,7 +80,7 @@ public final class MaterialUtil {
 
   public static ItemStack buildEssence(String type, double itemLevel, double craftLevel,
       int toolQuality, List<String> possibleStats, boolean lucky) {
-    int essLevel = 1 + (int)(itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);
+    int essLevel = 1 + (int) (itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);
 
     String statString = ChatColor.stripColor(
         possibleStats.get(random.nextInt(possibleStats.size())));
@@ -92,20 +93,20 @@ public final class MaterialUtil {
     double essMult = BASE_ESSENCE_MULT + baseCraftBonus + bonusCraftBonus + toolQualityBonus;
 
     String newStatString = statString.replace(String.valueOf(statVal),
-        String.valueOf((int)Math.max(1, statVal * essMult)));
+        String.valueOf((int) Math.max(1, statVal * essMult)));
 
     ItemStack shard = new ItemStack(Material.PRISMARINE_SHARD);
     ItemStackExtensionsKt.setDisplayName(shard, ChatColor.YELLOW + "Item Essence");
 
-    List<String> esslore = ItemStackExtensionsKt.getLore(shard);
-    esslore.add(TextUtils.color("&fItem Level Requirement: " + essLevel));
-    esslore.add(TextUtils.color("&fItem Type: " + type));
-    esslore.add(TextUtils.color("&e" + newStatString));
-    esslore.add(TextUtils.color("&7&oCraft this together with an"));
-    esslore.add(TextUtils.color("&7&ounfinished item to have a"));
-    esslore.add(TextUtils.color("&7&ochance of applying this stat!"));
-    esslore.add(TextUtils.color("&e[ Crafting Component ]"));
-    ItemStackExtensionsKt.setLore(shard, esslore);
+    List<String> esslore = new ArrayList<>();
+    esslore.add("&fItem Level Requirement: " + essLevel);
+    esslore.add("&fItem Type: " + type);
+    esslore.add("&e" + newStatString);
+    esslore.add("&7&oCraft this together with an");
+    esslore.add("&7&ounfinished item to have a");
+    esslore.add("&7&ochance of applying this stat!");
+    esslore.add("&e[ Crafting Component ]");
+    ItemStackExtensionsKt.setLore(shard, TextUtils.color(esslore));
 
     return shard;
   }
@@ -153,5 +154,23 @@ public final class MaterialUtil {
       return Math.pow(random.nextDouble(), exponent);
     }
     return random.nextDouble();
+  }
+
+  public static void applyTierLevelData(ItemStack stack, Tier tier, int level) {
+    if (tier.getCustomDataStart() != -1) {
+      double modelLevel = Math.max(0, level - 1);
+      int customModel = tier.getCustomDataStart() + (int) Math.floor(modelLevel / tier.getCustomDataInterval());
+      ItemStackExtensionsKt.setCustomModelData(stack, customModel);
+    }
+  }
+
+  public static int getCustomData(ItemStack stack) {
+    if (stack.getItemMeta() == null) {
+      return -1;
+    }
+    if (!stack.getItemMeta().hasCustomModelData()) {
+      return -1;
+    }
+    return stack.getItemMeta().getCustomModelData();
   }
 }

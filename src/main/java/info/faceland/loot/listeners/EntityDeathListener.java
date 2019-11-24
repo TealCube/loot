@@ -53,7 +53,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 public final class EntityDeathListener implements Listener {
@@ -81,17 +80,20 @@ public final class EntityDeathListener implements Listener {
     }
     CreatureMod creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
     StrifeMob mob = plugin.getStrifePlugin().getStrifeMobManager().getStatMob(event.getEntity());
-    if (creatureMod == null && mob.getUniqueEntityId() == null) {
+    if (creatureMod == null && StringUtils.isBlank(mob.getUniqueEntityId())) {
       return;
     }
-    if (event.getEntity().getKiller() == null) {
-      return;
+    Player killer = mob.getKiller();
+    if (killer == null) {
+      killer = event.getEntity().getKiller();
+      if (killer == null) {
+        return;
+      }
     }
     if (event.getEntity().hasMetadata("SPAWNED")) {
       return;
     }
 
-    Player killer = event.getEntity().getKiller();
     double bonusDropMult = 1D;
     double bonusRarityMult = 1D;
     double penaltyMult = 1D;
@@ -100,10 +102,7 @@ public final class EntityDeathListener implements Listener {
       penaltyMult *= 0.3D;
     }
 
-    UUID looter = null;
-    if (plugin.getAnticheatManager().isTagged(event.getEntity())) {
-      looter = plugin.getAnticheatManager().getTag(event.getEntity()).getRandomWeightedLooter();
-    }
+    UUID looter = killer.getUniqueId();
 
     handleAntiCheeseViolations(killer, event.getEntity());
     double vl = violationMap.get(killer).getViolationLevel();
@@ -122,6 +121,9 @@ public final class EntityDeathListener implements Listener {
       bonusRarityMult += 0.5;
     }
 
+    if (StringUtils.isNotBlank(mob.getUniqueEntityId())) {
+      event.getDrops().clear();
+    }
     event.setDroppedExp((int) (event.getDroppedExp() * penaltyMult));
 
     LootDropEvent lootEvent = new LootDropEvent();

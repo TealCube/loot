@@ -354,7 +354,7 @@ public final class InteractListener implements Listener {
             .withRarity(r)
             .withTier(t)
             .withLevel(itemLevel)
-            .build();
+            .build().getStack();
         if (r.isBroadcast()) {
           broadcast(player, targetItem,
               plugin.getSettings().getString("language.broadcast.ided-item"));
@@ -362,7 +362,7 @@ public final class InteractListener implements Listener {
       } else {
         targetItem = plugin.getNewItemBuilder()
             .withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-            .build();
+            .build().getStack();
       }
       sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);

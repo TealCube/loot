@@ -6,13 +6,13 @@ import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UniqueLoot;
 import info.faceland.loot.events.LootDropEvent;
@@ -27,6 +27,7 @@ import info.faceland.loot.utils.inventory.MaterialUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -68,7 +69,8 @@ public class LootDropListener implements Listener {
     specialStatEntities = plugin.fetchSpecialStatEntities();
     specialStatWorlds = plugin.fetchSpecialStatWorlds();
 
-    customizedTierChance = plugin.getSettings().getDouble("config.drops.customized-tier-chance", 0D);
+    customizedTierChance = plugin.getSettings()
+        .getDouble("config.drops.customized-tier-chance", 0D);
 
     normalDropChance = plugin.getSettings().getDouble("config.drops.normal-drop", 0D);
     socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
@@ -108,13 +110,15 @@ public class LootDropListener implements Listener {
         rarity = plugin.getRarityManager().getRandomRarityWithBonus(rarityMultiplier);
       }
 
-      ItemStack his = plugin.getNewItemBuilder()
+      BuiltItem builtItem = plugin.getNewItemBuilder()
           .withTier(tier)
           .withRarity(rarity)
           .withLevel(Math.max(1, Math.min(mobLevel - 2 + random.nextIntRange(0, 5), 100)))
           .withItemGenerationReason(ItemGenerationReason.MONSTER)
           .withSpecialStat(specialStat)
           .build();
+
+      ItemStack tierItem = builtItem.getStack();
 
       int qualityBonus = 1;
       double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
@@ -125,7 +129,7 @@ public class LootDropListener implements Listener {
         while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
           qualityBonus++;
         }
-        upgradeItemQuality(his, qualityBonus);
+        upgradeItemQuality(tierItem, qualityBonus);
       }
 
       int upgradeBonus = 1;
@@ -137,11 +141,11 @@ public class LootDropListener implements Listener {
         while (random.nextDouble() <= multiUpgradeChance && upgradeBonus < 9) {
           upgradeBonus++;
         }
-        upgradeItem(his, upgradeBonus);
+        upgradeItem(tierItem, upgradeBonus);
       }
 
       boolean broadcast = rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2;
-      dropItem(event.getLocation(), his, killer, broadcast);
+      dropItem(event.getLocation(), tierItem, killer, builtItem.getTicksLived(), broadcast);
     }
     if (random.nextDouble() < dropMultiplier * plugin.getSettings()
         .getDouble("config.drops.craft-mat", 0D)) {
@@ -207,7 +211,8 @@ public class LootDropListener implements Listener {
         ci = plugin.getCustomItemManager()
             .getRandomCustomItem(true, event.getDistance());
       }
-      ItemStack his = ci.toItemStack(1);
+
+      ItemStack stack = ci.toItemStack(1);
 
       int qualityBonus = 1;
       if (ci.canBeQuality()) {
@@ -219,11 +224,11 @@ public class LootDropListener implements Listener {
           while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
             qualityBonus++;
           }
-          his = upgradeItemQuality(his, qualityBonus);
+          stack = upgradeItemQuality(stack, qualityBonus);
         }
       }
       boolean broadcast = ci.isBroadcast() || qualityBonus > 2;
-      dropItem(event.getLocation(), his, killer, broadcast);
+      dropItem(event.getLocation(), stack, killer, broadcast);
     }
     if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
       ItemStack his = new SocketExtender();
@@ -306,9 +311,8 @@ public class LootDropListener implements Listener {
       String loreLev = CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(ss);
       int loreLevel = NumberUtils.toInt(loreLev);
       lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
-      String name =
-          getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) + ("+" + upgradeBonus) + " "
-              + ItemStackExtensionsKt.getDisplayName(his);
+      String name = getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) +
+          ("+" + upgradeBonus) + " " + ItemStackExtensionsKt.getDisplayName(his);
       ItemStackExtensionsKt.setDisplayName(his, name);
       break;
     }
@@ -337,9 +341,8 @@ public class LootDropListener implements Listener {
       lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
       String qualityEnhanceName = plugin.getSettings()
           .getString("language.quality." + upgradeBonus, "");
-      String name =
-          getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) + qualityEnhanceName + " "
-              + ItemStackExtensionsKt.getDisplayName(his);
+      String name = getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) +
+          qualityEnhanceName + " " + ItemStackExtensionsKt.getDisplayName(his);
       ItemStackExtensionsKt.setDisplayName(his, name);
       break;
     }
@@ -350,7 +353,15 @@ public class LootDropListener implements Listener {
   }
 
   private void dropItem(Location loc, ItemStack itemStack, Player looter, boolean broadcast) {
-    Item drop = loc.getWorld().dropItemNaturally(loc, itemStack);
+    dropItem(loc, itemStack, looter, 0, broadcast);
+  }
+
+  private void dropItem(Location loc, ItemStack itemStack, Player looter, int ticksLived,
+      boolean broadcast) {
+    Item drop = Objects.requireNonNull(loc.getWorld()).dropItemNaturally(loc, itemStack);
+    if (ticksLived != 0) {
+      drop.setTicksLived(ticksLived);
+    }
     if (looter != null) {
       applyOwnerMeta(drop, looter.getUniqueId());
       if (broadcast) {

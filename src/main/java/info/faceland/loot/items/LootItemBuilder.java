@@ -25,11 +25,12 @@ import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.RarityManager;
 import info.faceland.loot.api.managers.StatManager;
-import info.faceland.loot.api.managers.TierManager;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -42,7 +43,6 @@ import java.util.Set;
 
 public final class LootItemBuilder implements ItemBuilder {
 
-  private final TierManager tierManager;
   private final StatManager statManager;
   private final RarityManager rarityManager;
   private final NameManager nameManager;
@@ -57,21 +57,14 @@ public final class LootItemBuilder implements ItemBuilder {
   private LootRandom random = new LootRandom();
 
   private double specialStatChance;
-  private int levelDataStart;
-  private int levelDataInterval;
 
   public LootItemBuilder(LootPlugin plugin) {
-    tierManager = plugin.getTierManager();
     statManager = plugin.getStatManager();
     rarityManager = plugin.getRarityManager();
     nameManager = plugin.getNameManager();
 
     specialStatChance = plugin.getSettings()
         .getDouble("config.special-stats.pool-chance", 0.5D);
-    levelDataStart = plugin.getSettings()
-        .getInt("config.custom-model-data.tier-start-value", 9000);
-    levelDataInterval = plugin.getSettings()
-        .getInt("config.custom-model-data.tier-per-level", 10);
   }
 
   @Override
@@ -80,12 +73,12 @@ public final class LootItemBuilder implements ItemBuilder {
   }
 
   @Override
-  public ItemStack build() {
+  public BuiltItem build() {
     if (isBuilt()) {
       throw new IllegalStateException("already built");
     }
     built = true;
-    ItemStack hiltItemStack;
+    ItemStack stack;
     if (material == null) {
       Set<Material> set = tier.getAllowedMaterials();
       Material[] array = set.toArray(new Material[set.size()]);
@@ -94,8 +87,8 @@ public final class LootItemBuilder implements ItemBuilder {
       }
       material = array[random.nextInt(array.length)];
     }
-    hiltItemStack = new ItemStack(material);
-    ItemStackExtensionsKt.setDisplayName(hiltItemStack,
+    stack = new ItemStack(material);
+    ItemStackExtensionsKt.setDisplayName(stack,
         rarity.getColor() + nameManager.getRandomPrefix() + " " + nameManager.getRandomSuffix());
     List<String> lore = new ArrayList<>();
 
@@ -138,15 +131,11 @@ public final class LootItemBuilder implements ItemBuilder {
       lore.add("&3(+)");
     }
 
-    double modelLevel = Math.max(0, level - 1);
-    int customModel = levelDataStart + (int) Math.floor(modelLevel / levelDataInterval);
+    ItemStackExtensionsKt.setLore(stack, TextUtils.color(lore));
+    ItemStackExtensionsKt.addItemFlags(stack, ItemFlag.HIDE_ATTRIBUTES);
+    MaterialUtil.applyTierLevelData(stack, tier, level);
 
-    ItemStackExtensionsKt.setLore(hiltItemStack, TextUtils.color(lore));
-    ItemMeta itemMeta = hiltItemStack.getItemMeta();
-    itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-    itemMeta.setCustomModelData(customModel);
-    hiltItemStack.setItemMeta(itemMeta);
-    return hiltItemStack;
+    return new BuiltItem(stack, rarity.getLivedTicks());
   }
 
   @Override

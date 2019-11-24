@@ -39,6 +39,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
+import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.JunkItemData;
@@ -213,6 +214,13 @@ public final class LootPlugin extends FacePlugin {
     debug("v" + getDescription().getVersion() + " enabled");
   }
 
+  @Override
+  public void disable() {
+    HandlerList.unregisterAll(this);
+    Bukkit.getScheduler().cancelTasks(this);
+    saveChests();
+  }
+
   private void loadChests() {
     for (Vec3 loc : getChestManager().getChestLocations()) {
       getChestManager().removeChestLocation(loc);
@@ -236,12 +244,6 @@ public final class LootPlugin extends FacePlugin {
     }
     chestsYAML.set("locs", locs);
     chestsYAML.save();
-  }
-
-  @Override
-  public void disable() {
-    HandlerList.unregisterAll(this);
-    saveChests();
   }
 
   public void debug(String... messages) {
@@ -591,21 +593,25 @@ public final class LootPlugin extends FacePlugin {
     }
     Set<ItemGroup> itemGroups = new HashSet<>();
     List<String> loadedItemGroups = new ArrayList<>();
-    for (String key : itemsYAML.getKeys(false)) {
-      if (!itemsYAML.isList(key)) {
+    for (String groupName : itemsYAML.getKeys(false)) {
+      if ("version".equalsIgnoreCase(groupName)) {
         continue;
       }
-      List<String> list = itemsYAML.getStringList(key);
-      ItemGroup ig = new LootItemGroup(key, false);
-      for (String s : list) {
-        Material m = Material.getMaterial(s);
+      ItemGroup ig = new LootItemGroup(groupName, false);
+      int min = itemsYAML.getConfigurationSection(groupName).getInt("min-custom-data", -1);
+      int max = itemsYAML.getConfigurationSection(groupName).getInt("max-custom-data", -1);
+      ig.setMinimumCustomData(min);
+      ig.setMaximumCustomData(max);
+      ConfigurationSection materialsSection = itemsYAML.getConfigurationSection(groupName);
+      for (String material : materialsSection.getStringList("materials")) {
+        Material m = Material.getMaterial(material);
         if (m == Material.AIR) {
           continue;
         }
         ig.addMaterial(m);
       }
       itemGroups.add(ig);
-      loadedItemGroups.add(key);
+      loadedItemGroups.add(groupName);
     }
     for (ItemGroup ig : itemGroups) {
       getItemGroupManager().addItemGroup(ig);
@@ -650,17 +656,29 @@ public final class LootPlugin extends FacePlugin {
   }
 
   private void loadCraftMaterials() {
-    Map<Material, String> craftMaterials = new HashMap<>();
-    for (String key : craftMaterialsYAML.getKeys(false)) {
-      if (!craftMaterialsYAML.isString(key)) {
-        continue;
+    ConfigurationSection validSection = craftMaterialsYAML
+        .getConfigurationSection("valid-materials");
+    for (String key : validSection.getKeys(false)) {
+      String name = validSection.getString(key);
+      Material material = Material.valueOf(key);
+      getCraftMatManager().addCraftMaterial(material, name);
+    }
+    ConfigurationSection deconstructSection = craftMaterialsYAML
+        .getConfigurationSection("deconstruct-overrides");
+    for (String deconSection : deconstructSection.getKeys(false)) {
+      ConfigurationSection section = deconstructSection.getConfigurationSection(deconSection);
+      for (String key : section.getKeys(true)) {
+        DeconstructData data = new DeconstructData();
+        data.setMaterial(Material.valueOf(section.getString("material")));
+        data.setMinCustomData(section.getInt("min-custom-data", -1));
+        data.setMaxCustomData(section.getInt("max-custom-data", -1));
+        for (String mat : section.getStringList("results")) {
+          DeconstructData.addResult(data, Material.valueOf(mat));
+        }
+        getCraftMatManager().addDeconstructData(data);
       }
-      String string = craftMaterialsYAML.getString(key);
-      craftMaterials.put(Material.valueOf(key), string);
     }
-    for (Material mat : craftMaterials.keySet()) {
-      getCraftMatManager().addCraftMaterial(mat, craftMaterials.get(mat));
-    }
+
     debug("Loaded item groups: " + getCraftBaseManager().getCraftBases());
   }
 
@@ -686,6 +704,7 @@ public final class LootPlugin extends FacePlugin {
       rarity.setMinimumSockets(cs.getInt("min-sockets"));
       rarity.setMaximumSockets(cs.getInt("max-sockets") + 1);
       rarity.setExtenderSlots(cs.getInt("extend-slots"));
+      rarity.setLivedTicks(cs.getInt("base-ticks-lived", 0));
       getRarityManager().addRarity(key, rarity);
     }
     debug("Loaded rarities: " + getRarityManager().getLoadedRarities().toString());
@@ -752,6 +771,8 @@ public final class LootPlugin extends FacePlugin {
 
       builder.withSpawnWeight(cs.getDouble("spawn-weight"));
       builder.withIdentifyWeight(cs.getDouble("identify-weight"));
+      builder.withStartingCustomData(cs.getInt("base-custom-data", -1));
+      builder.withCustomDataInterval(cs.getInt("custom-data-level-interval", 200));
       List<String> sl = cs.getStringList("item-groups");
       Set<ItemGroup> itemGroups = new HashSet<>();
       for (String s : sl) {
