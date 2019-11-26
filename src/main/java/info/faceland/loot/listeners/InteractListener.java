@@ -39,6 +39,7 @@ import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -155,8 +156,13 @@ public final class InteractListener implements Listener {
     String targetItemName = ItemStackExtensionsKt.getDisplayName(targetItem);
     String cursorName = ItemStackExtensionsKt.getDisplayName(cursor);
 
-    if (StringUtils.isBlank(targetItemName) || StringUtils.isBlank(cursorName)) {
+    if (StringUtils.isBlank(cursorName)) {
       return;
+    }
+
+    if (StringUtils.isBlank(targetItemName)) {
+      targetItemName = WordUtils
+          .capitalize(targetItem.getType().toString().toLowerCase().replaceAll("_", " "));
     }
 
     if (cursorName.startsWith(ChatColor.GOLD + "Socket Gem - ")) {
@@ -213,7 +219,8 @@ public final class InteractListener implements Listener {
           suffix = " " + gem.getSuffix();
         }
       }
-      targetItemName = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + targetItemName + suffix + lastColor;
+      targetItemName = firstColor + (level > 0 ? "+" + level + " " : "") + prefix + targetItemName
+          + suffix + lastColor;
       ItemStackExtensionsKt.setDisplayName(targetItem, targetItemName);
 
       sendMessage(player, plugin.getSettings().getString("language.socket.success", ""));
@@ -245,7 +252,7 @@ public final class InteractListener implements Listener {
         return;
       }
 
-      List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
+      List<String> lore = new ArrayList<>(ItemStackExtensionsKt.getLore(targetItem));
       List<String> strippedLore = InventoryUtil.stripColor(lore);
       if (!strippedLore.contains("(Enchantable)")) {
         sendMessage(player,
@@ -257,7 +264,8 @@ public final class InteractListener implements Listener {
       int index = strippedLore.indexOf("(Enchantable)");
       lore.remove(index);
 
-      double enchantLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
+      double enchantLevel = PlayerDataUtil
+          .getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
 
       List<String> added = new ArrayList<>();
       if (!stone.getLore().isEmpty()) {
@@ -277,7 +285,8 @@ public final class InteractListener implements Listener {
       if (stone.getBar()) {
         double bonus = getBonusMultiplier(enchantLevel);
         double size = 8 + (25 * bonus);
-        String bars = IntStream.range(0, (int) size).mapToObj(i -> "|").collect(Collectors.joining(""));
+        String bars = IntStream.range(0, (int) size).mapToObj(i -> "|")
+            .collect(Collectors.joining(""));
         added.add(TextUtils.color("&9[" + bars + "&0&9]"));
       }
 
@@ -319,7 +328,8 @@ public final class InteractListener implements Listener {
 
       float weightDivisor = stone.getWeight() == 0 ? 2000 : (float) stone.getWeight();
       float exp = 3 + 2000 / weightDivisor;
-      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player, LifeSkillType.ENCHANTING, exp, false);
+      plugin.getStrifePlugin().getSkillExperienceManager()
+          .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
       sendMessage(player, plugin.getSettings().getString("language.enchant.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
       updateItem(event, targetItem);
@@ -484,7 +494,8 @@ public final class InteractListener implements Listener {
       event.setResult(Event.Result.DENY);
       player.updateInventory();
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
-      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player, LifeSkillType.ENCHANTING, 1, false);
+      plugin.getStrifePlugin().getSkillExperienceManager()
+          .addExperience(player, LifeSkillType.ENCHANTING, 1, false);
     } else if (cursorName.endsWith("Upgrade Scroll")) {
       if (isBannedMaterial(targetItem)) {
         return;
@@ -598,7 +609,9 @@ public final class InteractListener implements Listener {
         if (itemUpgradeLevel >= 10 && targetItem.getEnchantments().isEmpty()) {
           targetItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         }
-        ItemStackExtensionsKt.addItemFlags(targetItem, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
+        ItemStackExtensionsKt
+            .addItemFlags(targetItem, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES,
+                ItemFlag.HIDE_UNBREAKABLE);
         List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
         for (int i = 0; i < lore.size(); i++) {
           String s = lore.get(i);
@@ -645,12 +658,12 @@ public final class InteractListener implements Listener {
               (targetItemName)) : 0;
       if (level > 0) {
         ItemStackExtensionsKt.setDisplayName(
-        targetItem, getFirstColor(targetItemName) + "+" + level + " "
-            + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
+            targetItem, getFirstColor(targetItemName) + "+" + level + " "
+                + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
       } else {
         ItemStackExtensionsKt.setDisplayName(
-                targetItem,getFirstColor(targetItemName)
-            + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
+            targetItem, getFirstColor(targetItemName)
+                + stripColor(ItemStackExtensionsKt.getLore(cursor).get(3)));
       }
 
       sendMessage(player, plugin.getSettings().getString("language.rename.success", ""));
@@ -733,7 +746,8 @@ public final class InteractListener implements Listener {
   }
 
   private int getLevel(String name) {
-    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
+    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(name, ' ')
+        .trim();
     return NumberUtils.toInt(lev.split(" ")[0], 0);
   }
 
