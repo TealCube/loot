@@ -23,13 +23,14 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.data.ViolationData;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.math.LootRandom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import land.face.strife.data.StrifeMob;
@@ -78,18 +79,26 @@ public final class EntityDeathListener implements Listener {
         && ((Rabbit) event.getEntity()).getRabbitType() != Type.THE_KILLER_BUNNY) {
       return;
     }
-    CreatureMod creatureMod = plugin.getCreatureModManager().getCreatureMod(event.getEntityType());
     StrifeMob mob = plugin.getStrifePlugin().getStrifeMobManager().getStatMob(event.getEntity());
-    if (creatureMod == null && StringUtils.isBlank(mob.getUniqueEntityId())) {
+    if (mob.getMaster() != null) {
+      event.setDroppedExp(0);
+      event.getDrops().clear();
       return;
     }
+    MobInfo mobInfo = plugin.getMobInfoManager().getMobInfo(event.getEntityType());
+    if (mobInfo == null && StringUtils.isBlank(mob.getUniqueEntityId())) {
+      return;
+    }
+
     Player killer = mob.getKiller();
     if (killer == null) {
       killer = event.getEntity().getKiller();
       if (killer == null) {
+        event.getDrops().clear();
         return;
       }
     }
+
     if (event.getEntity().hasMetadata("SPAWNED")) {
       return;
     }
@@ -130,6 +139,13 @@ public final class EntityDeathListener implements Listener {
     lootEvent.setLocation(event.getEntity().getLocation());
     lootEvent.setLooterUUID(looter);
     lootEvent.setMonsterLevel(StatUtil.getMobLevel(event.getEntity()));
+    if (penaltyMult > 0.5) {
+      int modLevel = mob.getMods().size();
+      List<String> rarities = plugin.getSettings().getStringList("config.mob-mod-bonus." + modLevel);
+      for (String r : rarities) {
+        lootEvent.getBonusTierItems().add(plugin.getRarityManager().getRarity(r));
+      }
+    }
     lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
     lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
     lootEvent.setDistance(distance);
@@ -171,7 +187,7 @@ public final class EntityDeathListener implements Listener {
     }
   }
 
-  private void dropJunkLoot(EntityDeathEvent event, CreatureMod mod) {
+  private void dropJunkLoot(EntityDeathEvent event, MobInfo mod) {
     if (mod.getJunkMaps().isEmpty()) {
       return;
     }

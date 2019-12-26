@@ -78,6 +78,15 @@ public final class MaterialUtil {
     return his;
   }
 
+  public static int getQuality(ItemStack stack) {
+    for (String line : ItemStackExtensionsKt.getLore(stack)) {
+      if (ChatColor.stripColor(line).startsWith("Quality:")) {
+        return (int) line.chars().filter(ch -> ch == '✪').count();
+      }
+    }
+    return 1;
+  }
+
   public static ItemStack buildEssence(String type, double itemLevel, double craftLevel,
       int toolQuality, List<String> possibleStats, boolean lucky) {
     int essLevel = 1 + (int) (itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);

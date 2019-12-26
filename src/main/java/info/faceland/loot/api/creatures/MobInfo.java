@@ -28,7 +28,7 @@ import org.bukkit.entity.EntityType;
 
 import java.util.Map;
 
-public interface CreatureMod {
+public interface MobInfo {
 
   EntityType getEntityType();
 

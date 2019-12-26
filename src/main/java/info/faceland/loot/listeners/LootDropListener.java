@@ -87,20 +87,23 @@ public class LootDropListener implements Listener {
     double rarityMultiplier = event.getQualityMultiplier();
     int mobLevel = event.getMonsterLevel();
 
+    List<ItemRarity> bonusDrops = new ArrayList<>(event.getBonusTierItems());
     if (StringUtils.isNotBlank(event.getUniqueEntity())) {
       if (plugin.getUniqueDropsManager().getData(event.getUniqueEntity()) != null) {
         UniqueLoot loot = plugin.getUniqueDropsManager().getData(event.getUniqueEntity());
         dropMultiplier *= loot.getQuantityMultiplier();
         rarityMultiplier *= loot.getQualityMultiplier();
         doUniqueDrops(loot, event.getLocation(), killer);
+        bonusDrops.addAll(loot.getBonusEquipment());
       }
     }
 
     EntityType entityType = event.getEntity().getType();
     String worldName = event.getLocation().getWorld().getName();
     boolean specialStat = addSpecialStat(entityType, worldName);
+    boolean normalDrop = dropMultiplier * normalDropChance > random.nextDouble();
 
-    if (random.nextDouble() < dropMultiplier * normalDropChance) {
+    while (bonusDrops.size() > 0 || normalDrop) {
       Tier tier = getTier(killer);
       ItemRarity rarity;
 
@@ -108,6 +111,15 @@ public class LootDropListener implements Listener {
         rarity = plugin.getRarityManager().getRandomRarity();
       } else {
         rarity = plugin.getRarityManager().getRandomRarityWithBonus(rarityMultiplier);
+      }
+      if (bonusDrops.size() > 0) {
+        ItemRarity dropRarity = bonusDrops.get(random.nextIntRange(0, bonusDrops.size()));
+        if (dropRarity.getPower() > rarity.getPower()) {
+          rarity = dropRarity;
+        }
+        bonusDrops.remove(dropRarity);
+      } else {
+        normalDrop = false;
       }
 
       BuiltItem builtItem = plugin.getNewItemBuilder()
@@ -147,6 +159,7 @@ public class LootDropListener implements Listener {
       boolean broadcast = rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2;
       dropItem(event.getLocation(), tierItem, killer, builtItem.getTicksLived(), broadcast);
     }
+
     if (random.nextDouble() < dropMultiplier * plugin.getSettings()
         .getDouble("config.drops.craft-mat", 0D)) {
       Object[] matArr = plugin.getCraftMatManager().getCraftMaterials().keySet().toArray();

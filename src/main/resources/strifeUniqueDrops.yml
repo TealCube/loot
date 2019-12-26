@@ -12,6 +12,9 @@ tutzombo:
         enchantTomeName: 0.3
     # loot tables for customs, uses weights. Use NO_DROP_WEIGHT for chance
     # of nothing dropping
+    extra-equipment:
+        - RARE
+        - EPIC
     custom-drops:
         equipment-table:
             NO_DROP_WEIGHT: 10

@@ -1,12 +1,15 @@
 package info.faceland.loot.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UniqueLoot {
 
   private double quantityMultiplier;
   private double qualityMultiplier;
+  private List<ItemRarity> bonusTierItems = new ArrayList<>();
   private Map<String, Double> gemMap;
   private Map<String, Double> tomeMap;
   private Map<String, Map<String, Double>> customItemMap;
@@ -31,6 +34,10 @@ public class UniqueLoot {
 
   public void setQualityMultiplier(double qualityMultiplier) {
     this.qualityMultiplier = qualityMultiplier;
+  }
+
+  public List<ItemRarity> getBonusEquipment() {
+    return bonusTierItems;
   }
 
   public Map<String, Double> getGemMap() {

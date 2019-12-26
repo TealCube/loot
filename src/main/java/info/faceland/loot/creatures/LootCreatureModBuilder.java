@@ -22,25 +22,24 @@
  */
 package info.faceland.loot.creatures;
 
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.JunkItemData;
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 import org.bukkit.entity.EntityType;
 
 import java.util.Map;
 
 public final class LootCreatureModBuilder implements CreatureModBuilder {
 
-    private final LootCreatureMod mod;
+    private final LootMobInfo mod;
     private boolean built = false;
 
     public LootCreatureModBuilder(EntityType entityType) {
-        this.mod = new LootCreatureMod(entityType);
+        this.mod = new LootMobInfo(entityType);
     }
 
     @Override
@@ -49,7 +48,7 @@ public final class LootCreatureModBuilder implements CreatureModBuilder {
     }
 
     @Override
-    public CreatureMod build() {
+    public MobInfo build() {
         if (isBuilt()) {
             throw new IllegalStateException("already built");
         }

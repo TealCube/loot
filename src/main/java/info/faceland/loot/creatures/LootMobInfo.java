@@ -18,7 +18,7 @@
  */
 package info.faceland.loot.creatures;
 
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -30,7 +30,7 @@ import org.bukkit.entity.EntityType;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class LootCreatureMod implements CreatureMod {
+public final class LootMobInfo implements MobInfo {
 
   private final EntityType entityType;
   private Expression experienceExpression;
@@ -40,7 +40,7 @@ public final class LootCreatureMod implements CreatureMod {
   private Map<EnchantmentTome, Double> enchantmentStoneDoubleMap;
   private Map<String, Map<JunkItemData, Double>> junkItemDataDoubleMap;
 
-  public LootCreatureMod(EntityType entityType) {
+  public LootMobInfo(EntityType entityType) {
     this.entityType = entityType;
     this.customItemDoubleMap = new HashMap<>();
     this.socketGemDoubleMap = new HashMap<>();
@@ -142,7 +142,7 @@ public final class LootCreatureMod implements CreatureMod {
       return false;
     }
 
-    LootCreatureMod that = (LootCreatureMod) o;
+    LootMobInfo that = (LootMobInfo) o;
 
     return entityType == that.entityType;
   }

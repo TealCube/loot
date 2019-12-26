@@ -25,13 +25,12 @@ import info.faceland.loot.api.tier.Tier;
 
 import info.faceland.loot.data.JunkItemData;
 import java.util.Map;
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 
 public interface CreatureModBuilder {
 
   boolean isBuilt();
 
-  CreatureMod build();
+  MobInfo build();
 
   CreatureModBuilder withCustomItemMults(Map<CustomItem, Double> map);
 

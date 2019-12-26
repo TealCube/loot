@@ -1,5 +1,8 @@
 package info.faceland.loot.events;
 
+import info.faceland.loot.data.ItemRarity;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -16,6 +19,7 @@ public class LootDropEvent extends Event {
 
   private double quantityMultiplier;
   private double qualityMultiplier;
+  private List<ItemRarity> bonusTierItems = new ArrayList<>();
   private Location location;
   private double distance;
   private UUID looterUUID;
@@ -66,6 +70,10 @@ public class LootDropEvent extends Event {
 
   public void setQualityMultiplier(double qualityMultiplier) {
     this.qualityMultiplier = qualityMultiplier;
+  }
+
+  public List<ItemRarity> getBonusTierItems() {
+    return bonusTierItems;
   }
 
   public Location getLocation() {

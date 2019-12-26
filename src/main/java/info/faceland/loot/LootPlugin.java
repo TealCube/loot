@@ -20,9 +20,7 @@ package info.faceland.loot;
 
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
-import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.ExpressionBuilder;
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
@@ -345,6 +343,10 @@ public final class LootPlugin extends FacePlugin {
           uniqueLoot.getGemMap().put(g, cs.getConfigurationSection("gem-drops").getDouble(g));
         }
       }
+      List<String> extraEquipment = cs.getStringList("extra-equipment");
+      for (String s : extraEquipment) {
+        uniqueLoot.getBonusEquipment().add(rarityManager.getRarity(s));
+      }
       if (cs.getConfigurationSection("tome-drops") != null) {
         for (String t : cs.getConfigurationSection("tome-drops").getKeys(false)) {
           uniqueLoot.getTomeMap().put(t, cs.getConfigurationSection("tome-drops").getDouble(t));
@@ -365,8 +367,8 @@ public final class LootPlugin extends FacePlugin {
   }
 
   private void loadCreatureMods() {
-    getCreatureModManager().getCreatureMods().clear();
-    Set<CreatureMod> mods = new HashSet<>();
+    getMobInfoManager().getMobInfo().clear();
+    Set<MobInfo> mods = new HashSet<>();
     List<String> loadedMods = new ArrayList<>();
     for (String key : creaturesYAML.getKeys(false)) {
       if (!creaturesYAML.isConfigurationSection(key)) {
@@ -461,12 +463,12 @@ public final class LootPlugin extends FacePlugin {
           builder.withJunkMap(map);
         }
       }
-      CreatureMod mod = builder.build();
+      MobInfo mod = builder.build();
       mods.add(mod);
       loadedMods.add(mod.getEntityType().name());
     }
-    for (CreatureMod cm : mods) {
-      creatureModManager.addCreatureMod(cm);
+    for (MobInfo cm : mods) {
+      creatureModManager.addMobInfo(cm);
     }
     System.out.println("Loaded creature mods: " + loadedMods.toString());
   }
@@ -869,7 +871,7 @@ public final class LootPlugin extends FacePlugin {
     return socketGemManager;
   }
 
-  public CreatureModManager getCreatureModManager() {
+  public CreatureModManager getMobInfoManager() {
     return creatureModManager;
   }
 

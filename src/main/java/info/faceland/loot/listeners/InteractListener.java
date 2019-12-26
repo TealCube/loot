@@ -51,6 +51,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -113,6 +114,18 @@ public final class InteractListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR)
   public void onAnvilOpenEvent(InventoryOpenEvent event) {
     if (event.getInventory() instanceof AnvilInventory) {
+      event.setCancelled(true);
+    }
+  }
+
+  // Block heads from being placed if they have a specific data
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onHeadBlockPlace(BlockPlaceEvent event) {
+    Material material = event.getItemInHand().getType();
+    if (material != Material.PLAYER_HEAD) {
+      return;
+    }
+    if (MaterialUtil.getCustomData(event.getItemInHand()) == 2000) {
       event.setCancelled(true);
     }
   }

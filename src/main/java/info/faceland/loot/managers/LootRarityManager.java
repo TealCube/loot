@@ -56,7 +56,7 @@ public class LootRarityManager implements RarityManager {
     double selectedWeight = random.nextDouble() * getTotalRarityWeightWithBonus(bonus);
     double currentWeight = 0;
     for (ItemRarity rarity : getLoadedRarities().values()) {
-      double calcWeight = rarity.getWeight() + (rarity.getWeight() * rarity.getPower() * bonus);
+      double calcWeight = rarity.getWeight() + rarity.getPower() * bonus;
       if (calcWeight >= 0) {
         currentWeight += calcWeight;
       }
@@ -108,7 +108,7 @@ public class LootRarityManager implements RarityManager {
   private double getTotalRarityWeightWithBonus(double bonus) {
     double weight = 0;
     for (ItemRarity rarity : getLoadedRarities().values()) {
-      double d = rarity.getWeight() + (rarity.getWeight() * rarity.getPower() * bonus);
+      double d = rarity.getWeight() + rarity.getPower() * bonus;
       if (d > 0D) {
         weight += d;
       }

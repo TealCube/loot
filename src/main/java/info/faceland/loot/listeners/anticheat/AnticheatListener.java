@@ -54,7 +54,7 @@ public final class AnticheatListener implements Listener {
       return;
     }
     LivingEntity victim = (LivingEntity) event.getEntity();
-    if (plugin.getCreatureModManager().getCreatureMod(victim.getType()) == null) {
+    if (plugin.getMobInfoManager().getMobInfo(victim.getType()) == null) {
       if (plugin.getStrifePlugin() == null) {
         return;
       }

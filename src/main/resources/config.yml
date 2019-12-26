@@ -83,6 +83,17 @@ crafting:
   infusion-item-level-mult: 0.05
   infusion-success-mult: 2.5
 
+# Extra drops based on the number of mob mods
+mob-mod-bonus:
+  1:
+    - UNCOMMON
+  2:
+    - UNCOMMON
+    - RARE
+  3:
+    - RARE
+    - EPIC
+
 # Probability that mobs will drop an item of each
 # type when it is killed
 drops:

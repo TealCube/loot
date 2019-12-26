@@ -18,7 +18,7 @@
  */
 package info.faceland.loot.managers;
 
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.managers.CreatureModManager;
 import org.bukkit.entity.EntityType;
 
@@ -29,31 +29,31 @@ import java.util.Set;
 
 public final class LootCreatureModManager implements CreatureModManager {
 
-  private final Map<EntityType, CreatureMod> creatureModMap;
+  private final Map<EntityType, MobInfo> creatureModMap;
 
   public LootCreatureModManager() {
     this.creatureModMap = new HashMap<>();
   }
 
   @Override
-  public Set<CreatureMod> getCreatureMods() {
+  public Set<MobInfo> getMobInfo() {
     return new HashSet<>(creatureModMap.values());
   }
 
   @Override
-  public CreatureMod getCreatureMod(EntityType entityType) {
+  public MobInfo getMobInfo(EntityType entityType) {
     return creatureModMap.get(entityType);
   }
 
   @Override
-  public void addCreatureMod(CreatureMod mod) {
+  public void addMobInfo(MobInfo mod) {
     if (mod != null) {
       creatureModMap.put(mod.getEntityType(), mod);
     }
   }
 
   @Override
-  public void removeCreatureMod(EntityType entityType) {
+  public void removeMobInfo(EntityType entityType) {
     if (entityType != null) {
       creatureModMap.remove(entityType);
     }
