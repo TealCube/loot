@@ -70,4 +70,26 @@ public class LootStatManager implements StatManager {
     String value = Integer.toString((int)statRoll);
     return returnString.replace("{}", value);
   }
+
+  @Override
+  public String getMinStat(ItemStat itemStat, double level, double rarity) {
+    double statRoll = itemStat.getMinBaseValue();
+    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
+    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+    String returnString = itemStat.getStatPrefix();
+    returnString = returnString + itemStat.getStatString();
+    String value = Integer.toString((int)statRoll);
+    return returnString.replace("{}", value);
+  }
+
+  @Override
+  public String getMaxStat(ItemStat itemStat, double level, double rarity) {
+    double statRoll = itemStat.getMaxBaseValue();
+    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
+    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+    String returnString = itemStat.getStatPrefix();
+    returnString = returnString + itemStat.getStatString();
+    String value = Integer.toString((int)statRoll);
+    return returnString.replace("{}", value);
+  }
 }

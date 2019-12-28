@@ -19,8 +19,7 @@ import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
-import info.faceland.loot.items.prefabs.UpgradeScroll;
-import info.faceland.loot.items.prefabs.UpgradeScroll.ScrollType;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 
@@ -59,6 +58,7 @@ public class LootDropListener implements Listener {
   private final double customizedTierChance;
 
   private final double normalDropChance;
+  private final double scrollDropChance;
   private final double socketDropChance;
   private final double tomeDropChance;
 
@@ -73,6 +73,7 @@ public class LootDropListener implements Listener {
         .getDouble("config.drops.customized-tier-chance", 0D);
 
     normalDropChance = plugin.getSettings().getDouble("config.drops.normal-drop", 0D);
+    scrollDropChance = plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D);
     socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
     tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
   }
@@ -198,17 +199,10 @@ public class LootDropListener implements Listener {
         dropItem(event.getLocation(), his, killer, es.isBroadcast());
       }
     }
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.upgrade-scroll", 0D)) {
-      UpgradeScroll us = new UpgradeScroll(UpgradeScroll.ScrollType.random(true));
-
-      ScrollType scrollType = us.getScrollType();
-      boolean broadcast = scrollType == ScrollType.ANCIENT || scrollType == ScrollType.AWAKENED ||
-          scrollType == ScrollType.FLAWLESS || scrollType == ScrollType.DIM ||
-          scrollType == ScrollType.SHINING || scrollType == ScrollType.ILLUMINATING ||
-          scrollType == ScrollType.RADIANT;
-
-      dropItem(event.getLocation(), us, null, broadcast);
+    if (random.nextDouble() < dropMultiplier * scrollDropChance) {
+      UpgradeScroll us = plugin.getScrollManager().getRandomScroll();
+      ItemStack stack = plugin.getScrollManager().buildItemStack(us);
+      dropItem(event.getLocation(), stack, null, us.isBroadcast());
     }
     if (random.nextDouble() < dropMultiplier * plugin.getSettings()
         .getDouble("config.drops.identity-tome", 0D)) {

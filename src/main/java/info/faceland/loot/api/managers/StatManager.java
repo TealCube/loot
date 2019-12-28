@@ -38,4 +38,8 @@ public interface StatManager {
     String getFinalStat(ItemStat itemStat, double level, double rarity);
 
     String getFinalStat(ItemStat itemStat, double level, double rarity, boolean special);
+
+    String getMinStat(ItemStat itemStat, double level, double rarity);
+
+    String getMaxStat(ItemStat itemStat, double level, double rarity);
 }

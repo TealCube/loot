@@ -31,7 +31,7 @@ import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
-import info.faceland.loot.items.prefabs.UpgradeScroll;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
@@ -208,21 +208,21 @@ public final class LootCommand {
     if (upgradeScroll) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(false)));
+          sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(plugin.getScrollManager().getRandomScroll()));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
             new String[][]{{"%amount%", amount + ""}});
         return;
       }
-      UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
-      if (type == null) {
+      UpgradeScroll scroll = plugin.getScrollManager().getScroll(name);
+      if (scroll == null) {
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
         return;
       }
       for (int i = 0; i < amount; i++) {
-        sender.getInventory().addItem(new UpgradeScroll(type));
+        sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(scroll));
       }
       sendMessage(sender,
           plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
@@ -387,20 +387,20 @@ public final class LootCommand {
     } else if (upgradeScroll) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
+          sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(plugin.getScrollManager().getRandomScroll()));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
             new String[][]{{"%amount%", amount + ""}});
       } else {
-        UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name);
-        if (type == null) {
+        UpgradeScroll scroll = plugin.getScrollManager().getScroll(name);
+        if (scroll == null) {
           sendMessage(
               sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
           return;
         }
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(new UpgradeScroll(type));
+          sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(scroll));
         }
         sendMessage(
             sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));
@@ -586,22 +586,23 @@ public final class LootCommand {
     } else if (upgradeScroll) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          target.getInventory().addItem(new UpgradeScroll(UpgradeScroll.ScrollType.random(true)));
+          UpgradeScroll scroll = plugin.getScrollManager().getRandomScroll();
+          target.getInventory().addItem(plugin.getScrollManager().buildItemStack(scroll));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
             new String[][]{{"%amount%", amount + ""}});
         sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
       } else {
-        UpgradeScroll.ScrollType type = UpgradeScroll.ScrollType.getByName(name.toUpperCase());
-        if (type == null) {
+        UpgradeScroll scroll = plugin.getScrollManager().getScroll(name);
+        if (scroll == null) {
           sendMessage(
               sender, plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
           target.updateInventory();
           return;
         }
         for (int i = 0; i < amount; i++) {
-          target.getInventory().addItem(new UpgradeScroll(type));
+          target.getInventory().addItem(plugin.getScrollManager().buildItemStack(scroll));
         }
         sendMessage(
             sender, plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""));

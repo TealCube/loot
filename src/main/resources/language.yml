@@ -51,6 +51,24 @@ quality:
   3: "Exceptional"
   4: "Immaculate"
   5: "Ultimate"
+menu:
+  confirm:
+    no-equipment:
+      - "aaaa"
+    no-upgrade:
+      - "aaaaa"
+    valid-enchant-lore:
+      - "&7Enchants this item with"
+      - "&7the following bonus!"
+      - ""
+      - "&fMinimum Value:"
+      - " &9{min}"
+      - "&fMaximum Value:"
+      - " &9{max}"
+    no-tag-lore:
+      - "gott b enchantable"
+    type-mismatch-lore:
+      - "wrong tome type"
 commands:
   give:
     receive: "<green>You received some loot!"

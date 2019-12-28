@@ -18,6 +18,7 @@
  */
 package info.faceland.loot;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import info.faceland.loot.api.creatures.MobInfo;
@@ -42,6 +43,7 @@ import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.data.UniqueLoot;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
@@ -49,6 +51,7 @@ import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.listeners.EnchantDegradeListener;
+import info.faceland.loot.listeners.EnchantMenuListener;
 import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.LootDropListener;
 import info.faceland.loot.listeners.StrifeListener;
@@ -62,6 +65,7 @@ import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
+import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
@@ -95,6 +99,7 @@ public final class LootPlugin extends FacePlugin {
   private VersionedSmartYamlConfiguration corestatsYAML;
   private VersionedSmartYamlConfiguration customItemsYAML;
   private VersionedSmartYamlConfiguration socketGemsYAML;
+  private VersionedSmartYamlConfiguration scrollsYAML;
   private VersionedSmartYamlConfiguration languageYAML;
   private VersionedSmartYamlConfiguration configYAML;
   private VersionedSmartYamlConfiguration creaturesYAML;
@@ -120,6 +125,7 @@ public final class LootPlugin extends FacePlugin {
   private LootCraftBaseManager lootCraftBaseManager;
   private LootCraftMatManager lootCraftMatManager;
   private UniqueDropsManager uniqueDropsManager;
+  private ScrollManager scrollManager;
   private StrifePlugin strifePlugin;
 
   public static LootPlugin getInstance() {
@@ -142,6 +148,7 @@ public final class LootPlugin extends FacePlugin {
     corestatsYAML = defaultLoadConfig("corestats.yml");
     customItemsYAML = defaultLoadConfig("customItems.yml");
     socketGemsYAML = defaultLoadConfig("socketGems.yml");
+    scrollsYAML = defaultLoadConfig("scrolls.yml");
     languageYAML = defaultLoadConfig("language.yml");
     creaturesYAML = defaultLoadConfig("creatures.yml");
     identifyingYAML = defaultLoadConfig("identifying.yml");
@@ -174,6 +181,7 @@ public final class LootPlugin extends FacePlugin {
     lootCraftBaseManager = new LootCraftBaseManager();
     lootCraftMatManager = new LootCraftMatManager();
     uniqueDropsManager = new LootUniqueDropsManager();
+    scrollManager = new ScrollManager();
 
     loadItemGroups();
     loadCraftBases();
@@ -189,7 +197,10 @@ public final class LootPlugin extends FacePlugin {
     loadEnchantmentStones();
     loadCreatureMods();
     loadUniqueDrops();
+    loadScrolls();
     loadChests();
+
+    MaterialUtil.refreshConfig();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
 
@@ -202,6 +213,7 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new CraftingListener(this), this);
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
+    Bukkit.getPluginManager().registerEvents(new EnchantMenuListener(), this);
     Bukkit.getPluginManager().registerEvents(new LootDropListener(this), this);
     if (potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
@@ -327,6 +339,30 @@ public final class LootPlugin extends FacePlugin {
       getEnchantmentStoneManager().addEnchantmentStone(es);
     }
     debug("Loaded enchantment stones: " + loadedStones.toString());
+  }
+
+  private void loadScrolls() {
+    for (String key : scrollsYAML.getKeys(false)) {
+      if (!scrollsYAML.isConfigurationSection(key)) {
+        continue;
+      }
+      ConfigurationSection cs = scrollsYAML.getConfigurationSection(key);
+      UpgradeScroll scroll = new UpgradeScroll();
+      scroll.setId(key);
+      scroll.setPrefix(cs.getString("prefix", "CONFIGURE PREFIX FOR SCROLL" + key));
+      scroll.setLore(TextUtils.color(cs.getStringList("lore")));
+      scroll.setBaseSuccess(cs.getDouble("base-success", 1.0));
+      scroll.setFlatDecay(cs.getDouble("flat-decay", 0.01));
+      scroll.setPercentDecay(cs.getDouble("percent-decay", 0.01));
+      scroll.setItemDamageMultiplier(cs.getDouble("item-damage-modifier", 1.0));
+      scroll.setExponent(cs.getDouble("exponent", 1.1));
+      scroll.setWeight(cs.getDouble("weight", 100));
+      scroll.setMinLevel(cs.getInt("min-level", 0));
+      scroll.setMaxLevel(cs.getInt("max-level", 14));
+      scroll.setBroadcast(cs.getBoolean("broadcast", false));
+      scrollManager.addScroll(key, scroll);
+    }
+    scrollManager.rebuildTotalWeight();
   }
 
   private void loadUniqueDrops() {
@@ -901,6 +937,10 @@ public final class LootPlugin extends FacePlugin {
 
   public UniqueDropsManager getUniqueDropsManager() {
     return uniqueDropsManager;
+  }
+
+  public ScrollManager getScrollManager() {
+    return scrollManager;
   }
 
   public StrifePlugin getStrifePlugin() {
