@@ -24,13 +24,12 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
-import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
-import info.faceland.loot.menu.EnchantMenu;
+import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
@@ -245,25 +244,17 @@ public final class InteractListener implements Listener {
       if (!targetItemName.equals(ChatColor.LIGHT_PURPLE + "Unidentified Item")) {
         return;
       }
-      int itemLevel = MaterialUtil.getDigit(targetItem.getItemMeta().getLore().get(0));
-      ItemRarity r;
-      Tier t;
-      if (itemLevel != 0) {
-        r = plugin.getRarityManager().getRandomIdRarity();
-        t = plugin.getTierManager().getRandomTier();
-        targetItem = plugin.getNewItemBuilder()
-            .withRarity(r)
-            .withTier(t)
-            .withLevel(itemLevel)
-            .build().getStack();
-        if (r.isBroadcast()) {
-          broadcast(player, targetItem,
-              plugin.getSettings().getString("language.broadcast.ided-item"));
-        }
-      } else {
-        targetItem = plugin.getNewItemBuilder()
-            .withItemGenerationReason(ItemGenerationReason.IDENTIFYING)
-            .build().getStack();
+      int itemLevel = Math.max(1, MaterialUtil.getDigit(targetItem.getItemMeta().getLore().get(0)));
+      ItemRarity r = plugin.getRarityManager().getRandomIdRarity();
+      Tier t = plugin.getTierManager().getRandomTier();
+      targetItem = plugin.getNewItemBuilder()
+          .withRarity(r)
+          .withTier(t)
+          .withLevel(itemLevel)
+          .build().getStack();
+      if (r.isBroadcast()) {
+        broadcast(player, targetItem,
+            plugin.getSettings().getString("language.broadcast.ided-item"));
       }
       sendMessage(player, plugin.getSettings().getString("language.identify.success", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
