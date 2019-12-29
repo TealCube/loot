@@ -16,8 +16,9 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package info.faceland.loot.menu;
+package info.faceland.loot.menu.upgrade;
 
+import com.tealcube.minecraft.bukkit.TextUtils;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import ninja.amp.ampmenus.events.ItemClickEvent;
 import ninja.amp.ampmenus.items.MenuItem;
@@ -25,14 +26,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class UpgradeItemIcon extends MenuItem {
+public class ConfirmIcon extends MenuItem {
 
-  private EnchantMenu enchantMenu;
-  private String displayName = "";
+  private EnchantMenu menu;
+  private String displayName = TextUtils.color("&eClick Items To Begin!");
 
-  UpgradeItemIcon(EnchantMenu enchantMenu) {
-    super("", new ItemStack(Material.AIR));
-    this.enchantMenu = enchantMenu;
+  ConfirmIcon(EnchantMenu menu) {
+    super("", new ItemStack(Material.BARRIER));
+    this.menu = menu;
   }
 
   @Override
@@ -45,13 +46,10 @@ public class UpgradeItemIcon extends MenuItem {
   @Override
   public void onItemClick(ItemClickEvent event) {
     super.onItemClick(event);
-    enchantMenu.setSelectedUpgradeItem(event.getPlayer(), enchantMenu.getBlankItem());
-    event.setWillUpdate(true);
-    event.setWillClose(false);
+    event.setWillUpdate(menu.doUpgrade(event.getPlayer()));
   }
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
-
 }
