@@ -1,8 +1,8 @@
 package info.faceland.loot.utils.inventory;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import info.faceland.loot.api.managers.SocketGemManager;
 import info.faceland.loot.api.sockets.SocketGem;
+import info.faceland.loot.managers.SocketGemManager;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

@@ -83,6 +83,21 @@ crafting:
   infusion-item-level-mult: 0.05
   infusion-success-mult: 2.5
 
+selling:
+  base-gem-price: 8
+  weight-per-half-gem-price: 100
+  base-tome-price: 10
+  weight-per-half-tome-price: 100
+  base-scroll-price: 1000
+  weight-per-half-scroll-price: 100
+  base-equipment-price: 6
+  equipment-price-per-level: 0.14
+  material-prices:
+    APPLE: 100
+  name-prices:
+    "Lesser Upgrade Scroll": 100
+    "meme": 100
+
 # Extra drops based on the number of mob mods
 mob-mod-bonus:
   1:

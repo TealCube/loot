@@ -19,11 +19,10 @@
 package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.menu.upgrade.EnchantMenu;
-import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.data.PriceData;
+import info.faceland.loot.menu.pawn.PawnMenu;
 import ninja.amp.ampmenus.menus.MenuHolder;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,14 +30,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public final class EnchantMenuListener implements Listener {
+public final class PawnMenuListener implements Listener {
+
+  private LootPlugin plugin;
+
+  public PawnMenuListener(LootPlugin plugin) {
+    this.plugin = plugin;
+  }
 
   @EventHandler(priority = EventPriority.LOW)
-  public void onClickEnchantMenu(InventoryClickEvent event) {
+  public void onClickPawnMenu(InventoryClickEvent event) {
     if (!(event.getInventory().getHolder() instanceof MenuHolder)) {
       return;
     }
-    if (!(((MenuHolder) event.getInventory().getHolder()).getMenu() instanceof EnchantMenu)) {
+    if (!(((MenuHolder) event.getInventory().getHolder()).getMenu() instanceof PawnMenu)) {
       return;
     }
     if (event.getClickedInventory() == null) {
@@ -51,22 +56,14 @@ public final class EnchantMenuListener implements Listener {
     if (stack == null || stack.getType() == Material.AIR) {
       return;
     }
-    Player player = (Player) event.getWhoClicked();
     MenuHolder holder = (MenuHolder) event.getInventory().getHolder();
-    EnchantMenu enchantMenu = (EnchantMenu) holder.getMenu();
-    if (MaterialUtil.isEnchantmentItem(stack)) {
-      enchantMenu.setSelectedUpgradeItem(player, stack);
-      enchantMenu.update(player);
-      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
-    } else if (LootPlugin.getInstance().getScrollManager().getScroll(stack) != null) {
-      enchantMenu.setSelectedUpgradeItem(player, stack);
-      enchantMenu.update(player);
-      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
-    } else if (MaterialUtil.isUpgradePossible(stack) || MaterialUtil.hasEnchantmentTag(stack)) {
-      enchantMenu.setSelectedEquipment(player, stack);
-      enchantMenu.update((Player) event.getWhoClicked());
-      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
+    PawnMenu pawnMenu = (PawnMenu) holder.getMenu();
+
+    PriceData priceData = plugin.getPawnManager().getPrice(stack);
+    if (priceData.getPrice() == -1) {
+      return;
     }
+    pawnMenu.addItem((Player) event.getWhoClicked(), stack, priceData);
   }
 
 }

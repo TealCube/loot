@@ -225,6 +225,10 @@ public final class MaterialUtil {
         return false;
       }
     }
+    return isEquipmentItem(stack);
+  }
+
+  public static boolean isEquipmentItem(ItemStack stack) {
     List<String> strip = InventoryUtil.stripColor(ItemStackExtensionsKt.getLore(stack));
     for (String s : strip) {
       if (s.startsWith("+")) {

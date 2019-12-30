@@ -32,7 +32,10 @@ import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.data.UpgradeScroll;
+import info.faceland.loot.managers.PawnManager;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.menu.pawn.PawnMenu;
+import info.faceland.loot.menu.upgrade.EnchantMenu;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -644,6 +647,24 @@ public final class LootCommand {
     plugin.enable();
     sendMessage(sender,
         plugin.getSettings().getString("language.command.reload", "&aLoot reloaded!"));
+  }
+
+  @Command(identifier = "loot upgrade", permissions = "loot.command.reload")
+  public void upgradeSubcommand(CommandSender sender, @Arg(name = "player") Player target) {
+    if (target == null || !target.isValid()) {
+      return;
+    }
+    EnchantMenu menu = new EnchantMenu(plugin);
+    menu.open(target);
+  }
+
+  @Command(identifier = "loot pawn", permissions = "loot.command.reload", onlyPlayers = false)
+  public void pawnSubcommand(CommandSender sender, @Arg(name = "player") Player target) {
+    if (target == null || !target.isValid()) {
+      return;
+    }
+    PawnMenu menu = new PawnMenu(plugin);
+    menu.open(target);
   }
 
   @Command(identifier = "loot renametag", permissions = "loot.command.renametag", onlyPlayers = true)

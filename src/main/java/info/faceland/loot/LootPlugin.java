@@ -54,6 +54,7 @@ import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.EnchantMenuListener;
 import info.faceland.loot.listeners.InteractListener;
 import info.faceland.loot.listeners.LootDropListener;
+import info.faceland.loot.listeners.PawnMenuListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
@@ -71,6 +72,7 @@ import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import land.face.strife.StrifePlugin;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -79,6 +81,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
 
+import org.bukkit.plugin.RegisteredServiceProvider;
 import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
 import java.io.File;
@@ -117,6 +120,7 @@ public final class LootPlugin extends FacePlugin {
   private NameManager nameManager;
   private CustomItemManager customItemManager;
   private SocketGemManager socketGemManager;
+  private PawnManager pawnManager;
   private CreatureModManager creatureModManager;
   private EnchantmentTomeManager enchantmentStoneManager;
   private AnticheatManager anticheatManager;
@@ -127,6 +131,8 @@ public final class LootPlugin extends FacePlugin {
   private UniqueDropsManager uniqueDropsManager;
   private ScrollManager scrollManager;
   private StrifePlugin strifePlugin;
+
+  private Economy economy;
 
   public static LootPlugin getInstance() {
     return instance;
@@ -170,7 +176,8 @@ public final class LootPlugin extends FacePlugin {
     rarityManager = new LootRarityManager();
     nameManager = new LootNameManager();
     customItemManager = new LootCustomItemManager();
-    socketGemManager = new LootSocketGemManager();
+    socketGemManager = new SocketGemManager();
+    pawnManager = new PawnManager(this);
     creatureModManager = new LootCreatureModManager();
     enchantmentStoneManager = new LootEnchantmentTomeManager();
     anticheatManager = new LootAnticheatManager();
@@ -182,6 +189,8 @@ public final class LootPlugin extends FacePlugin {
     lootCraftMatManager = new LootCraftMatManager();
     uniqueDropsManager = new LootUniqueDropsManager();
     scrollManager = new ScrollManager();
+
+    setupEconomy();
 
     loadItemGroups();
     loadCraftBases();
@@ -214,6 +223,7 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantMenuListener(), this);
+    Bukkit.getPluginManager().registerEvents(new PawnMenuListener(this), this);
     Bukkit.getPluginManager().registerEvents(new LootDropListener(this), this);
     if (potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
@@ -228,7 +238,22 @@ public final class LootPlugin extends FacePlugin {
   public void disable() {
     HandlerList.unregisterAll(this);
     Bukkit.getScheduler().cancelTasks(this);
+
+    economy = null;
+
     saveChests();
+  }
+
+  private boolean setupEconomy() {
+    if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
+      return false;
+    }
+    RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+    if (rsp == null) {
+      return false;
+    }
+    economy = rsp.getProvider();
+    return true;
   }
 
   private void loadChests() {
@@ -899,12 +924,20 @@ public final class LootPlugin extends FacePlugin {
     return settings;
   }
 
+  public VersionedSmartYamlConfiguration getConfigYAML() {
+    return configYAML;
+  }
+
   public CustomItemManager getCustomItemManager() {
     return customItemManager;
   }
 
   public SocketGemManager getSocketGemManager() {
     return socketGemManager;
+  }
+
+  public PawnManager getPawnManager() {
+    return pawnManager;
   }
 
   public CreatureModManager getMobInfoManager() {
@@ -941,6 +974,10 @@ public final class LootPlugin extends FacePlugin {
 
   public ScrollManager getScrollManager() {
     return scrollManager;
+  }
+
+  public Economy getEconomy() {
+    return economy;
   }
 
   public StrifePlugin getStrifePlugin() {

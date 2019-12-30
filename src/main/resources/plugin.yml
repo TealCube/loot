@@ -6,6 +6,7 @@ depend:
   - Facecore
 softdepend:
   - Strife
+  - Vault
 
 commands:
   loot:
