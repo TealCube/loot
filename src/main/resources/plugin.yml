@@ -1,7 +1,7 @@
 name: Loot
 version: ${project.version}
 main: info.faceland.loot.LootPlugin
-api-version: 1.14
+api-version: 1.15
 depend:
   - Facecore
 softdepend:

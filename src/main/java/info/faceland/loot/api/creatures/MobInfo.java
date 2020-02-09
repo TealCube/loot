@@ -18,12 +18,11 @@
  */
 package info.faceland.loot.api.creatures;
 
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.JunkItemData;
+import info.faceland.loot.enchantments.EnchantmentTome;
 import org.bukkit.entity.EntityType;
 
 import java.util.Map;

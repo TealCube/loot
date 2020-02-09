@@ -21,18 +21,17 @@ package info.faceland.loot.commands;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.data.UpgradeScroll;
-import info.faceland.loot.managers.PawnManager;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.pawn.PawnMenu;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
@@ -124,15 +123,12 @@ public final class LootCommand {
     if (enchantment) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(
-              plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true).toItemStack(1));
+          sender.getInventory().addItem(plugin.getEnchantTomeManager().getRandomEnchantTome().toItemStack(1));
         }
-        sendMessage(sender,
-            plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
-            new String[][]{{"%amount%", amount + ""}});
+        sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""), new String[][]{{"%amount%", amount + ""}});
         return;
       }
-      EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+      EnchantmentTome es = plugin.getEnchantTomeManager().getEnchantTome(name);
       if (es == null) {
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
@@ -312,14 +308,13 @@ public final class LootCommand {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
           sender.getInventory().addItem(
-              plugin.getEnchantmentStoneManager()
-                  .getRandomEnchantmentStone(true, distanceFromSpawnSquared).toItemStack(1));
+              plugin.getEnchantTomeManager().getRandomEnchantTome().toItemStack(1));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
             new String[][]{{"%amount%", amount + ""}});
       } else {
-        EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+        EnchantmentTome es = plugin.getEnchantTomeManager().getEnchantTome(name);
         if (es == null) {
           sendMessage(
               sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));
@@ -495,14 +490,14 @@ public final class LootCommand {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
           target.getInventory().addItem(
-              plugin.getEnchantmentStoneManager().getRandomEnchantmentStone(true).toItemStack(1));
+              plugin.getEnchantTomeManager().getRandomEnchantTome().toItemStack(1));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
             new String[][]{{"%amount%", amount + ""}});
         sendMessage(target, plugin.getSettings().getString("language.commands.give.receive", ""));
       } else {
-        EnchantmentTome es = plugin.getEnchantmentStoneManager().getEnchantmentStone(name);
+        EnchantmentTome es = plugin.getEnchantTomeManager().getEnchantTome(name);
         if (es == null) {
           sendMessage(
               sender, plugin.getSettings().getString("language.commands.spawn.stone-failure", ""));

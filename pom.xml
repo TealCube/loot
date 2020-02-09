@@ -30,7 +30,7 @@
   <parent>
     <groupId>io.pixeloutlaw</groupId>
     <artifactId>spigot-plugin-parent</artifactId>
-    <version>1.14.4.2</version>
+    <version>1.15.1.4</version>
   </parent>
 
   <artifactId>loot</artifactId>
@@ -57,12 +57,12 @@
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>facecore</artifactId>
-      <version>1.14.4.1</version>
+      <version>1.15.1.4</version>
     </dependency>
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>strife</artifactId>
-      <version>3.0.1-SNAPSHOT</version>
+      <version>3.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.github.MilkBowl</groupId>

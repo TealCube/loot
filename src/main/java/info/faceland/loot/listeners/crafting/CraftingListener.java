@@ -31,6 +31,7 @@ import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -169,6 +170,11 @@ public final class CraftingListener implements Listener {
 
     String strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
     Tier tier = plugin.getTierManager().getTier(strTier);
+
+    if (tier == null) {
+      Bukkit.getLogger().warning("Attempted to craft item with unknown tier: " + strTier);
+      return;
+    }
 
     int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
     double effectiveCraftLevel = PlayerDataUtil

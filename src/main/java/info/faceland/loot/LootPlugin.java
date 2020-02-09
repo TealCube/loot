@@ -23,7 +23,6 @@ import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
 import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
@@ -44,6 +43,7 @@ import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.data.UniqueLoot;
 import info.faceland.loot.data.UpgradeScroll;
+import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.enchantments.LootEnchantmentTomeBuilder;
 import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
@@ -122,7 +122,7 @@ public final class LootPlugin extends FacePlugin {
   private SocketGemManager socketGemManager;
   private PawnManager pawnManager;
   private CreatureModManager creatureModManager;
-  private EnchantmentTomeManager enchantmentStoneManager;
+  private EnchantTomeManager enchantTomeManager;
   private AnticheatManager anticheatManager;
   private ChestManager chestManager;
   private GemCacheManager gemCacheManager;
@@ -141,9 +141,10 @@ public final class LootPlugin extends FacePlugin {
   @Override
   public void enable() {
     instance = this;
-
     debugPrinter = new PluginLogger(this);
+
     recipeBuilder = new EquipmentRecipeBuilder(this);
+
     recipeBuilder.setupAllRecipes();
     configYAML = defaultLoadConfig("config.yml");
     itemsYAML = defaultLoadConfig("items.yml");
@@ -171,7 +172,7 @@ public final class LootPlugin extends FacePlugin {
     boolean potionTriggersEnabled = configYAML.getBoolean("socket-gems.use-potion-triggers", true);
 
     itemGroupManager = new LootItemGroupManager();
-    tierManager = new LootTierManager();
+    tierManager = new TierManager();
     statManager = new LootStatManager();
     rarityManager = new LootRarityManager();
     nameManager = new LootNameManager();
@@ -179,7 +180,7 @@ public final class LootPlugin extends FacePlugin {
     socketGemManager = new SocketGemManager();
     pawnManager = new PawnManager(this);
     creatureModManager = new LootCreatureModManager();
-    enchantmentStoneManager = new LootEnchantmentTomeManager();
+    enchantTomeManager = new EnchantTomeManager();
     anticheatManager = new LootAnticheatManager();
     chestManager = new LootChestManager();
     if (potionTriggersEnabled) {
@@ -316,11 +317,8 @@ public final class LootPlugin extends FacePlugin {
   }
 
   private void loadEnchantmentStones() {
-    for (EnchantmentTome es : getEnchantmentStoneManager().getEnchantmentStones()) {
-      getEnchantmentStoneManager().removeEnchantmentStone(es.getName());
-    }
-    Set<EnchantmentTome> stones = new HashSet<>();
-    List<String> loadedStones = new ArrayList<>();
+    Set<EnchantmentTome> tomes = new HashSet<>();
+    List<String> loadedTomes = new ArrayList<>();
     for (String key : enchantmentTomesYAML.getKeys(false)) {
       if (!enchantmentTomesYAML.isConfigurationSection(key)) {
         continue;
@@ -329,7 +327,7 @@ public final class LootPlugin extends FacePlugin {
       EnchantmentTomeBuilder builder = getNewEnchantmentStoneBuilder(key);
       builder.withDescription(cs.getString("description"));
       builder.withWeight(cs.getDouble("weight"));
-      builder.withDistanceWeight(cs.getDouble("distance-weight"));
+      builder.withBonusWeight(cs.getDouble("bonus-weight"));
       builder.withLore(cs.getStringList("lore"));
       builder.withStat(cs.getString("stat", ""));
       builder.withBar(cs.getBoolean("enable-bar", true));
@@ -357,13 +355,13 @@ public final class LootPlugin extends FacePlugin {
       builder.withEnchantments(enchantments);
       builder.withItemGroups(groups);
       EnchantmentTome stone = builder.build();
-      stones.add(stone);
-      loadedStones.add(stone.getName());
+      tomes.add(stone);
+      loadedTomes.add(stone.getName());
     }
-    for (EnchantmentTome es : stones) {
-      getEnchantmentStoneManager().addEnchantmentStone(es);
+    for (EnchantmentTome es : tomes) {
+      getEnchantTomeManager().addEnchantTome(es);
     }
-    debug("Loaded enchantment stones: " + loadedStones.toString());
+    debug("Loaded enchantment tomes: " + loadedTomes.toString());
   }
 
   private void loadScrolls() {
@@ -398,7 +396,7 @@ public final class LootPlugin extends FacePlugin {
       ConfigurationSection cs = uniqueDropsYAML.getConfigurationSection(key);
       UniqueLoot uniqueLoot = new UniqueLoot();
       uniqueLoot.setQuantityMultiplier(cs.getDouble("quantity-multiplier", 1D));
-      uniqueLoot.setQuantityMultiplier(cs.getDouble("rarity-multiplier", 1D));
+      uniqueLoot.setQualityMultiplier(cs.getDouble("rarity-multiplier", 1D));
       if (cs.getConfigurationSection("gem-drops") != null) {
         for (String g : cs.getConfigurationSection("gem-drops").getKeys(false)) {
           uniqueLoot.getGemMap().put(g, cs.getConfigurationSection("gem-drops").getDouble(g));
@@ -483,13 +481,13 @@ public final class LootPlugin extends FacePlugin {
             if (!cs.isConfigurationSection("enchantment-stones." + k)) {
               continue;
             }
-            EnchantmentTome es = enchantmentStoneManager.getEnchantmentStone(k);
+            EnchantmentTome es = enchantTomeManager.getEnchantTome(k);
             if (es == null) {
               continue;
             }
             map.put(es, cs.getDouble("enchantment-stones." + k));
           }
-          builder.withEnchantmentStoneMults(map);
+          builder.withEnchantTomeMults(map);
         } else if (fieldKey.equals("drops")) {
           Map<String, Map<JunkItemData, Double>> map = new HashMap<>();
           ConfigurationSection worldSection = cs.getConfigurationSection("drops");
@@ -622,12 +620,8 @@ public final class LootPlugin extends FacePlugin {
   }
 
   private void loadNames() {
-    for (String s : getNameManager().getPrefixes()) {
-      getNameManager().removePrefix(s);
-    }
-    for (String s : getNameManager().getSuffixes()) {
-      getNameManager().removeSuffix(s);
-    }
+    getNameManager().getPrefixes().clear();
+    getNameManager().getSuffixes().clear();
 
     File prefixFile = new File(getDataFolder(), "prefix.txt");
     File suffixFile = new File(getDataFolder(), "suffix.txt");
@@ -793,6 +787,7 @@ public final class LootPlugin extends FacePlugin {
       stat.setStatPrefix(cs.getString("stat-prefix"));
       stat.setPerfectStatPrefix(cs.getString("perfect-stat-prefix", stat.getStatPrefix()));
       stat.setSpecialStatPrefix(cs.getString("special-stat-prefix", stat.getStatPrefix()));
+      stat.getNamePrefixes().addAll(cs.getStringList("name-prefixes"));
       getStatManager().addStat(key, stat);
     }
     debug("Loaded stats: " + getStatManager().getLoadedStats().keySet().toString());
@@ -876,8 +871,8 @@ public final class LootPlugin extends FacePlugin {
     return config;
   }
 
-  public TierBuilder getNewTierBuilder(String name) {
-    return new LootTierBuilder(name);
+  public TierBuilder getNewTierBuilder(String id) {
+    return new LootTierBuilder(id);
   }
 
   public ItemBuilder getNewItemBuilder() {
@@ -944,8 +939,8 @@ public final class LootPlugin extends FacePlugin {
     return creatureModManager;
   }
 
-  public EnchantmentTomeManager getEnchantmentStoneManager() {
-    return enchantmentStoneManager;
+  public EnchantTomeManager getEnchantTomeManager() {
+    return enchantTomeManager;
   }
 
   public AnticheatManager getAnticheatManager() {

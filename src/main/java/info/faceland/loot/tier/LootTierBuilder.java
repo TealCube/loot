@@ -35,8 +35,8 @@ public final class LootTierBuilder implements TierBuilder {
     private boolean built = false;
     private LootTier tier;
 
-    public LootTierBuilder(String name) {
-        tier = new LootTier(name);
+    public LootTierBuilder(String id) {
+        tier = new LootTier(id);
     }
 
     @Override

@@ -18,12 +18,12 @@
  */
 package info.faceland.loot.api.creatures;
 
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.tier.Tier;
 
 import info.faceland.loot.data.JunkItemData;
+import info.faceland.loot.enchantments.EnchantmentTome;
 import java.util.Map;
 
 public interface CreatureModBuilder {
@@ -38,7 +38,7 @@ public interface CreatureModBuilder {
 
   CreatureModBuilder withTierMults(Map<Tier, Double> map);
 
-  CreatureModBuilder withEnchantmentStoneMults(Map<EnchantmentTome, Double> map);
+  CreatureModBuilder withEnchantTomeMults(Map<EnchantmentTome, Double> map);
 
   CreatureModBuilder withJunkMap(Map<String, Map<JunkItemData, Double>> map);
 }

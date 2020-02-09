@@ -21,7 +21,8 @@ package info.faceland.loot.menu.pawn;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.PriceData;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import ninja.amp.ampmenus.menus.ItemMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PawnMenu extends ItemMenu {
 
-  private HashMap<Integer, SaleIcon> pawnTargets = new HashMap<>();
+  private List<SaleIcon> pawnTargets = new ArrayList<>();
 
   public PawnMenu(LootPlugin plugin) {
     super(TextUtils.color(plugin.getSettings().getString("language.menu.pawn.name",
@@ -37,37 +38,44 @@ public class PawnMenu extends ItemMenu {
 
     for (int i = 0; i <= 26; i++) {
       SaleIcon icon = new SaleIcon(this);
-      pawnTargets.put(i, icon);
+      pawnTargets.add(icon);
       setItem(i, icon);
     }
     fillEmptySlots();
     setItem(31, new SellIcon(this));
   }
 
-  public void addItem(Player player, ItemStack clickedStack, PriceData data) {
-    int firstNull = -1;
-    for (int i = 0; i < pawnTargets.size(); i++) {
-      if (pawnTargets.get(i).getStack() == null) {
-        if (firstNull == -1) {
-          firstNull = i;
-        }
-        continue;
-      }
-      if (pawnTargets.get(i).getStack() == clickedStack) {
-        return;
+  public boolean alreadyListed(ItemStack stack) {
+    for (SaleIcon icon : pawnTargets) {
+      if (stack.equals(icon.getStack())) {
+        return true;
       }
     }
-    if (firstNull != -1) {
-      pawnTargets.get(firstNull).setStack(clickedStack);
-      pawnTargets.get(firstNull).setPrice(data.getPrice());
-      pawnTargets.get(firstNull).setCheckRare(data.isRare());
+    return false;
+  }
+
+  public void addItem(Player player, ItemStack stack, PriceData data) {
+    SaleIcon firstNull = null;
+    if (alreadyListed(stack)) {
+      return;
+    }
+    for (SaleIcon icon : pawnTargets) {
+      if (icon.getStack() == null) {
+        firstNull = icon;
+        break;
+      }
+    }
+    if (firstNull != null) {
+      firstNull.setStack(stack);
+      firstNull.setPrice(data.getPrice());
+      firstNull.setCheckRare(data.isRare());
       update(player);
     }
   }
 
   int getTotal() {
     int total = 0;
-    for (SaleIcon saleIcon : pawnTargets.values()) {
+    for (SaleIcon saleIcon : pawnTargets) {
       if (saleIcon.getStack() == null) {
         continue;
       }
@@ -78,7 +86,7 @@ public class PawnMenu extends ItemMenu {
 
   int sellItems(Player player) {
     int total = 0;
-    for (SaleIcon saleIcon : pawnTargets.values()) {
+    for (SaleIcon saleIcon : pawnTargets) {
       if (saleIcon.getStack() == null) {
         continue;
       }

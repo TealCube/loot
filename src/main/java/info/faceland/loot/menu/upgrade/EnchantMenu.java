@@ -20,9 +20,10 @@ package info.faceland.loot.menu.upgrade;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.UpgradeScroll;
+import info.faceland.loot.enchantments.EnchantmentTome;
+import info.faceland.loot.menu.BlankIcon;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.text.DecimalFormat;
@@ -52,6 +53,8 @@ public class EnchantMenu extends ItemMenu {
   private String invalidEnchant;
   private String validUpgrade;
   private String invalidUpgrade;
+  private String validExtend;
+  private String invalidExtend;
   private List<String> noEquipmentLore;
   private List<String> noUpgradeItemLore;
   private List<String> validEnchantLore;
@@ -60,6 +63,8 @@ public class EnchantMenu extends ItemMenu {
   private List<String> invalidUpgradeLore;
   private List<String> badScrollRangeLore;
   private List<String> validUpgradeLore;
+  private List<String> validExtendLore;
+  private List<String> invalidExtendLore;
 
   private ItemStack blankItem;
 
@@ -75,10 +80,14 @@ public class EnchantMenu extends ItemMenu {
         .getString("language.menu.valid-enchant-name", "aaaa"));
     validUpgrade = TextUtils.color(plugin.getSettings()
         .getString("language.menu.valid-upgrade-name", "aaaa"));
+    validExtend = TextUtils.color(plugin.getSettings()
+        .getString("language.menu.valid-extend-name", "aaaa"));
     invalidEnchant = TextUtils.color(plugin.getSettings()
         .getString("language.menu.invalid-enchant-name", "aaaa"));
     invalidUpgrade = TextUtils.color(plugin.getSettings()
         .getString("language.menu.invalid-upgrade-name", "aaaa"));
+    invalidExtend = TextUtils.color(plugin.getSettings()
+        .getString("language.menu.invalid-extend-name", "aaaa"));
 
     noEquipmentLore = TextUtils.color(plugin.getSettings()
         .getStringList("language.menu.no-equipment"));
@@ -96,6 +105,10 @@ public class EnchantMenu extends ItemMenu {
         .getStringList("language.menu.invalid-plus-range-lore"));
     validUpgradeLore = TextUtils.color(plugin.getSettings()
         .getStringList("language.menu.valid-upgrade-lore"));
+    validExtendLore = TextUtils.color(plugin.getSettings()
+        .getStringList("language.menu.valid-extend-lore"));
+    invalidExtendLore = TextUtils.color(plugin.getSettings()
+        .getStringList("language.menu.invalid-extend-lore"));
 
     blankItem = new ItemStack(Material.AIR);
 
@@ -103,7 +116,7 @@ public class EnchantMenu extends ItemMenu {
     equipmentIcon = new EquipmentIcon(this);
     upgradeItemIcon = new UpgradeItemIcon(this);
 
-    fillEmptySlots();
+    fillEmptySlots(new BlankIcon());
     setItem(10, equipmentIcon);
     setItem(12, upgradeItemIcon);
     setItem(16, confirmIcon);
@@ -178,6 +191,20 @@ public class EnchantMenu extends ItemMenu {
       ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
       return;
     }
+    if (MaterialUtil.isExtender(selectedUpgradeItem)) {
+      if (!MaterialUtil.canBeExtended(new ArrayList<>(ItemStackExtensionsKt.getLore(selectedEquipment)))) {
+        confirmIcon.setDisplayName(invalidExtend);
+        lore.addAll(invalidExtendLore);
+        ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
+        return;
+      }
+      confirmIcon.setDisplayName(validExtend);
+      confirmIcon.getIcon().setType(Material.NETHER_STAR);
+      lore.addAll(validExtendLore);
+
+      ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
+      return;
+    }
     UpgradeScroll scroll = plugin.getScrollManager().getScroll(selectedUpgradeItem);
     if (scroll != null) {
       if (!MaterialUtil.isUpgradePossible(selectedEquipment)) {
@@ -196,16 +223,27 @@ public class EnchantMenu extends ItemMenu {
       }
       confirmIcon.setDisplayName(validUpgrade);
       confirmIcon.getIcon().setType(Material.NETHER_STAR);
-      double successChance = Math.min(100,
-          100 * MaterialUtil.getSuccessChance(player, itemPlus, selectedUpgradeItem, scroll));
+      if (selectedEquipment.getType() == Material.BOOK
+          || selectedEquipment.getType() == Material.ARROW) {
+        itemPlus += 3;
+      } else {
+        itemPlus += 1;
+      }
+      itemPlus = Math.min(itemPlus, 15);
+      double successChance = Math.min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus,
+          selectedUpgradeItem, scroll));
       double maxDura = selectedEquipment.getType().getMaxDurability();
       double maxDamage = maxDura * MaterialUtil.getMaxFailureDamagePercent(scroll, itemPlus);
-      double currentDamage = selectedEquipment.getDurability();
+      double damage = selectedEquipment.getDurability();
       double killChance = 0;
       double damageChance = 0;
       if (successChance < 99.9) {
         double failChance = 100 - successChance;
-        killChance = failChance * Math.max(0, ((currentDamage + maxDamage) - maxDura) / maxDamage);
+        if (maxDamage == 0) {
+          killChance = failChance;
+        } else {
+          killChance = failChance * Math.max(0, ((damage + maxDamage) - maxDura) / maxDamage);
+        }
         damageChance = failChance - killChance;
       }
 
@@ -226,18 +264,17 @@ public class EnchantMenu extends ItemMenu {
     }
     if (MaterialUtil.isEnchantmentItem(selectedUpgradeItem)) {
       MaterialUtil.enchantItem(player, selectedUpgradeItem, selectedEquipment);
-      setSelectedUpgradeItem(player, selectedUpgradeItem);
-      setSelectedEquipment(player, selectedEquipment);
-      return true;
     } else if (plugin.getScrollManager().getScroll(selectedUpgradeItem) != null) {
       MaterialUtil.upgradeItem(player, selectedUpgradeItem, selectedEquipment);
-      setSelectedUpgradeItem(player, selectedUpgradeItem);
-      setSelectedEquipment(player, selectedEquipment);
-      return true;
+    } else if (MaterialUtil.isExtender(selectedUpgradeItem)) {
+      MaterialUtil.extendItem(player, selectedEquipment, selectedUpgradeItem);
     } else {
       player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_HURT, 1, 0.8f);
       return false;
     }
+    setSelectedUpgradeItem(player, selectedUpgradeItem);
+    setSelectedEquipment(player, selectedEquipment);
+    return true;
   }
 
   ItemStack getBlankItem() {

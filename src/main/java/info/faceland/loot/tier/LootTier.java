@@ -32,6 +32,7 @@ import java.util.Set;
 public final class LootTier implements Tier {
 
   private boolean levelRequirement;
+  private String id;
   private String name;
   private ItemStat primaryStat;
   private List<ItemStat> secondaryStats;
@@ -43,8 +44,8 @@ public final class LootTier implements Tier {
   private int customDataInterval;
   private Set<ItemGroup> itemGroups;
 
-  public LootTier(String name) {
-    this.name = name;
+  public LootTier(String id) {
+    this.id = id;
     this.secondaryStats = new ArrayList<>();
     this.bonusStats = new ArrayList<>();
     this.itemGroups = new HashSet<>();
@@ -57,6 +58,11 @@ public final class LootTier implements Tier {
 
   public void setLevelRequirement(boolean levelRequirement) {
     this.levelRequirement = levelRequirement;
+  }
+
+  @Override
+  public String getId() {
+    return id;
   }
 
   @Override

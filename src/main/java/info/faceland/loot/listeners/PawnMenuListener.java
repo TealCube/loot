@@ -52,12 +52,16 @@ public final class PawnMenuListener implements Listener {
     if (!event.getClickedInventory().equals(event.getView().getBottomInventory())) {
       return;
     }
-    ItemStack stack = event.getCurrentItem();
+    ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
     if (stack == null || stack.getType() == Material.AIR) {
       return;
     }
     MenuHolder holder = (MenuHolder) event.getInventory().getHolder();
     PawnMenu pawnMenu = (PawnMenu) holder.getMenu();
+
+    if (pawnMenu.alreadyListed(stack)) {
+      return;
+    }
 
     PriceData priceData = plugin.getPawnManager().getPrice(stack);
     if (priceData.getPrice() == -1) {

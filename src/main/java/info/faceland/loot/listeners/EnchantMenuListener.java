@@ -19,8 +19,10 @@
 package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.utils.inventory.MaterialUtil;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import ninja.amp.ampmenus.menus.MenuHolder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -59,6 +61,10 @@ public final class EnchantMenuListener implements Listener {
       enchantMenu.update(player);
       player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
     } else if (LootPlugin.getInstance().getScrollManager().getScroll(stack) != null) {
+      enchantMenu.setSelectedUpgradeItem(player, stack);
+      enchantMenu.update(player);
+      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
+    } else if (MaterialUtil.isExtender(stack)) {
       enchantMenu.setSelectedUpgradeItem(player, stack);
       enchantMenu.update(player);
       player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);

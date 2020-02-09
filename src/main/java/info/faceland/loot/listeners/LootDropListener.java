@@ -7,7 +7,6 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.enchantments.EnchantmentTome;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
@@ -15,6 +14,7 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UniqueLoot;
+import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
@@ -193,8 +193,7 @@ public class LootDropListener implements Listener {
     }
     if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
       if (random.nextDouble() < dropMultiplier * tomeDropChance) {
-        EnchantmentTome es = plugin.getEnchantmentStoneManager()
-            .getRandomEnchantmentStone(true, event.getDistance());
+        EnchantmentTome es = plugin.getEnchantTomeManager().getRandomEnchantTome(rarityMultiplier);
         ItemStack his = es.toItemStack(1);
         dropItem(event.getLocation(), his, killer, es.isBroadcast());
       }
@@ -272,7 +271,7 @@ public class LootDropListener implements Listener {
     }
     for (String tomeString : uniqueLoot.getTomeMap().keySet()) {
       if (uniqueLoot.getTomeMap().get(tomeString) > random.nextDouble()) {
-        EnchantmentTome tome = plugin.getEnchantmentStoneManager().getEnchantmentStone(tomeString);
+        EnchantmentTome tome = plugin.getEnchantTomeManager().getEnchantTome(tomeString);
         if (tome == null) {
           continue;
         }

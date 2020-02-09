@@ -34,6 +34,8 @@ public interface Tier extends Comparable<Tier> {
 
     boolean isLevelRequirement();
 
+    String getId();
+
     String getName();
 
     ItemStat getPrimaryStat();
