@@ -24,18 +24,18 @@ import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.RarityManager;
-import info.faceland.loot.api.managers.StatManager;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.data.StatResponse;
+import info.faceland.loot.managers.StatManager;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,15 +88,13 @@ public final class LootItemBuilder implements ItemBuilder {
       material = array[random.nextInt(array.length)];
     }
     stack = new ItemStack(material);
-    ItemStackExtensionsKt.setDisplayName(stack,
-        rarity.getColor() + nameManager.getRandomPrefix() + " " + nameManager.getRandomSuffix());
     List<String> lore = new ArrayList<>();
 
     lore.add("&fLevel Requirement: " + level);
     lore.add("&fTier: " + rarity.getColor() + rarity.getName() + " " + tier.getName());
 
-    lore.add(statManager.getFinalStat(tier.getPrimaryStat(), level, rarity.getPower()));
-    lore.add(statManager.getFinalStat(getRandomSecondaryStat(), level, rarity.getPower()));
+    lore.add(statManager.getFinalStat(tier.getPrimaryStat(), level, rarity.getPower()).getStatString());
+    lore.add(statManager.getFinalStat(getRandomSecondaryStat(), level, rarity.getPower()).getStatString());
 
     List<ItemStat> bonusStatList = new ArrayList<>(tier.getBonusStats());
 
@@ -107,15 +105,23 @@ public final class LootItemBuilder implements ItemBuilder {
       } else {
         stat = bonusStatList.get(random.nextInt(bonusStatList.size()));
       }
-      lore.add(statManager.getFinalStat(stat, level, rarity.getPower(), true));
+      StatResponse rStat = statManager.getFinalStat(stat, level, rarity.getPower(), true);
+      lore.add(rStat.getStatString());
     }
 
-    int bonusStats = random
-        .nextIntRange(rarity.getMinimumBonusStats(), rarity.getMaximumBonusStats());
+    int bonusStats = random.nextIntRange(rarity.getMinimumBonusStats(), rarity.getMaximumBonusStats());
+    String prefix = nameManager.getRandomPrefix();
+    float roll = 0;
+    boolean statPrefix = random.nextDouble() > 0.35;
     for (int i = 0; i < bonusStats; i++) {
       ItemStat stat = bonusStatList.get(random.nextInt(bonusStatList.size()));
-      lore.add(statManager.getFinalStat(stat, level, rarity.getPower()));
+      StatResponse rStat = statManager.getFinalStat(stat, level, rarity.getPower());
+      lore.add(rStat.getStatString());
       bonusStatList.remove(stat);
+      if (statPrefix && rStat.getStatRoll() > 0.5 && rStat.getStatRoll() > roll) {
+        roll = rStat.getStatRoll();
+        prefix = rStat.getStatPrefix();
+      }
     }
 
     for (int i = 0; i < rarity.getEnchantments(); i++) {
@@ -131,8 +137,18 @@ public final class LootItemBuilder implements ItemBuilder {
       lore.add("&3(+)");
     }
 
+    String suffix;
+    boolean statSuffix = random.nextDouble() > 0.35;
+    if (!statSuffix || tier.getItemSuffixes().size() == 0) {
+      suffix = nameManager.getRandomSuffix();
+    } else {
+      suffix = tier.getItemSuffixes().get(random.nextInt(tier.getItemSuffixes().size()));
+    }
+
+    ItemStackExtensionsKt.setDisplayName(stack, rarity.getColor() + prefix + " " + suffix);
     ItemStackExtensionsKt.setLore(stack, TextUtils.color(lore));
     ItemStackExtensionsKt.addItemFlags(stack, ItemFlag.HIDE_ATTRIBUTES);
+
     MaterialUtil.applyTierLevelData(stack, tier, level);
 
     return new BuiltItem(stack, rarity.getLivedTicks());

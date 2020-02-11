@@ -357,7 +357,8 @@ public final class MaterialUtil {
       double eLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
 
       ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
-      added.add(LootPlugin.getInstance().getStatManager().getFinalStat(stat, eLevel, rarity));
+      added.add(LootPlugin.getInstance().getStatManager().getFinalStat(stat, eLevel, rarity)
+          .getStatString());
     }
 
     if (tome.getBar()) {

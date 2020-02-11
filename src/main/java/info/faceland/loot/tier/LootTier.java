@@ -43,6 +43,7 @@ public final class LootTier implements Tier {
   private int customDataStart;
   private int customDataInterval;
   private Set<ItemGroup> itemGroups;
+  private List<String> suffixes;
 
   public LootTier(String id) {
     this.id = id;
@@ -178,6 +179,11 @@ public final class LootTier implements Tier {
       materials.add(Material.WOODEN_SWORD);
     }
     return materials;
+  }
+
+  @Override
+  public List<String> getItemSuffixes() {
+    return suffixes;
   }
 
   @Override

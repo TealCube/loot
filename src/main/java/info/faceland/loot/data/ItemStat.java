@@ -1,5 +1,7 @@
 package info.faceland.loot.data;
 
+import java.util.List;
+
 public class ItemStat {
 
   private double minBaseValue;
@@ -12,6 +14,7 @@ public class ItemStat {
   private String statPrefix;
   private String perfectStatPrefix;
   private String specialStatPrefix;
+  private List<String> namePrefixes;
 
   public double getMinBaseValue() {
     return minBaseValue;
@@ -91,5 +94,9 @@ public class ItemStat {
 
   public void setSpecialStatPrefix(String specialStatPrefix) {
     this.specialStatPrefix = specialStatPrefix;
+  }
+
+  public List<String> getNamePrefixes() {
+    return namePrefixes;
   }
 }

@@ -1,22 +1,21 @@
 package info.faceland.loot.managers;
 
-import info.faceland.loot.api.managers.StatManager;
-import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.data.StatResponse;
 import info.faceland.loot.math.LootRandom;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LootStatManager implements StatManager {
+public class StatManager {
+
   private final Map<String, ItemStat> itemStats;
   private final LootRandom random;
 
-  public LootStatManager() {
+  public StatManager() {
     this.itemStats = new HashMap<>();
     this.random = new LootRandom();
   }
 
-  @Override
   public ItemStat getStat(String name) {
     if (!itemStats.containsKey(name)) {
       System.out.println("ERROR! No stat found for name " + name + "!");
@@ -25,39 +24,41 @@ public class LootStatManager implements StatManager {
     return itemStats.get(name);
   }
 
-  @Override
   public void addStat(String name, ItemStat itemStat) {
     itemStats.put(name, itemStat);
   }
 
-  @Override
   public void removeStat(String name) {
     itemStats.remove(name);
   }
 
-  @Override
   public Map<String, ItemStat> getLoadedStats() {
     return itemStats;
   }
 
-  @Override
-  public String getFinalStat(ItemStat itemStat, double level, double rarity) {
+  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity) {
     return getFinalStat(itemStat, level, rarity, false);
   }
 
-  @Override
-  public String getFinalStat(ItemStat itemStat, double level, double rarity, boolean special) {
+  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity,
+      boolean special) {
+    StatResponse response = new StatResponse();
     double statRoll;
-    double baseRollMultiplier;
+    float baseRollMultiplier;
     if (itemStat.getMinBaseValue() == itemStat.getMaxBaseValue()) {
       statRoll = itemStat.getMinBaseValue();
       baseRollMultiplier = 0;
     } else {
-      baseRollMultiplier = Math.pow(random.nextDouble(), 2.5);
-      statRoll = itemStat.getMinBaseValue() + baseRollMultiplier * (itemStat.getMaxBaseValue() - itemStat.getMinBaseValue());
+      baseRollMultiplier = (float) Math.pow(random.nextDouble(), 2.5);
+      statRoll =
+          itemStat.getMinBaseValue() + baseRollMultiplier * (itemStat.getMaxBaseValue() - itemStat
+              .getMinBaseValue());
     }
+    response.setStatRoll(baseRollMultiplier);
+
     statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+    statRoll *=
+        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
     String returnString;
     if (special) {
       returnString = itemStat.getSpecialStatPrefix();
@@ -67,29 +68,34 @@ public class LootStatManager implements StatManager {
       returnString = itemStat.getStatPrefix();
     }
     returnString = returnString + itemStat.getStatString();
-    String value = Integer.toString((int)statRoll);
-    return returnString.replace("{}", value);
+    String value = Integer.toString((int) statRoll);
+    response.setStatString(returnString.replace("{}", value));
+
+    response.setStatPrefix(
+        itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
+
+    return response;
   }
 
-  @Override
   public String getMinStat(ItemStat itemStat, double level, double rarity) {
     double statRoll = itemStat.getMinBaseValue();
     statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+    statRoll *=
+        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
     String returnString = itemStat.getStatPrefix();
     returnString = returnString + itemStat.getStatString();
-    String value = Integer.toString((int)statRoll);
+    String value = Integer.toString((int) statRoll);
     return returnString.replace("{}", value);
   }
 
-  @Override
   public String getMaxStat(ItemStat itemStat, double level, double rarity) {
     double statRoll = itemStat.getMaxBaseValue();
     statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *= 1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+    statRoll *=
+        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
     String returnString = itemStat.getStatPrefix();
     returnString = returnString + itemStat.getStatString();
-    String value = Integer.toString((int)statRoll);
+    String value = Integer.toString((int) statRoll);
     return returnString.replace("{}", value);
   }
 }

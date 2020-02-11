@@ -236,11 +236,10 @@ public final class CraftingListener implements Listener {
     lore.add(ChatColor.WHITE + "Level Requirement: " + itemLevel);
     lore.add(ChatColor.WHITE + "Tier: " + ChatColor.AQUA + "Crafted " + tier.getName());
 
-    lore.add(TextUtils.color(plugin.getStatManager()
-        .getFinalStat(tier.getPrimaryStat(), itemLevel, quality)));
-    lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(
-        tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())),
-        itemLevel, quality)));
+    lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), itemLevel,
+        quality).getStatString()));
+    lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(tier.getSecondaryStats().get(
+        random.nextInt(tier.getSecondaryStats().size())), itemLevel, quality).getStatString()));
 
     List<ItemStat> stats = new ArrayList<>(tier.getBonusStats());
 
@@ -252,8 +251,8 @@ public final class CraftingListener implements Listener {
         lore.add(TextUtils.color("&b[ Crafted Stat Slot ]"));
       } else {
         ItemStat stat = stats.get(random.nextInt(stats.size()));
-        lore.add(ChatColor.AQUA + ChatColor.stripColor(
-            TextUtils.color(plugin.getStatManager().getFinalStat(stat, itemLevel, quality))));
+        lore.add(ChatColor.AQUA + ChatColor.stripColor(TextUtils.color(
+            plugin.getStatManager().getFinalStat(stat, itemLevel, quality).getStatString())));
         stats.remove(stat);
       }
       craftedSlotScore--;

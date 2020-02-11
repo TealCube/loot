@@ -173,7 +173,7 @@ public final class LootPlugin extends FacePlugin {
 
     itemGroupManager = new LootItemGroupManager();
     tierManager = new TierManager();
-    statManager = new LootStatManager();
+    statManager = new StatManager();
     rarityManager = new LootRarityManager();
     nameManager = new LootNameManager();
     customItemManager = new LootCustomItemManager();
@@ -851,6 +851,7 @@ public final class LootPlugin extends FacePlugin {
       }
       builder.withItemGroups(itemGroups);
       Tier t = builder.build();
+      t.getItemSuffixes().addAll(cs.getStringList("name-suffixes"));
       loadedTiers.add(t.getName());
       tiers.add(t);
     }
