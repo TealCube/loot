@@ -24,6 +24,7 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
@@ -168,7 +169,22 @@ public final class CraftingListener implements Listener {
 
     Player player = (Player) event.getWhoClicked();
 
-    String strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
+    String strTier = "";
+    int data = MaterialUtil.getCustomData(resultStack);
+    for (DeconstructData dd : plugin.getCraftMatManager().getDeconstructDataSet()) {
+      if (StringUtils.isBlank(dd.getTierName())) {
+        continue;
+      }
+      if (dd.getMaterial() == resultStack.getType()) {
+        if (data >= dd.getMinCustomData() && data <= dd.getMaxCustomData()) {
+          strTier = dd.getTierName();
+          break;
+        }
+      }
+    }
+    if (StringUtils.isBlank(strTier)) {
+      strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
+    }
     Tier tier = plugin.getTierManager().getTier(strTier);
 
     if (tier == null) {
@@ -282,11 +298,8 @@ public final class CraftingListener implements Listener {
     if (masterwork) {
       exp *= CRAFT_MASTER_MULT;
     }
-    if (craftingLevel > rawItemLevel) {
+    if (craftingLevel - 8 > rawItemLevel) {
       exp *= rawItemLevel / craftingLevel;
-    }
-    if (rawItemLevel * 8 < craftingLevel) {
-      exp *= 0.01;
     }
 
     plugin.getStrifePlugin().getSkillExperienceManager()
@@ -403,6 +416,7 @@ public final class CraftingListener implements Listener {
     ItemStackExtensionsKt.setLore(baseItem, lore);
 
     event.setCurrentItem(baseItem);
+    craftExp *= INFUSE_SUCCESS_MULT;
     plugin.getStrifePlugin().getSkillExperienceManager()
         .addExperience(player, LifeSkillType.CRAFTING, craftExp, false);
     sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));

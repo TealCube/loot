@@ -47,7 +47,7 @@ public final class StrifeListener implements Listener {
       Player p = (Player) event.getAttacker();
       GemCacheData attackerData = plugin.getGemCacheManager().getGemCacheData(p.getUniqueId());
       attackerEffects.addAll(attackerData.getWeaponCache(GemType.ON_CRIT));
-      applyEffects(attackerEffects, p, event.getVictim());
+      applyEffects(attackerEffects, p, event.getVictim().getEntity());
     }
   }
 
@@ -58,7 +58,7 @@ public final class StrifeListener implements Listener {
       Player p = (Player) event.getEvader();
       GemCacheData defenderData = plugin.getGemCacheManager().getGemCacheData(p.getUniqueId());
       defenderEffects.addAll(defenderData.getArmorCache(GemType.ON_EVADE));
-      applyEffects(defenderEffects, p, event.getAttacker());
+      applyEffects(defenderEffects, p, event.getAttacker().getEntity());
     }
   }
 }

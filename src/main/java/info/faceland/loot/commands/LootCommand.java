@@ -622,20 +622,6 @@ public final class LootCommand {
     }
   }
 
-  @Command(identifier = "loot chest", permissions = "loot.command.chest", onlyPlayers = true)
-  public void chestSubcommand(Player sender) {
-    List<Block> blocks = sender.getLineOfSight(Sets.newHashSet(Material.AIR), 10);
-    for (Block block : blocks) {
-      if (block.getType() == Material.CHEST) {
-        Vec3 loc = new Vec3(block.getWorld().getName(), block.getX(), block.getY(), block.getZ());
-        plugin.getChestManager().addChestLocation(loc);
-        sendMessage(sender, "<green>You added a gem combiner chest!");
-        return;
-      }
-    }
-    sendMessage(sender, "<red>You could not add a chest.");
-  }
-
   @Command(identifier = "loot reload", permissions = "loot.command.reload", onlyPlayers = false)
   public void reloadSubcommand(CommandSender sender) {
     plugin.disable();

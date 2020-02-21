@@ -124,7 +124,6 @@ public final class LootPlugin extends FacePlugin {
   private CreatureModManager creatureModManager;
   private EnchantTomeManager enchantTomeManager;
   private AnticheatManager anticheatManager;
-  private ChestManager chestManager;
   private GemCacheManager gemCacheManager;
   private LootCraftBaseManager lootCraftBaseManager;
   private LootCraftMatManager lootCraftMatManager;
@@ -182,7 +181,6 @@ public final class LootPlugin extends FacePlugin {
     creatureModManager = new LootCreatureModManager();
     enchantTomeManager = new EnchantTomeManager();
     anticheatManager = new LootAnticheatManager();
-    chestManager = new LootChestManager();
     if (potionTriggersEnabled) {
       gemCacheManager = new LootGemCacheManager(this);
     }
@@ -208,7 +206,6 @@ public final class LootPlugin extends FacePlugin {
     loadCreatureMods();
     loadUniqueDrops();
     loadScrolls();
-    loadChests();
 
     MaterialUtil.refreshConfig();
 
@@ -241,8 +238,6 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getScheduler().cancelTasks(this);
 
     economy = null;
-
-    saveChests();
   }
 
   private boolean setupEconomy() {
@@ -255,31 +250,6 @@ public final class LootPlugin extends FacePlugin {
     }
     economy = rsp.getProvider();
     return true;
-  }
-
-  private void loadChests() {
-    for (Vec3 loc : getChestManager().getChestLocations()) {
-      getChestManager().removeChestLocation(loc);
-    }
-    Set<Vec3> locs = new HashSet<>();
-    List<String> locStrings = chestsYAML.getStringList("locs");
-    for (String s : locStrings) {
-      locs.add(Vec3.fromString(s));
-    }
-    for (Vec3 loc : locs) {
-      getChestManager().addChestLocation(loc);
-    }
-    debug("Loaded chests: " + locs.size());
-  }
-
-  private void saveChests() {
-    List<String> locs = new ArrayList<>();
-    for (Vec3 loc : getChestManager().getChestLocations()) {
-      locs.add(loc.toString());
-      getChestManager().removeChestLocation(loc);
-    }
-    chestsYAML.set("locs", locs);
-    chestsYAML.save();
   }
 
   public void debug(String... messages) {
@@ -728,6 +698,7 @@ public final class LootPlugin extends FacePlugin {
         DeconstructData data = new DeconstructData();
         data.setMaterial(Material.valueOf(section.getString("material")));
         data.setMinCustomData(section.getInt("min-custom-data", -1));
+        data.setTierName(section.getString("tier-name", ""));
         data.setMaxCustomData(section.getInt("max-custom-data", -1));
         for (String mat : section.getStringList("results")) {
           DeconstructData.addResult(data, Material.valueOf(mat));
@@ -946,10 +917,6 @@ public final class LootPlugin extends FacePlugin {
 
   public AnticheatManager getAnticheatManager() {
     return anticheatManager;
-  }
-
-  public ChestManager getChestManager() {
-    return chestManager;
   }
 
   public GemCacheManager getGemCacheManager() {

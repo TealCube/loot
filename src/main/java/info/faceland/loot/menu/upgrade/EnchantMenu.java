@@ -25,6 +25,7 @@ import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.menu.BlankIcon;
 import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.utils.inventory.NumberUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -32,9 +33,12 @@ import java.util.List;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import ninja.amp.ampmenus.menus.ItemMenu;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -173,26 +177,37 @@ public class EnchantMenu extends ItemMenu {
       confirmIcon.getIcon().setType(Material.NETHER_STAR);
 
       EnchantmentTome tome = MaterialUtil.getEnchantmentItem(selectedUpgradeItem);
-      int itemLevel = MaterialUtil.getItemLevel(selectedEquipment);
-      double enchantLevel = PlayerDataUtil
-          .getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
-      double effectiveLevel = Math.max(1, Math.min(enchantLevel, itemLevel));
-      ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
-      double rarityBonus = MaterialUtil.getBaseEnchantBonus(enchantLevel);
+      if (StringUtils.isNotBlank(tome.getStat())) {
+        int itemLevel = MaterialUtil.getLevelRequirement(selectedEquipment);
+        double enchantLevel = PlayerDataUtil
+            .getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
+        double effectiveLevel = Math.max(1, Math.min(enchantLevel, itemLevel));
+        ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
+        double rarityBonus = MaterialUtil.getBaseEnchantBonus(enchantLevel);
 
-      String minStat = ChatColor.stripColor(
-          TextUtils.color((plugin.getStatManager().getMinStat(stat, effectiveLevel, rarityBonus))));
-      String maxStat = ChatColor.stripColor(TextUtils
-          .color(plugin.getStatManager().getMaxStat(stat, effectiveLevel, 1 + rarityBonus)));
-      for (String s : validEnchantLore) {
-        lore.add(s.replace("{min}", minStat).replace("{max}", maxStat));
+        String minStat = ChatColor.stripColor(
+            TextUtils
+                .color((plugin.getStatManager().getMinStat(stat, effectiveLevel, rarityBonus))));
+        String maxStat = ChatColor.stripColor(TextUtils
+            .color(plugin.getStatManager().getMaxStat(stat, effectiveLevel, 1 + rarityBonus)));
+        for (String s : validEnchantLore) {
+          lore.add(s.replace("{min}", minStat).replace("{max}", maxStat));
+        }
+      }
+      if (!tome.getEnchantments().isEmpty()) {
+        lore.add(TextUtils.color("&fApplied Enchantments:"));
+        for (Enchantment enchantment : tome.getEnchantments().keySet()) {
+          lore.add(TextUtils.color(" &9" + WordUtils.capitalizeFully(enchantment.getKey()
+              .getKey()) + " " + NumberUtil.toRoman(tome.getEnchantments().get(enchantment))));
+        }
       }
 
       ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
       return;
     }
     if (MaterialUtil.isExtender(selectedUpgradeItem)) {
-      if (!MaterialUtil.canBeExtended(new ArrayList<>(ItemStackExtensionsKt.getLore(selectedEquipment)))) {
+      if (!MaterialUtil
+          .canBeExtended(new ArrayList<>(ItemStackExtensionsKt.getLore(selectedEquipment)))) {
         confirmIcon.setDisplayName(invalidExtend);
         lore.addAll(invalidExtendLore);
         ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);

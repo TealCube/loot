@@ -353,7 +353,7 @@ public final class InteractListener implements Listener {
             return;
           }
           double enchantLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.ENCHANTING);
-          double itemLevel = MaterialUtil.getItemLevel(targetItem);
+          double itemLevel = MaterialUtil.getLevelRequirement(targetItem);
           addAmount =
               2 + (int) (random.nextDouble() * (2 + Math.max(0, (enchantLevel - itemLevel) * 0.2)));
           str = str.replace("" + ChatColor.BLACK, "");
@@ -385,26 +385,6 @@ public final class InteractListener implements Listener {
     e.setCancelled(true);
     e.setResult(Event.Result.DENY);
     ((Player) e.getWhoClicked()).updateInventory();
-  }
-
-  private boolean isBlockWithinRadius(Material material, Location location, int radius) {
-    int minX = location.getBlockX() - radius;
-    int maxX = location.getBlockX() + radius;
-    int minY = location.getBlockY() - radius;
-    int maxY = location.getBlockY() + radius;
-    int minZ = location.getBlockZ() - radius;
-    int maxZ = location.getBlockZ() + radius;
-    for (int x = minX; x < maxX; x++) {
-      for (int y = minY; y < maxY; y++) {
-        for (int z = minZ; z < maxZ; z++) {
-          Block block = location.getWorld().getBlockAt(x, y, z);
-          if (block.getType() == material) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
 
   private boolean isBannedMaterial(ItemStack item) {

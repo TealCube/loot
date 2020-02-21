@@ -43,7 +43,7 @@ public final class LootTier implements Tier {
   private int customDataStart;
   private int customDataInterval;
   private Set<ItemGroup> itemGroups;
-  private List<String> suffixes;
+  private List<String> suffixes = new ArrayList<>();
 
   public LootTier(String id) {
     this.id = id;

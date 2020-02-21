@@ -71,8 +71,10 @@ public class StatManager {
     String value = Integer.toString((int) statRoll);
     response.setStatString(returnString.replace("{}", value));
 
-    response.setStatPrefix(
-        itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
+    if (!itemStat.getNamePrefixes().isEmpty()) {
+      response.setStatPrefix(
+          itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
+    }
 
     return response;
   }

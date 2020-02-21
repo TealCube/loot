@@ -3,7 +3,7 @@ package info.faceland.loot.listeners;
 import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
 import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
-import static info.faceland.loot.utils.inventory.MaterialUtil.getItemLevel;
+import static info.faceland.loot.utils.inventory.MaterialUtil.getLevelRequirement;
 import static info.faceland.loot.utils.inventory.MaterialUtil.getToolLevel;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
@@ -79,7 +79,7 @@ public class DeconstructListener implements Listener {
       return;
     }
 
-    int itemLevel = getItemLevel(currentItem);
+    int itemLevel = getLevelRequirement(currentItem);
     if (itemLevel == -1) {
       MessageUtils.sendMessage(
           player, plugin.getSettings().getString("language.craft.no-level", ""));
@@ -129,7 +129,7 @@ public class DeconstructListener implements Listener {
     ItemStack targetItem = event.getTargetItem();
     ItemStack cursorItem = event.getCursorItem();
 
-    int itemLevel = getItemLevel(targetItem);
+    int itemLevel = getLevelRequirement(targetItem);
 
     int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
     double effectiveCraftLevel = PlayerDataUtil
@@ -213,7 +213,7 @@ public class DeconstructListener implements Listener {
     Player player = event.getPlayer();
     ItemStack targetItem = event.getTargetItem();
 
-    int itemPlus = MaterialUtil.getItemLevel(targetItem);
+    int itemPlus = MaterialUtil.getLevelRequirement(targetItem);
     if (itemPlus == 0) {
       sendMessage(player,
           plugin.getSettings().getString("language.enchant.too-low-to-deconstruct", ""));

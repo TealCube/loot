@@ -80,10 +80,17 @@ public class PawnManager {
       return new PriceData(amount * price, tome.getWeight() < 100);
     }
     if (MaterialUtil.isEquipmentItem(stack)) {
-      double itemLevel = MaterialUtil.getItemLevel(stack);
+      double itemLevel = MaterialUtil.getLevelRequirement(stack);
       int itemPlus = MaterialUtil.getUpgradeLevel(ItemStackExtensionsKt.getDisplayName(stack));
       price = (int) (baseEquipmentPrice + itemLevel * equipPricePerLevel);
       return new PriceData(amount * price, itemPlus > 4);
+    }
+    double quality = MaterialUtil.getQuality(stack);
+    if (quality > 0) {
+      double itemLevel = MaterialUtil.getItemLevel(stack);
+      double priceMult = 1 + (itemLevel / 100);
+      price = (int) (1D * priceMult * quality);
+      return new PriceData(amount * price, quality > 3);
     }
     if (materialPrices.containsKey(stack.getType())) {
       return new PriceData(amount * materialPrices.get(stack.getType()).intValue(), false);

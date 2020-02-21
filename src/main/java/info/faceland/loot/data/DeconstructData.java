@@ -10,6 +10,7 @@ import org.bukkit.Material;
 public class DeconstructData {
 
   private Material material;
+  private String tierName;
   private int minCustomData;
   private int maxCustomData;
   private List<Material> results = new ArrayList<>();
@@ -22,6 +23,14 @@ public class DeconstructData {
 
   public void setMaterial(Material material) {
     this.material = material;
+  }
+
+  public String getTierName() {
+    return tierName;
+  }
+
+  public void setTierName(String tierName) {
+    this.tierName = tierName;
   }
 
   public int getMinCustomData() {

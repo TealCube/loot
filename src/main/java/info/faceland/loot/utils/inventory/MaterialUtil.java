@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import land.face.strife.StrifePlugin;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.ChatColor;
@@ -353,7 +352,7 @@ public final class MaterialUtil {
     if (!StringUtils.isBlank(tome.getStat())) {
       double rarity = getBonusMultiplier(enchantLevel);
 
-      int itemLevel = MaterialUtil.getItemLevel(targetItem);
+      int itemLevel = MaterialUtil.getLevelRequirement(targetItem);
       double eLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
 
       ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
@@ -484,7 +483,7 @@ public final class MaterialUtil {
         return (int) line.chars().filter(ch -> ch == '✪').count();
       }
     }
-    return 1;
+    return 0;
   }
 
   public static ItemStack buildEssence(String type, double itemLevel, double craftLevel,
@@ -527,7 +526,7 @@ public final class MaterialUtil {
     return NumberUtils.toInt(lev.split(" ")[0], 0);
   }
 
-  public static int getItemLevel(ItemStack stack) {
+  public static int getLevelRequirement(ItemStack stack) {
     if (stack.getItemMeta() == null) {
       return -1;
     }
@@ -537,6 +536,20 @@ public final class MaterialUtil {
     String lvlReqString = ChatColor.stripColor(ItemStackExtensionsKt.getLore(stack).get(0));
     if (!lvlReqString.startsWith("Level Requirement:")) {
       return -1;
+    }
+    return getDigit(ItemStackExtensionsKt.getLore(stack).get(0));
+  }
+
+  public static int getItemLevel(ItemStack stack) {
+    if (stack.getItemMeta() == null) {
+      return 0;
+    }
+    if (ItemStackExtensionsKt.getLore(stack).get(0) == null) {
+      return 0;
+    }
+    String lvlReqString = ChatColor.stripColor(ItemStackExtensionsKt.getLore(stack).get(0));
+    if (!lvlReqString.startsWith("Item Level:")) {
+      return 0;
     }
     return getDigit(ItemStackExtensionsKt.getLore(stack).get(0));
   }

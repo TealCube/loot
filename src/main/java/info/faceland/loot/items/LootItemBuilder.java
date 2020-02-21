@@ -33,6 +33,7 @@ import info.faceland.loot.managers.StatManager;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -118,9 +119,11 @@ public final class LootItemBuilder implements ItemBuilder {
       StatResponse rStat = statManager.getFinalStat(stat, level, rarity.getPower());
       lore.add(rStat.getStatString());
       bonusStatList.remove(stat);
-      if (statPrefix && rStat.getStatRoll() > 0.5 && rStat.getStatRoll() > roll) {
-        roll = rStat.getStatRoll();
-        prefix = rStat.getStatPrefix();
+      if (StringUtils.isNotBlank(rStat.getStatPrefix())) {
+        if (statPrefix && rStat.getStatRoll() > 0.5 && rStat.getStatRoll() > roll) {
+          roll = rStat.getStatRoll();
+          prefix = rStat.getStatPrefix();
+        }
       }
     }
 

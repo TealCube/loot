@@ -58,6 +58,10 @@ public final class LootCraftMatManager {
     deconstructDataSet.add(deconstructData);
   }
 
+  public Set<DeconstructData> getDeconstructDataSet() {
+    return deconstructDataSet;
+  }
+
   public Material getMaterial(ItemStack stack) {
     for (DeconstructData data : deconstructDataSet) {
       if (data.getMaterial() != stack.getType()) {
