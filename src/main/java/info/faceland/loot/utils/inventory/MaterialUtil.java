@@ -405,7 +405,7 @@ public final class MaterialUtil {
     ItemStackExtensionsKt.setLore(targetItem, lore);
 
     float weightDivisor = tome.getWeight() == 0 ? 2000 : (float) tome.getWeight();
-    float exp = 3 + 2000 / weightDivisor;
+    float exp = 6 + 3 * (2000 / weightDivisor);
     LootPlugin.getInstance().getStrifePlugin().getSkillExperienceManager()
         .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
     sendMessage(player, enchantSuccessMsg);
