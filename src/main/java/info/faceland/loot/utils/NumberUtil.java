@@ -1,4 +1,4 @@
-package info.faceland.loot.utils.inventory;
+package info.faceland.loot.utils;
 
 import java.util.TreeMap;
 

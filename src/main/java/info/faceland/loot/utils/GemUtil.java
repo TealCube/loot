@@ -1,17 +1,16 @@
-package info.faceland.loot.utils.inventory;
+package info.faceland.loot.utils;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.managers.SocketGemManager;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class GemUtil {
 

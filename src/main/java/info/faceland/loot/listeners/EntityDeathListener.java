@@ -21,18 +21,17 @@ package info.faceland.loot.listeners;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
-
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.data.ViolationData;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.math.LootRandom;
-
+import info.faceland.loot.utils.DropUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
 import land.face.strife.data.StrifeMob;
 import land.face.strife.stats.StrifeStat;
 import land.face.strife.util.StatUtil;
@@ -53,8 +52,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.UUID;
 
 public final class EntityDeathListener implements Listener {
 
@@ -154,6 +151,9 @@ public final class EntityDeathListener implements Listener {
       lootEvent.setUniqueEntity(mob.getUniqueEntityId());
     }
     Bukkit.getPluginManager().callEvent(lootEvent);
+    if (!lootEvent.isCancelled()) {
+      DropUtil.dropLoot(lootEvent);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)

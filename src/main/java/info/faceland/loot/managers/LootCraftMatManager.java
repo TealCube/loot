@@ -19,7 +19,7 @@
 package info.faceland.loot.managers;
 
 import info.faceland.loot.data.DeconstructData;
-import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.utils.MaterialUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

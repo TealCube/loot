@@ -1,10 +1,10 @@
 package info.faceland.loot.listeners;
 
 import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
-import static info.faceland.loot.utils.inventory.MaterialUtil.buildEssence;
-import static info.faceland.loot.utils.inventory.MaterialUtil.getDigit;
-import static info.faceland.loot.utils.inventory.MaterialUtil.getLevelRequirement;
-import static info.faceland.loot.utils.inventory.MaterialUtil.getToolLevel;
+import static info.faceland.loot.utils.MaterialUtil.buildEssence;
+import static info.faceland.loot.utils.MaterialUtil.getDigit;
+import static info.faceland.loot.utils.MaterialUtil.getLevelRequirement;
+import static info.faceland.loot.utils.MaterialUtil.getToolLevel;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
@@ -13,13 +13,11 @@ import info.faceland.loot.events.LootDeconstructEvent;
 import info.faceland.loot.events.LootDeconstructEvent.DeconstructType;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
-import info.faceland.loot.utils.inventory.InventoryUtil;
-import info.faceland.loot.utils.inventory.MaterialUtil;
-
+import info.faceland.loot.utils.InventoryUtil;
+import info.faceland.loot.utils.MaterialUtil;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.Bukkit;

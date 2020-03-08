@@ -26,13 +26,15 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-
-import info.faceland.loot.utils.inventory.GemUtil;
+import info.faceland.loot.utils.GemUtil;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.*;
 
 public class LootGemCacheData implements GemCacheData {
 

@@ -18,6 +18,13 @@
  */
 package info.faceland.loot.listeners;
 
+import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
+import static info.faceland.loot.utils.InventoryUtil.broadcast;
+import static info.faceland.loot.utils.InventoryUtil.getFirstColor;
+import static info.faceland.loot.utils.InventoryUtil.getLastColor;
+import static info.faceland.loot.utils.MaterialUtil.FAILURE_BONUS;
+import static org.bukkit.ChatColor.stripColor;
+
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
@@ -31,10 +38,12 @@ import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
-import info.faceland.loot.utils.inventory.InventoryUtil;
-import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.utils.InventoryUtil;
+import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import land.face.strife.data.champion.LifeSkillType;
@@ -57,15 +66,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.inventory.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
-import static info.faceland.loot.utils.inventory.InventoryUtil.*;
-import static info.faceland.loot.utils.inventory.MaterialUtil.FAILURE_BONUS;
-import static org.bukkit.ChatColor.stripColor;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.EnchantingInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 public final class InteractListener implements Listener {
 

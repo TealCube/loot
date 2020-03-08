@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class LootDropEvent extends Event {
+public class LootDropEvent extends Event implements Cancellable {
 
   private static final HandlerList HANDLER_LIST = new HandlerList();
 
@@ -26,6 +27,7 @@ public class LootDropEvent extends Event {
   private int monsterLevel;
   private LivingEntity entity;
   private String uniqueEntity;
+  private boolean cancelled;
 
   @Override
   public HandlerList getHandlers() {
@@ -98,6 +100,16 @@ public class LootDropEvent extends Event {
 
   public void setUniqueEntity(String uniqueEntity) {
     this.uniqueEntity = uniqueEntity;
+  }
+
+  @Override
+  public boolean isCancelled() {
+    return cancelled;
+  }
+
+  @Override
+  public void setCancelled(boolean cancelled) {
+    this.cancelled = cancelled;
   }
 
 }

@@ -21,15 +21,21 @@ package info.faceland.loot;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
-import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
+import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
-import info.faceland.loot.api.managers.*;
-import info.faceland.loot.api.math.Vec3;
+import info.faceland.loot.api.managers.AnticheatManager;
+import info.faceland.loot.api.managers.CreatureModManager;
+import info.faceland.loot.api.managers.CustomItemManager;
+import info.faceland.loot.api.managers.GemCacheManager;
+import info.faceland.loot.api.managers.ItemGroupManager;
+import info.faceland.loot.api.managers.NameManager;
+import info.faceland.loot.api.managers.RarityManager;
+import info.faceland.loot.api.managers.UniqueDropsManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
@@ -52,25 +58,49 @@ import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.EnchantMenuListener;
+import info.faceland.loot.listeners.EntityDeathListener;
 import info.faceland.loot.listeners.InteractListener;
-import info.faceland.loot.listeners.LootDropListener;
 import info.faceland.loot.listeners.PawnMenuListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.CombinerListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
-import info.faceland.loot.listeners.EntityDeathListener;
-import info.faceland.loot.managers.*;
+import info.faceland.loot.managers.EnchantTomeManager;
+import info.faceland.loot.managers.LootAnticheatManager;
+import info.faceland.loot.managers.LootCraftBaseManager;
+import info.faceland.loot.managers.LootCraftMatManager;
+import info.faceland.loot.managers.LootCreatureModManager;
+import info.faceland.loot.managers.LootCustomItemManager;
+import info.faceland.loot.managers.LootGemCacheManager;
+import info.faceland.loot.managers.LootItemGroupManager;
+import info.faceland.loot.managers.LootNameManager;
+import info.faceland.loot.managers.LootRarityManager;
+import info.faceland.loot.managers.LootUniqueDropsManager;
+import info.faceland.loot.managers.PawnManager;
+import info.faceland.loot.managers.ScrollManager;
+import info.faceland.loot.managers.SocketGemManager;
+import info.faceland.loot.managers.StatManager;
+import info.faceland.loot.managers.TierManager;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
-import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.utils.DropUtil;
+import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.SmartYamlConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedConfiguration;
 import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 import land.face.strife.StrifePlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -80,13 +110,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
-
 import org.bukkit.plugin.RegisteredServiceProvider;
 import se.ranzdo.bukkit.methodcommand.CommandHandler;
-
-import java.io.File;
-import java.util.*;
-import java.util.logging.Level;
 
 public final class LootPlugin extends FacePlugin {
 
@@ -208,6 +233,7 @@ public final class LootPlugin extends FacePlugin {
     loadScrolls();
 
     MaterialUtil.refreshConfig();
+    DropUtil.refresh();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
 
@@ -222,7 +248,6 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantMenuListener(), this);
     Bukkit.getPluginManager().registerEvents(new PawnMenuListener(this), this);
-    Bukkit.getPluginManager().registerEvents(new LootDropListener(this), this);
     if (potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
     }

@@ -20,7 +20,7 @@ package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
-import info.faceland.loot.utils.inventory.MaterialUtil;
+import info.faceland.loot.utils.MaterialUtil;
 import ninja.amp.ampmenus.menus.MenuHolder;
 import org.bukkit.Material;
 import org.bukkit.Sound;

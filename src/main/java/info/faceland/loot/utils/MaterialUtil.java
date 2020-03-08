@@ -16,11 +16,9 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package info.faceland.loot.utils.inventory;
+package info.faceland.loot.utils;
 
 import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
-import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
-import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
 import static org.bukkit.ChatColor.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
@@ -30,18 +28,17 @@ import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
-import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.math.LootRandom;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.ChatColor;
@@ -186,7 +183,7 @@ public final class MaterialUtil {
       damageAmount = Math.max(damageAmount, 1);
       if (damageAmount + stack.getDurability() >= stack.getType().getMaxDurability()) {
         sendMessage(player, upgradeItemDestroyMsg);
-        broadcast(player, stack, upgradeItemDestroyBroadcast);
+        InventoryUtil.broadcast(player, stack, upgradeItemDestroyBroadcast);
         player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
         stack.setAmount(0);
         if (itemUpgradeLevel > 5) {
@@ -212,7 +209,7 @@ public final class MaterialUtil {
     player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
 
     if (targetLevel >= 10) {
-      broadcast(player, stack, upgradeSuccessBroadcast);
+      InventoryUtil.broadcast(player, stack, upgradeSuccessBroadcast);
     }
   }
 
@@ -225,7 +222,7 @@ public final class MaterialUtil {
     String itemName = ItemStackExtensionsKt.getDisplayName(stack);
     int newLevel = Math.max(Math.min(currentLevel + plusAmount, 15), 0);
     if (currentLevel == 0) {
-      itemName = getFirstColor(itemName) + ("+" + newLevel) + " " + itemName;
+      itemName = InventoryUtil.getFirstColor(itemName) + ("+" + newLevel) + " " + itemName;
     } else {
       itemName = itemName.replace("+" + currentLevel, "+" + newLevel);
     }

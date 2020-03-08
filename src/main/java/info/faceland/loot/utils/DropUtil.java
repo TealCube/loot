@@ -1,7 +1,7 @@
-package info.faceland.loot.listeners;
+package info.faceland.loot.utils;
 
-import static info.faceland.loot.utils.inventory.InventoryUtil.broadcast;
-import static info.faceland.loot.utils.inventory.InventoryUtil.getFirstColor;
+import static info.faceland.loot.utils.InventoryUtil.broadcast;
+import static info.faceland.loot.utils.InventoryUtil.getFirstColor;
 
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
@@ -14,23 +14,20 @@ import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UniqueLoot;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.events.LootDropEvent;
 import info.faceland.loot.items.prefabs.IdentityTome;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
-import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
-import info.faceland.loot.utils.inventory.MaterialUtil;
-
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
-import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -39,32 +36,30 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
-public class LootDropListener implements Listener {
+public class DropUtil implements Listener {
 
-  private final LootPlugin plugin;
-  private final LootRandom random;
-  private final String itemFoundFormat;
-  private final Map<EntityType, Double> specialStatEntities;
-  private final Map<String, Double> specialStatWorlds;
+  private static LootPlugin plugin;
 
-  private final double customizedTierChance;
+  private static String itemFoundFormat;
+  private static Map<EntityType, Double> specialStatEntities;
+  private static Map<String, Double> specialStatWorlds;
 
-  private final double normalDropChance;
-  private final double scrollDropChance;
-  private final double socketDropChance;
-  private final double tomeDropChance;
+  private static double customizedTierChance;
+  private static double normalDropChance;
+  private static double scrollDropChance;
+  private static double socketDropChance;
+  private static double tomeDropChance;
 
-  public LootDropListener(LootPlugin plugin) {
-    this.plugin = plugin;
-    random = new LootRandom();
+  private static LootRandom random;
+
+  public static void refresh() {
+    plugin = LootPlugin.getInstance();
     itemFoundFormat = plugin.getSettings().getString("language.broadcast.found-item", "");
     specialStatEntities = plugin.fetchSpecialStatEntities();
     specialStatWorlds = plugin.fetchSpecialStatWorlds();
@@ -76,10 +71,11 @@ public class LootDropListener implements Listener {
     scrollDropChance = plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D);
     socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
     tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
+
+    random = new LootRandom();
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
-  public void onLootDrop(LootDropEvent event) {
+  public static void dropLoot(LootDropEvent event) {
     Player killer = Bukkit.getPlayer(event.getLooterUUID());
     if (killer == null) {
       return;
@@ -258,7 +254,7 @@ public class LootDropListener implements Listener {
     }
   }
 
-  private void doUniqueDrops(UniqueLoot uniqueLoot, Location location, Player killer) {
+  private static void doUniqueDrops(UniqueLoot uniqueLoot, Location location, Player killer) {
     for (String gemString : uniqueLoot.getGemMap().keySet()) {
       if (uniqueLoot.getGemMap().get(gemString) > random.nextDouble()) {
         SocketGem gem = plugin.getSocketGemManager().getSocketGem(gemString);
@@ -304,7 +300,7 @@ public class LootDropListener implements Listener {
     }
   }
 
-  private ItemStack upgradeItem(ItemStack his, int upgradeBonus) {
+  private static ItemStack upgradeItem(ItemStack his, int upgradeBonus) {
     boolean succeed = false;
     List<String> lore = ItemStackExtensionsKt.getLore(his);
     for (int i = 0; i < lore.size(); i++) {
@@ -332,7 +328,7 @@ public class LootDropListener implements Listener {
     return his;
   }
 
-  private ItemStack upgradeItemQuality(ItemStack his, int upgradeBonus) {
+  private static ItemStack upgradeItemQuality(ItemStack his, int upgradeBonus) {
     boolean succeed = false;
     List<String> lore = ItemStackExtensionsKt.getLore(his);
     for (int i = 0; i < lore.size(); i++) {
@@ -358,11 +354,11 @@ public class LootDropListener implements Listener {
     return his;
   }
 
-  private void dropItem(Location loc, ItemStack itemStack, Player looter, boolean broadcast) {
+  private static void dropItem(Location loc, ItemStack itemStack, Player looter, boolean broadcast) {
     dropItem(loc, itemStack, looter, 0, broadcast);
   }
 
-  private void dropItem(Location loc, ItemStack itemStack, Player looter, int ticksLived,
+  private static void dropItem(Location loc, ItemStack itemStack, Player looter, int ticksLived,
       boolean broadcast) {
     Item drop = Objects.requireNonNull(loc.getWorld()).dropItemNaturally(loc, itemStack);
     if (ticksLived != 0) {
@@ -376,19 +372,19 @@ public class LootDropListener implements Listener {
     }
   }
 
-  private void applyOwnerMeta(Item drop, UUID owner) {
+  private static void applyOwnerMeta(Item drop, UUID owner) {
     drop.setMetadata("loot-owner", new FixedMetadataValue(plugin, owner));
     drop.setMetadata("loot-time", new FixedMetadataValue(plugin, System.currentTimeMillis()));
   }
 
-  private boolean addSpecialStat(EntityType entityType, String worldName) {
+  private static boolean addSpecialStat(EntityType entityType, String worldName) {
     return (specialStatEntities.containsKey(entityType) && random.nextDouble() < specialStatEntities
         .get(entityType))
         || ((specialStatWorlds.containsKey(worldName)) && random.nextDouble() < specialStatWorlds
         .get(worldName));
   }
 
-  private Tier getTier(Player killer) {
+  private static Tier getTier(Player killer) {
     if (customizedTierChance < random.nextDouble()) {
       return plugin.getTierManager().getRandomTier();
     }
@@ -406,7 +402,7 @@ public class LootDropListener implements Listener {
     return wornTiers.get(random.nextIntRange(0, wornTiers.size()));
   }
 
-  private List<Material> getWornMaterials(Player player) {
+  private static List<Material> getWornMaterials(Player player) {
     List<Material> materials = new ArrayList<>();
     for (ItemStack stack : player.getEquipment().getArmorContents()) {
       if (stack == null || stack.getType() == Material.AIR) {
