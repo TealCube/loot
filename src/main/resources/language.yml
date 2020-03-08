@@ -4,6 +4,8 @@ command:
   renamefail: "<yellow>Invalid item! You can only use this command on <white>Item Rename Tag <yellow>!"
   success: "<green>Item successfully renamed!"
   invalidname: "<yellow>Invalid name! New names must be 20 characters or less, and also not be dumb!"
+generic:
+  no-drop: "&eYou cannot drop items from your hotbar. Drop items from your inventory, or use &f/trash &eor &f/trade&e."
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."

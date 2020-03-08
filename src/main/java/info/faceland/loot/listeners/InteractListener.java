@@ -19,6 +19,7 @@
 package info.faceland.loot.listeners;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -33,14 +34,16 @@ import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.utils.inventory.InventoryUtil;
 import info.faceland.loot.utils.inventory.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -49,9 +52,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.*;
 
 import java.util.ArrayList;
@@ -68,11 +73,15 @@ public final class InteractListener implements Listener {
   private LootRandom random;
 
   private boolean customEnchantingEnabled;
+  private String noDropMessage;
+  private Set<UUID> dropFromInvySet = new HashSet<>();
 
   public InteractListener(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom();
     customEnchantingEnabled = plugin.getSettings().getBoolean("config.custom-enchanting", true);
+    noDropMessage = TextUtils
+        .color(plugin.getSettings().getString("language.generic.no-drop", "aaaa"));
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -86,9 +95,6 @@ public final class InteractListener implements Listener {
       return;
     }
     if (name.equals(ChatColor.GOLD + "REWARD!")) {
-      return;
-    }
-    if (name.startsWith("***{")) {
       return;
     }
     event.getEntity().setCustomName(name);
@@ -135,6 +141,32 @@ public final class InteractListener implements Listener {
     }
     GemCacheData gemCacheData = plugin.getGemCacheManager().getGemCacheData(player.getUniqueId());
     gemCacheData.updateArmorCache();
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onPlayerDropItem(InventoryClickEvent e) {
+    if (e.getWhoClicked().getGameMode() == GameMode.CREATIVE) {
+      return;
+    }
+    if (e.getAction() == InventoryAction.DROP_ALL_CURSOR ||
+        e.getAction() == InventoryAction.DROP_ONE_CURSOR ||
+        e.getAction() == InventoryAction.DROP_ALL_SLOT ||
+        e.getAction() == InventoryAction.DROP_ONE_SLOT) {
+      dropFromInvySet.add(e.getWhoClicked().getUniqueId());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onPlayerDropItem(PlayerDropItemEvent e) {
+    if (e.getPlayer().getGameMode() == GameMode.CREATIVE) {
+      return;
+    }
+    if (dropFromInvySet.contains(e.getPlayer().getUniqueId())) {
+      dropFromInvySet.remove(e.getPlayer().getUniqueId());
+      return;
+    }
+    e.setCancelled(true);
+    MessageUtils.sendMessage(e.getPlayer(), noDropMessage);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
