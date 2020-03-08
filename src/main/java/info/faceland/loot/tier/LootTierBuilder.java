@@ -25,6 +25,7 @@ package info.faceland.loot.tier;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
+import info.faceland.loot.data.ItemStat;
 import org.bukkit.ChatColor;
 
 import java.util.List;
@@ -34,8 +35,8 @@ public final class LootTierBuilder implements TierBuilder {
     private boolean built = false;
     private LootTier tier;
 
-    public LootTierBuilder(String name) {
-        tier = new LootTier(name);
+    public LootTierBuilder(String id) {
+        tier = new LootTier(id);
     }
 
     @Override
@@ -53,20 +54,38 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
-    public TierBuilder withDisplayName(String s) {
-        tier.setDisplayName(s);
+    public TierBuilder withLevelRequirement(boolean b) {
+        tier.setLevelRequirement(b);
         return this;
     }
 
     @Override
-    public TierBuilder withDisplayColor(ChatColor c) {
-        tier.setDisplayColor(c);
+    public TierBuilder withName(String s) {
+        tier.setName(s);
         return this;
     }
 
     @Override
-    public TierBuilder withIdentificationColor(ChatColor c) {
-        tier.setIdentificationColor(c);
+    public TierBuilder withPrimaryStat(ItemStat itemStat) {
+        tier.setPrimaryStat(itemStat);
+        return this;
+    }
+
+    @Override
+    public TierBuilder withSecondaryStats(List<ItemStat> itemStats) {
+        tier.setSecondaryStats(itemStats);
+        return this;
+    }
+
+    @Override
+    public TierBuilder withBonusStats(List<ItemStat> itemStats) {
+        tier.setBonusStats(itemStats);
+        return this;
+    }
+
+    @Override
+    public TierBuilder withSpecialStats(List<ItemStat> itemStats) {
+        tier.setSpecialStats(itemStats);
         return this;
     }
 
@@ -83,38 +102,14 @@ public final class LootTierBuilder implements TierBuilder {
     }
 
     @Override
-    public TierBuilder withMinimumSockets(int i) {
-        tier.setMinimumSockets(i);
+    public TierBuilder withStartingCustomData(int i) {
+        tier.setCustomDataStart(i);
         return this;
     }
 
     @Override
-    public TierBuilder withMaximumSockets(int i) {
-        tier.setMaximumSockets(i);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withMinimumBonusLore(int i) {
-        tier.setMinimumBonusLore(i);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withMaximumBonusLore(int i) {
-        tier.setMaximumBonusLore(i);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withBaseLore(List<String> l) {
-        tier.setBaseLore(l);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withBonusLore(List<String> l) {
-        tier.setBonusLore(l);
+    public TierBuilder withCustomDataInterval(int i) {
+        tier.setCustomDataInterval(i);
         return this;
     }
 
@@ -123,41 +118,4 @@ public final class LootTierBuilder implements TierBuilder {
         tier.setItemGroups(s);
         return this;
     }
-
-    @Override
-    public TierBuilder withMinimumDurability(double d) {
-        tier.setMinimumDurability(d);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withMaximumDurability(double d) {
-        tier.setMaximumDurability(d);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withDistanceWeight(double d) {
-        tier.setDistanceWeight(d);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withEnchantable(boolean b) {
-        tier.setEnchantable(b);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withBroadcast(boolean b) {
-        tier.setBroadcast(b);
-        return this;
-    }
-
-    @Override
-    public TierBuilder withExtendableChance(double d) {
-        tier.setExtendableChance(d);
-        return this;
-    }
-
 }

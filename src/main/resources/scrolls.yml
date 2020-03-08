@@ -1,0 +1,48 @@
+version: 0.0.1
+
+weak:
+  prefix: "Weak"
+  lore:
+    - "hi"
+  base-success: 2.0
+  flat-decay: 0.01
+  percent-decay: 0.01
+  exponent: 1.5
+  weight: 100
+  item-damage-modifier: 1.0
+  min-level: 0
+  max-level: 14
+newbie:
+  prefix: "Weak"
+  lore:
+    - "hi"
+  base-success: 2.0
+  flat-decay: 0.01
+  percent-decay: 0.01
+  exponent: 1.5
+  weight: 100
+  min-level: 0
+  max-level: 2
+dank:
+  prefix: "Weak"
+  lore:
+    - "hi"
+  base-success: 2.0
+  flat-decay: 0.01
+  percent-decay: 0.01
+  exponent: 1.5
+  weight: 100
+  min-level: 0
+  max-level: 14
+stable:
+  prefix: "Weak"
+  lore:
+    - "hi"
+  base-success: 1.2
+  flat-decay: 0.01
+  percent-decay: 0.01
+  exponent: 1.5
+  weight: 100
+  item-damage-modifier: 0.5
+  min-level: 0
+  max-level: 14

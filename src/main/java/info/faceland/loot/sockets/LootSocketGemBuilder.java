@@ -95,6 +95,12 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     }
 
     @Override
+    public SocketGemBuilder withWeightPerLevel(double d) {
+        gem.setWeightPerLevel(d);
+        return this;
+    }
+
+    @Override
     public SocketGemBuilder withBroadcast(boolean b) {
         gem.setBroadcast(b);
         return this;
@@ -115,6 +121,12 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     @Override
     public SocketGemBuilder withBonusWeight(double d) {
         gem.setBonusWeight(d);
+        return this;
+    }
+
+    @Override
+    public SocketGemBuilder withGemType(SocketGem.GemType type) {
+        gem.setGemType(type);
         return this;
     }
 

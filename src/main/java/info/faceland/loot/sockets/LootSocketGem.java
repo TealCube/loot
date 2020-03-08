@@ -23,13 +23,14 @@
 package info.faceland.loot.sockets;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.hilt.HiltItemStack;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.text.WordUtils;
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,7 @@ public final class LootSocketGem implements SocketGem {
     private final String name;
     private double weight;
     private double distanceWeight;
+    private double weightPerLevel;
     private double bonusWeight;
     private String prefix;
     private String suffix;
@@ -49,6 +51,7 @@ public final class LootSocketGem implements SocketGem {
     private boolean broadcast;
     private boolean triggerable;
     private String triggerText;
+    private GemType gemType;
 
     public LootSocketGem(String name) {
         this.name = name;
@@ -122,9 +125,9 @@ public final class LootSocketGem implements SocketGem {
     }
 
     @Override
-    public HiltItemStack toItemStack(int amount) {
-        HiltItemStack itemStack = new HiltItemStack(Material.EMERALD);
-        itemStack.setName(ChatColor.GOLD + "Socket Gem - " + getName());
+    public ItemStack toItemStack(int amount) {
+        ItemStack itemStack = new ItemStack(Material.EMERALD);
+        ItemStackExtensionsKt.setDisplayName(itemStack, ChatColor.GOLD + "Socket Gem - " + getName());
         itemStack.setAmount(amount);
         List<String> lore = new ArrayList<>();
         Collections.addAll(lore, ChatColor.WHITE + "Type: " + (!itemGroups.isEmpty() ? itemGroupsToString() : "Any"),
@@ -132,7 +135,7 @@ public final class LootSocketGem implements SocketGem {
                            ChatColor.GRAY + "open " + ChatColor.GOLD + "(Socket) " + ChatColor.GRAY + "to upgrade it!",
                            ChatColor.WHITE + "Bonuses Applied:");
         lore.addAll(getLore());
-        itemStack.setLore(TextUtils.color(lore));
+        ItemStackExtensionsKt.setLore(itemStack, TextUtils.color(lore));
         return itemStack;
     }
 
@@ -147,6 +150,15 @@ public final class LootSocketGem implements SocketGem {
     @Override
     public double getDistanceWeight() {
         return distanceWeight;
+    }
+
+    @Override
+    public double getWeightPerLevel() {
+        return weightPerLevel;
+    }
+
+    void setWeightPerLevel(double weightPerLevel) {
+        this.weightPerLevel = weightPerLevel;
     }
 
     void setDistanceWeight(double distanceWeight) {
@@ -211,5 +223,14 @@ public final class LootSocketGem implements SocketGem {
 
     void setBonusWeight(double bonusWeight) {
         this.bonusWeight = bonusWeight;
+    }
+
+    @Override
+    public GemType getGemType() {
+        return gemType;
+    }
+
+    void setGemType(GemType gemType) {
+        this.gemType = gemType;
     }
 }

@@ -1,7 +1,12 @@
 name: Loot
 version: ${project.version}
 main: info.faceland.loot.LootPlugin
-depend: [Facecore]
+api-version: 1.15
+depend:
+  - Facecore
+softdepend:
+  - Strife
+  - Vault
 
 commands:
   loot:
@@ -13,6 +18,4 @@ permissions:
   loot.command.give:
     default: op
   loot.command.simulate:
-    default: op
-  loot.command.chest:
     default: op

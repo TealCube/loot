@@ -22,19 +22,19 @@
  */
 package info.faceland.loot.api.managers;
 
-import info.faceland.loot.api.creatures.CreatureMod;
+import info.faceland.loot.api.creatures.MobInfo;
 import org.bukkit.entity.EntityType;
 
 import java.util.Set;
 
 public interface CreatureModManager {
 
-    Set<CreatureMod> getCreatureMods();
+    Set<MobInfo> getMobInfo();
 
-    CreatureMod getCreatureMod(EntityType entityType);
+    MobInfo getMobInfo(EntityType entityType);
 
-    void addCreatureMod(CreatureMod mod);
+    void addMobInfo(MobInfo mod);
 
-    void removeCreatureMod(EntityType entityType);
+    void removeMobInfo(EntityType entityType);
 
 }

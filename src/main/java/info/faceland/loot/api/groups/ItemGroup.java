@@ -32,11 +32,19 @@ public interface ItemGroup {
 
     Set<Material> getMaterials();
 
+    void setMinimumCustomData(int value);
+
+    void setMaximumCustomData(int value);
+
     void addMaterial(Material material);
 
     void removeMaterial(Material material);
 
     boolean hasMaterial(Material material);
+
+    int getMinimumCustomData();
+
+    int getMaximumCustomData();
 
     boolean isInverse();
 

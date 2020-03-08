@@ -1,17 +1,35 @@
 version: "0.0.16"
+command:
+  notset: "<yellow>You have not set a new name to be applied! Use <white>/loot renametag newName <yellow>while holding the tag."
+  renamefail: "<yellow>Invalid item! You can only use this command on <white>Item Rename Tag <yellow>!"
+  success: "<green>Item successfully renamed!"
+  invalidname: "<yellow>Invalid name! New names must be 20 characters or less, and also not be dumb!"
+generic:
+  no-drop: "&eYou cannot drop items from your hotbar. Drop items from your inventory, or use &f/trash &eor &f/trade&e."
 socket:
   success: "<green>You successfully added a socket gem to your item!"
   failure: "<red>You were unable to add the socket gem to your item."
+  must-be-gem: "<yellow>You can only transmute socket gems!"
+  pls-claim-first: "<yellow>Click your new gem to claim it before making another!"
+  transmute-success: "<green>You have transmuted a brand new socket gem!"
   needs-sockets: "<red>Items must have <gold>(Socket)<red> in their description for you to be able to use a socket gem on them."
 enchant:
   success: "<green>You successfully enchanted your item."
   no-enchantment-table: "<red>You must be near an enchantment table to enchant items."
   needs-enchantable: "<red>Items must have <blue>(Enchantable)<red> in their description for you to be able to enchant them."
+  pointless: "<red>This item is already equal to or greater than the power of this tome."
   failure: "<red>You were unable to enchant that item."
   no-open: "<red>You cannot use enchantment tables."
 extend:
   success: "<green>You successfully extended your item."
   failure: "<red>You were unable to extend your item."
+augment:
+  success: "<green>You have augmented your scroll!"
+  stack-size: "<red>You can only augment one scroll at a time."
+  already-has: "<red>This scroll is already augmented."
+  nonsense: "<yellow>Failed to augment! Using this augment on this scroll doesn't make sense!"
+  protected: "<green>You item was destroyed! Except... it wasn't! That protect augment saved your item! Hooray!"
+  not-on-ult: "<yellow>You cannot use this augment on an Ultimate Scroll."
 identify:
   success: "<green>You successfully identified your item."
   failure: "<red>You failed at identifying your item."
@@ -27,6 +45,32 @@ reveal:
   failure: "<red>This target doesn't have a hidden stat to reveal!"
 broadcast:
   found-item: "<white>%player%<green> found a %item%<green>!"
+  ided-item: "<white>%player%<green> ID'd a %item%<green>!"
+  transmute-gem: "<white>%player%<green> transmuted a %item%<green>!"
+quality:
+  1: "Superior"
+  2: "Artisan"
+  3: "Exceptional"
+  4: "Immaculate"
+  5: "Ultimate"
+menu:
+  confirm:
+    no-equipment:
+      - "aaaa"
+    no-upgrade:
+      - "aaaaa"
+    valid-enchant-lore:
+      - "&7Enchants this item with"
+      - "&7the following bonus!"
+      - ""
+      - "&fMinimum Value:"
+      - " &9{min}"
+      - "&fMaximum Value:"
+      - " &9{max}"
+    no-tag-lore:
+      - "gott b enchantable"
+    type-mismatch-lore:
+      - "wrong tome type"
 commands:
   give:
     receive: "<green>You received some loot!"
@@ -40,6 +84,7 @@ commands:
     stone-failure: "<red>You were unable to spawn enchantment stones."
     other-success: "<green>You spawned <white>%amount%<green> items."
     other-failure: "<red>You were unable to spawn items."
+    name-failure: "<red>No tier with the name found. But actually helpful error messages are helpful!"
     socket-extender: "<green>You spawned <white>%amount%<green> socket extender(s)."
     identity-tome: "<green>You spawned <white>%amount%<green> identity tome(s)."
     unidentified-item: "<green>You spawned <white>%amount%<green> unidentified item(s)."

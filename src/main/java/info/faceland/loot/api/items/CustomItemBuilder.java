@@ -22,8 +22,6 @@
  */
 package info.faceland.loot.api.items;
 
-import org.bukkit.Material;
-
 import java.util.List;
 
 public interface CustomItemBuilder {
@@ -36,11 +34,17 @@ public interface CustomItemBuilder {
 
     CustomItemBuilder withLore(List<String> lore);
 
-    CustomItemBuilder withMaterial(Material material);
-
     CustomItemBuilder withWeight(double d);
 
     CustomItemBuilder withDistanceWeight(double d);
 
+    CustomItemBuilder withLevelBase(int i);
+
+    CustomItemBuilder withLevelRange(int i);
+
+    CustomItemBuilder withCustomData(int i);
+
     CustomItemBuilder withBroadcast(boolean b);
+
+    CustomItemBuilder withQuality(boolean b);
 }

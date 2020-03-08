@@ -47,6 +47,8 @@ public interface SocketGemBuilder {
 
     SocketGemBuilder withDistanceWeight(double d);
 
+    SocketGemBuilder withWeightPerLevel(double d);
+
     SocketGemBuilder withBroadcast(boolean b);
 
     SocketGemBuilder withTriggerable(boolean b);
@@ -54,4 +56,6 @@ public interface SocketGemBuilder {
     SocketGemBuilder withTriggerText(String s);
 
     SocketGemBuilder withBonusWeight(double d);
+
+    SocketGemBuilder withGemType(SocketGem.GemType type);
 }

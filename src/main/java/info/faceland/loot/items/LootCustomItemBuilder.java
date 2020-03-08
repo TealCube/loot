@@ -33,8 +33,8 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     private boolean built = false;
     private LootCustomItem customItem;
 
-    public LootCustomItemBuilder(String name) {
-        this.customItem = new LootCustomItem(name);
+    public LootCustomItemBuilder(String name, Material material) {
+        this.customItem = new LootCustomItem(name, material);
     }
 
     @Override
@@ -64,12 +64,6 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     }
 
     @Override
-    public CustomItemBuilder withMaterial(Material material) {
-        customItem.setMaterial(material);
-        return this;
-    }
-
-    @Override
     public CustomItemBuilder withWeight(double d) {
         customItem.setWeight(d);
         return this;
@@ -82,8 +76,32 @@ public final class LootCustomItemBuilder implements CustomItemBuilder {
     }
 
     @Override
+    public CustomItemBuilder withLevelBase(int i) {
+        customItem.setLevelBase(i);
+        return this;
+    }
+
+    @Override
+    public CustomItemBuilder withLevelRange(int i) {
+        customItem.setLevelRange(i);
+        return this;
+    }
+
+    @Override
+    public CustomItemBuilder withCustomData(int i) {
+        customItem.setCustomDataNumber(i);
+        return this;
+    }
+
+    @Override
     public CustomItemBuilder withBroadcast(boolean b) {
         customItem.setBroadcast(b);
+        return this;
+    }
+
+    @Override
+    public CustomItemBuilder withQuality(boolean b) {
+        customItem.setQuality(b);
         return this;
     }
 

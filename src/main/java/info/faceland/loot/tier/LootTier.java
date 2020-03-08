@@ -1,30 +1,27 @@
 /**
- * The MIT License
- * Copyright (c) 2015 Teal Cube Games
+ * The MIT License Copyright (c) 2015 Teal Cube Games
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.tier.Tier;
-import org.bukkit.ChatColor;
+import info.faceland.loot.data.ItemStat;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -34,260 +31,188 @@ import java.util.Set;
 
 public final class LootTier implements Tier {
 
-    private final String name;
-    private String displayName;
-    private ChatColor displayColor;
-    private ChatColor identificationColor;
-    private double spawnWeight;
-    private double identifyWeight;
-    private int minimumSockets;
-    private int maximumSockets;
-    private int minimumBonusLore;
-    private int maximumBonusLore;
-    private Set<ItemGroup> itemGroups;
-    private List<String> baseLore;
-    private List<String> bonusLore;
-    private double minimumDurability;
-    private double maximumDurability;
-    private double distanceWeight;
-    private boolean enchantable;
-    private boolean broadcast;
-    private double extendableChance;
+  private boolean levelRequirement;
+  private String id;
+  private String name;
+  private ItemStat primaryStat;
+  private List<ItemStat> secondaryStats;
+  private List<ItemStat> bonusStats;
+  private List<ItemStat> specialStats;
+  private double spawnWeight;
+  private double identifyWeight;
+  private int customDataStart;
+  private int customDataInterval;
+  private Set<ItemGroup> itemGroups;
+  private List<String> suffixes = new ArrayList<>();
 
-    public LootTier(String name) {
-        this.name = name;
-        this.itemGroups = new HashSet<>();
-        this.baseLore = new ArrayList<>();
-        this.bonusLore = new ArrayList<>();
-    }
+  public LootTier(String id) {
+    this.id = id;
+    this.secondaryStats = new ArrayList<>();
+    this.bonusStats = new ArrayList<>();
+    this.itemGroups = new HashSet<>();
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public boolean isLevelRequirement() {
+    return levelRequirement;
+  }
 
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
+  public void setLevelRequirement(boolean levelRequirement) {
+    this.levelRequirement = levelRequirement;
+  }
 
-    void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public ChatColor getDisplayColor() {
-        return displayColor;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    void setDisplayColor(ChatColor displayColor) {
-        this.displayColor = displayColor;
-    }
+  void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public ChatColor getIdentificationColor() {
-        return identificationColor;
-    }
+  @Override
+  public ItemStat getPrimaryStat() {
+    return primaryStat;
+  }
 
-    void setIdentificationColor(ChatColor identificationColor) {
-        this.identificationColor = identificationColor;
-    }
+  public void setPrimaryStat(ItemStat primaryStat) {
+    this.primaryStat = primaryStat;
+  }
 
-    @Override
-    public double getMinimumDurability() {
-        return minimumDurability;
-    }
+  @Override
+  public List<ItemStat> getSecondaryStats() {
+    return secondaryStats;
+  }
 
-    void setMinimumDurability(double minimumDurability) {
-        this.minimumDurability = minimumDurability;
-    }
+  public void setSecondaryStats(List<ItemStat> secondaryStats) {
+    this.secondaryStats = secondaryStats;
+  }
 
-    @Override
-    public double getMaximumDurability() {
-        return maximumDurability;
-    }
+  @Override
+  public List<ItemStat> getBonusStats() {
+    return bonusStats;
+  }
 
-    @Override
-    public double getSpawnWeight() {
-        return spawnWeight;
-    }
+  public void setBonusStats(List<ItemStat> bonusStats) {
+    this.bonusStats = bonusStats;
+  }
 
-    void setSpawnWeight(double spawnWeight) {
-        this.spawnWeight = spawnWeight;
-    }
+  @Override
+  public List<ItemStat> getSpecialStats() {
+    return specialStats;
+  }
 
-    @Override
-    public double getIdentifyWeight() {
-        return identifyWeight;
-    }
+  public void setSpecialStats(List<ItemStat> specialStats) {
+    this.specialStats = specialStats;
+  }
 
-    void setIdentifyWeight(double identifyWeight) {
-        this.identifyWeight = identifyWeight;
-    }
+  @Override
+  public double getSpawnWeight() {
+    return spawnWeight;
+  }
 
-    @Override
-    public double getDistanceWeight() {
-        return distanceWeight;
-    }
+  public void setSpawnWeight(double spawnWeight) {
+    this.spawnWeight = spawnWeight;
+  }
 
-    @Override
-    public List<String> getBaseLore() {
-        return new ArrayList<>(baseLore);
-    }
+  @Override
+  public double getIdentifyWeight() {
+    return identifyWeight;
+  }
 
-    void setBaseLore(List<String> baseLore) {
-        if (baseLore == null) {
-            this.baseLore.clear();
-        } else {
-            this.baseLore = baseLore;
+  public void setIdentifyWeight(double identifyWeight) {
+    this.identifyWeight = identifyWeight;
+  }
+
+  @Override
+  public int getCustomDataStart() {
+    return customDataStart;
+  }
+
+  public void setCustomDataStart(int customDataStart) {
+    this.customDataStart = customDataStart;
+  }
+
+  public int getCustomDataInterval() {
+    return customDataInterval;
+  }
+
+  public void setCustomDataInterval(int customDataInterval) {
+    this.customDataInterval = customDataInterval;
+  }
+
+  @Override
+  public Set<ItemGroup> getItemGroups() {
+    return itemGroups;
+  }
+
+  public void setItemGroups(Set<ItemGroup> itemGroups) {
+    this.itemGroups = itemGroups;
+  }
+
+  @Override
+  public Set<Material> getAllowedMaterials() {
+    Set<Material> materials = new HashSet<>();
+    for (ItemGroup ig : getItemGroups()) {
+      if (!ig.isInverse()) {
+        if (materials.isEmpty()) {
+          materials.addAll(ig.getMaterials());
+          continue;
         }
+        materials.retainAll(ig.getMaterials());
+      }
     }
-
-    @Override
-    public List<String> getBonusLore() {
-        return new ArrayList<>(bonusLore);
-    }
-
-    @Override
-    public Set<ItemGroup> getItemGroups() {
-        return new HashSet<>(itemGroups);
-    }
-
-    @Override
-    public int getMinimumSockets() {
-        return minimumSockets;
-    }
-
-    void setMinimumSockets(int minimumSockets) {
-        this.minimumSockets = minimumSockets;
-    }
-
-    @Override
-    public int getMaximumSockets() {
-        return maximumSockets;
-    }
-
-    void setMaximumSockets(int maximumSockets) {
-        this.maximumSockets = maximumSockets;
-    }
-
-    @Override
-    public int getMinimumBonusLore() {
-        return minimumBonusLore;
-    }
-
-    void setMinimumBonusLore(int minimumBonusLore) {
-        this.minimumBonusLore = minimumBonusLore;
-    }
-
-    @Override
-    public int getMaximumBonusLore() {
-        return maximumBonusLore;
-    }
-
-    @Override
-    public Set<Material> getAllowedMaterials() {
-        Set<Material> materials = new HashSet<>();
-        for (ItemGroup ig : getItemGroups()) {
-            if (!ig.isInverse()) {
-                for (Material m : ig.getMaterials()) {
-                    materials.add(m);
-                }
-            }
+    for (ItemGroup ig : getItemGroups()) {
+      if (ig.isInverse()) {
+        for (Material m : ig.getMaterials()) {
+          materials.remove(m);
         }
-        for (ItemGroup ig : getItemGroups()) {
-            if (ig.isInverse()) {
-                for (Material m : ig.getMaterials()) {
-                    materials.remove(m);
-                }
-            }
-        }
-        return materials;
+      }
+    }
+    if (materials.isEmpty()) {
+      Bukkit.getLogger().warning("Tier " + name + "has invalid item groups! No materials!");
+      materials.add(Material.WOODEN_SWORD);
+    }
+    return materials;
+  }
+
+  @Override
+  public List<String> getItemSuffixes() {
+    return suffixes;
+  }
+
+  @Override
+  public int compareTo(Tier o) {
+    if (o == null) {
+      return 1;
+    }
+    if (this.equals(o)) {
+      return 0;
+    }
+    return Double.compare(getSpawnWeight(), o.getSpawnWeight());
+  }
+
+  @Override
+  public int hashCode() {
+    return name != null ? name.hashCode() : 0;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
-    @Override
-    public boolean isEnchantable() {
-        return enchantable;
-    }
+    LootTier lootTier = (LootTier) o;
 
-    void setEnchantable(boolean enchantable) {
-        this.enchantable = enchantable;
-    }
-
-    @Override
-    public boolean isBroadcast() {
-        return broadcast;
-    }
-
-    void setBroadcast(boolean broadcast) {
-        this.broadcast = broadcast;
-    }
-
-    @Override
-    public double getExtendableChance() {
-        return extendableChance;
-    }
-
-    void setExtendableChance(double extendableChance) {
-        this.extendableChance = extendableChance;
-    }
-
-    void setMaximumBonusLore(int maximumBonusLore) {
-        this.maximumBonusLore = maximumBonusLore;
-    }
-
-    void setItemGroups(Set<ItemGroup> itemGroups) {
-        if (itemGroups == null) {
-            this.itemGroups.clear();
-        } else {
-            this.itemGroups = itemGroups;
-        }
-    }
-
-    void setBonusLore(List<String> bonusLore) {
-        if (bonusLore == null) {
-            this.bonusLore.clear();
-        } else {
-            this.bonusLore = bonusLore;
-        }
-    }
-
-    void setDistanceWeight(double distanceWeight) {
-        this.distanceWeight = distanceWeight;
-    }
-
-    void setMaximumDurability(double maximumDurability) {
-        this.maximumDurability = maximumDurability;
-    }
-
-    @Override
-    public int compareTo(Tier o) {
-        if (o == null) {
-            return 1;
-        }
-        if (this.equals(o)) {
-            return 0;
-        }
-        return Double.compare(getSpawnWeight(), o.getSpawnWeight());
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        LootTier lootTier = (LootTier) o;
-
-        return !(name != null ? !name.equals(lootTier.name) : lootTier.name != null);
-    }
-
+    return !(name != null ? !name.equals(lootTier.name) : lootTier.name != null);
+  }
 }

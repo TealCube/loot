@@ -1,32 +1,28 @@
 version: "0.0.4"
-common:
-  display-name: "Common"
-  display-color: "<gray>"
-  identification-color: "<gray>"
-  spawn-weight: 100
-  identify-weight: 100
-  distance-weight: 0
-  minimum-sockets: 0
-  maximum-sockets: 0
-  minimum-bonus-lore: 0
-  maximum-bonus-lore: 0
-  broadcast: true
-  enchantable: true
-  extendable-chance: 0.0
-  base-lore:
-  - '<white>A common item.'
-  bonus-lore:
-  - '<white>Fuck yeah, bonus lore.'
+sword:
+  level-req: true
+  tier-name: "Sword"
+  primary-stat: "SWORD-MELEE"
+  secondary-stat:
+  - "SWORD-SECONDARY-CRIT-RATE"
+  bonus-stats:
+  - "SWORD-BONUS-MELEE"
+  - "SWORD-BONUS-AS"
+  - "SWORD-BONUS-CRIT-RATE"
+  - "SWORD-BONUS-ARMOR-PEN"
+  - "SWORD-BONUS-ACCURACY"
+  - "SWORD-BONUS-FIRE"
+  - "SWORD-BONUS-ICE"
+  - "SWORD-BONUS-LIGHTNING"
+  - "SWORD-BONUS-SHADOW"
+  - "SWORD-BONUS-BLEED-CHANCE"
+  - "WEAPON-BONUS-LIFE-STEAL"
+  - "WEAPON-BONUS-GOLD-FIND"
+  - "WEAPON-BONUS-ITEM-DISC"
+  special-stats:
+  - "WEAPON-SPECIAL-HP-ON-HIT"
+  spawn-weight: 5
+  identify-weight: 10
   item-groups:
-  - sword
-  - pickaxe
-  - axe
-  - shovel
-  - hoe
-  - helmet
-  - chestplate
-  - leggings
-  - boots
-  - -diamond
-  - -gold
-  - -iron
+  - Sword
+  - -Wood

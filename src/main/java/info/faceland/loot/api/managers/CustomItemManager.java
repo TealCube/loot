@@ -45,6 +45,10 @@ public interface CustomItemManager {
 
     CustomItem getRandomCustomItem(boolean withChance, double distance, Map<CustomItem, Double> map);
 
+    CustomItem getRandomCustomItemByLevel(int level);
+
     double getTotalWeight();
+
+    double getTotalLevelWeight(int level);
 
 }

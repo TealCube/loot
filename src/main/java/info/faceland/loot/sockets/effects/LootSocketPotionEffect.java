@@ -29,6 +29,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Collection;
+
 public final class LootSocketPotionEffect implements SocketPotionEffect {
 
     private final PotionEffectType type;
@@ -88,6 +90,19 @@ public final class LootSocketPotionEffect implements SocketPotionEffect {
     public void apply(LivingEntity entity) {
         if (entity == null) {
             return;
+        }
+        Collection<PotionEffect> effects = entity.getActivePotionEffects();
+
+        for(PotionEffect effect : effects) {
+            if(type == effect.getType()) {
+                if(intensity == Math.abs(effect.getAmplifier())) {
+                    if (duration / 50 < effect.getDuration()) {
+                        return;
+                    }
+                } else if (intensity < effect.getAmplifier()) {
+                    return;
+                }
+            }
         }
         entity.removePotionEffect(type);
         entity.addPotionEffect(new PotionEffect(type, duration / 50, intensity));
