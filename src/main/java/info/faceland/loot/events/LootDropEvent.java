@@ -1,22 +1,14 @@
 package info.faceland.loot.events;
 
+import info.faceland.loot.api.events.LootCancellableEvent;
 import info.faceland.loot.data.ItemRarity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 
-public class LootDropEvent extends Event implements Cancellable {
-
-  private static final HandlerList HANDLER_LIST = new HandlerList();
-
-  public static HandlerList getHandlerList() {
-    return HANDLER_LIST;
-  }
+public class LootDropEvent extends LootCancellableEvent {
 
   private double quantityMultiplier;
   private double qualityMultiplier;
@@ -27,12 +19,6 @@ public class LootDropEvent extends Event implements Cancellable {
   private int monsterLevel;
   private LivingEntity entity;
   private String uniqueEntity;
-  private boolean cancelled;
-
-  @Override
-  public HandlerList getHandlers() {
-    return HANDLER_LIST;
-  }
 
   public UUID getLooterUUID() {
     return looterUUID;
@@ -100,16 +86,6 @@ public class LootDropEvent extends Event implements Cancellable {
 
   public void setUniqueEntity(String uniqueEntity) {
     this.uniqueEntity = uniqueEntity;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return cancelled;
-  }
-
-  @Override
-  public void setCancelled(boolean cancelled) {
-    this.cancelled = cancelled;
   }
 
 }
