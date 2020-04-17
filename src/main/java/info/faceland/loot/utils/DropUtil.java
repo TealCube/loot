@@ -10,17 +10,19 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UniqueLoot;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.events.LootDropEvent;
+import info.faceland.loot.items.prefabs.ArcaneEnhancer;
 import info.faceland.loot.items.prefabs.IdentityTome;
+import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.tier.Tier;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,8 @@ public class DropUtil implements Listener {
   private static double scrollDropChance;
   private static double socketDropChance;
   private static double tomeDropChance;
+  private static double enhancerDropChance;
+  private static double purityDropChance;
 
   private static LootRandom random;
 
@@ -71,6 +75,8 @@ public class DropUtil implements Listener {
     scrollDropChance = plugin.getSettings().getDouble("config.drops.upgrade-scroll", 0D);
     socketDropChance = plugin.getSettings().getDouble("config.drops.socket-gem", 0D);
     tomeDropChance = plugin.getSettings().getDouble("config.drops.enchant-gem", 0D);
+    enhancerDropChance = plugin.getSettings().getDouble("config.drops.arcane-enhancer", 0D);
+    purityDropChance = plugin.getSettings().getDouble("config.drops.purity-scroll", 0D);
 
     random = new LootRandom();
   }
@@ -193,11 +199,17 @@ public class DropUtil implements Listener {
         ItemStack his = es.toItemStack(1);
         dropItem(event.getLocation(), his, killer, es.isBroadcast());
       }
+      if (random.nextDouble() < dropMultiplier * enhancerDropChance) {
+        dropItem(event.getLocation(), ArcaneEnhancer.get(), killer, true);
+      }
+      if (random.nextDouble() < dropMultiplier * purityDropChance) {
+        dropItem(event.getLocation(), PurifyingScroll.get(), killer, false);
+      }
     }
     if (random.nextDouble() < dropMultiplier * scrollDropChance) {
       UpgradeScroll us = plugin.getScrollManager().getRandomScroll();
       ItemStack stack = plugin.getScrollManager().buildItemStack(us);
-      dropItem(event.getLocation(), stack, null, us.isBroadcast());
+      dropItem(event.getLocation(), stack, killer, us.isBroadcast());
     }
     if (random.nextDouble() < dropMultiplier * plugin.getSettings()
         .getDouble("config.drops.identity-tome", 0D)) {
@@ -384,7 +396,7 @@ public class DropUtil implements Listener {
         .get(worldName));
   }
 
-  private static Tier getTier(Player killer) {
+  public static Tier getTier(Player killer) {
     if (customizedTierChance < random.nextDouble()) {
       return plugin.getTierManager().getRandomTier();
     }

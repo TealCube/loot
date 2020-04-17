@@ -25,17 +25,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public final class ShardOfFailure extends ItemStack {
-    public ShardOfFailure(String name) {
-        super(Material.PRISMARINE_SHARD);
-        ItemStackExtensionsKt.setDisplayName(this, ChatColor.RED + "Shard of Failure");
-        ItemStackExtensionsKt.setLore(this, TextUtils.color(Arrays.asList(
-                "&7Use this item on an Upgrade Scroll",
-                "&7to slightly increase the chance of",
-                "&7upgrade success!",
-                "&8&oThis failure is special because it",
-                "&8&owas created by " + name + " :)"
-        )));
-        setDurability((short) 11);
-    }
+public final class PurifyingScroll {
+
+  private static ItemStack item;
+
+  public static void rebuild() {
+    ItemStack stack = new ItemStack(Material.PAPER);
+    ItemStackExtensionsKt.setDisplayName(stack, ChatColor.DARK_PURPLE + "Scroll Of Purity");
+    ItemStackExtensionsKt.setLore(stack, TextUtils.color(Arrays.asList(
+        "&7Use this at an enchantment",
+        "&7table to remove an item's",
+        "&7enchantment"
+    )));
+    stack.setDurability((short) 11);
+    ItemStackExtensionsKt.setCustomModelData(stack, 79);
+    item = stack;
+  }
+
+  public static ItemStack get() {
+    return item.clone();
+  }
 }

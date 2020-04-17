@@ -39,7 +39,6 @@ import info.faceland.loot.api.managers.UniqueDropsManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
@@ -55,11 +54,14 @@ import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.items.prefabs.ArcaneEnhancer;
+import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.EnchantMenuListener;
 import info.faceland.loot.listeners.EntityDeathListener;
 import info.faceland.loot.listeners.InteractListener;
+import info.faceland.loot.listeners.ItemListListener;
 import info.faceland.loot.listeners.PawnMenuListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
@@ -86,6 +88,7 @@ import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
+import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.DropUtil;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
@@ -101,6 +104,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import land.face.market.data.PlayerMarketState.FilterFlagA;
 import land.face.strife.StrifePlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -235,6 +239,9 @@ public final class LootPlugin extends FacePlugin {
     MaterialUtil.refreshConfig();
     DropUtil.refresh();
 
+    ArcaneEnhancer.rebuild();
+    PurifyingScroll.rebuild();
+
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
 
     CommandHandler handler = new CommandHandler(this);
@@ -247,6 +254,7 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantMenuListener(), this);
+    Bukkit.getPluginManager().registerEvents(new ItemListListener(this), this);
     Bukkit.getPluginManager().registerEvents(new PawnMenuListener(this), this);
     if (potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
@@ -377,6 +385,7 @@ public final class LootPlugin extends FacePlugin {
       scroll.setWeight(cs.getDouble("weight", 100));
       scroll.setMinLevel(cs.getInt("min-level", 0));
       scroll.setMaxLevel(cs.getInt("max-level", 14));
+      scroll.setCustomData(cs.getInt("custom-data", 100));
       scroll.setBroadcast(cs.getBoolean("broadcast", false));
       scrollManager.addScroll(key, scroll);
     }
@@ -849,6 +858,10 @@ public final class LootPlugin extends FacePlugin {
       Tier t = builder.build();
       t.getItemSuffixes().addAll(cs.getStringList("name-suffixes"));
       loadedTiers.add(t.getName());
+
+      String marketFilterFlag = cs.getString("filter-flag", "ALL");
+      t.setFilterFlag(FilterFlagA.valueOf(marketFilterFlag));
+
       tiers.add(t);
     }
     debug("Loaded tiers: " + loadedTiers.toString());

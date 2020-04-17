@@ -19,17 +19,16 @@
 package info.faceland.loot.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemStat;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import land.face.market.data.PlayerMarketState.FilterFlagA;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
-public final class LootTier implements Tier {
+public final class Tier implements Comparable<Tier> {
 
   private boolean levelRequirement;
   private String id;
@@ -42,17 +41,17 @@ public final class LootTier implements Tier {
   private double identifyWeight;
   private int customDataStart;
   private int customDataInterval;
+  private FilterFlagA filterFlag;
   private Set<ItemGroup> itemGroups;
   private List<String> suffixes = new ArrayList<>();
 
-  public LootTier(String id) {
+  public Tier(String id) {
     this.id = id;
     this.secondaryStats = new ArrayList<>();
     this.bonusStats = new ArrayList<>();
     this.itemGroups = new HashSet<>();
   }
 
-  @Override
   public boolean isLevelRequirement() {
     return levelRequirement;
   }
@@ -61,12 +60,10 @@ public final class LootTier implements Tier {
     this.levelRequirement = levelRequirement;
   }
 
-  @Override
   public String getId() {
     return id;
   }
 
-  @Override
   public String getName() {
     return name;
   }
@@ -75,7 +72,6 @@ public final class LootTier implements Tier {
     this.name = name;
   }
 
-  @Override
   public ItemStat getPrimaryStat() {
     return primaryStat;
   }
@@ -84,7 +80,6 @@ public final class LootTier implements Tier {
     this.primaryStat = primaryStat;
   }
 
-  @Override
   public List<ItemStat> getSecondaryStats() {
     return secondaryStats;
   }
@@ -93,7 +88,6 @@ public final class LootTier implements Tier {
     this.secondaryStats = secondaryStats;
   }
 
-  @Override
   public List<ItemStat> getBonusStats() {
     return bonusStats;
   }
@@ -102,7 +96,6 @@ public final class LootTier implements Tier {
     this.bonusStats = bonusStats;
   }
 
-  @Override
   public List<ItemStat> getSpecialStats() {
     return specialStats;
   }
@@ -111,7 +104,6 @@ public final class LootTier implements Tier {
     this.specialStats = specialStats;
   }
 
-  @Override
   public double getSpawnWeight() {
     return spawnWeight;
   }
@@ -120,7 +112,6 @@ public final class LootTier implements Tier {
     this.spawnWeight = spawnWeight;
   }
 
-  @Override
   public double getIdentifyWeight() {
     return identifyWeight;
   }
@@ -129,7 +120,6 @@ public final class LootTier implements Tier {
     this.identifyWeight = identifyWeight;
   }
 
-  @Override
   public int getCustomDataStart() {
     return customDataStart;
   }
@@ -146,7 +136,6 @@ public final class LootTier implements Tier {
     this.customDataInterval = customDataInterval;
   }
 
-  @Override
   public Set<ItemGroup> getItemGroups() {
     return itemGroups;
   }
@@ -155,7 +144,6 @@ public final class LootTier implements Tier {
     this.itemGroups = itemGroups;
   }
 
-  @Override
   public Set<Material> getAllowedMaterials() {
     Set<Material> materials = new HashSet<>();
     for (ItemGroup ig : getItemGroups()) {
@@ -181,12 +169,19 @@ public final class LootTier implements Tier {
     return materials;
   }
 
-  @Override
   public List<String> getItemSuffixes() {
     return suffixes;
   }
 
-  @Override
+  public FilterFlagA getFilterFlag() {
+    return filterFlag;
+  }
+
+  public void setFilterFlag(FilterFlagA filterFlag) {
+    this.filterFlag = filterFlag;
+  }
+
+
   public int compareTo(Tier o) {
     if (o == null) {
       return 1;
@@ -211,8 +206,8 @@ public final class LootTier implements Tier {
       return false;
     }
 
-    LootTier lootTier = (LootTier) o;
+    Tier tier = (Tier) o;
 
-    return !(name != null ? !name.equals(lootTier.name) : lootTier.name != null);
+    return !(name != null ? !name.equals(tier.name) : tier.name != null);
   }
 }
