@@ -16,28 +16,22 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package info.faceland.loot.api.creatures;
+package info.faceland.loot.listeners;
 
-import info.faceland.loot.api.items.CustomItem;
-import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.data.JunkItemData;
-import info.faceland.loot.enchantments.EnchantmentTome;
-import info.faceland.loot.tier.Tier;
-import java.util.Map;
+import info.faceland.loot.utils.MaterialUtil;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 
-public interface CreatureModBuilder {
+public final class HeadHelmetsListener implements Listener {
 
-  boolean isBuilt();
+  // Block heads from being placed if they have a specific data
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onHeadBlockPlace(BlockPlaceEvent event) {
+    if (MaterialUtil.isHelmetHead(event.getItemInHand())) {
+      event.setCancelled(true);
+    }
+  }
 
-  MobInfo build();
-
-  CreatureModBuilder withCustomItemMults(Map<CustomItem, Double> map);
-
-  CreatureModBuilder withSocketGemMults(Map<SocketGem, Double> map);
-
-  CreatureModBuilder withTierMults(Map<Tier, Double> map);
-
-  CreatureModBuilder withEnchantTomeMults(Map<EnchantmentTome, Double> map);
-
-  CreatureModBuilder withJunkMap(Map<String, Map<JunkItemData, Double>> map);
 }

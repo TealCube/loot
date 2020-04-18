@@ -20,14 +20,13 @@ package info.faceland.loot.managers;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.managers.ItemGroupManager;
-import info.faceland.loot.api.tier.Tier;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-
+import info.faceland.loot.tier.Tier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
 public final class LootItemGroupManager implements ItemGroupManager {
 

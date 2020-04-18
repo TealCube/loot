@@ -22,6 +22,7 @@ import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.send
 import static org.bukkit.ChatColor.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -59,6 +60,7 @@ public final class MaterialUtil {
   private static final LootRandom random = new LootRandom();
 
   private static String upgradeFailureMsg;
+  private static String noPointsForHelmetMsg;
   private static String upgradeItemDestroyMsg;
   private static String upgradeItemDestroyBroadcast;
   private static String upgradeItemDamageMsg;
@@ -77,6 +79,8 @@ public final class MaterialUtil {
   public static void refreshConfig() {
     upgradeFailureMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.failure", "");
+    noPointsForHelmetMsg = LootPlugin.getInstance().getSettings()
+        .getString("language.generic.no-points-for-head-merge", "");
     upgradeItemDestroyMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.destroyed", "");
     upgradeItemDestroyBroadcast = LootPlugin.getInstance().getSettings()
@@ -537,6 +541,41 @@ public final class MaterialUtil {
     return getEnchantmentItem(stack) != null;
   }
 
+  public static boolean isHelmet(ItemStack stack) {
+    return stack.getType() == Material.LEATHER_HELMET || stack.getType() == Material.IRON_HELMET
+        || stack.getType() == Material.GOLDEN_HELMET || stack.getType() == Material.DIAMOND_HELMET
+        || stack.getType() == Material.CHAINMAIL_HELMET;
+  }
+
+  public static boolean isNormalHead(ItemStack stack) {
+    if (stack.getType() == Material.PLAYER_HEAD) {
+      return MaterialUtil.getCustomData(stack) < 2000;
+    }
+    return false;
+  }
+
+  public static boolean isHelmetHead(ItemStack stack) {
+    if (stack.getType() == Material.PLAYER_HEAD) {
+      return MaterialUtil.getCustomData(stack) >= 2000;
+    }
+    return false;
+  }
+
+  public static void convertToHead(Player player, ItemStack head, ItemStack helmet) {
+    if (LootPlugin.getInstance().getPlayerPointsAPI().look(player.getUniqueId()) < 600) {
+      player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 0.7f);
+      MessageUtils.sendMessage(player, noPointsForHelmetMsg);
+      return;
+    }
+    player.playSound(player.getLocation(), Sound.ENTITY_MOOSHROOM_CONVERT, 1, 1f);
+    LootPlugin.getInstance().getPlayerPointsAPI().take(player.getUniqueId(), 500);
+    ItemStackExtensionsKt.setDisplayName(head,
+        TextUtils.color("&7&f") + ItemStackExtensionsKt.getDisplayName(helmet));
+    ItemStackExtensionsKt.setCustomModelData(head, 200000 + MaterialUtil.getCustomData(helmet));
+    ItemStackExtensionsKt.setLore(head, new ArrayList<>(ItemStackExtensionsKt.getLore(helmet)));
+    helmet.setAmount(helmet.getAmount() - 1);
+  }
+
   public static boolean isExtender(ItemStack stack) {
     return ItemStackExtensionsKt.getDisplayName(SocketExtender.EXTENDER)
         .equals(ItemStackExtensionsKt.getDisplayName(stack));
@@ -644,7 +683,8 @@ public final class MaterialUtil {
   public static Tier getTierFromStack(ItemStack stack) {
     String strTier = "";
     int data = MaterialUtil.getCustomData(stack);
-    for (DeconstructData dd : LootPlugin.getInstance().getCraftMatManager().getDeconstructDataSet()) {
+    for (DeconstructData dd : LootPlugin.getInstance().getCraftMatManager()
+        .getDeconstructDataSet()) {
       if (StringUtils.isBlank(dd.getTierName())) {
         continue;
       }

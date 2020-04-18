@@ -64,17 +64,18 @@ public class SellIcon extends MenuItem {
     event.getPlayer()
         .playSound(event.getPlayer().getLocation(), Sound.UI_BUTTON_CLICK, 1, 1.2f);
     int total = menu.sellItems(event.getPlayer());
-    if (total == 0) {
-      return;
-    }
     menu.update(event.getPlayer());
-    LootPlugin.getInstance().getEconomy().depositPlayer(event.getPlayer(), total);
-    event.getPlayer()
-        .playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1, 2.0f);
-    MessageUtils.sendMessage(event.getPlayer(), "&a+&f" + total + " &aBits!");
+    if (total != 0) {
+      LootPlugin.getInstance().getEconomy().depositPlayer(event.getPlayer(), total);
+      event.getPlayer()
+          .playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1, 2.0f);
+      MessageUtils.sendMessage(event.getPlayer(), "&e +" + total + " Bit(s)!");
+    }
     if (menu.getTotal() > 0) {
       MessageUtils.sendMessage(event.getPlayer(),
           "&e&l[!] &eHigh rarity items found! Press sell again to confirm the sale of these items.");
+      event.getPlayer()
+          .playSound(event.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 1, 0.5f);
     }
     event.setWillUpdate(true);
   }

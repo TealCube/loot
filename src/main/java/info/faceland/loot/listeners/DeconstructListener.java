@@ -159,7 +159,9 @@ public class DeconstructListener implements Listener {
       }
     }
 
-    Material material = plugin.getCraftMatManager().getMaterial(targetItem);
+    ItemStack materialDetectionItem = targetItem.clone();
+    materialDetectionItem.setDurability((short) 0);
+    Material material = plugin.getCraftMatManager().getMaterial(materialDetectionItem);
     if (material == null) {
       sendMessage(player, plugin.getSettings().getString("language.craft.no-materials", ""));
       return;

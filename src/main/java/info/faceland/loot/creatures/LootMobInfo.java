@@ -18,17 +18,16 @@
  */
 package info.faceland.loot.creatures;
 
+import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.JunkItemData;
-import com.tealcube.minecraft.bukkit.shade.objecthunter.exp4j.Expression;
 import info.faceland.loot.enchantments.EnchantmentTome;
-import org.bukkit.entity.EntityType;
-
+import info.faceland.loot.tier.Tier;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.entity.EntityType;
 
 public final class LootMobInfo implements MobInfo {
 

@@ -19,6 +19,7 @@
 package info.faceland.loot.menu.upgrade;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.UpgradeScroll;
@@ -50,6 +51,7 @@ public class EnchantMenu extends ItemMenu {
   private LootPlugin plugin;
 
   private int baseEnhanceRequirement;
+  private int playerPointHelmetMergeCost;
   private int enhanceReqPerTwenty;
 
   private ItemStack selectedEquipment;
@@ -70,6 +72,8 @@ public class EnchantMenu extends ItemMenu {
   private String noEnhanceLevel;
   private String validEnhance;
   private String validPurity;
+  private String noHelmetMerge;
+  private String validHelmetMerge;
   private List<String> noEquipmentLore;
   private List<String> noUpgradeItemLore;
   private List<String> validEnchantLore;
@@ -85,6 +89,8 @@ public class EnchantMenu extends ItemMenu {
   private List<String> noEnhanceLevelLore;
   private List<String> validEnhanceLore;
   private List<String> validPurityLore;
+  private List<String> noHelmetMergeLore;
+  private List<String> validHelmetMergeLore;
 
   private ItemStack blankItem;
 
@@ -97,7 +103,9 @@ public class EnchantMenu extends ItemMenu {
     this.plugin = plugin;
 
     baseEnhanceRequirement = plugin.getSettings().getInt("config.enhancement.base-level-req", 6);
-    enhanceReqPerTwenty = plugin.getSettings().getInt("config.enhancement.level-req-per-ten-levels", 9);
+    playerPointHelmetMergeCost = plugin.getSettings().getInt("config.helmet-merge-cost", 320);
+    enhanceReqPerTwenty = plugin.getSettings()
+        .getInt("config.enhancement.level-req-per-ten-levels", 9);
 
     validEnchant = TextUtils.color(plugin.getSettings()
         .getString("language.menu.valid-enchant-name", "aaaa"));
@@ -121,6 +129,10 @@ public class EnchantMenu extends ItemMenu {
         .getString("language.menu.valid-enhance-name", "aaaa"));
     validPurity = TextUtils.color(plugin.getSettings()
         .getString("language.menu.valid-purity-name", "aaaa"));
+    noHelmetMerge = TextUtils.color(plugin.getSettings()
+        .getString("language.menu.no-helmet-merge", "aaaa"));
+    validHelmetMerge = TextUtils.color(plugin.getSettings()
+        .getString("language.menu.valid-helmet-merge", "aaaa"));
 
     noEquipmentLore = TextUtils.color(plugin.getSettings()
         .getStringList("language.menu.no-equipment"));
@@ -152,6 +164,10 @@ public class EnchantMenu extends ItemMenu {
         .getStringList("language.menu.valid-enhance-lore"));
     validPurityLore = TextUtils.color(plugin.getSettings()
         .getStringList("language.menu.valid-purity-lore"));
+    noHelmetMergeLore = TextUtils.color(plugin.getSettings()
+        .getStringList("language.menu.no-helmet-merge-lore"));
+    validHelmetMergeLore = TextUtils.color(plugin.getSettings()
+        .getStringList("language.menu.valid-helmet-merge-lore"));
 
     blankItem = new ItemStack(Material.AIR);
 
@@ -195,6 +211,24 @@ public class EnchantMenu extends ItemMenu {
     if (selectedUpgradeItem == null || selectedUpgradeItem.getType() == Material.AIR) {
       confirmIcon.setDisplayName(TextUtils.color("&eNo Upgrade Item..."));
       lore.addAll(noUpgradeItemLore);
+      ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
+      return;
+    }
+    if (MaterialUtil.isNormalHead(selectedUpgradeItem)) {
+      if (LootPlugin.getInstance().getPlayerPointsAPI() == null) {
+        confirmIcon.setDisplayName(ChatColor.RED + "UNAVAILABLE");
+        ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), new ArrayList<>());
+        return;
+      }
+      if (!MaterialUtil.isHelmet(selectedEquipment)) {
+        confirmIcon.setDisplayName(noHelmetMerge);
+        lore.addAll(noHelmetMergeLore);
+        ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
+        return;
+      }
+      confirmIcon.setDisplayName(validHelmetMerge);
+      confirmIcon.getIcon().setType(Material.NETHER_STAR);
+      lore.addAll(validHelmetMergeLore);
       ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
       return;
     }
@@ -359,7 +393,14 @@ public class EnchantMenu extends ItemMenu {
       player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_HURT, 1, 0.8f);
       return false;
     }
-    if (MaterialUtil.isEnchantmentItem(selectedUpgradeItem)) {
+    if (MaterialUtil.isNormalHead(selectedUpgradeItem) && MaterialUtil
+        .isHelmet(selectedEquipment)) {
+      if (plugin.getPlayerPointsAPI() == null) {
+        MessageUtils.sendMessage(player, "&eSorry! FaceGems are on strike?!");
+        return false;
+      }
+      MaterialUtil.convertToHead(player, selectedUpgradeItem, selectedEquipment);
+    } else if (MaterialUtil.isEnchantmentItem(selectedUpgradeItem)) {
       MaterialUtil.enchantItem(player, selectedUpgradeItem, selectedEquipment);
     } else if (plugin.getScrollManager().getScroll(selectedUpgradeItem) != null) {
       MaterialUtil.upgradeItem(player, selectedUpgradeItem, selectedEquipment);

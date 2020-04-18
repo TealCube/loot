@@ -37,6 +37,7 @@ public final class UpgradeScroll {
     private double itemDamageMultiplier;
     private int minLevel;
     private int maxLevel;
+    private int customData;
     private boolean broadcast;
 
     public String getId() {
@@ -125,6 +126,14 @@ public final class UpgradeScroll {
 
     public void setMaxLevel(int maxLevel) {
         this.maxLevel = maxLevel;
+    }
+
+    public int getCustomData() {
+        return customData;
+    }
+
+    public void setCustomData(int customData) {
+        this.customData = customData;
     }
 
     public boolean isBroadcast() {

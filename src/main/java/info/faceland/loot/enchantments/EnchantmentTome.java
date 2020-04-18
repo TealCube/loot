@@ -22,12 +22,15 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.text.WordUtils;
 import info.faceland.loot.api.groups.ItemGroup;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.*;
 
 public class EnchantmentTome {
 
@@ -124,6 +127,7 @@ public class EnchantmentTome {
       lore.add(description);
     }
     ItemStackExtensionsKt.setLore(is, TextUtils.color(lore));
+    is.setDurability((short) 11);
     return is;
   }
 

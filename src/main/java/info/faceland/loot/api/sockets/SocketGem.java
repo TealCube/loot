@@ -24,11 +24,11 @@ package info.faceland.loot.api.sockets;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import java.util.List;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
 public interface SocketGem extends Comparable<SocketGem> {
+
     String getName();
 
     double getWeight();

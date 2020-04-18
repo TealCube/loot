@@ -31,6 +31,8 @@ public class ScrollManager {
       ItemStackExtensionsKt.setDisplayName(stack,
           ChatColor.DARK_GREEN + upgradeScroll.getPrefix() + " Upgrade Scroll");
       ItemStackExtensionsKt.setLore(stack, upgradeScroll.getLore());
+      stack.setDurability((short) 11);
+      ItemStackExtensionsKt.setCustomModelData(stack, upgradeScroll.getCustomData());
       cachedScrollStacks.put(upgradeScroll, stack);
     }
     return cachedScrollStacks.get(upgradeScroll).clone();

@@ -22,11 +22,10 @@
  */
 package info.faceland.loot.api.items;
 
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.tier.Tier;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 public interface ItemBuilder {
     boolean isBuilt();

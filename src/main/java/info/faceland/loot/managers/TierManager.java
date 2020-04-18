@@ -18,11 +18,11 @@
  */
 package info.faceland.loot.managers;
 
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.math.LootRandom;
-
+import info.faceland.loot.tier.Tier;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 public final class TierManager {
 
@@ -35,6 +35,9 @@ public final class TierManager {
   }
 
   public Tier getTier(String name) {
+    if (StringUtils.isBlank(name)) {
+      return null;
+    }
     for (Tier t : getLoadedTiers()) {
       if (t.getId().replace(" ", "").equalsIgnoreCase(name.replace(" ", ""))) {
         return t;

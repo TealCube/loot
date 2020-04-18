@@ -19,6 +19,8 @@
 package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.items.prefabs.ArcaneEnhancer;
+import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.utils.MaterialUtil;
 import ninja.amp.ampmenus.menus.MenuHolder;
@@ -66,9 +68,21 @@ public final class EnchantMenuListener implements Listener {
       enchantMenu.setSelectedUpgradeItem(player, stack);
       enchantMenu.update(player);
       player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
+    } else if (stack.isSimilar(ArcaneEnhancer.get())) {
+      enchantMenu.setSelectedUpgradeItem(player, stack);
+      enchantMenu.update(player);
+      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
+    } else if (stack.isSimilar(PurifyingScroll.get())) {
+      enchantMenu.setSelectedUpgradeItem(player, stack);
+      enchantMenu.update(player);
+      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
     } else if (MaterialUtil.isUpgradePossible(stack) || MaterialUtil.hasEnchantmentTag(stack)) {
       enchantMenu.setSelectedEquipment(player, stack);
       enchantMenu.update((Player) event.getWhoClicked());
+      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
+    } else if (MaterialUtil.isNormalHead(stack)) {
+      enchantMenu.setSelectedUpgradeItem(player, stack);
+      enchantMenu.update(player);
       player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 2f);
     }
   }

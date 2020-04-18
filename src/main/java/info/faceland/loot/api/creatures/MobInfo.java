@@ -20,12 +20,11 @@ package info.faceland.loot.api.creatures;
 
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.JunkItemData;
 import info.faceland.loot.enchantments.EnchantmentTome;
-import org.bukkit.entity.EntityType;
-
+import info.faceland.loot.tier.Tier;
 import java.util.Map;
+import org.bukkit.entity.EntityType;
 
 public interface MobInfo {
 
