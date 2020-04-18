@@ -23,11 +23,10 @@
 package info.faceland.loot.items.prefabs;
 
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.Arrays;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Arrays;
 
 public final class UnidentifiedItem extends ItemStack {
 
@@ -44,6 +43,7 @@ public final class UnidentifiedItem extends ItemStack {
                     ChatColor.GRAY + "Find an " + ChatColor.DARK_PURPLE + "Identity Tome" + ChatColor.GRAY + " to",
                     ChatColor.GRAY + "reveal this item's stats!"));
         }
+        this.setDurability((short) 11);
     }
 
 }

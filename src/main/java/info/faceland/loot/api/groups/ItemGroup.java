@@ -22,9 +22,8 @@
  */
 package info.faceland.loot.api.groups;
 
-import org.bukkit.Material;
-
 import java.util.Set;
+import org.bukkit.Material;
 
 public interface ItemGroup {
 

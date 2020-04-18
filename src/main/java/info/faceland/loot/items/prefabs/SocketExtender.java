@@ -20,11 +20,10 @@ package info.faceland.loot.items.prefabs;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.Arrays;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Arrays;
 
 public final class SocketExtender extends ItemStack {
 
@@ -40,6 +39,7 @@ public final class SocketExtender extends ItemStack {
         "&7a &3(+) &7in the description",
         "&7to add an extra &6(Socket)")
     ));
+    setDurability((short) 11);
   }
 
 }

@@ -34,7 +34,7 @@
   </parent>
 
   <artifactId>loot</artifactId>
-  <version>1.3.3</version>
+  <version>1.3.4</version>
   <packaging>jar</packaging>
 
   <name>loot</name>
@@ -47,6 +47,13 @@
     <url>https://github.com/TealCube/loot.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -62,12 +69,22 @@
     <dependency>
       <groupId>io.pixeloutlaw</groupId>
       <artifactId>strife</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>com.github.MilkBowl</groupId>
       <artifactId>VaultAPI</artifactId>
       <version>1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.UltraFaceguy</groupId>
+      <artifactId>FacelandMarket</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.Mitsugaru</groupId>
+      <artifactId>PlayerPoints</artifactId>
+      <version>master-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

@@ -37,6 +37,10 @@ public final class InventoryUtil {
   }
 
   public static void broadcast(Player player, ItemStack his, String format) {
+    broadcast(player, his, format, true);
+  }
+
+  public static void broadcast(Player player, ItemStack his, String format, boolean sendToAll) {
     FancyMessage message = new FancyMessage("");
     String[] split = format.split(" ");
     for (int i = 0; i < split.length; i++) {
@@ -53,8 +57,12 @@ public final class InventoryUtil {
         message.then(" ");
       }
     }
-    for (Player p : Bukkit.getOnlinePlayers()) {
-      message.send(p);
+    if (sendToAll) {
+      for (Player p : Bukkit.getOnlinePlayers()) {
+        message.send(p);
+      }
+    } else {
+      message.send(player);
     }
   }
 

@@ -22,17 +22,19 @@ import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.send
 import static org.bukkit.ChatColor.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.tier.Tier;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,7 @@ public final class MaterialUtil {
   private static final LootRandom random = new LootRandom();
 
   private static String upgradeFailureMsg;
+  private static String noPointsForHelmetMsg;
   private static String upgradeItemDestroyMsg;
   private static String upgradeItemDestroyBroadcast;
   private static String upgradeItemDamageMsg;
@@ -76,6 +79,8 @@ public final class MaterialUtil {
   public static void refreshConfig() {
     upgradeFailureMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.failure", "");
+    noPointsForHelmetMsg = LootPlugin.getInstance().getSettings()
+        .getString("language.generic.no-points-for-head-merge", "");
     upgradeItemDestroyMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.destroyed", "");
     upgradeItemDestroyBroadcast = LootPlugin.getInstance().getSettings()
@@ -307,6 +312,48 @@ public final class MaterialUtil {
         .containsAll(tome.getItemGroups());
   }
 
+  public static void enhanceEnchantment(Player player, ItemStack item, ItemStack enhancer) {
+    if (!MaterialUtil.isEnchanted(item) || MaterialUtil.isArcaneEnchanted(item)) {
+      return;
+    }
+    List<String> lore = new ArrayList<>();
+    for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
+      String string = ItemStackExtensionsKt.getLore(item).get(i);
+      if (!string.startsWith(ChatColor.BLUE + "[")) {
+        lore.add(string);
+        continue;
+      }
+      String enchantmentStatString = ChatColor.stripColor(lore.get(lore.size() - 1));
+      int originalValue = NumberUtils
+          .toInt(CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
+      int newValue = (int) (((double) originalValue) * (1.1 + Math.random()));
+      newValue++;
+      lore.set(lore.size() - 1, ChatColor.BLUE + enchantmentStatString
+          .replace(Integer.toString(originalValue), Integer.toString(newValue)));
+      lore.add(string.replace("" + ChatColor.BLACK, "" + ChatColor.DARK_RED));
+    }
+    ItemStackExtensionsKt.setLore(item, lore);
+    degradeItemEnchantment(item, player);
+    enhancer.setAmount(enhancer.getAmount() - 1);
+  }
+
+  public static void removeEnchantment(ItemStack item) {
+    if (!MaterialUtil.isEnchanted(item)) {
+      return;
+    }
+    List<String> lore = new ArrayList<>();
+    for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
+      String string = ItemStackExtensionsKt.getLore(item).get(i);
+      if (!string.startsWith(ChatColor.BLUE + "[")) {
+        lore.add(string);
+        continue;
+      }
+      lore.remove(lore.size() - 1);
+      lore.add(ChatColor.BLUE + "(Enchantable)");
+    }
+    ItemStackExtensionsKt.setLore(item, lore);
+  }
+
   public static boolean canBeEnchanted(Player player, ItemStack tomeStack, ItemStack stack) {
     EnchantmentTome tome = getEnchantmentItem(tomeStack);
     if (tome == null) {
@@ -324,6 +371,67 @@ public final class MaterialUtil {
       return false;
     }
     return true;
+  }
+
+  public static boolean isEnchanted(ItemStack stack) {
+    for (String string : ItemStackExtensionsKt.getLore(stack)) {
+      if (!string.startsWith(ChatColor.BLUE + "[")) {
+        continue;
+      }
+      if (!string.endsWith("]")) {
+        continue;
+      }
+      if (string.contains("" + ChatColor.BLACK) || string.contains("" + ChatColor.DARK_RED)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean isArcaneEnchanted(ItemStack stack) {
+    for (String string : ItemStackExtensionsKt.getLore(stack)) {
+      if (!string.startsWith(ChatColor.BLUE + "[")) {
+        continue;
+      }
+      if (!string.endsWith("]")) {
+        continue;
+      }
+      if (string.contains("" + ChatColor.DARK_RED)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static void degradeItemEnchantment(ItemStack item, Player player) {
+    if (!MaterialUtil.isEnchanted(item)) {
+      return;
+    }
+    List<String> lore = new ArrayList<>();
+    for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
+      String string = ItemStackExtensionsKt.getLore(item).get(i);
+      if (!string.startsWith(ChatColor.BLUE + "[")) {
+        lore.add(string);
+        continue;
+      }
+      ChatColor incompleteBarColor =
+          string.contains("" + ChatColor.BLACK) ? ChatColor.BLACK : ChatColor.DARK_RED;
+      int index = string.indexOf("" + incompleteBarColor);
+      if (index <= 4) {
+        lore.remove(lore.size() - 1);
+        lore.add(ChatColor.BLUE + "(Enchantable)");
+        sendMessage(player, LootPlugin.getInstance().getSettings()
+            .getString("language.enchant.degrade", ""));
+        continue;
+      } else if (index <= 7) {
+        sendMessage(player, LootPlugin.getInstance().getSettings()
+            .getString("language.enchant.bar-low", ""));
+      }
+      string = string.replace("" + incompleteBarColor, "");
+      string = new StringBuilder(string).insert(index - 1, incompleteBarColor + "").toString();
+      lore.add(string);
+    }
+    ItemStackExtensionsKt.setLore(item, lore);
   }
 
   public static boolean enchantItem(Player player, ItemStack tomeStack, ItemStack targetItem) {
@@ -402,11 +510,11 @@ public final class MaterialUtil {
     ItemStackExtensionsKt.setLore(targetItem, lore);
 
     float weightDivisor = tome.getWeight() == 0 ? 2000 : (float) tome.getWeight();
-    float exp = 6 + 3 * (2000 / weightDivisor);
+    float exp = 12 + 8 * (2000 / weightDivisor);
     LootPlugin.getInstance().getStrifePlugin().getSkillExperienceManager()
         .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
     sendMessage(player, enchantSuccessMsg);
-    player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1L, 2.0F);
+    player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 0.4f, 2.0f);
     return true;
   }
 
@@ -431,6 +539,41 @@ public final class MaterialUtil {
 
   public static boolean isEnchantmentItem(ItemStack stack) {
     return getEnchantmentItem(stack) != null;
+  }
+
+  public static boolean isHelmet(ItemStack stack) {
+    return stack.getType() == Material.LEATHER_HELMET || stack.getType() == Material.IRON_HELMET
+        || stack.getType() == Material.GOLDEN_HELMET || stack.getType() == Material.DIAMOND_HELMET
+        || stack.getType() == Material.CHAINMAIL_HELMET;
+  }
+
+  public static boolean isNormalHead(ItemStack stack) {
+    if (stack.getType() == Material.PLAYER_HEAD) {
+      return MaterialUtil.getCustomData(stack) < 2000;
+    }
+    return false;
+  }
+
+  public static boolean isHelmetHead(ItemStack stack) {
+    if (stack.getType() == Material.PLAYER_HEAD) {
+      return MaterialUtil.getCustomData(stack) >= 2000;
+    }
+    return false;
+  }
+
+  public static void convertToHead(Player player, ItemStack head, ItemStack helmet) {
+    if (LootPlugin.getInstance().getPlayerPointsAPI().look(player.getUniqueId()) < 600) {
+      player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 0.7f);
+      MessageUtils.sendMessage(player, noPointsForHelmetMsg);
+      return;
+    }
+    player.playSound(player.getLocation(), Sound.ENTITY_MOOSHROOM_CONVERT, 1, 1f);
+    LootPlugin.getInstance().getPlayerPointsAPI().take(player.getUniqueId(), 500);
+    ItemStackExtensionsKt.setDisplayName(head,
+        TextUtils.color("&7&f") + ItemStackExtensionsKt.getDisplayName(helmet));
+    ItemStackExtensionsKt.setCustomModelData(head, 200000 + MaterialUtil.getCustomData(helmet));
+    ItemStackExtensionsKt.setLore(head, new ArrayList<>(ItemStackExtensionsKt.getLore(helmet)));
+    helmet.setAmount(helmet.getAmount() - 1);
   }
 
   public static boolean isExtender(ItemStack stack) {
@@ -470,7 +613,7 @@ public final class MaterialUtil {
         .collect(Collectors.joining("")));
     lore.add(ChatColor.YELLOW + "[ Crafting Component ]");
     ItemStackExtensionsKt.setLore(his, lore);
-
+    his.setDurability((short) 11);
     return his;
   }
 
@@ -537,6 +680,27 @@ public final class MaterialUtil {
     return getDigit(ItemStackExtensionsKt.getLore(stack).get(0));
   }
 
+  public static Tier getTierFromStack(ItemStack stack) {
+    String strTier = "";
+    int data = MaterialUtil.getCustomData(stack);
+    for (DeconstructData dd : LootPlugin.getInstance().getCraftMatManager()
+        .getDeconstructDataSet()) {
+      if (StringUtils.isBlank(dd.getTierName())) {
+        continue;
+      }
+      if (dd.getMaterial() == stack.getType()) {
+        if (data >= dd.getMinCustomData() && data <= dd.getMaxCustomData()) {
+          strTier = dd.getTierName();
+          break;
+        }
+      }
+    }
+    if (StringUtils.isBlank(strTier)) {
+      strTier = LootPlugin.getInstance().getCraftBaseManager().getCraftBases().get(stack.getType());
+    }
+    return LootPlugin.getInstance().getTierManager().getTier(strTier);
+  }
+
   public static int getItemLevel(ItemStack stack) {
     if (stack.getItemMeta() == null) {
       return 0;
@@ -584,9 +748,7 @@ public final class MaterialUtil {
 
   public static void applyTierLevelData(ItemStack stack, Tier tier, int level) {
     if (tier.getCustomDataStart() != -1) {
-      double modelLevel = Math.max(0, level - 1);
-      int customModel =
-          tier.getCustomDataStart() + (int) Math.floor(modelLevel / tier.getCustomDataInterval());
+      int customModel = tier.getCustomDataStart() + level / tier.getCustomDataInterval();
       ItemStackExtensionsKt.setCustomModelData(stack, customModel);
     }
   }

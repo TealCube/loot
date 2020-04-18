@@ -18,44 +18,89 @@
  */
 package info.faceland.loot.commands;
 
+import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
+
 import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.shade.google.common.collect.Sets;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
-import info.faceland.loot.api.math.Vec3;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
+import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
+import info.faceland.loot.items.prefabs.ArcaneEnhancer;
 import info.faceland.loot.items.prefabs.IdentityTome;
+import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
-import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.pawn.PawnMenu;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
+import info.faceland.loot.tier.Tier;
+import info.faceland.loot.utils.DropUtil;
+import info.faceland.loot.utils.InventoryUtil;
+import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import se.ranzdo.bukkit.methodcommand.*;
-
-import java.util.List;
-
-import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
+import se.ranzdo.bukkit.methodcommand.Arg;
+import se.ranzdo.bukkit.methodcommand.Command;
+import se.ranzdo.bukkit.methodcommand.FlagArg;
+import se.ranzdo.bukkit.methodcommand.Flags;
+import se.ranzdo.bukkit.methodcommand.Wildcard;
 
 public final class LootCommand {
 
   private final LootPlugin plugin;
   private final LootRandom random;
+  private String awardFormat;
+  private String awardFormatSelf;
 
   public LootCommand(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom(System.currentTimeMillis());
+    awardFormat = plugin.getSettings().getString("language.broadcast.reward-item", "");
+    awardFormatSelf = plugin.getSettings().getString("language.broadcast.reward-item-self", "");
+  }
+
+  @Command(identifier = "loot reward", permissions = "loot.command.spawn", onlyPlayers = false)
+  public void reward(CommandSender sender,
+      @Arg(name = "target") Player target,
+      @Arg(name = "minLevel", def = "1") int minLevel,
+      @Arg(name = "maxLevel", def = "100") int maxLevel,
+      @Arg(name = "rarity") String rarity) {
+    Tier t = DropUtil.getTier(target);
+    if (t == null) {
+      sendMessage(sender,
+          plugin.getSettings().getString("language.commands.spawn.other-failure", ""));
+      return;
+    }
+
+    int level = minLevel + (int) ((maxLevel - minLevel) * Math.random());
+
+    ItemRarity itemRarity = plugin.getRarityManager().getRarity(rarity);
+
+    ItemStack item = plugin.getNewItemBuilder()
+        .withTier(t)
+        .withLevel(level)
+        .withRarity(itemRarity)
+        .withItemGenerationReason(ItemGenerationReason.COMMAND)
+        .build().getStack();
+
+    target.playSound(target.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
+    target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+    target.getInventory().addItem(item);
+    if (itemRarity.isBroadcast()) {
+      InventoryUtil.broadcast(target, item, awardFormat, true);
+    } else {
+      InventoryUtil.broadcast(target, item, awardFormatSelf, false);
+    }
+    sendMessage(sender, "Rewarded " + target.getName() + " successfully!");
   }
 
   @Command(identifier = "loot spawn", permissions = "loot.command.spawn")
@@ -123,9 +168,12 @@ public final class LootCommand {
     if (enchantment) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(plugin.getEnchantTomeManager().getRandomEnchantTome().toItemStack(1));
+          sender.getInventory()
+              .addItem(plugin.getEnchantTomeManager().getRandomEnchantTome().toItemStack(1));
         }
-        sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.stone-success", ""), new String[][]{{"%amount%", amount + ""}});
+        sendMessage(sender,
+            plugin.getSettings().getString("language.commands.spawn.stone-success", ""),
+            new String[][]{{"%amount%", amount + ""}});
         return;
       }
       EnchantmentTome es = plugin.getEnchantTomeManager().getEnchantTome(name);
@@ -207,7 +255,8 @@ public final class LootCommand {
     if (upgradeScroll) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(plugin.getScrollManager().getRandomScroll()));
+          sender.getInventory().addItem(plugin.getScrollManager()
+              .buildItemStack(plugin.getScrollManager().getRandomScroll()));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),
@@ -237,6 +286,38 @@ public final class LootCommand {
     }
     sendMessage(sender, plugin.getSettings().getString("language.commands.spawn.other-success", ""),
         new String[][]{{"%amount%", amount + ""}});
+  }
+
+  @Command(identifier = "loot materials", permissions = "loot.command.spawn", onlyPlayers = false)
+  public void reward(CommandSender sender, @Arg(name = "target") Player target,
+      @Arg(name = "itemLevel", def = "1") int itemLevel,
+      @Arg(name = "itemQuality", def = "1") int quality) {
+
+    quality = Math.min(5, Math.max(quality, 1));
+
+    for (Material m : plugin.getCraftMatManager().getCraftMaterials().keySet()) {
+      ItemStack itemStack = MaterialUtil.buildMaterial(m,
+          plugin.getCraftMatManager().getCraftMaterials().get(m), itemLevel, quality);
+      target.getInventory().addItem(itemStack);
+    }
+  }
+
+  @Command(identifier = "loot give purify", permissions = "loot.command.spawn", onlyPlayers = false)
+  public void givePurify(CommandSender sender, @Arg(name = "target") Player target,
+      @Arg(name = "amount", def = "1") int amount) {
+
+    ItemStack scroll = PurifyingScroll.get();
+    scroll.setAmount(amount);
+    target.getInventory().addItem(scroll);
+  }
+
+  @Command(identifier = "loot give enhance", permissions = "loot.command.spawn", onlyPlayers = false)
+  public void giveEnhance(CommandSender sender, @Arg(name = "target") Player target,
+      @Arg(name = "amount", def = "1") int amount) {
+
+    ItemStack enhancer = ArcaneEnhancer.get();
+    enhancer.setAmount(amount);
+    target.getInventory().addItem(enhancer);
   }
 
   @Command(identifier = "loot simulate", permissions = "loot.command.simulate")
@@ -385,7 +466,8 @@ public final class LootCommand {
     } else if (upgradeScroll) {
       if (name.equals("")) {
         for (int i = 0; i < amount; i++) {
-          sender.getInventory().addItem(plugin.getScrollManager().buildItemStack(plugin.getScrollManager().getRandomScroll()));
+          sender.getInventory().addItem(plugin.getScrollManager()
+              .buildItemStack(plugin.getScrollManager().getRandomScroll()));
         }
         sendMessage(sender,
             plugin.getSettings().getString("language.commands.spawn.upgrade-scroll", ""),

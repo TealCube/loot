@@ -26,11 +26,10 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.tier.Tier;
-import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
+import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
@@ -168,26 +167,10 @@ public final class CraftingListener implements Listener {
 
     Player player = (Player) event.getWhoClicked();
 
-    String strTier = "";
-    int data = MaterialUtil.getCustomData(resultStack);
-    for (DeconstructData dd : plugin.getCraftMatManager().getDeconstructDataSet()) {
-      if (StringUtils.isBlank(dd.getTierName())) {
-        continue;
-      }
-      if (dd.getMaterial() == resultStack.getType()) {
-        if (data >= dd.getMinCustomData() && data <= dd.getMaxCustomData()) {
-          strTier = dd.getTierName();
-          break;
-        }
-      }
-    }
-    if (StringUtils.isBlank(strTier)) {
-      strTier = plugin.getCraftBaseManager().getCraftBases().get(resultStack.getType());
-    }
-    Tier tier = plugin.getTierManager().getTier(strTier);
+    Tier tier = MaterialUtil.getTierFromStack(resultStack);
 
     if (tier == null) {
-      Bukkit.getLogger().warning("Attempted to craft item with unknown tier: " + strTier);
+      Bukkit.getLogger().warning("Attempted to craft item with unknown tier... " + resultStack.getType());
       return;
     }
 

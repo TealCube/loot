@@ -24,10 +24,10 @@ package info.faceland.loot.api.tier;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.data.ItemStat;
-import org.bukkit.ChatColor;
-
+import info.faceland.loot.tier.Tier;
 import java.util.List;
 import java.util.Set;
+import land.face.market.data.PlayerMarketState.FilterFlagA;
 
 public interface TierBuilder {
 
@@ -54,6 +54,8 @@ public interface TierBuilder {
     TierBuilder withStartingCustomData(int i);
 
     TierBuilder withCustomDataInterval(int i);
+
+    TierBuilder withFilterFlag(FilterFlagA filterFlag);
 
     TierBuilder withItemGroups(Set<ItemGroup> s);
 

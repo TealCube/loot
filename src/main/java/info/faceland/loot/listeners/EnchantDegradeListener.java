@@ -20,8 +20,8 @@ package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.math.LootRandom;
-import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import org.bukkit.ChatColor;
+import info.faceland.loot.utils.MaterialUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,98 +30,52 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.sendMessage;
-
 public final class EnchantDegradeListener implements Listener {
 
-    private final LootPlugin plugin;
-    private LootRandom random;
+  private final LootPlugin plugin;
+  private LootRandom random;
 
-    public EnchantDegradeListener(LootPlugin plugin) {
-        this.plugin = plugin;
-        this.random = new LootRandom();
-    }
+  public EnchantDegradeListener(LootPlugin plugin) {
+    this.plugin = plugin;
+    this.random = new LootRandom();
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onEntityDeath(EntityDeathEvent event) {
-        LivingEntity dyingEntity = event.getEntity();
-        Player p = dyingEntity.getKiller();
-        if (p == null) {
-            return;
-        }
-        if (random.nextDouble() > plugin.getSettings().getDouble("config.enchantment-degrade", 1.0)) {
-            return;
-        }
-        switch (random.nextInt(6)) {
-            case 0:
-                if (p.getEquipment().getItemInMainHand() == null) {
-                    return;
-                }
-                p.getEquipment().setItemInMainHand(degrade(p.getEquipment().getItemInMainHand(), p));
-                return;
-            case 1:
-                if (p.getEquipment().getItemInOffHand() == null) {
-                    return;
-                }
-                p.getEquipment().setItemInOffHand(degrade(p.getEquipment().getItemInOffHand(), p));
-                break;
-            case 2:
-                if (p.getEquipment().getHelmet() == null) {
-                    return;
-                }
-                p.getEquipment().setHelmet(degrade(p.getEquipment().getHelmet(), p));
-                break;
-            case 3:
-                if (p.getEquipment().getChestplate() == null) {
-                    return;
-                }
-                p.getEquipment().setChestplate(degrade(p.getEquipment().getChestplate(), p));
-                break;
-            case 4:
-                if (p.getEquipment().getLeggings() == null) {
-                    return;
-                }
-                p.getEquipment().setLeggings(degrade(p.getEquipment().getLeggings(), p));
-                break;
-            case 5:
-                if (p.getEquipment().getBoots() == null) {
-                    return;
-                }
-                p.getEquipment().setBoots(degrade(p.getEquipment().getBoots(), p));
-                break;
-        }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onEntityDeath(EntityDeathEvent event) {
+    LivingEntity dyingEntity = event.getEntity();
+    Player p = dyingEntity.getKiller();
+    if (p == null) {
+      return;
     }
-
-    private ItemStack degrade(ItemStack itemStack, Player player) {
-        if (itemStack == null || itemStack.getItemMeta() == null
-                || itemStack.getItemMeta().getLore() == null) {
-            return itemStack;
-        }
-        ItemStack item = new ItemStack(itemStack);
-        List<String> lore = new ArrayList<>();
-        for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
-            String string = ItemStackExtensionsKt.getLore(item).get(i);
-            if (!string.startsWith(ChatColor.BLUE + "[") || !string.contains("" + ChatColor.BLACK)) {
-                lore.add(string);
-                continue;
-            }
-            int index = string.indexOf("" + ChatColor.BLACK);
-            if (index <= 4) {
-                lore.remove(lore.size() - 1);
-                lore.add(ChatColor.BLUE + "(Enchantable)");
-                sendMessage(player, plugin.getSettings().getString("language.enchant.degrade", ""));
-                continue;
-            } else if (index <= 7) {
-                sendMessage(player, plugin.getSettings().getString("language.enchant.bar-low", ""));
-            }
-            string = string.replace("" + ChatColor.BLACK, "");
-            string = new StringBuilder(string).insert(index - 1, ChatColor.BLACK + "").toString();
-            lore.add(string);
-        }
-        ItemStackExtensionsKt.setLore(item, lore);
-        return item;
+    if (random.nextDouble() > plugin.getSettings().getDouble("config.enchantment-degrade", 1.0)) {
+      return;
     }
+    ItemStack item;
+    switch (random.nextInt(6)) {
+      case 0:
+        item = p.getEquipment().getItemInMainHand();
+        break;
+      case 1:
+        item = p.getEquipment().getItemInOffHand();
+        break;
+      case 2:
+        item = p.getEquipment().getHelmet();
+        break;
+      case 3:
+        item = p.getEquipment().getChestplate();
+        break;
+      case 4:
+        item = p.getEquipment().getLeggings();
+        break;
+      case 5:
+        item = p.getEquipment().getBoots();
+        break;
+      default:
+        item = null;
+    }
+    if (item == null || item.getType() == Material.AIR) {
+      return;
+    }
+    MaterialUtil.degradeItemEnchantment(item, p);
+  }
 }

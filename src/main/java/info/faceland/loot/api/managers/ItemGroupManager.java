@@ -23,11 +23,10 @@
 package info.faceland.loot.api.managers;
 
 import info.faceland.loot.api.groups.ItemGroup;
-import info.faceland.loot.api.tier.Tier;
+import info.faceland.loot.tier.Tier;
 import java.util.Map;
-import org.bukkit.Material;
-
 import java.util.Set;
+import org.bukkit.Material;
 
 public interface ItemGroupManager {
 

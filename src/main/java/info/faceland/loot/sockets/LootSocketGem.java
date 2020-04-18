@@ -28,13 +28,12 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public final class LootSocketGem implements SocketGem {
 
@@ -136,6 +135,7 @@ public final class LootSocketGem implements SocketGem {
                            ChatColor.WHITE + "Bonuses Applied:");
         lore.addAll(getLore());
         ItemStackExtensionsKt.setLore(itemStack, TextUtils.color(lore));
+        itemStack.setDurability((short) 11);
         return itemStack;
     }
 

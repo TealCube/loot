@@ -33,11 +33,11 @@ import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
+import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.InventoryUtil;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
@@ -58,7 +58,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -113,18 +112,6 @@ public final class InteractListener implements Listener {
       event.setCancelled(true);
       EnchantMenu enchantMenu = new EnchantMenu(plugin);
       enchantMenu.open((Player) event.getPlayer());
-    }
-  }
-
-  // Block heads from being placed if they have a specific data
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onHeadBlockPlace(BlockPlaceEvent event) {
-    Material material = event.getItemInHand().getType();
-    if (material != Material.PLAYER_HEAD) {
-      return;
-    }
-    if (MaterialUtil.getCustomData(event.getItemInHand()) == 2000) {
-      event.setCancelled(true);
     }
   }
 
@@ -383,22 +370,30 @@ public final class InteractListener implements Listener {
       int index = 0;
       int addAmount = 0;
       for (String str : ItemStackExtensionsKt.getLore(targetItem)) {
-        if (str.startsWith(ChatColor.BLUE + "[") && str.contains("" + ChatColor.BLACK)) {
-          valid = true;
-          int barIndex = str.indexOf("" + ChatColor.BLACK);
-          if (barIndex == str.length() - 5) {
-            sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
+        if (str.startsWith(ChatColor.BLUE + "[")) {
+          if (str.contains("" + ChatColor.BLACK)) {
+            valid = true;
+            int barIndex = str.indexOf("" + ChatColor.BLACK);
+            if (barIndex == str.length() - 5) {
+              sendMessage(player, plugin.getSettings().getString("language.enchant.full", ""));
+              return;
+            }
+            double enchantLevel = PlayerDataUtil
+                .getLifeSkillLevel(player, LifeSkillType.ENCHANTING);
+            double itemLevel = MaterialUtil.getLevelRequirement(targetItem);
+            addAmount =
+                2 + (int) (random.nextDouble() * (2 + Math
+                    .max(0, (enchantLevel - itemLevel) * 0.2)));
+            str = str.replace("" + ChatColor.BLACK, "");
+            str = new StringBuilder(str)
+                .insert(Math.min(str.length() - 3, barIndex + addAmount), ChatColor.BLACK + "")
+                .toString();
+            lore.set(index, str);
+          } else if (str.contains("" + ChatColor.DARK_RED)) {
+            sendMessage(player, TextUtils.color(plugin.getSettings().getString(
+                "language.enchant.no-refill-enhanced", "you cant refill this enchant")));
             return;
           }
-          double enchantLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.ENCHANTING);
-          double itemLevel = MaterialUtil.getLevelRequirement(targetItem);
-          addAmount =
-              2 + (int) (random.nextDouble() * (2 + Math.max(0, (enchantLevel - itemLevel) * 0.2)));
-          str = str.replace("" + ChatColor.BLACK, "");
-          str = new StringBuilder(str)
-              .insert(Math.min(str.length() - 3, barIndex + addAmount), ChatColor.BLACK + "")
-              .toString();
-          lore.set(index, str);
         }
         index++;
       }

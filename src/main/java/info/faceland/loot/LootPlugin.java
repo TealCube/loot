@@ -39,7 +39,6 @@ import info.faceland.loot.api.managers.UniqueDropsManager;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-import info.faceland.loot.api.tier.Tier;
 import info.faceland.loot.api.tier.TierBuilder;
 import info.faceland.loot.commands.LootCommand;
 import info.faceland.loot.creatures.LootCreatureModBuilder;
@@ -55,11 +54,15 @@ import info.faceland.loot.groups.LootItemGroup;
 import info.faceland.loot.io.SmartTextFile;
 import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.items.prefabs.ArcaneEnhancer;
+import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.EnchantMenuListener;
 import info.faceland.loot.listeners.EntityDeathListener;
+import info.faceland.loot.listeners.HeadHelmetsListener;
 import info.faceland.loot.listeners.InteractListener;
+import info.faceland.loot.listeners.ItemListListener;
 import info.faceland.loot.listeners.PawnMenuListener;
 import info.faceland.loot.listeners.StrifeListener;
 import info.faceland.loot.listeners.anticheat.AnticheatListener;
@@ -86,6 +89,7 @@ import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
+import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.DropUtil;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.config.MasterConfiguration;
@@ -101,8 +105,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import land.face.market.data.PlayerMarketState.FilterFlagA;
 import land.face.strife.StrifePlugin;
 import net.milkbowl.vault.economy.Economy;
+import org.black_ixx.playerpoints.PlayerPoints;
+import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -110,6 +117,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
@@ -157,6 +165,7 @@ public final class LootPlugin extends FacePlugin {
   private StrifePlugin strifePlugin;
 
   private Economy economy;
+  private PlayerPointsAPI playerPointsAPI;
 
   public static LootPlugin getInstance() {
     return instance;
@@ -215,6 +224,7 @@ public final class LootPlugin extends FacePlugin {
     scrollManager = new ScrollManager();
 
     setupEconomy();
+    setupPlayerPoints();
 
     loadItemGroups();
     loadCraftBases();
@@ -235,6 +245,9 @@ public final class LootPlugin extends FacePlugin {
     MaterialUtil.refreshConfig();
     DropUtil.refresh();
 
+    ArcaneEnhancer.rebuild();
+    PurifyingScroll.rebuild();
+
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
 
     CommandHandler handler = new CommandHandler(this);
@@ -247,6 +260,8 @@ public final class LootPlugin extends FacePlugin {
     Bukkit.getPluginManager().registerEvents(new AnticheatListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantDegradeListener(this), this);
     Bukkit.getPluginManager().registerEvents(new EnchantMenuListener(), this);
+    Bukkit.getPluginManager().registerEvents(new ItemListListener(this), this);
+    Bukkit.getPluginManager().registerEvents(new HeadHelmetsListener(), this);
     Bukkit.getPluginManager().registerEvents(new PawnMenuListener(this), this);
     if (potionTriggersEnabled) {
       Bukkit.getPluginManager().registerEvents(new SocketsListener(gemCacheManager), this);
@@ -262,7 +277,18 @@ public final class LootPlugin extends FacePlugin {
     HandlerList.unregisterAll(this);
     Bukkit.getScheduler().cancelTasks(this);
 
+    playerPointsAPI = null;
     economy = null;
+  }
+
+  private boolean setupPlayerPoints() {
+    Plugin ppplugin = Bukkit.getPluginManager().getPlugin("PlayerPoints");
+    if (ppplugin == null) {
+      playerPointsAPI = null;
+      return false;
+    }
+    playerPointsAPI = ((PlayerPoints) ppplugin).getAPI();
+    return true;
   }
 
   private boolean setupEconomy() {
@@ -377,6 +403,7 @@ public final class LootPlugin extends FacePlugin {
       scroll.setWeight(cs.getDouble("weight", 100));
       scroll.setMinLevel(cs.getInt("min-level", 0));
       scroll.setMaxLevel(cs.getInt("max-level", 14));
+      scroll.setCustomData(cs.getInt("custom-data", 100));
       scroll.setBroadcast(cs.getBoolean("broadcast", false));
       scrollManager.addScroll(key, scroll);
     }
@@ -849,6 +876,10 @@ public final class LootPlugin extends FacePlugin {
       Tier t = builder.build();
       t.getItemSuffixes().addAll(cs.getStringList("name-suffixes"));
       loadedTiers.add(t.getName());
+
+      String marketFilterFlag = cs.getString("filter-flag", "ALL");
+      t.setFilterFlag(FilterFlagA.valueOf(marketFilterFlag));
+
       tiers.add(t);
     }
     debug("Loaded tiers: " + loadedTiers.toString());
@@ -966,6 +997,10 @@ public final class LootPlugin extends FacePlugin {
 
   public Economy getEconomy() {
     return economy;
+  }
+
+  public PlayerPointsAPI getPlayerPointsAPI() {
+    return playerPointsAPI;
   }
 
   public StrifePlugin getStrifePlugin() {
