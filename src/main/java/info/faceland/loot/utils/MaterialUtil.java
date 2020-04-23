@@ -27,6 +27,7 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
+import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.UpgradeScroll;
@@ -521,6 +522,13 @@ public final class MaterialUtil {
   public static EnchantmentTome getEnchantmentItem(String name) {
     String stoneName = stripColor(name.replace("Enchantment Tome - ", ""));
     return LootPlugin.getInstance().getEnchantTomeManager().getEnchantTome(stoneName);
+  }
+
+  public static SocketGem getSocketGem(ItemStack stack) {
+    if (stack.getType() != Material.EMERALD) {
+      return null;
+    }
+    return LootPlugin.getInstance().getSocketGemManager().getSocketGem(stack);
   }
 
   public static EnchantmentTome getEnchantmentItem(ItemStack stack) {
