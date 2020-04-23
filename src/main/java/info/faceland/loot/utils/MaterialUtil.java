@@ -325,13 +325,24 @@ public final class MaterialUtil {
         continue;
       }
       String enchantmentStatString = ChatColor.stripColor(lore.get(lore.size() - 1));
-      int originalValue = NumberUtils
-          .toInt(CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
-      int newValue = (int) (((double) originalValue) * (1.1 + Math.random()));
+
+      int statValue = NumberUtils.toInt(CharMatcher.digit()
+          .or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
+
+      int itemLevel = getLevelRequirement(item);
+      double enchantingLevel = PlayerDataUtil.getEffectiveLifeSkill(player,
+          LifeSkillType.ENCHANTING, true);
+
+      double enchantingBonus = Math.min(4, Math.max(1, enchantingLevel / itemLevel));
+      float enhanceRoll = 0.1f + 0.2f * (float) Math.pow(Math.random(), 1.25);
+
+      int newValue = statValue + (int) (statValue * enhanceRoll * enchantingBonus);
       newValue++;
+
       lore.set(lore.size() - 1, ChatColor.BLUE + enchantmentStatString
-          .replace(Integer.toString(originalValue), Integer.toString(newValue)));
+          .replace(Integer.toString(statValue), Integer.toString(newValue)));
       lore.add(string.replace("" + ChatColor.BLACK, "" + ChatColor.DARK_RED));
+      break;
     }
     ItemStackExtensionsKt.setLore(item, lore);
     degradeItemEnchantment(item, player);
