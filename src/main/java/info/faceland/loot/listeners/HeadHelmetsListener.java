@@ -29,7 +29,7 @@ public final class HeadHelmetsListener implements Listener {
   // Block heads from being placed if they have a specific data
   @EventHandler(priority = EventPriority.MONITOR)
   public void onHeadBlockPlace(BlockPlaceEvent event) {
-    if (MaterialUtil.isHelmetHead(event.getItemInHand())) {
+    if (MaterialUtil.getCustomData(event.getItemInHand()) >= 500) {
       event.setCancelled(true);
     }
   }

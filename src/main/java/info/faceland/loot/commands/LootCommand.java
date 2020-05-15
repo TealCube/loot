@@ -726,7 +726,7 @@ public final class LootCommand {
     if (target == null || !target.isValid()) {
       return;
     }
-    PawnMenu menu = new PawnMenu(plugin);
+    PawnMenu menu = PawnMenu.getPawnMenu(plugin);
     menu.open(target);
   }
 

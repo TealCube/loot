@@ -33,7 +33,6 @@ import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import land.face.strife.StrifePlugin;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import ninja.amp.ampmenus.menus.ItemMenu;
@@ -94,7 +93,7 @@ public class EnchantMenu extends ItemMenu {
 
   private ItemStack blankItem;
 
-  private static final DecimalFormat DF = new DecimalFormat("#.#");
+  private static final DecimalFormat DF = new DecimalFormat("###.#");
 
   public EnchantMenu(LootPlugin plugin) {
     super(TextUtils.color(plugin.getSettings().getString("language.menu.menu-name",
@@ -364,14 +363,15 @@ public class EnchantMenu extends ItemMenu {
       double successChance = Math.min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus,
           selectedUpgradeItem, scroll));
       double maxDura = selectedEquipment.getType().getMaxDurability();
-      double maxDamage = maxDura * MaterialUtil.getMaxFailureDamagePercent(scroll, itemPlus);
+      double maxPercent = MaterialUtil.getMaxFailureDamagePercent(scroll, itemPlus);
+      double maxDamage = maxDura * maxPercent;
       double damage = selectedEquipment.getDurability();
       double killChance = 0;
       double damageChance = 0;
       if (successChance < 99.9) {
         double failChance = 100 - successChance;
-        if (maxDamage == 0) {
-          killChance = failChance;
+        if (maxDura <= 1) {
+          killChance = Math.max(0, maxPercent - 1) * 100;
         } else {
           killChance = failChance * Math.max(0, ((damage + maxDamage) - maxDura) / maxDamage);
         }
@@ -408,15 +408,8 @@ public class EnchantMenu extends ItemMenu {
       MaterialUtil.extendItem(player, selectedEquipment, selectedUpgradeItem);
     } else if (selectedUpgradeItem.isSimilar(ArcaneEnhancer.get())) {
       MaterialUtil.enhanceEnchantment(player, selectedEquipment, selectedUpgradeItem);
-      StrifePlugin.getInstance().getSkillExperienceManager()
-          .addExperience(player, LifeSkillType.ENCHANTING, 400, false);
-      player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.8f);
     } else if (selectedUpgradeItem.isSimilar(PurifyingScroll.get())) {
-      MaterialUtil.removeEnchantment(selectedEquipment);
-      selectedUpgradeItem.setAmount(selectedUpgradeItem.getAmount() - 1);
-      StrifePlugin.getInstance().getSkillExperienceManager()
-          .addExperience(player, LifeSkillType.ENCHANTING, 68, false);
-      player.playSound(player.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1, 1f);
+      MaterialUtil.purifyItem(player, selectedEquipment, selectedUpgradeItem);
     } else {
       player.playSound(player.getLocation(), Sound.ENTITY_SHULKER_HURT, 1, 0.8f);
       return false;
@@ -431,7 +424,7 @@ public class EnchantMenu extends ItemMenu {
   }
 
   private int getEnhanceRequirement() {
-    int tier = (int) Math.floor((double) MaterialUtil.getLevelRequirement(selectedEquipment) / 10);
+    int tier = (int) Math.floor(((double) MaterialUtil.getLevelRequirement(selectedEquipment)) / 10);
     return baseEnhanceRequirement + tier * enhanceReqPerTwenty;
   }
 

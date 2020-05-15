@@ -54,6 +54,13 @@ public final class ItemListListener implements Listener {
       event.getListing().setFlagB(FilterFlagB.ALL);
       return;
     }
+    SocketGem gem = MaterialUtil.getSocketGem(stack);
+    if (gem != null) {
+      event.getListing().setCategory(Category.CATEGORY_2);
+      event.getListing().setFlagA(FilterFlagA.FLAG_2);
+      event.getListing().setFlagB(FilterFlagB.ALL);
+      return;
+    }
     if (PurifyingScroll.get().isSimilar(stack)) {
       event.getListing().setCategory(Category.CATEGORY_2);
       event.getListing().setFlagA(FilterFlagA.FLAG_5);
@@ -79,16 +86,6 @@ public final class ItemListListener implements Listener {
       event.getListing().setFlagB(FilterFlagB.ALL);
       return;
     }
-    if (stack.getType() == Material.EMERALD) {
-      SocketGem gem = plugin.getSocketGemManager().getSocketGem(stack);
-      if (gem != null) {
-        event.getListing().setCategory(Category.CATEGORY_2);
-        event.getListing().setFlagA(FilterFlagA.FLAG_2);
-        //TODO IMPROVE FLAG B LOGIC
-        event.getListing().setFlagB(FilterFlagB.ALL);
-      }
-      return;
-    }
     EnchantmentTome tome = MaterialUtil.getEnchantmentItem(stack);
     if (tome != null) {
       event.getListing().setCategory(Category.CATEGORY_2);
@@ -101,7 +98,7 @@ public final class ItemListListener implements Listener {
     if (tier != null) {
       event.getListing().setCategory(Category.CATEGORY_1);
       event.getListing().setFlagA(tier.getFilterFlag());
-      int index = MaterialUtil.getLevelRequirement(stack) / 10;
+      int index = 1 + (MaterialUtil.getLevelRequirement(stack) - 1) / 10;
       for (FilterFlagB b : MarketManager.FILTER_BS) {
         if (b.ordinal() == index) {
           event.getListing().setFlagB(b);
@@ -114,7 +111,7 @@ public final class ItemListListener implements Listener {
         .hasItemMeta()) {
       event.getListing().setCategory(Category.CATEGORY_4);
       event.getListing().setFlagA(FilterFlagA.FLAG_1);
-      int index = MaterialUtil.getItemLevel(stack) / 10;
+      int index = 1 + (MaterialUtil.getItemLevel(stack) - 1) / 10;
       for (FilterFlagB b : MarketManager.FILTER_BS) {
         if (b.ordinal() == index) {
           event.getListing().setFlagB(b);
