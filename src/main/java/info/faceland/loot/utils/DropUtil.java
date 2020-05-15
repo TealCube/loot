@@ -128,7 +128,7 @@ public class DropUtil implements Listener {
       BuiltItem builtItem = plugin.getNewItemBuilder()
           .withTier(tier)
           .withRarity(rarity)
-          .withLevel(Math.max(1, Math.min(mobLevel - 2 + random.nextIntRange(0, 5), 100)))
+          .withLevel(Math.max(1, Math.min(mobLevel + 1 - random.nextIntRange(0, 4), 100)))
           .withItemGenerationReason(ItemGenerationReason.MONSTER)
           .withSpecialStat(specialStat)
           .build();

@@ -59,15 +59,11 @@ public final class PawnMenuListener implements Listener {
     MenuHolder holder = (MenuHolder) event.getInventory().getHolder();
     PawnMenu pawnMenu = (PawnMenu) holder.getMenu();
 
-    if (pawnMenu.alreadyListed(stack)) {
-      return;
-    }
-
     PriceData priceData = plugin.getPawnManager().getPrice(stack);
     if (priceData.getPrice() == -1) {
       return;
     }
-    pawnMenu.addItem((Player) event.getWhoClicked(), stack, priceData);
+    pawnMenu.addItem((Player) event.getWhoClicked(), stack, priceData, event.getSlot());
   }
 
 }

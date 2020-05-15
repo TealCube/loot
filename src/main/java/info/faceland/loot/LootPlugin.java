@@ -56,6 +56,7 @@ import info.faceland.loot.items.LootCustomItemBuilder;
 import info.faceland.loot.items.LootItemBuilder;
 import info.faceland.loot.items.prefabs.ArcaneEnhancer;
 import info.faceland.loot.items.prefabs.PurifyingScroll;
+import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.listeners.EnchantDegradeListener;
 import info.faceland.loot.listeners.EnchantMenuListener;
@@ -85,6 +86,7 @@ import info.faceland.loot.managers.ScrollManager;
 import info.faceland.loot.managers.SocketGemManager;
 import info.faceland.loot.managers.StatManager;
 import info.faceland.loot.managers.TierManager;
+import info.faceland.loot.menu.pawn.PawnMenu;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
@@ -171,9 +173,12 @@ public final class LootPlugin extends FacePlugin {
     return instance;
   }
 
+  public LootPlugin() {
+    instance = this;
+  }
+
   @Override
   public void enable() {
-    instance = this;
     debugPrinter = new PluginLogger(this);
 
     recipeBuilder = new EquipmentRecipeBuilder(this);
@@ -247,6 +252,9 @@ public final class LootPlugin extends FacePlugin {
 
     ArcaneEnhancer.rebuild();
     PurifyingScroll.rebuild();
+    ShardOfFailure.rebuild();
+
+    PawnMenu.clearPool();
 
     strifePlugin = (StrifePlugin) Bukkit.getPluginManager().getPlugin("Strife");
 

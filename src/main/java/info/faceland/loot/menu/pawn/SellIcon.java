@@ -22,8 +22,11 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import info.faceland.loot.LootPlugin;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import land.face.strife.data.champion.LifeSkillType;
+import land.face.strife.util.PlayerDataUtil;
 import ninja.amp.ampmenus.events.ItemClickEvent;
 import ninja.amp.ampmenus.items.MenuItem;
 import org.bukkit.Material;
@@ -35,6 +38,8 @@ public class SellIcon extends MenuItem {
 
   private PawnMenu menu;
   private List<String> lore = new ArrayList<>();
+
+  private static final DecimalFormat DF = new DecimalFormat("###.#");
 
   SellIcon(PawnMenu menu) {
     super(TextUtils.color("&e&lSell Items"), new ItemStack(Material.GOLD_INGOT));
@@ -50,12 +55,32 @@ public class SellIcon extends MenuItem {
     ItemStack stack = getIcon().clone();
     ItemStackExtensionsKt.setDisplayName(stack, getDisplayName());
     List<String> newLore = new ArrayList<>();
+    int tradeLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.TRADING);
     int total = menu.getTotal();
+    int modifiedTotal = getModifiedTotal(total, tradeLevel);
+    String priceString;
+    if (tradeLevel < 5 || modifiedTotal == total) {
+      priceString = String.valueOf(total);
+    } else {
+      priceString = TextUtils.color("&7&m" + total + "&r &f&l" + modifiedTotal);
+    }
     for (String s : lore) {
-      newLore.add(s.replace("{total}", String.valueOf(total)));
+      newLore.add(s.replace("{total}", priceString));
+    }
+    if (PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.TRADING) >= 5) {
+      newLore.add(
+          TextUtils.color("&eTrade Level Bonus: " + DF.format(((double) tradeLevel) / 5) + "%"));
     }
     ItemStackExtensionsKt.setLore(stack, newLore);
     return stack;
+  }
+
+  private int getModifiedTotal(double total, double tradeLevel) {
+    if (tradeLevel >= 5) {
+      total = total * (1 + 0.002 * tradeLevel);
+      total = Math.floor(total);
+    }
+    return (int) total;
   }
 
   @Override
@@ -63,13 +88,15 @@ public class SellIcon extends MenuItem {
     super.onItemClick(event);
     event.getPlayer()
         .playSound(event.getPlayer().getLocation(), Sound.UI_BUTTON_CLICK, 1, 1.2f);
+    int tradeLevel = PlayerDataUtil.getLifeSkillLevel(event.getPlayer(), LifeSkillType.TRADING);
     int total = menu.sellItems(event.getPlayer());
+    total = getModifiedTotal(total, tradeLevel);
     menu.update(event.getPlayer());
     if (total != 0) {
       LootPlugin.getInstance().getEconomy().depositPlayer(event.getPlayer(), total);
       event.getPlayer()
           .playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1, 2.0f);
-      MessageUtils.sendMessage(event.getPlayer(), "&e +" + total + " Bit(s)!");
+      MessageUtils.sendMessage(event.getPlayer(), "&e  +" + total + " Bit(s)!");
     }
     if (menu.getTotal() > 0) {
       MessageUtils.sendMessage(event.getPlayer(),

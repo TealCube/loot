@@ -35,6 +35,7 @@ import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UpgradeScroll;
+import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.tier.Tier;
@@ -299,8 +300,8 @@ public final class InteractListener implements Listener {
       sendMessage(player, plugin.getSettings().getString("language.upgrade.success", ""));
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
       updateItem(event, targetItem);
-    } else if (cursorName.equals(ChatColor.RED + "Shard Of Failure")) {
-      UpgradeScroll scroll = plugin.getScrollManager().getScroll(cursor);
+    } else if (ShardOfFailure.isSimilar(cursor)) {
+      UpgradeScroll scroll = plugin.getScrollManager().getScroll(targetItem);
       if (scroll == null) {
         return;
       }

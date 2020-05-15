@@ -32,6 +32,7 @@ import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
+import info.faceland.loot.events.LootEnchantEvent;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.math.LootRandom;
@@ -42,8 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import land.face.strife.StrifePlugin;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -51,6 +55,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public final class MaterialUtil {
 
@@ -65,6 +70,7 @@ public final class MaterialUtil {
   private static String upgradeItemDestroyMsg;
   private static String upgradeItemDestroyBroadcast;
   private static String upgradeItemDamageMsg;
+  private static String upgradeItemNoDamageMsg;
   private static String upgradeSuccessMsg;
   private static String upgradeSuccessBroadcast;
   private static String enchantFailureMsg;
@@ -88,6 +94,8 @@ public final class MaterialUtil {
         .getString("language.broadcast.destroyed-item");
     upgradeItemDamageMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.damaged", "");
+    upgradeItemNoDamageMsg = LootPlugin.getInstance().getSettings()
+        .getString("language.upgrade.not-damaged", "");
     upgradeSuccessMsg = LootPlugin.getInstance().getSettings()
         .getString("language.upgrade.success", "");
     upgradeSuccessBroadcast = LootPlugin.getInstance().getSettings()
@@ -114,15 +122,20 @@ public final class MaterialUtil {
     success -= scroll.getFlatDecay() * targetPlus;
     success *= 1 - (scroll.getPercentDecay() * targetPlus);
     success = Math.pow(success, scroll.getExponent());
-    List<String> scrollLore = ItemStackExtensionsKt.getLore(scrollStack);
-    for (String s : scrollLore) {
-      if (ChatColor.stripColor(s).startsWith(FAILURE_BONUS)) {
-        success += (1 - success) * (200D / (200 + MaterialUtil.getUpgradeLevel(s)));
-        break;
+    success += PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true) * 0.001;
+    if (success <= 1) {
+      for (String s : ItemStackExtensionsKt.getLore(scrollStack)) {
+        if (s.startsWith(FAILURE_BONUS)) {
+          success += (1 - success) * getFailureMod(s);
+          break;
+        }
       }
     }
-    success += PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true) * 0.001;
     return success;
+  }
+
+  public static double getFailureMod(String failString) {
+    return 1 - (150D / (150 + MaterialUtil.getDigit(failString)));
   }
 
   public static double getUpgradeFailureDamagePercent(UpgradeScroll scroll, int itemPlus) {
@@ -180,27 +193,37 @@ public final class MaterialUtil {
     // Failure Logic
     if (successChance < random.nextDouble()) {
       double damagePercentage = getUpgradeFailureDamagePercent(scroll, targetLevel);
-      int damageAmount;
-      if (stack.getType().getMaxDurability() >= 1) {
-        damageAmount = (int) Math.floor(damagePercentage * stack.getType().getMaxDurability()) - 1;
+      short damage;
+      if (stack.getType().getMaxDurability() <= 1) {
+        if (damagePercentage < 1) {
+          sendMessage(player, upgradeItemNoDamageMsg);
+          return;
+        }
+        damage = 1000;
       } else {
-        damageAmount = 100;
+        double currentPercentage =
+            1 - ((double) stack.getDurability() / stack.getType().getMaxDurability());
+        if (damagePercentage >= currentPercentage) {
+          damage = stack.getType().getMaxDurability();
+        } else {
+          damage = (short) (Math.floor(
+              (currentPercentage - damagePercentage) * (double) stack.getType()
+                  .getMaxDurability()));
+        }
       }
-      damageAmount = Math.max(damageAmount, 1);
-      if (damageAmount + stack.getDurability() >= stack.getType().getMaxDurability()) {
+      if (damage >= stack.getType().getMaxDurability()) {
         sendMessage(player, upgradeItemDestroyMsg);
         InventoryUtil.broadcast(player, stack, upgradeItemDestroyBroadcast);
         player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
         stack.setAmount(0);
         if (itemUpgradeLevel > 5) {
-          ShardOfFailure shardOfFailure = new ShardOfFailure(player.getName());
-          shardOfFailure.setAmount(
-              1 + random.nextIntRange(5, 3 + (int) (Math.pow(itemUpgradeLevel, 1.7) / 3)));
-          player.getInventory().addItem(shardOfFailure);
+          ItemStack shard = ShardOfFailure.build(player.getName());
+          shard.setAmount(1 + random.nextIntRange(5, 3 + (int) (Math.pow(itemUpgradeLevel, 1.7) / 3)));
+          player.getInventory().addItem(shard);
         }
         return;
       }
-      stack.setDurability((short) (stack.getDurability() + damageAmount));
+      stack.setDurability(damage);
       sendMessage(player, upgradeItemDamageMsg);
       return;
     }
@@ -226,9 +249,20 @@ public final class MaterialUtil {
   private static void bumpItemPlus(ItemStack stack, int currentLevel, int statAmount,
       int plusAmount) {
     String itemName = ItemStackExtensionsKt.getDisplayName(stack);
+    if (StringUtils.isBlank(itemName)) {
+      itemName = stack.getType().toString().replaceAll("_", " ");
+      itemName = WordUtils.capitalizeFully(itemName);
+    }
     int newLevel = Math.max(Math.min(currentLevel + plusAmount, 15), 0);
     if (currentLevel == 0) {
-      itemName = InventoryUtil.getFirstColor(itemName) + ("+" + newLevel) + " " + itemName;
+      String colorPrefix;
+      ChatColor color = InventoryUtil.getFirstColor(itemName);
+      if (color == ChatColor.RESET || color == ChatColor.WHITE) {
+        colorPrefix = TextUtils.color("&f&7&f");
+      } else {
+        colorPrefix = "" + color;
+      }
+      itemName = colorPrefix + ("+" + newLevel) + " " + itemName;
     } else {
       itemName = itemName.replace("+" + currentLevel, "+" + newLevel);
     }
@@ -313,8 +347,22 @@ public final class MaterialUtil {
         .containsAll(tome.getItemGroups());
   }
 
+  public static void purifyItem(Player player, ItemStack item, ItemStack purifyScroll) {
+    if (!isEnchanted(item)) {
+      MessageUtils.sendMessage(player,
+          "&eYou can only remove enchantments from items that have an enchantment ya ding dong");
+      return;
+    }
+    MaterialUtil.removeEnchantment(item);
+    purifyScroll.setAmount(purifyScroll.getAmount() - 1);
+    StrifePlugin.getInstance().getSkillExperienceManager()
+        .addExperience(player, LifeSkillType.ENCHANTING, 68, false);
+    player.playSound(player.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1, 1f);
+  }
+
   public static void enhanceEnchantment(Player player, ItemStack item, ItemStack enhancer) {
     if (!MaterialUtil.isEnchanted(item) || MaterialUtil.isArcaneEnchanted(item)) {
+      MessageUtils.sendMessage(player, "&eThis item cannot be enhanced.");
       return;
     }
     List<String> lore = new ArrayList<>();
@@ -333,7 +381,7 @@ public final class MaterialUtil {
       double enchantingLevel = PlayerDataUtil.getEffectiveLifeSkill(player,
           LifeSkillType.ENCHANTING, true);
 
-      double enchantingBonus = Math.min(4, Math.max(1, enchantingLevel / itemLevel));
+      double enchantingBonus = Math.min(2.5, Math.max(1, enchantingLevel / itemLevel));
       float enhanceRoll = 0.1f + 0.2f * (float) Math.pow(Math.random(), 1.25);
 
       int newValue = statValue + (int) (statValue * enhanceRoll * enchantingBonus);
@@ -342,11 +390,13 @@ public final class MaterialUtil {
       lore.set(lore.size() - 1, ChatColor.BLUE + enchantmentStatString
           .replace(Integer.toString(statValue), Integer.toString(newValue)));
       lore.add(string.replace("" + ChatColor.BLACK, "" + ChatColor.DARK_RED));
-      break;
     }
     ItemStackExtensionsKt.setLore(item, lore);
     degradeItemEnchantment(item, player);
     enhancer.setAmount(enhancer.getAmount() - 1);
+    StrifePlugin.getInstance().getSkillExperienceManager()
+        .addExperience(player, LifeSkillType.ENCHANTING, 400, false);
+    player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.8f);
   }
 
   public static void removeEnchantment(ItemStack item) {
@@ -451,6 +501,17 @@ public final class MaterialUtil {
       return false;
     }
     EnchantmentTome tome = getEnchantmentItem(tomeStack);
+
+    if (tome == null) {
+      return false;
+    }
+
+    LootEnchantEvent enchantEvent = new LootEnchantEvent(player, targetItem, tome);
+    Bukkit.getPluginManager().callEvent(enchantEvent);
+
+    if (enchantEvent.isCancelled()) {
+      return false;
+    }
 
     List<String> lore = new ArrayList<>(ItemStackExtensionsKt.getLore(targetItem));
     List<String> strippedLore = InventoryUtil.stripColor(lore);
@@ -588,11 +649,15 @@ public final class MaterialUtil {
     }
     player.playSound(player.getLocation(), Sound.ENTITY_MOOSHROOM_CONVERT, 1, 1f);
     LootPlugin.getInstance().getPlayerPointsAPI().take(player.getUniqueId(), 500);
-    ItemStackExtensionsKt.setDisplayName(head,
-        TextUtils.color("&7&f") + ItemStackExtensionsKt.getDisplayName(helmet));
-    ItemStackExtensionsKt.setCustomModelData(head, 200000 + MaterialUtil.getCustomData(helmet));
-    ItemStackExtensionsKt.setLore(head, new ArrayList<>(ItemStackExtensionsKt.getLore(helmet)));
-    helmet.setAmount(helmet.getAmount() - 1);
+    SkullMeta newMeta = ((SkullMeta) head.getItemMeta()).clone();
+    short dura = helmet.getDurability();
+    newMeta.setDisplayName(ItemStackExtensionsKt.getDisplayName(helmet));
+    newMeta.setLore(new ArrayList<>(ItemStackExtensionsKt.getLore(helmet)));
+    helmet.setType(Material.PLAYER_HEAD);
+    helmet.setItemMeta(newMeta);
+    helmet.setDurability(dura);
+    ItemStackExtensionsKt.setCustomModelData(helmet, 200000 + MaterialUtil.getCustomData(helmet));
+    head.setAmount(head.getAmount() - 1);
   }
 
   public static boolean isExtender(ItemStack stack) {

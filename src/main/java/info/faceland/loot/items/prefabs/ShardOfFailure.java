@@ -20,22 +20,47 @@ package info.faceland.loot.items.prefabs;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public final class ShardOfFailure extends ItemStack {
-    public ShardOfFailure(String name) {
-        super(Material.PRISMARINE_SHARD);
-        ItemStackExtensionsKt.setDisplayName(this, ChatColor.RED + "Shard of Failure");
-        ItemStackExtensionsKt.setLore(this, TextUtils.color(Arrays.asList(
-                "&7Use this item on an Upgrade Scroll",
-                "&7to slightly increase the chance of",
-                "&7upgrade success!",
-                "&8&oThis failure is special because it",
-                "&8&owas created by " + name + " :)"
-        )));
-        setDurability((short) 11);
+public final class ShardOfFailure {
+
+  private static ItemStack item;
+  public static String FAILURE_NAME;
+
+  public static ItemStack build(String name) {
+    List<String> lore = new ArrayList<>();
+    for (String s : ItemStackExtensionsKt.getLore(item)) {
+      s = s.replace("{name}", name);
+      lore.add(s);
     }
+    ItemStack shard = item.clone();
+    ItemStackExtensionsKt.setLore(shard, lore);
+    return shard;
+  }
+
+  public static void rebuild() {
+    ItemStack stack = new ItemStack(Material.PRISMARINE_SHARD);
+    String name = ChatColor.RED + "Shard of Failure";
+    FAILURE_NAME = name;
+    ItemStackExtensionsKt.setDisplayName(stack, name);
+    ItemStackExtensionsKt.setLore(stack, TextUtils.color(Arrays.asList(
+        "&7Use this item on an Upgrade Scroll",
+        "&7to slightly increase the chance of",
+        "&7upgrade success!",
+        "&8&oThis failure is special because it",
+        "&8&owas created by {name} :)"
+    )));
+    stack.setDurability((short) 11);
+    item = stack;
+  }
+
+  public static boolean isSimilar(ItemStack stack) {
+    return stack.getType() == item.getType() && stack.getDurability() == 11 && ItemStackExtensionsKt
+        .getDisplayName(item).equals(ItemStackExtensionsKt.getDisplayName(stack));
+  }
 }

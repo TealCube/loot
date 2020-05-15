@@ -226,7 +226,7 @@ public class DeconstructListener implements Listener {
     player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
 
     double maxBonus = 2 + Math.pow(itemPlus, 2) / 2;
-    ShardOfFailure shardOfFailure = new ShardOfFailure(player.getName());
+    ItemStack shardOfFailure = ShardOfFailure.build(player.getName());
     shardOfFailure.setAmount(2 + random.nextIntRange(0, (int) maxBonus + 1));
     player.getInventory().addItem(shardOfFailure);
     plugin.getStrifePlugin().getSkillExperienceManager()

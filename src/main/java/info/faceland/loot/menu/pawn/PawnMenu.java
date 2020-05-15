@@ -22,51 +22,78 @@ import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.PriceData;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import ninja.amp.ampmenus.menus.ItemMenu;
+import ninja.amp.ampmenus.menus.MenuHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class PawnMenu extends ItemMenu {
 
-  private List<SaleIcon> pawnTargets = new ArrayList<>();
+  private static Set<PawnMenu> pawnMenuPool = new HashSet<>();
 
-  public PawnMenu(LootPlugin plugin) {
+  private Set<Integer> sellSlots = new HashSet<>();
+  private List<SaleIcon> saleIcons = new ArrayList<>();
+
+  private PawnMenu(LootPlugin plugin) {
     super(TextUtils.color(plugin.getSettings().getString("language.menu.pawn.name",
         "&8Sell Items!")), Size.fit(35), plugin);
-
     for (int i = 0; i <= 26; i++) {
-      SaleIcon icon = new SaleIcon(this);
-      pawnTargets.add(icon);
+      SaleIcon icon = new SaleIcon(this, i);
+      saleIcons.add(icon);
       setItem(i, icon);
     }
     fillEmptySlots();
     setItem(31, new SellIcon(this));
   }
 
-  public boolean alreadyListed(ItemStack stack) {
-    for (SaleIcon icon : pawnTargets) {
-      if (stack.equals(icon.getStack())) {
-        return true;
-      }
-    }
-    return false;
+  public void open(Player player) {
+    sellSlots.clear();
+    super.open(player);
   }
 
-  public void addItem(Player player, ItemStack stack, PriceData data) {
-    SaleIcon firstNull = null;
-    if (alreadyListed(stack)) {
+  public static PawnMenu getPawnMenu(LootPlugin plugin) {
+    for (PawnMenu menu : pawnMenuPool) {
+      for (Player p : Bukkit.getOnlinePlayers()) {
+        if (!(p.getInventory().getHolder() instanceof MenuHolder)) {
+          continue;
+        }
+        if (((MenuHolder) p.getInventory().getHolder()).getMenu() == menu) {
+          continue;
+        }
+        return menu;
+      }
+    }
+    PawnMenu menu = new PawnMenu(plugin);
+    pawnMenuPool.add(menu);
+    return menu;
+  }
+
+  public static void clearPool() {
+    pawnMenuPool.clear();
+  }
+
+  public void removeSlot(Integer slot) {
+    sellSlots.remove(slot);
+  }
+
+  public void addItem(Player player, ItemStack stack, PriceData data, Integer slot) {
+    if (sellSlots.contains(slot)) {
       return;
     }
-    for (SaleIcon icon : pawnTargets) {
-      if (icon.getStack() == null) {
+    SaleIcon firstNull = null;
+    for (SaleIcon icon : saleIcons) {
+      if (icon.getTargetStack() == null) {
         firstNull = icon;
         break;
       }
     }
     if (firstNull != null) {
-      firstNull.setStack(stack);
+      sellSlots.add(slot);
+      firstNull.setTargetStack(stack);
       firstNull.setPrice(data.getPrice());
       firstNull.setCheckRare(data.isRare());
       update(player);
@@ -75,8 +102,8 @@ public class PawnMenu extends ItemMenu {
 
   int getTotal() {
     int total = 0;
-    for (SaleIcon saleIcon : pawnTargets) {
-      if (saleIcon.getStack() == null) {
+    for (SaleIcon saleIcon : saleIcons) {
+      if (saleIcon.getTargetStack() == null) {
         continue;
       }
       total += saleIcon.getPrice();
@@ -86,8 +113,8 @@ public class PawnMenu extends ItemMenu {
 
   int sellItems(Player player) {
     int total = 0;
-    for (SaleIcon saleIcon : pawnTargets) {
-      if (saleIcon.getStack() == null) {
+    for (SaleIcon saleIcon : saleIcons) {
+      if (saleIcon.getTargetStack() == null) {
         continue;
       }
       total += sellItem(player, saleIcon);
@@ -100,12 +127,13 @@ public class PawnMenu extends ItemMenu {
       saleIcon.setCheckRare(false);
       return 0;
     }
-    if (player.getInventory().containsAtLeast(saleIcon.getStack(), saleIcon.getStack().getAmount())) {
-      player.getInventory().removeItem(saleIcon.getStack());
+    if (player.getInventory().containsAtLeast(saleIcon.getTargetStack(), saleIcon.getTargetStack().getAmount())) {
+      player.getInventory().removeItem(saleIcon.getTargetStack());
       int amount = saleIcon.getPrice();
       saleIcon.setPrice(0);
-      saleIcon.setStack(null);
+      saleIcon.setTargetStack(null);
       saleIcon.setCheckRare(false);
+      sellSlots.remove(saleIcon.getSlot());
       return amount;
     }
     Bukkit.getLogger().warning(player.getDisplayName() + " tried to sell non-existing item...");

@@ -30,22 +30,24 @@ import org.bukkit.inventory.ItemStack;
 
 public class SaleIcon extends MenuItem {
 
-  private PawnMenu pawnMenu;
+  private final PawnMenu menu;
+  private final Integer slot;
   private int price;
-  private ItemStack stack;
+  private ItemStack targetStack;
   private boolean checkRare = false;
 
-  SaleIcon(PawnMenu pawnMenu) {
+  SaleIcon(PawnMenu menu, Integer slot) {
     super("", new ItemStack(Material.AIR));
-    this.pawnMenu = pawnMenu;
+    this.menu = menu;
+    this.slot = slot;
   }
 
   @Override
   public ItemStack getFinalIcon(Player player) {
-    if (stack == null) {
+    if (targetStack == null) {
       return getIcon();
     }
-    ItemStack finalIcon = stack.clone();
+    ItemStack finalIcon = targetStack.clone();
     List<String> newLore = new ArrayList<>(ItemStackExtensionsKt.getLore(finalIcon));
     newLore.add("");
     newLore.add(TextUtils.color("&6Sale Price: &f" + price + " &fBits"));
@@ -58,8 +60,13 @@ public class SaleIcon extends MenuItem {
     super.onItemClick(event);
     price = 0;
     checkRare = false;
-    stack = null;
+    targetStack = null;
+    menu.removeSlot(slot);
     event.setWillUpdate(true);
+  }
+
+  public Integer getSlot() {
+    return slot;
   }
 
   public int getPrice() {
@@ -70,12 +77,12 @@ public class SaleIcon extends MenuItem {
     this.price = price;
   }
 
-  public ItemStack getStack() {
-    return stack;
+  public ItemStack getTargetStack() {
+    return targetStack;
   }
 
-  public void setStack(ItemStack stack) {
-    this.stack = stack;
+  public void setTargetStack(ItemStack targetStack) {
+    this.targetStack = targetStack;
   }
 
   public boolean isCheckRare() {
