@@ -23,11 +23,16 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.*;
 
 public final class SocketGemManager {
 
@@ -79,7 +84,7 @@ public final class SocketGemManager {
     if (StringUtils.isBlank(name)) {
       return null;
     }
-    return getSocketGem(ChatColor.stripColor(name));
+    return getSocketGem(ChatColor.stripColor(name.replace("Socket Gem - ", "")));
   }
 
   public void addSocketGem(SocketGem gem) {
