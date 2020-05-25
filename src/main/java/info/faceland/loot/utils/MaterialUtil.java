@@ -327,19 +327,13 @@ public final class MaterialUtil {
     if (scroll == null) {
       return false;
     }
-    if (!meetsUpgradeRange(scroll, getUpgradeLevel(ItemStackExtensionsKt.getDisplayName(stack)))) {
-      return false;
-    }
-    return true;
+    return meetsUpgradeRange(scroll, getUpgradeLevel(ItemStackExtensionsKt.getDisplayName(stack)));
   }
 
   public static boolean hasEnchantmentTag(ItemStack stack) {
     List<String> lore = new ArrayList<>(ItemStackExtensionsKt.getLore(stack));
     List<String> strippedLore = InventoryUtil.stripColor(lore);
-    if (!strippedLore.contains("(Enchantable)")) {
-      return false;
-    }
-    return true;
+    return strippedLore.contains("(Enchantable)");
   }
 
   public static boolean isMatchingGroup(EnchantmentTome tome, Material material) {
