@@ -212,15 +212,16 @@ public final class MaterialUtil {
         }
       }
       if (damage >= stack.getType().getMaxDurability()) {
+        ItemStack clone = stack.clone();
         sendMessage(player, upgradeItemDestroyMsg);
-        InventoryUtil.broadcast(player, stack, upgradeItemDestroyBroadcast);
-        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
         stack.setAmount(0);
+        player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
         if (itemUpgradeLevel > 5) {
           ItemStack shard = ShardOfFailure.build(player.getName());
           shard.setAmount(1 + random.nextIntRange(5, 3 + (int) (Math.pow(itemUpgradeLevel, 1.7) / 3)));
           player.getInventory().addItem(shard);
         }
+        InventoryUtil.broadcast(player, clone, upgradeItemDestroyBroadcast);
         return;
       }
       stack.setDurability(damage);
@@ -232,7 +233,7 @@ public final class MaterialUtil {
 
     double exp = 0.5f + (float) Math.pow(1.4, targetLevel);
     LootPlugin.getInstance().getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
+        .addExperience(player, LifeSkillType.ENCHANTING, exp, false, false);
 
     sendMessage(player, upgradeSuccessMsg);
     player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
@@ -310,6 +311,9 @@ public final class MaterialUtil {
   }
 
   public static boolean isEquipmentItem(ItemStack stack) {
+    if (stack.getType().getMaxDurability() > 5) {
+      return true;
+    }
     List<String> strip = InventoryUtil.stripColor(ItemStackExtensionsKt.getLore(stack));
     for (String s : strip) {
       if (s.startsWith("+")) {
@@ -350,7 +354,7 @@ public final class MaterialUtil {
     MaterialUtil.removeEnchantment(item);
     purifyScroll.setAmount(purifyScroll.getAmount() - 1);
     StrifePlugin.getInstance().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.ENCHANTING, 68, false);
+        .addExperience(player, LifeSkillType.ENCHANTING, 68, false, false);
     player.playSound(player.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1, 1f);
   }
 
@@ -362,7 +366,7 @@ public final class MaterialUtil {
     List<String> lore = new ArrayList<>();
     for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
       String string = ItemStackExtensionsKt.getLore(item).get(i);
-      if (!string.startsWith(ChatColor.BLUE + "[")) {
+      if (!isEnchantBar(string)) {
         lore.add(string);
         continue;
       }
@@ -372,6 +376,7 @@ public final class MaterialUtil {
           .or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
 
       int itemLevel = getLevelRequirement(item);
+      itemLevel = Math.max(1, Math.min(100, itemLevel));
       double enchantingLevel = PlayerDataUtil.getEffectiveLifeSkill(player,
           LifeSkillType.ENCHANTING, true);
 
@@ -383,13 +388,12 @@ public final class MaterialUtil {
 
       lore.set(lore.size() - 1, ChatColor.BLUE + enchantmentStatString
           .replace(Integer.toString(statValue), Integer.toString(newValue)));
-      lore.add(string.replace("" + ChatColor.BLACK, "" + ChatColor.DARK_RED));
+      lore.add(string.replace(ChatColor.BLACK + "", ChatColor.DARK_RED + ""));
     }
     ItemStackExtensionsKt.setLore(item, lore);
-    degradeItemEnchantment(item, player);
     enhancer.setAmount(enhancer.getAmount() - 1);
     StrifePlugin.getInstance().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.ENCHANTING, 400, false);
+        .addExperience(player, LifeSkillType.ENCHANTING, 400, false, false);
     player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.8f);
   }
 
@@ -429,30 +433,27 @@ public final class MaterialUtil {
     return true;
   }
 
+  public static boolean isEnchantBar(String string) {
+    String stripped = ChatColor.stripColor(string);
+    return stripped.startsWith("[") && stripped.endsWith("]") && stripped.contains("||");
+  }
+
   public static boolean isEnchanted(ItemStack stack) {
     for (String string : ItemStackExtensionsKt.getLore(stack)) {
-      if (!string.startsWith(ChatColor.BLUE + "[")) {
+      String s = net.md_5.bungee.api.ChatColor.stripColor(string);
+      if (!(s.startsWith("[") && string.endsWith("]") && s.contains("||"))) {
         continue;
       }
-      if (!string.endsWith("]")) {
-        continue;
-      }
-      if (string.contains("" + ChatColor.BLACK) || string.contains("" + ChatColor.DARK_RED)) {
-        return true;
-      }
+      return true;
     }
     return false;
   }
 
   public static boolean isArcaneEnchanted(ItemStack stack) {
     for (String string : ItemStackExtensionsKt.getLore(stack)) {
-      if (!string.startsWith(ChatColor.BLUE + "[")) {
-        continue;
-      }
-      if (!string.endsWith("]")) {
-        continue;
-      }
-      if (string.contains("" + ChatColor.DARK_RED)) {
+      String s = net.md_5.bungee.api.ChatColor.stripColor(string);
+      if (!(s.startsWith("[") && string.endsWith("]") && s.contains("||")) && string.contains(
+          net.md_5.bungee.api.ChatColor.DARK_RED + "")) {
         return true;
       }
     }
@@ -466,13 +467,23 @@ public final class MaterialUtil {
     List<String> lore = new ArrayList<>();
     for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
       String string = ItemStackExtensionsKt.getLore(item).get(i);
-      if (!string.startsWith(ChatColor.BLUE + "[")) {
+      if (!isEnchantBar(string)) {
         lore.add(string);
         continue;
       }
-      ChatColor incompleteBarColor =
-          string.contains("" + ChatColor.BLACK) ? ChatColor.BLACK : ChatColor.DARK_RED;
-      int index = string.indexOf("" + incompleteBarColor);
+      ChatColor incompleteBarColor;
+      int index;
+      if (string.contains("" + ChatColor.DARK_RED)) {
+        index = string.indexOf("" + ChatColor.DARK_RED);
+        incompleteBarColor = ChatColor.DARK_RED;
+      } else if (string.contains("" + ChatColor.BLACK)) {
+        index = string.indexOf("" + ChatColor.BLACK);
+        incompleteBarColor = ChatColor.BLACK;
+      } else {
+        index = string.length() - 3;
+        incompleteBarColor = ChatColor.BLACK;
+      }
+      Bukkit.getLogger().warning("boop: " + index);
       if (index <= 4) {
         lore.remove(lore.size() - 1);
         lore.add(ChatColor.BLUE + "(Enchantable)");
@@ -528,8 +539,7 @@ public final class MaterialUtil {
       double eLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
 
       ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
-      added.add(LootPlugin.getInstance().getStatManager().getFinalStat(stat, eLevel, rarity)
-          .getStatString());
+      added.add(LootPlugin.getInstance().getStatManager().getFinalStat(stat, eLevel, rarity, false).getStatString());
     }
 
     if (tome.getBar()) {
@@ -537,10 +547,10 @@ public final class MaterialUtil {
       double size = 8 + (25 * bonus);
       String bars = IntStream.range(0, (int) size).mapToObj(i -> "|")
           .collect(Collectors.joining(""));
-      added.add(TextUtils.color("&9[" + bars + "&0&9]"));
+      added.add(ChatColor.BLUE + "[" + bars + ChatColor.BLACK + "|" + ChatColor.BLUE + "]");
     }
 
-    lore.addAll(index, TextUtils.color(added));
+    lore.addAll(index, added);
 
     if (enchantmentsStack) {
       for (Map.Entry<Enchantment, Integer> entry : tome.getEnchantments().entrySet()) {
@@ -579,7 +589,7 @@ public final class MaterialUtil {
     float weightDivisor = tome.getWeight() == 0 ? 2000 : (float) tome.getWeight();
     float exp = 12 + 8 * (2000 / weightDivisor);
     LootPlugin.getInstance().getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.ENCHANTING, exp, false);
+        .addExperience(player, LifeSkillType.ENCHANTING, exp, false, false);
     sendMessage(player, enchantSuccessMsg);
     player.playSound(player.getEyeLocation(), Sound.BLOCK_PORTAL_TRAVEL, 0.4f, 2.0f);
     return true;

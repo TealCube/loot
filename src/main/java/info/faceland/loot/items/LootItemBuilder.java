@@ -18,7 +18,6 @@
  */
 package info.faceland.loot.items;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.ItemBuilder;
 import info.faceland.loot.api.items.ItemGenerationReason;
@@ -37,9 +36,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public final class LootItemBuilder implements ItemBuilder {
 
@@ -57,6 +61,9 @@ public final class LootItemBuilder implements ItemBuilder {
   private LootRandom random = new LootRandom();
 
   private double specialStatChance;
+
+  public static AttributeModifier MINUS_ONE_KB_RESIST = new AttributeModifier("NO_KB_RESIST",
+      -1, Operation.ADD_NUMBER);
 
   public LootItemBuilder(LootPlugin plugin) {
     statManager = plugin.getStatManager();
@@ -90,11 +97,11 @@ public final class LootItemBuilder implements ItemBuilder {
     stack = new ItemStack(material);
     List<String> lore = new ArrayList<>();
 
-    lore.add("&fLevel Requirement: " + level);
-    lore.add("&fTier: " + rarity.getColor() + rarity.getName() + " " + tier.getName());
+    lore.add(ChatColor.WHITE + "Level Requirement: " + level);
+    lore.add(ChatColor.WHITE + "Tier: " + rarity.getColor() + rarity.getName() + " " + tier.getName());
 
-    lore.add(statManager.getFinalStat(tier.getPrimaryStat(), level, rarity.getPower()).getStatString());
-    lore.add(statManager.getFinalStat(getRandomSecondaryStat(), level, rarity.getPower()).getStatString());
+    lore.add(statManager.getFinalStat(tier.getPrimaryStat(), level, rarity.getPower(), false).getStatString());
+    lore.add(statManager.getFinalStat(getRandomSecondaryStat(), level, rarity.getPower(), false).getStatString());
 
     List<ItemStat> bonusStatList = new ArrayList<>(tier.getBonusStats());
 
@@ -115,7 +122,7 @@ public final class LootItemBuilder implements ItemBuilder {
     boolean statPrefix = random.nextDouble() > 0.35;
     for (int i = 0; i < bonusStats; i++) {
       ItemStat stat = bonusStatList.get(random.nextInt(bonusStatList.size()));
-      StatResponse rStat = statManager.getFinalStat(stat, level, rarity.getPower());
+      StatResponse rStat = statManager.getFinalStat(stat, level, rarity.getPower(), false);
       lore.add(rStat.getStatString());
       bonusStatList.remove(stat);
       if (StringUtils.isNotBlank(rStat.getStatPrefix())) {
@@ -127,16 +134,16 @@ public final class LootItemBuilder implements ItemBuilder {
     }
 
     for (int i = 0; i < rarity.getEnchantments(); i++) {
-      lore.add("&9(Enchantable)");
+      lore.add(ChatColor.BLUE + "(Enchantable)");
     }
 
     int sockets = random.nextIntRange(rarity.getMinimumSockets(), rarity.getMaximumSockets());
     for (int i = 0; i < sockets; i++) {
-      lore.add("&6(Socket)");
+      lore.add(ChatColor.GOLD + "(Socket)");
     }
 
     for (int i = 0; i < rarity.getExtenderSlots(); i++) {
-      lore.add("&3(+)");
+      lore.add(ChatColor.DARK_AQUA + "(+)");
     }
 
     String suffix;
@@ -148,8 +155,19 @@ public final class LootItemBuilder implements ItemBuilder {
     }
 
     ItemStackExtensionsKt.setDisplayName(stack, rarity.getColor() + prefix + " " + suffix);
-    ItemStackExtensionsKt.setLore(stack, TextUtils.color(lore));
+    ItemStackExtensionsKt.setLore(stack, lore);
     ItemStackExtensionsKt.addItemFlags(stack, ItemFlag.HIDE_ATTRIBUTES);
+
+    switch (material) {
+      case NETHERITE_HELMET:
+      case NETHERITE_CHESTPLATE:
+      case NETHERITE_LEGGINGS:
+      case NETHERITE_BOOTS:
+        ItemMeta iMeta = stack.getItemMeta();
+        iMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+            LootItemBuilder.MINUS_ONE_KB_RESIST);
+        stack.setItemMeta(iMeta);
+    }
 
     MaterialUtil.applyTierLevelData(stack, tier, level);
 

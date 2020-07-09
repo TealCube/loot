@@ -360,6 +360,7 @@ public final class LootPlugin extends FacePlugin {
       builder.withLore(cs.getStringList("lore"));
       builder.withStat(cs.getString("stat", ""));
       builder.withBar(cs.getBoolean("enable-bar", true));
+      builder.withSellPrice(cs.getDouble("sell-price", -1));
       builder.withBroadcast(cs.getBoolean("broadcast", false));
       List<ItemGroup> groups = new ArrayList<>();
       for (String groop : cs.getStringList("item-groups")) {
@@ -818,6 +819,12 @@ public final class LootPlugin extends FacePlugin {
       stat.setStatPrefix(cs.getString("stat-prefix"));
       stat.setPerfectStatPrefix(cs.getString("perfect-stat-prefix", stat.getStatPrefix()));
       stat.setSpecialStatPrefix(cs.getString("special-stat-prefix", stat.getStatPrefix()));
+      stat.setMinHue((float) cs.getDouble("min-hue", 0));
+      stat.setMaxHue((float) cs.getDouble("max-hue", 0));
+      stat.setMinSaturation((float) cs.getDouble("min-saturation", 0.83));
+      stat.setMaxSaturation((float) cs.getDouble("max-saturation", 0.83));
+      stat.setMinBrightness((float) cs.getDouble("min-brightness", 1));
+      stat.setMaxBrightness((float) cs.getDouble("max-brightness", 1));
       stat.getNamePrefixes().addAll(cs.getStringList("name-prefixes"));
       getStatManager().addStat(key, stat);
     }

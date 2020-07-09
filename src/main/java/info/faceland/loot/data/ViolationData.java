@@ -46,10 +46,8 @@ public class ViolationData {
       tooClose = false;
     } else if (newPlayerLoc.distanceSquared(lastPlayerLoc) < 2) {
       tooClose = true;
-    } else if (newEnemyLoc.distanceSquared(lastEnemyLoc) < 2) {
-      tooClose = true;
     } else {
-      tooClose = false;
+      tooClose = newEnemyLoc.distanceSquared(lastEnemyLoc) < 2.2;
     }
     lastPlayerLoc = newPlayerLoc;
     lastEnemyLoc = newEnemyLoc;

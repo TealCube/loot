@@ -75,11 +75,18 @@ public class PawnManager {
     }
     EnchantmentTome tome = MaterialUtil.getEnchantmentItem(stack);
     if (tome != null) {
-      double divisor = (tomeWeightHalf + tome.getWeight()) / tomeWeightHalf;
-      price = (int) (baseTomePrice * 2 * Math.pow(0.5, divisor));
-      return new PriceData(amount * price, tome.getWeight() < 100);
+      boolean rare;
+      if (tome.getSellPrice() > 0) {
+        price = (int) tome.getSellPrice();
+        rare = tome.getSellPrice() >= 1000;
+      } else {
+        double divisor = (tomeWeightHalf + tome.getWeight()) / tomeWeightHalf;
+        price = (int) (baseTomePrice * 2 * Math.pow(0.5, divisor));
+        rare = tome.getWeight() < 100;
+      }
+      return new PriceData(amount * price, rare);
     }
-    if (MaterialUtil.isEquipmentItem(stack)) {
+    if (MaterialUtil.getTierFromStack(stack) != null) {
       double itemLevel = MaterialUtil.getLevelRequirement(stack);
       int itemPlus = MaterialUtil.getUpgradeLevel(ItemStackExtensionsKt.getDisplayName(stack));
       price = (int) (baseEquipmentPrice + itemLevel * equipPricePerLevel);

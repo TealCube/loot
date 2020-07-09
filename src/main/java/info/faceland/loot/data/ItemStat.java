@@ -15,6 +15,12 @@ public class ItemStat {
   private String statPrefix;
   private String perfectStatPrefix;
   private String specialStatPrefix;
+  private float minHue;
+  private float maxHue;
+  private float minSaturation;
+  private float maxSaturation;
+  private float minBrightness;
+  private float maxBrightness;
   private List<String> namePrefixes = new ArrayList<>();
 
   public double getMinBaseValue() {
@@ -95,6 +101,54 @@ public class ItemStat {
 
   public void setSpecialStatPrefix(String specialStatPrefix) {
     this.specialStatPrefix = specialStatPrefix;
+  }
+
+  public float getMinHue() {
+    return minHue;
+  }
+
+  public void setMinHue(float minHue) {
+    this.minHue = minHue;
+  }
+
+  public float getMaxHue() {
+    return maxHue;
+  }
+
+  public void setMaxHue(float maxHue) {
+    this.maxHue = maxHue;
+  }
+
+  public float getMinSaturation() {
+    return minSaturation;
+  }
+
+  public void setMinSaturation(float minSaturation) {
+    this.minSaturation = minSaturation;
+  }
+
+  public float getMaxSaturation() {
+    return maxSaturation;
+  }
+
+  public void setMaxSaturation(float maxSaturation) {
+    this.maxSaturation = maxSaturation;
+  }
+
+  public float getMinBrightness() {
+    return minBrightness;
+  }
+
+  public void setMinBrightness(float minBrightness) {
+    this.minBrightness = minBrightness;
+  }
+
+  public float getMaxBrightness() {
+    return maxBrightness;
+  }
+
+  public void setMaxBrightness(float maxBrightness) {
+    this.maxBrightness = maxBrightness;
   }
 
   public List<String> getNamePrefixes() {

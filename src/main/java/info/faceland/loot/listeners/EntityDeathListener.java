@@ -112,7 +112,7 @@ public final class EntityDeathListener implements Listener {
 
     handleAntiCheeseViolations(killer, event.getEntity());
     double vl = violationMap.get(killer).getViolationLevel();
-    penaltyMult *= Math.max(0.1, Math.min(1, 2.25 - vl * 0.5));
+    penaltyMult *= Math.max(0.05, Math.min(1, 1.5 - vl * 0.06));
 
     double distance = event.getEntity().getLocation().distanceSquared(event.getEntity()
         .getWorld().getSpawnLocation());
@@ -229,6 +229,8 @@ public final class EntityDeathListener implements Listener {
       case GUARDIAN:
       case ELDER_GUARDIAN:
       case SQUID:
+      case TURTLE:
+      case DROWNED:
         return true;
       default:
         return false;

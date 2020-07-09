@@ -94,8 +94,7 @@ public class SellIcon extends MenuItem {
     menu.update(event.getPlayer());
     if (total != 0) {
       LootPlugin.getInstance().getEconomy().depositPlayer(event.getPlayer(), total);
-      event.getPlayer()
-          .playSound(event.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1, 2.0f);
+      event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_CHAIN_PLACE, 1.0F, 1.3F);
       MessageUtils.sendMessage(event.getPlayer(), "&e  +" + total + " Bit(s)!");
     }
     if (menu.getTotal() > 0) {

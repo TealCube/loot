@@ -204,9 +204,9 @@ public class DeconstructListener implements Listener {
         event.setCursorItem(cursorItem);
       }
     }
-    double exp = 0.6 + (itemLevel * 0.25);
-    plugin.getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.CRAFTING, exp, false);
+    double exp = 2 + Math.pow((double) itemLevel / 4, 1.2);
+    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+        LifeSkillType.CRAFTING, exp, false, false);
   }
 
   private void doEnchantDeconstruct(LootDeconstructEvent event) {
@@ -215,8 +215,7 @@ public class DeconstructListener implements Listener {
 
     int itemPlus = MaterialUtil.getLevelRequirement(targetItem);
     if (itemPlus == 0) {
-      sendMessage(player,
-          plugin.getSettings().getString("language.enchant.too-low-to-deconstruct", ""));
+      sendMessage(player, plugin.getSettings().getString("language.enchant.too-low-to-deconstruct", ""));
       event.setCancelled(true);
       return;
     }
@@ -229,8 +228,8 @@ public class DeconstructListener implements Listener {
     ItemStack shardOfFailure = ShardOfFailure.build(player.getName());
     shardOfFailure.setAmount(2 + random.nextIntRange(0, (int) maxBonus + 1));
     player.getInventory().addItem(shardOfFailure);
-    plugin.getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.ENCHANTING, 3 + maxBonus * 2, false);
+    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+        LifeSkillType.ENCHANTING, 3 + maxBonus * 2, false, false);
   }
 
   private boolean isHighEnoughCraftingLevel(int craftLevel, int itemLevel) {

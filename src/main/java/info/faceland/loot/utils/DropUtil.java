@@ -42,7 +42,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 
 public class DropUtil implements Listener {
 
@@ -377,16 +376,22 @@ public class DropUtil implements Listener {
       drop.setTicksLived(ticksLived);
     }
     if (looter != null) {
-      applyOwnerMeta(drop, looter.getUniqueId());
+      applyDropProtection(drop, looter.getUniqueId());
       if (broadcast) {
         broadcast(looter, itemStack, itemFoundFormat);
       }
     }
   }
 
-  private static void applyOwnerMeta(Item drop, UUID owner) {
-    drop.setMetadata("loot-owner", new FixedMetadataValue(plugin, owner));
-    drop.setMetadata("loot-time", new FixedMetadataValue(plugin, System.currentTimeMillis()));
+  private static void applyDropProtection(Item drop, UUID owner) {
+    drop.setOwner(owner);
+    Bukkit.getScheduler().runTaskLater(plugin, () -> clearDropProtection(drop), 400L);
+  }
+
+  private static void clearDropProtection(Item drop) {
+    if (drop != null) {
+      drop.setOwner(null);
+    }
   }
 
   private static boolean addSpecialStat(EntityType entityType, String worldName) {
