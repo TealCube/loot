@@ -37,7 +37,7 @@ import org.bukkit.potion.PotionEffectType;
 public class DeconstructListener implements Listener {
 
   private final LootPlugin plugin;
-  private LootRandom random;
+  private final LootRandom random;
 
   public DeconstructListener(LootPlugin plugin) {
     this.plugin = plugin;
@@ -139,7 +139,8 @@ public class DeconstructListener implements Listener {
           .filter(ch -> ch == '✪').count();
     }
 
-    if (!isHighEnoughCraftingLevel(craftingLevel, itemLevel)) {
+    double levelAdvantage = getLevelAdvantage(craftingLevel, itemLevel);
+    if (levelAdvantage < 0) {
       sendMessage(player, plugin.getSettings().getString("language.craft.low-level", ""));
       return;
     }
@@ -148,6 +149,7 @@ public class DeconstructListener implements Listener {
       return;
     }
 
+    double effectiveLevelAdvantage = getLevelAdvantage((int) effectiveCraftLevel, itemLevel);
     List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
     List<String> possibleStats = new ArrayList<>();
     for (String str : lore) {
@@ -178,8 +180,7 @@ public class DeconstructListener implements Listener {
     event.setTargetItem(null);
     player.getInventory().addItem(craftMaterial);
 
-    double levelSurplus = Math.max(0, (effectiveCraftLevel * 2) - itemLevel);
-    double essChance = 0.1 + 0.1 * toolQuality + Math.min(levelSurplus * 0.015, 0.35);
+    double essChance = 0.1 + 0.1 * toolQuality + Math.min(effectiveLevelAdvantage * 0.015, 0.35);
     if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
       String type = InventoryUtil.getItemType(targetItem);
@@ -213,8 +214,8 @@ public class DeconstructListener implements Listener {
     Player player = event.getPlayer();
     ItemStack targetItem = event.getTargetItem();
 
-    int itemPlus = MaterialUtil.getLevelRequirement(targetItem);
-    if (itemPlus == 0) {
+    double itemPlus = MaterialUtil.getUpgradeLevel(targetItem);
+    if (itemPlus <= 3) {
       sendMessage(player, plugin.getSettings().getString("language.enchant.too-low-to-deconstruct", ""));
       event.setCancelled(true);
       return;
@@ -224,16 +225,16 @@ public class DeconstructListener implements Listener {
     player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1.5F);
     player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
 
-    double maxBonus = 2 + Math.pow(itemPlus, 2) / 2;
+    double shards = itemPlus + Math.pow(itemPlus, 1 + Math.random() * (itemPlus / 15 * 0.7));
     ItemStack shardOfFailure = ShardOfFailure.build(player.getName());
-    shardOfFailure.setAmount(2 + random.nextIntRange(0, (int) maxBonus + 1));
+    shardOfFailure.setAmount((int) shards);
     player.getInventory().addItem(shardOfFailure);
     plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
-        LifeSkillType.ENCHANTING, 3 + maxBonus * 2, false, false);
+        LifeSkillType.ENCHANTING, 20 + Math.pow(itemPlus, 2.2), false, false);
   }
 
-  private boolean isHighEnoughCraftingLevel(int craftLevel, int itemLevel) {
-    int lvlBonus = 10 + (int) Math.floor((double) craftLevel / 3) * 5;
-    return lvlBonus >= itemLevel;
+  public static int getLevelAdvantage(int craftLevel, int itemLevel) {
+    int lvlReq = 20 + (int) Math.floor((double) craftLevel / 10) * 14;
+    return lvlReq - itemLevel;
   }
 }

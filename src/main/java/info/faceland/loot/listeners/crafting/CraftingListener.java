@@ -27,6 +27,7 @@ import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.events.LootCraftEvent;
 import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.tier.Tier;
@@ -210,14 +211,15 @@ public final class CraftingListener implements Listener {
     }
 
     double rawItemLevel = totalItemLevel / numMaterials;
-
-    if (maxCraftLevel(craftingLevel) < (int) rawItemLevel) {
+    double levelAdvantage = DeconstructListener.getLevelAdvantage(craftingLevel, (int) rawItemLevel);
+    if (levelAdvantage < 0) {
       sendMessage(player, plugin.getSettings().getString("language.craft.low-level-craft", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
     }
 
-    double skillMultiplier = 1 + Math.min(1, (effectiveCraftLevel - rawItemLevel) / 25);
+    double effiLevelAdvantage = DeconstructListener.getLevelAdvantage((int) effectiveCraftLevel, (int) rawItemLevel);
+    double skillMultiplier = 1 + Math.min(1, effiLevelAdvantage / 25);
     double quality = Math
         .max(1, Math.min(totalQuality / numMaterials, MAX_QUALITY) - (0.5 * random.nextDouble()));
 
@@ -233,7 +235,7 @@ public final class CraftingListener implements Listener {
       craftedSocketScore = Math.max(1, craftedSocketScore);
     }
 
-    int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - 1 + random.nextInt(4)));
+    int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - random.nextInt(4)));
 
     ItemStack newResult = new ItemStack(event.getCurrentItem().getType());
     ItemStackExtensionsKt.setDisplayName(newResult, ChatColor.AQUA +
@@ -505,10 +507,6 @@ public final class CraftingListener implements Listener {
   private int getEssenceLevel(ItemStack h) {
     return NumberUtils.toInt(CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(
         ChatColor.stripColor(ItemStackExtensionsKt.getLore(h).get(0)), ' ').trim());
-  }
-
-  private int maxCraftLevel(double craftLevel) {
-    return 10 + (int) craftLevel;
   }
 
   private boolean isDyeEvent(Material ingredient, Material result) {
