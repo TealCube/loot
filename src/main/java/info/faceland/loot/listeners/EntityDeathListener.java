@@ -87,7 +87,7 @@ public final class EntityDeathListener implements Listener {
       return;
     }
 
-    Player killer = mob.getKiller();
+    Player killer = mob.getTopDamager();
     if (killer == null) {
       killer = event.getEntity().getKiller();
       if (killer == null) {
