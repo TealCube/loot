@@ -62,7 +62,6 @@ public class StatManager {
 
     TextComponent component = new TextComponent();
     component.setItalic(false);
-    String dirtyItalicsFix = "";
     if (special) {
       component.setColor(ChatColor.of(itemStat.getSpecialStatPrefix()));
       component.setObfuscated(true);
@@ -75,14 +74,13 @@ public class StatManager {
         }
       } else {
         component.setColor(InventoryUtil.getRollColor(itemStat, baseRollMultiplier));
-        dirtyItalicsFix = " ";
       }
     }
 
     String value = Integer.toString((int) statRoll);
     String statString = itemStat.getStatString().replace("{}", value);
     component.setText(statString);
-    response.setStatString(ChatColor.RESET + dirtyItalicsFix + component.toLegacyText());
+    response.setStatString(component.toLegacyText());
 
     if (!itemStat.getNamePrefixes().isEmpty()) {
       response.setStatPrefix(itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
