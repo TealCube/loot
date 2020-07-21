@@ -19,7 +19,7 @@
 package info.faceland.loot.listeners.anticheat;
 
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.anticheat.AnticheatTag;
+import info.faceland.loot.anticheat.AnticheatTag;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -33,7 +33,6 @@ import org.bukkit.metadata.FixedMetadataValue;
 public final class AnticheatListener implements Listener {
 
   private final LootPlugin plugin;
-  private static final long MILLIS_PER_SEC = 1000;
 
   public AnticheatListener(LootPlugin plugin) {
     this.plugin = plugin;

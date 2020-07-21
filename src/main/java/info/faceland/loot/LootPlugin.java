@@ -28,7 +28,6 @@ import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.CustomItemBuilder;
 import info.faceland.loot.api.items.ItemBuilder;
-import info.faceland.loot.api.managers.AnticheatManager;
 import info.faceland.loot.api.managers.CreatureModManager;
 import info.faceland.loot.api.managers.CustomItemManager;
 import info.faceland.loot.api.managers.GemCacheManager;
@@ -70,8 +69,8 @@ import info.faceland.loot.listeners.anticheat.AnticheatListener;
 import info.faceland.loot.listeners.crafting.CraftingListener;
 import info.faceland.loot.listeners.sockets.CombinerListener;
 import info.faceland.loot.listeners.sockets.SocketsListener;
+import info.faceland.loot.managers.AnticheatManager;
 import info.faceland.loot.managers.EnchantTomeManager;
-import info.faceland.loot.managers.LootAnticheatManager;
 import info.faceland.loot.managers.LootCraftBaseManager;
 import info.faceland.loot.managers.LootCraftMatManager;
 import info.faceland.loot.managers.LootCreatureModManager;
@@ -219,7 +218,7 @@ public final class LootPlugin extends FacePlugin {
     pawnManager = new PawnManager(this);
     creatureModManager = new LootCreatureModManager();
     enchantTomeManager = new EnchantTomeManager();
-    anticheatManager = new LootAnticheatManager();
+    anticheatManager = new AnticheatManager();
     if (potionTriggersEnabled) {
       gemCacheManager = new LootGemCacheManager(this);
     }
