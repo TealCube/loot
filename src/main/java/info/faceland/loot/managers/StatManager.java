@@ -3,8 +3,12 @@ package info.faceland.loot.managers;
 import info.faceland.loot.data.ItemStat;
 import info.faceland.loot.data.StatResponse;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.utils.InventoryUtil;
 import java.util.HashMap;
 import java.util.Map;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.lang.StringUtils;
 
 public class StatManager {
 
@@ -36,10 +40,6 @@ public class StatManager {
     return itemStats;
   }
 
-  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity) {
-    return getFinalStat(itemStat, level, rarity, false);
-  }
-
   public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity,
       boolean special) {
     StatResponse response = new StatResponse();
@@ -59,21 +59,31 @@ public class StatManager {
     statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
     statRoll *=
         1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
-    String returnString;
+
+    TextComponent component = new TextComponent();
+    component.setItalic(false);
     if (special) {
-      returnString = itemStat.getSpecialStatPrefix();
-    } else if (baseRollMultiplier >= 0.9) {
-      returnString = itemStat.getPerfectStatPrefix();
+      component.setColor(ChatColor.of(itemStat.getSpecialStatPrefix()));
+      component.setObfuscated(true);
     } else {
-      returnString = itemStat.getStatPrefix();
+      if (StringUtils.isNotBlank(itemStat.getStatPrefix())) {
+        if (baseRollMultiplier >= 0.9) {
+          component.setColor(ChatColor.of(itemStat.getPerfectStatPrefix()));
+        } else {
+          component.setColor(ChatColor.of(itemStat.getStatPrefix()));
+        }
+      } else {
+        component.setColor(InventoryUtil.getRollColor(itemStat, baseRollMultiplier));
+      }
     }
-    returnString = returnString + itemStat.getStatString();
+
     String value = Integer.toString((int) statRoll);
-    response.setStatString(returnString.replace("{}", value));
+    String statString = itemStat.getStatString().replace("{}", value);
+    component.setText(statString);
+    response.setStatString(component.toLegacyText());
 
     if (!itemStat.getNamePrefixes().isEmpty()) {
-      response.setStatPrefix(
-          itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
+      response.setStatPrefix(itemStat.getNamePrefixes().get(random.nextInt(itemStat.getNamePrefixes().size())));
     }
 
     return response;

@@ -1,20 +1,18 @@
 /**
  * The MIT License Copyright (c) 2015 Teal Cube Games
  * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  * <p>
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
  * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.listeners.crafting;
 
@@ -27,6 +25,9 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.ItemStat;
+import info.faceland.loot.events.LootCraftEvent;
+import info.faceland.loot.items.LootItemBuilder;
+import info.faceland.loot.listeners.DeconstructListener;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.tier.Tier;
@@ -40,6 +41,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,6 +51,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public final class CraftingListener implements Listener {
 
@@ -65,6 +68,7 @@ public final class CraftingListener implements Listener {
   private final double MAX_QUALITY;
   private final double MAX_SLOTS;
   private final double MAX_SOCKETS;
+  public static String ESSENCE_SLOT_TEXT;
   private LootRandom random;
 
   public CraftingListener(LootPlugin plugin) {
@@ -95,6 +99,8 @@ public final class CraftingListener implements Listener {
         .getDouble("config.crafting.craft-max-craft-slots", 5);
     this.MAX_SOCKETS = plugin.getSettings()
         .getDouble("config.crafting.craft-max-sockets", 3);
+    ESSENCE_SLOT_TEXT = TextUtils
+        .color(plugin.getSettings().getString("config.crafting.essence-text", "&b(Essence Slot)"));
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -170,7 +176,8 @@ public final class CraftingListener implements Listener {
     Tier tier = MaterialUtil.getTierFromStack(resultStack);
 
     if (tier == null) {
-      Bukkit.getLogger().warning("Attempted to craft item with unknown tier... " + resultStack.getType());
+      Bukkit.getLogger()
+          .warning("Attempted to craft item with unknown tier... " + resultStack.getType());
       return;
     }
 
@@ -204,26 +211,31 @@ public final class CraftingListener implements Listener {
     }
 
     double rawItemLevel = totalItemLevel / numMaterials;
-
-    if (maxCraftLevel(craftingLevel) < (int) rawItemLevel) {
+    double levelAdvantage = DeconstructListener.getLevelAdvantage(craftingLevel, (int) rawItemLevel);
+    if (levelAdvantage < 0) {
       sendMessage(player, plugin.getSettings().getString("language.craft.low-level-craft", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
     }
 
-    double skillMultiplier = 1.25 - (rawItemLevel * 1.5 + 10) / maxCraftLevel(effectiveCraftLevel);
-    double quality = Math.min(totalQuality / numMaterials, MAX_QUALITY);
-    double qualityMultiplier = (quality / MAX_QUALITY) * skillMultiplier;
+    double effiLevelAdvantage = DeconstructListener.getLevelAdvantage((int) effectiveCraftLevel, (int) rawItemLevel);
+    double skillMultiplier = 1 + Math.min(1, effiLevelAdvantage / 25);
+    double quality = Math
+        .max(1, Math.min(totalQuality / numMaterials, MAX_QUALITY) - (0.5 * random.nextDouble()));
 
-    double skillSlotRoll = qualityMultiplier * random.nextDouble();
-    double luckSlotRoll = (1 - skillSlotRoll) * Math.pow(random.nextDouble(), 4);
-    double craftedSlotScore = Math.max(2, (skillSlotRoll + luckSlotRoll) * MAX_SLOTS);
+    double slotLuckBonus = (MAX_SLOTS - quality) * Math.pow(random.nextDouble(), 6);
+    double craftedSlotScore = Math.max(1, quality + slotLuckBonus);
 
-    double skillSocketRoll = qualityMultiplier * random.nextDouble();
-    double luckSocketRoll = (1 - skillSocketRoll) * Math.pow(random.nextDouble(), 3);
-    double craftedSocketScore = (skillSocketRoll + luckSocketRoll) * MAX_SOCKETS;
+    double skillSocketRoll = skillMultiplier * 0.5 * Math.pow(random.nextDouble(), 2);
+    double luckSocketRoll = (1 - skillMultiplier) * Math.pow(random.nextDouble(), 6);
+    double craftedSocketScore = MAX_SOCKETS * (skillSocketRoll + luckSocketRoll);
+    if (skillMultiplier > 1.75) {
+      craftedSocketScore = Math.max(2, craftedSocketScore);
+    } else if (skillMultiplier > 1.5) {
+      craftedSocketScore = Math.max(1, craftedSocketScore);
+    }
 
-    int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - 2 + random.nextInt(5)));
+    int itemLevel = (int) Math.max(1, Math.min(100, rawItemLevel - random.nextInt(4)));
 
     ItemStack newResult = new ItemStack(event.getCurrentItem().getType());
     ItemStackExtensionsKt.setDisplayName(newResult, ChatColor.AQUA +
@@ -234,32 +246,37 @@ public final class CraftingListener implements Listener {
     lore.add(ChatColor.WHITE + "Level Requirement: " + itemLevel);
     lore.add(ChatColor.WHITE + "Tier: " + ChatColor.AQUA + "Crafted " + tier.getName());
 
-    lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), itemLevel,
-        quality).getStatString()));
-    lore.add(TextUtils.color(plugin.getStatManager().getFinalStat(tier.getSecondaryStats().get(
-        random.nextInt(tier.getSecondaryStats().size())), itemLevel, quality).getStatString()));
+    lore.add(plugin.getStatManager().getFinalStat(tier.getPrimaryStat(), itemLevel, quality, false).getStatString());
+    lore.add(plugin.getStatManager().getFinalStat(
+        tier.getSecondaryStats().get(random.nextInt(tier.getSecondaryStats().size())), itemLevel, quality, false)
+        .getStatString());
 
     List<ItemStat> stats = new ArrayList<>(tier.getBonusStats());
 
-    boolean masterwork =
-        craftedSlotScore / MAX_SLOTS > 0.8 && craftedSocketScore / MAX_SOCKETS > 0.8;
+    boolean masterwork = craftedSlotScore / MAX_SLOTS > 0.85 && craftedSocketScore / MAX_SOCKETS > 0.85;
 
+    if (masterwork) {
+      craftedSlotScore = Math.ceil(craftedSlotScore);
+      craftedSocketScore = Math.ceil(craftedSocketScore);
+    }
+
+    double openSlotChance = (skillMultiplier - 1) * 0.7;
     while (craftedSlotScore >= 1) {
-      if (random.nextDouble() < skillMultiplier / 1.5) {
-        lore.add(TextUtils.color("&b[ Crafted Stat Slot ]"));
+      if (random.nextDouble() < openSlotChance) {
+        lore.add(ESSENCE_SLOT_TEXT);
       } else {
         ItemStat stat = stats.get(random.nextInt(stats.size()));
-        lore.add(ChatColor.AQUA + ChatColor.stripColor(TextUtils.color(
-            plugin.getStatManager().getFinalStat(stat, itemLevel, quality).getStatString())));
+        lore.add(ChatColor.AQUA + ChatColor
+            .stripColor(plugin.getStatManager().getFinalStat(stat, itemLevel, quality, false).getStatString()));
         stats.remove(stat);
       }
       craftedSlotScore--;
     }
 
-    lore.add(TextUtils.color("&9(Enchantable)"));
+    lore.add(ChatColor.BLUE + "(Enchantable)");
 
     while (craftedSocketScore >= 1) {
-      lore.add(TextUtils.color("&6(Socket)"));
+      lore.add(ChatColor.GOLD + "(Socket)");
       craftedSocketScore--;
     }
     if (masterwork) {
@@ -269,6 +286,16 @@ public final class CraftingListener implements Listener {
 
     ItemStackExtensionsKt.setLore(newResult, lore);
     ItemStackExtensionsKt.addItemFlags(newResult, ItemFlag.HIDE_ATTRIBUTES);
+    switch (newResult.getType()) {
+      case NETHERITE_HELMET:
+      case NETHERITE_CHESTPLATE:
+      case NETHERITE_LEGGINGS:
+      case NETHERITE_BOOTS:
+        ItemMeta iMeta = newResult.getItemMeta();
+        iMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+            LootItemBuilder.MINUS_ONE_KB_RESIST);
+        newResult.setItemMeta(iMeta);
+    }
     MaterialUtil.applyTierLevelData(newResult, tier, itemLevel);
 
     event.setCurrentItem(newResult);
@@ -284,8 +311,12 @@ public final class CraftingListener implements Listener {
       exp *= rawItemLevel / craftingLevel;
     }
 
-    plugin.getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.CRAFTING, exp, false);
+    LootCraftEvent craftEvent = new LootCraftEvent(player, newResult);
+    Bukkit.getPluginManager().callEvent(craftEvent);
+
+    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+        LifeSkillType.CRAFTING, exp, false, false);
+
     player.playSound(player.getEyeLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1F, 1F);
     player.playSound(player.getEyeLocation(), Sound.BLOCK_ANVIL_FALL, 0.5F, 1F);
   }
@@ -352,7 +383,7 @@ public final class CraftingListener implements Listener {
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
     }
-    if (!strippedLore.contains("[ Crafted Stat Slot ]")) {
+    if (!lore.contains(CraftingListener.ESSENCE_SLOT_TEXT)) {
       sendMessage(player, plugin.getSettings().getString("language.craft.no-slots", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
       return;
@@ -385,22 +416,22 @@ public final class CraftingListener implements Listener {
         random.nextDouble() > forceSuccessChance ? random.nextInt(essenceCount) : random.nextInt(8);
     if (selectedSlot > essenceCount - 1) {
       event.setCurrentItem(baseItem);
-      plugin.getStrifePlugin().getSkillExperienceManager()
-          .addExperience(player, LifeSkillType.CRAFTING, craftExp, false);
+      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+          LifeSkillType.CRAFTING, craftExp, false, false);
       sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 0.5F);
       event.setCancelled(false);
       return;
     }
-    int slotIndex = strippedLore.indexOf("[ Crafted Stat Slot ]");
+    int slotIndex = lore.indexOf(CraftingListener.ESSENCE_SLOT_TEXT);
     lore.remove(slotIndex);
     lore.add(slotIndex, ChatColor.AQUA + ChatColor.stripColor(essenceStats.get(selectedSlot)));
     ItemStackExtensionsKt.setLore(baseItem, lore);
 
     event.setCurrentItem(baseItem);
     craftExp *= INFUSE_SUCCESS_MULT;
-    plugin.getStrifePlugin().getSkillExperienceManager()
-        .addExperience(player, LifeSkillType.CRAFTING, craftExp, false);
+    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+        LifeSkillType.CRAFTING, craftExp, false, false);
     sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
     player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1.5F);
     player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 0.7F);
@@ -476,10 +507,6 @@ public final class CraftingListener implements Listener {
   private int getEssenceLevel(ItemStack h) {
     return NumberUtils.toInt(CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(
         ChatColor.stripColor(ItemStackExtensionsKt.getLore(h).get(0)), ' ').trim());
-  }
-
-  private int maxCraftLevel(double craftLevel) {
-    return 10 + (int) craftLevel;
   }
 
   private boolean isDyeEvent(Material ingredient, Material result) {

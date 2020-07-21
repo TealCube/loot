@@ -21,12 +21,13 @@ package info.faceland.loot.items;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.api.items.CustomItem;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public final class LootCustomItem implements CustomItem {
 
@@ -82,6 +83,16 @@ public final class LootCustomItem implements CustomItem {
     ItemStackExtensionsKt.setDisplayName(itemStack, TextUtils.color(this.displayName));
     ItemStackExtensionsKt.setLore(itemStack, TextUtils.color(this.lore));
     ItemStackExtensionsKt.addItemFlags(itemStack, ItemFlag.HIDE_ATTRIBUTES);
+    switch (material) {
+      case NETHERITE_HELMET:
+      case NETHERITE_CHESTPLATE:
+      case NETHERITE_LEGGINGS:
+      case NETHERITE_BOOTS:
+        ItemMeta iMeta = itemStack.getItemMeta();
+        iMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+            LootItemBuilder.MINUS_ONE_KB_RESIST);
+        itemStack.setItemMeta(iMeta);
+    }
     if (customDataNumber != -1) {
       ItemStackExtensionsKt.setCustomModelData(itemStack, customDataNumber);
     }

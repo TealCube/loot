@@ -42,6 +42,7 @@ public class EnchantmentTome {
   private List<String> lore;
   private String stat;
   private boolean bar;
+  private double sellPrice;
   private String description;
   private Map<Enchantment, Integer> enchantments;
 
@@ -95,6 +96,14 @@ public class EnchantmentTome {
 
   void setBar(boolean bar) {
     this.bar = bar;
+  }
+
+  public double getSellPrice() {
+    return sellPrice;
+  }
+
+  public void setSellPrice(double sellPrice) {
+    this.sellPrice = sellPrice;
   }
 
   public double getWeight() {

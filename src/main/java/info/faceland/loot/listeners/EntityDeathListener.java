@@ -112,7 +112,7 @@ public final class EntityDeathListener implements Listener {
 
     handleAntiCheeseViolations(killer, event.getEntity());
     double vl = violationMap.get(killer).getViolationLevel();
-    penaltyMult *= Math.max(0.1, Math.min(1, 2.25 - vl * 0.5));
+    penaltyMult *= Math.max(0.05, Math.min(1, 1.5 - vl * 0.06));
 
     double distance = event.getEntity().getLocation().distanceSquared(event.getEntity()
         .getWorld().getSpawnLocation());
@@ -132,10 +132,14 @@ public final class EntityDeathListener implements Listener {
     }
     event.setDroppedExp((int) (event.getDroppedExp() * penaltyMult));
 
+    int mobLevel = StatUtil.getMobLevel(event.getEntity());
+    int diff = killer.getLevel() - mobLevel;
+    double levelPenalty = diff >= 12 ? Math.max(0.15, 1 - (diff - 12) * 0.07) : 1;
+
     LootDropEvent lootEvent = new LootDropEvent();
     lootEvent.setLocation(event.getEntity().getLocation());
     lootEvent.setLooterUUID(looter);
-    lootEvent.setMonsterLevel(StatUtil.getMobLevel(event.getEntity()));
+    lootEvent.setMonsterLevel(mobLevel);
     if (penaltyMult > 0.5) {
       int modLevel = mob.getMods().size();
       List<String> rarities = plugin.getSettings().getStringList("config.mob-mod-bonus." + modLevel);
@@ -143,8 +147,8 @@ public final class EntityDeathListener implements Listener {
         lootEvent.getBonusTierItems().add(plugin.getRarityManager().getRarity(r));
       }
     }
-    lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult);
-    lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult);
+    lootEvent.setQualityMultiplier(bonusRarityMult * penaltyMult * levelPenalty);
+    lootEvent.setQuantityMultiplier(bonusDropMult * penaltyMult * levelPenalty);
     lootEvent.setDistance(distance);
     lootEvent.setEntity(event.getEntity());
     if (mob.getUniqueEntityId() != null) {
@@ -229,6 +233,8 @@ public final class EntityDeathListener implements Listener {
       case GUARDIAN:
       case ELDER_GUARDIAN:
       case SQUID:
+      case TURTLE:
+      case DROWNED:
         return true;
       default:
         return false;

@@ -18,19 +18,17 @@
  */
 package info.faceland.loot.anticheat;
 
-import info.faceland.loot.api.anticheat.AnticheatTag;
 
 import info.faceland.loot.math.LootRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-public final class LootAnticheatTag implements AnticheatTag {
+public final class AnticheatTag {
 
   private final UUID uuid;
   private final Location entityLocation;
@@ -38,11 +36,11 @@ public final class LootAnticheatTag implements AnticheatTag {
   private final Map<UUID, Double> taggerDamage;
   private final LootRandom random;
 
-  public LootAnticheatTag(LivingEntity entity) {
+  public AnticheatTag(LivingEntity entity) {
     this(entity.getUniqueId(), entity.getLocation());
   }
 
-  public LootAnticheatTag(UUID uuid, Location entityLocation) {
+  public AnticheatTag(UUID uuid, Location entityLocation) {
     this.uuid = uuid;
     this.entityLocation = entityLocation;
     this.taggerLocations = new HashMap<>();
@@ -50,17 +48,14 @@ public final class LootAnticheatTag implements AnticheatTag {
     this.random = new LootRandom();
   }
 
-  @Override
   public UUID getUniqueId() {
     return uuid;
   }
 
-  @Override
   public Location getEntityLocation() {
     return entityLocation;
   }
 
-  @Override
   public Location getTaggerLocation(UUID uuid) {
     if (taggerLocations.containsKey(uuid)) {
       return taggerLocations.get(uuid);
@@ -68,17 +63,14 @@ public final class LootAnticheatTag implements AnticheatTag {
     return null;
   }
 
-  @Override
   public void setTaggerLocation(UUID uuid, Location location) {
     taggerLocations.put(uuid, location);
   }
 
-  @Override
   public double getTaggerDamage(UUID uuid) {
     return taggerDamage.containsKey(uuid) ? taggerDamage.get(uuid) : 0D;
   }
 
-  @Override
   public void setTaggerDamage(UUID uuid, double damage) {
     if (taggerDamage.containsKey(uuid)) {
       taggerDamage.put(uuid, damage + taggerDamage.get(uuid));
@@ -87,7 +79,6 @@ public final class LootAnticheatTag implements AnticheatTag {
     taggerDamage.put(uuid, damage);
   }
 
-  @Override
   public UUID getRandomWeightedLooter() {
     if (random.nextDouble() < 0.5) {
       List<UUID> damagers = new ArrayList<>(taggerDamage.keySet());

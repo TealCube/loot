@@ -20,10 +20,9 @@ package info.faceland.loot.enchantments;
 
 import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
 import info.faceland.loot.api.groups.ItemGroup;
-import org.bukkit.enchantments.Enchantment;
-
 import java.util.List;
 import java.util.Map;
+import org.bukkit.enchantments.Enchantment;
 
 public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder {
 
@@ -75,6 +74,12 @@ public final class LootEnchantmentTomeBuilder implements EnchantmentTomeBuilder 
   @Override
   public EnchantmentTomeBuilder withBonusWeight(double d) {
     tome.setBonusWeight(d);
+    return this;
+  }
+
+  @Override
+  public EnchantmentTomeBuilder withSellPrice(double d) {
+    tome.setSellPrice(d);
     return this;
   }
 

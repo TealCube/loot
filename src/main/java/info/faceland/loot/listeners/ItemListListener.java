@@ -32,8 +32,10 @@ import land.face.market.data.PlayerMarketState.FilterFlagA;
 import land.face.market.data.PlayerMarketState.FilterFlagB;
 import land.face.market.events.ListItemEvent;
 import land.face.market.managers.MarketManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
@@ -45,32 +47,37 @@ public final class ItemListListener implements Listener {
     this.plugin = plugin;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR)
   public void onMarketList(ListItemEvent event) {
     ItemStack stack = event.getListing().getItemStack();
+    Bukkit.getLogger().info("Item: " + stack.toString());
     if (stack.getType() == Material.TRIPWIRE_HOOK && stack.hasItemMeta()) {
       event.getListing().setCategory(Category.CATEGORY_3);
       event.getListing().setFlagA(FilterFlagA.ALL);
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" key!");
       return;
     }
-    SocketGem gem = MaterialUtil.getSocketGem(stack);
+    SocketGem gem = plugin.getSocketGemManager().getSocketGem(stack);
     if (gem != null) {
       event.getListing().setCategory(Category.CATEGORY_2);
       event.getListing().setFlagA(FilterFlagA.FLAG_2);
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" gem!");
       return;
     }
     if (PurifyingScroll.get().isSimilar(stack)) {
       event.getListing().setCategory(Category.CATEGORY_2);
       event.getListing().setFlagA(FilterFlagA.FLAG_5);
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" pscroll!");
       return;
     }
     if (ArcaneEnhancer.get().isSimilar(stack)) {
       event.getListing().setCategory(Category.CATEGORY_2);
       event.getListing().setFlagA(FilterFlagA.FLAG_6);
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" enhancer!");
       return;
     }
     if (SocketExtender.EXTENDER.isSimilar(stack)) {
@@ -84,6 +91,7 @@ public final class ItemListListener implements Listener {
       event.getListing().setCategory(Category.CATEGORY_2);
       event.getListing().setFlagA(FilterFlagA.FLAG_1);
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" uscroll!");
       return;
     }
     EnchantmentTome tome = MaterialUtil.getEnchantmentItem(stack);
@@ -92,6 +100,7 @@ public final class ItemListListener implements Listener {
       event.getListing().setFlagA(FilterFlagA.FLAG_3);
       //TODO IMPROVE FLAG B LOGIC
       event.getListing().setFlagB(FilterFlagB.ALL);
+      Bukkit.getLogger().info(" etome!");
       return;
     }
     Tier tier = MaterialUtil.getTierFromStack(stack);
@@ -105,6 +114,7 @@ public final class ItemListListener implements Listener {
           break;
         }
       }
+      Bukkit.getLogger().info(" tier!");
       return;
     }
     if (plugin.getCraftMatManager().getCraftMaterials().containsKey(stack.getType()) && stack
@@ -117,8 +127,8 @@ public final class ItemListListener implements Listener {
           event.getListing().setFlagB(b);
           break;
         }
-
       }
+      Bukkit.getLogger().info(" material!");
       return;
     }
   }

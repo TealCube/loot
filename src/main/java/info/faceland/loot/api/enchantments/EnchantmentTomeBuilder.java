@@ -20,10 +20,9 @@ package info.faceland.loot.api.enchantments;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.enchantments.EnchantmentTome;
-import org.bukkit.enchantments.Enchantment;
-
 import java.util.List;
 import java.util.Map;
+import org.bukkit.enchantments.Enchantment;
 
 public interface EnchantmentTomeBuilder {
 
@@ -40,6 +39,8 @@ public interface EnchantmentTomeBuilder {
   EnchantmentTomeBuilder withWeight(double d);
 
   EnchantmentTomeBuilder withBonusWeight(double d);
+
+  EnchantmentTomeBuilder withSellPrice(double d);
 
   EnchantmentTomeBuilder withBroadcast(boolean b);
 

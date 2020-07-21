@@ -18,13 +18,14 @@
  */
 package info.faceland.loot.utils;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
-import com.tealcube.minecraft.bukkit.shade.fanciful.FancyMessage;
-import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import info.faceland.loot.data.ItemStat;
+import io.pixeloutlaw.minecraft.spigot.garbage.BroadcastMessageUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.BroadcastMessageUtil.BroadcastItemVisibility;
+import io.pixeloutlaw.minecraft.spigot.garbage.BroadcastMessageUtil.BroadcastTarget;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,34 +42,31 @@ public final class InventoryUtil {
   }
 
   public static void broadcast(Player player, ItemStack his, String format, boolean sendToAll) {
-    FancyMessage message = new FancyMessage("");
-    String[] split = format.split(" ");
-    for (int i = 0; i < split.length; i++) {
-      String s = split[i];
-      String str = TextUtils.color(s);
-      if (str.contains("%player%")) {
-        message.then(str.replace("%player%", player.getDisplayName()));
-      } else if (str.contains("%item%")) {
-        message.then(str.replace("%item%", ItemStackExtensionsKt.getDisplayName(his))).itemTooltip(his);
-      } else {
-        message.then(str);
-      }
-      if (i != split.length - 1) {
-        message.then(" ");
-      }
-    }
-    if (sendToAll) {
-      for (Player p : Bukkit.getOnlinePlayers()) {
-        message.send(p);
-      }
+    BroadcastTarget target = sendToAll ? BroadcastTarget.SERVER : BroadcastTarget.PLAYER;
+    BroadcastMessageUtil.INSTANCE.broadcastItem(format, player, his, target, BroadcastItemVisibility.SHOW);
+  }
+
+  public static net.md_5.bungee.api.ChatColor getRollColor(ItemStat stat, double roll) {
+    return getRollColor(roll, stat.getMinHue(), stat.getMaxHue(), stat.getMinSaturation(), stat.getMaxSaturation(),
+        stat.getMinBrightness(), stat.getMaxBrightness());
+  }
+
+  public static net.md_5.bungee.api.ChatColor getRollColor(double roll, float minHue, float maxHue, float minSat,
+      float maxSat, float minBright, float maxBright) {
+    if (roll < 0.92) {
+      roll = Math.max(0, (roll - 0.5) * 2);
     } else {
-      message.send(player);
+      roll = 1;
     }
+    float hue = minHue + (maxHue - minHue) * (float) roll;
+    float saturation = minSat + (maxSat - minSat) * (float) roll;
+    float brightness = minBright + (maxBright - minBright) * (float) roll;
+    return net.md_5.bungee.api.ChatColor.of(Color.getHSBColor(hue, saturation, brightness));
   }
 
   public static ChatColor getFirstColor(String s) {
     for (int i = 0; i < s.length() - 1; i++) {
-      if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
+      if (!s.startsWith(ChatColor.COLOR_CHAR + "", i)) {
         continue;
       }
       ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
@@ -81,7 +79,7 @@ public final class InventoryUtil {
 
   public static ChatColor getLastColor(String s) {
     for (int i = s.length() - 1; i >= 0; i--) {
-      if (!s.substring(i, i + 1).equals(ChatColor.COLOR_CHAR + "")) {
+      if (!s.startsWith(ChatColor.COLOR_CHAR + "", i)) {
         continue;
       }
       ChatColor c = ChatColor.getByChar(s.substring(i + 1, i + 2));
@@ -113,10 +111,7 @@ public final class InventoryUtil {
     if (!itemStack.hasItemMeta() || !itemStack.getItemMeta().hasLore()) {
       return false;
     }
-    if (itemStack.getItemMeta().getLore().size() > 1 && itemStack.getItemMeta().getLore().get(1)
-        .endsWith("Wand")) {
-      return true;
-    }
-    return false;
+    return itemStack.getItemMeta().getLore().size() > 1 && itemStack.getItemMeta().getLore().get(1)
+        .endsWith("Wand");
   }
 }

@@ -331,8 +331,8 @@ public final class InteractListener implements Listener {
       event.setResult(Event.Result.DENY);
       player.updateInventory();
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
-      plugin.getStrifePlugin().getSkillExperienceManager()
-          .addExperience(player, LifeSkillType.ENCHANTING, 1, false);
+      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+          LifeSkillType.ENCHANTING, 1, false, false);
     } else if (cursorName.equals(ChatColor.WHITE + "Item Rename Tag")) {
       if (ItemStackExtensionsKt.getLore(cursor).get(3).equals(ChatColor.WHITE + "none")) {
         sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));
@@ -400,8 +400,8 @@ public final class InteractListener implements Listener {
       }
       if (valid) {
         ItemStackExtensionsKt.setLore(targetItem, lore);
-        plugin.getStrifePlugin().getSkillExperienceManager()
-            .addExperience(player, LifeSkillType.ENCHANTING, 10f + addAmount, false);
+        plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
+            LifeSkillType.ENCHANTING, 10f + addAmount, false, false);
         sendMessage(player, plugin.getSettings().getString("language.enchant.refill", ""));
         player.playSound(player.getEyeLocation(), Sound.BLOCK_GLASS_BREAK, 1F, 1.2F);
         player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1F);
