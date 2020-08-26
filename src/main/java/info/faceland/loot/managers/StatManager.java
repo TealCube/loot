@@ -40,25 +40,38 @@ public class StatManager {
     return itemStats;
   }
 
-  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity,
-      boolean special) {
-    StatResponse response = new StatResponse();
-    double statRoll;
-    float baseRollMultiplier;
-    if (itemStat.getMinBaseValue() == itemStat.getMaxBaseValue()) {
-      statRoll = itemStat.getMinBaseValue();
-      baseRollMultiplier = 0;
-    } else {
-      baseRollMultiplier = (float) Math.pow(random.nextDouble(), 2.5);
-      statRoll =
-          itemStat.getMinBaseValue() + baseRollMultiplier * (itemStat.getMaxBaseValue() - itemStat
-              .getMinBaseValue());
-    }
-    response.setStatRoll(baseRollMultiplier);
+  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity, boolean special) {
+    return getFinalStat(itemStat, level, rarity, special, RollStyle.RANDOM);
+  }
 
-    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *=
-        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
+  public StatResponse getFinalStat(ItemStat itemStat, double level, double rarity, boolean special, RollStyle style) {
+    StatResponse response = new StatResponse();
+    double statValue;
+    float statRoll;
+    if (itemStat.getMinBaseValue() >= itemStat.getMaxBaseValue()) {
+      statValue = itemStat.getMinBaseValue();
+      statRoll = 0;
+    } else {
+      switch (style) {
+        case MAX:
+          statRoll = 1;
+          break;
+        case MIN:
+          statRoll = 0;
+          break;
+        case RANDOM:
+        default:
+          statRoll = (float) Math.pow(random.nextDouble(), 2.5);
+      }
+      statValue = itemStat.getMinBaseValue() + statRoll * (itemStat.getMaxBaseValue() - itemStat.getMinBaseValue());
+    }
+    response.setStatRoll(statRoll);
+
+    statValue += level * itemStat.getPerLevelIncrease();
+    statValue += rarity * itemStat.getPerRarityIncrease();
+
+    double multiplier = 1 + (level * itemStat.getPerLevelMultiplier()) + (rarity * itemStat.getPerRarityMultiplier());
+    statValue *= multiplier;
 
     TextComponent component = new TextComponent();
     component.setItalic(false);
@@ -67,17 +80,23 @@ public class StatManager {
       component.setObfuscated(true);
     } else {
       if (StringUtils.isNotBlank(itemStat.getStatPrefix())) {
-        if (baseRollMultiplier >= 0.9) {
+        if (statRoll >= 0.9) {
           component.setColor(ChatColor.of(itemStat.getPerfectStatPrefix()));
         } else {
           component.setColor(ChatColor.of(itemStat.getStatPrefix()));
         }
       } else {
-        component.setColor(InventoryUtil.getRollColor(itemStat, baseRollMultiplier));
+        double roll = statRoll;
+        if (roll < 0.92) {
+          roll = Math.max(0, (roll - 0.5) * 2);
+        } else {
+          roll = 1;
+        }
+        component.setColor(InventoryUtil.getRollColor(itemStat, roll));
       }
     }
 
-    String value = Integer.toString((int) statRoll);
+    String value = Integer.toString((int) statValue);
     String statString = itemStat.getStatString().replace("{}", value);
     component.setText(statString);
     response.setStatString(component.toLegacyText());
@@ -89,25 +108,9 @@ public class StatManager {
     return response;
   }
 
-  public String getMinStat(ItemStat itemStat, double level, double rarity) {
-    double statRoll = itemStat.getMinBaseValue();
-    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *=
-        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
-    String returnString = itemStat.getStatPrefix();
-    returnString = returnString + itemStat.getStatString();
-    String value = Integer.toString((int) statRoll);
-    return returnString.replace("{}", value);
-  }
-
-  public String getMaxStat(ItemStat itemStat, double level, double rarity) {
-    double statRoll = itemStat.getMaxBaseValue();
-    statRoll += itemStat.getPerLevelIncrease() * level + itemStat.getPerRarityIncrease() * rarity;
-    statRoll *=
-        1 + itemStat.getPerLevelMultiplier() * level + itemStat.getPerRarityMultiplier() * rarity;
-    String returnString = itemStat.getStatPrefix();
-    returnString = returnString + itemStat.getStatString();
-    String value = Integer.toString((int) statRoll);
-    return returnString.replace("{}", value);
+  public enum RollStyle {
+    MAX,
+    MIN,
+    RANDOM
   }
 }
