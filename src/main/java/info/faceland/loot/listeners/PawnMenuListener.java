@@ -18,9 +18,11 @@
  */
 package info.faceland.loot.listeners;
 
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.data.PriceData;
 import info.faceland.loot.menu.pawn.PawnMenu;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import ninja.amp.ampmenus.menus.MenuHolder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -54,6 +56,10 @@ public final class PawnMenuListener implements Listener {
     }
     ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
     if (stack == null || stack.getType() == Material.AIR) {
+      return;
+    }
+    String name = ItemStackExtensionsKt.getDisplayName(stack);
+    if (StringUtils.isNotBlank(name) && name.contains("Ability:")) {
       return;
     }
     MenuHolder holder = (MenuHolder) event.getInventory().getHolder();
