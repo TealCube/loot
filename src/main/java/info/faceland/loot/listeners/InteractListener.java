@@ -1,20 +1,18 @@
 /**
  * The MIT License Copyright (c) 2015 Teal Cube Games
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.listeners;
 
@@ -41,6 +39,7 @@ import info.faceland.loot.menu.upgrade.EnchantMenu;
 import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.InventoryUtil;
 import info.faceland.loot.utils.MaterialUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -164,14 +163,63 @@ public final class InteractListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
+  public void onQuickShard(InventoryClickEvent event) {
+    if (event.getClick() != ClickType.SHIFT_RIGHT || !(event.getClickedInventory() instanceof PlayerInventory)) {
+      return;
+    }
+    if (event.getCurrentItem() == null || event.getCursor() == null || event.getCurrentItem().getType() == Material.AIR
+        || event.getCursor().getType() == Material.AIR || !(event.getWhoClicked() instanceof Player)) {
+      return;
+    }
+
+    Player player = (Player) event.getWhoClicked();
+    ItemStack targetItem = new ItemStack(event.getCurrentItem());
+    ItemStack cursor = new ItemStack(event.getCursor());
+    String cursorName = ItemStackExtensionsKt.getDisplayName(cursor);
+    int amount = cursor.getAmount();
+
+    if (StringUtils.isBlank(cursorName) || !ShardOfFailure.isSimilar(cursor)) {
+      return;
+    }
+
+    UpgradeScroll scroll = plugin.getScrollManager().getScroll(targetItem);
+    if (scroll == null) {
+      return;
+    }
+    if (targetItem.getAmount() > 1) {
+      sendMessage(player, plugin.getSettings().getString("language.augment.stack-size", ""));
+      return;
+    }
+    List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
+    int failureBonus = MaterialUtil.getFailureBonus(targetItem);
+    if (failureBonus > 0) {
+      lore.set(0, StringExtensionsKt.chatColorize(FAILURE_BONUS + " +" + (failureBonus + amount)));
+    } else {
+      lore.add(0, StringExtensionsKt.chatColorize(FAILURE_BONUS + " +" + amount));
+    }
+    ItemStackExtensionsKt.setLore(targetItem, lore);
+    event.setCurrentItem(targetItem);
+    event.getCursor().setAmount(0);
+    event.setCursor(null);
+    event.setCancelled(true);
+    event.setResult(Event.Result.DENY);
+    player.updateInventory();
+
+    player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
+
+    plugin.getStrifePlugin().getSkillExperienceManager()
+        .addExperience(player, LifeSkillType.ENCHANTING, amount * 22, false, false);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onRightClickUse(InventoryClickEvent event) {
-    if (!(event.getClickedInventory() instanceof PlayerInventory)) {
+    if (event.getClick() != ClickType.RIGHT || !(event.getClickedInventory() instanceof PlayerInventory)) {
       return;
     }
     if (event.getCurrentItem() == null || event.getCursor() == null ||
         event.getCurrentItem().getType() == Material.AIR ||
         event.getCursor().getType() == Material.AIR ||
-        !(event.getWhoClicked() instanceof Player) || event.getClick() != ClickType.RIGHT) {
+        !(event.getWhoClicked() instanceof Player)) {
       return;
     }
 
@@ -332,7 +380,7 @@ public final class InteractListener implements Listener {
       player.updateInventory();
       player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1L, 2F);
       plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
-          LifeSkillType.ENCHANTING, 1, false, false);
+          LifeSkillType.ENCHANTING, 22, false, false);
     } else if (cursorName.equals(ChatColor.WHITE + "Item Rename Tag")) {
       if (ItemStackExtensionsKt.getLore(cursor).get(3).equals(ChatColor.WHITE + "none")) {
         sendMessage(player, plugin.getSettings().getString("language.rename.notset", ""));

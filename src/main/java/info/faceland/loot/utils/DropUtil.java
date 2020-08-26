@@ -34,7 +34,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -136,8 +135,7 @@ public class DropUtil implements Listener {
 
       int qualityBonus = 1;
       double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
-      double multiQualityChance = plugin.getSettings()
-          .getDouble("config.multi-quality-chance", 0.1);
+      double multiQualityChance = plugin.getSettings().getDouble("config.multi-quality-chance", 0.1);
 
       if (random.nextDouble() <= qualityChance) {
         while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
@@ -148,11 +146,10 @@ public class DropUtil implements Listener {
 
       int upgradeBonus = 1;
       double upgradeChance = plugin.getSettings().getDouble("config.random-upgrade-chance", 0.1);
-      double multiUpgradeChance = plugin.getSettings()
-          .getDouble("config.multi-upgrade-chance", 0.1);
+      double multiUpgradeChance = plugin.getSettings().getDouble("config.multi-upgrade-chance", 0.1);
 
       if (random.nextDouble() <= upgradeChance) {
-        while (random.nextDouble() <= multiUpgradeChance && upgradeBonus < 9) {
+        while (random.nextDouble() <= multiUpgradeChance && upgradeBonus < 15) {
           upgradeBonus++;
         }
         upgradeItem(tierItem, upgradeBonus);
@@ -215,14 +212,12 @@ public class DropUtil implements Listener {
       ItemStack his = new IdentityTome();
       dropItem(event.getLocation(), his, killer, false);
     }
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.custom-item", 0D)) {
+    if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
       CustomItem ci;
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
         ci = plugin.getCustomItemManager().getRandomCustomItemByLevel(mobLevel);
       } else {
-        ci = plugin.getCustomItemManager()
-            .getRandomCustomItem(true, event.getDistance());
+        ci = plugin.getCustomItemManager().getRandomCustomItem(true, event.getDistance());
       }
 
       ItemStack stack = ci.toItemStack(1);
@@ -230,8 +225,7 @@ public class DropUtil implements Listener {
       int qualityBonus = 1;
       if (ci.canBeQuality()) {
         double qualityChance = plugin.getSettings().getDouble("config.random-quality-chance", 0.1);
-        double multiQualityChance = plugin.getSettings()
-            .getDouble("config.multi-quality-chance", 0.1);
+        double multiQualityChance = plugin.getSettings().getDouble("config.multi-quality-chance", 0.1);
 
         if (random.nextDouble() <= qualityChance) {
           while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
@@ -311,32 +305,15 @@ public class DropUtil implements Listener {
     }
   }
 
-  private static ItemStack upgradeItem(ItemStack his, int upgradeBonus) {
-    boolean succeed = false;
-    List<String> lore = ItemStackExtensionsKt.getLore(his);
-    for (int i = 0; i < lore.size(); i++) {
-      String s = lore.get(i);
-      String ss = ChatColor.stripColor(s);
-      if (!ss.startsWith("+")) {
-        continue;
-      }
-      succeed = true;
-      String loreLev = CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(ss);
-      int loreLevel = NumberUtils.toInt(loreLev);
-      lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
-      String name = getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) +
-          ("+" + upgradeBonus) + " " + ItemStackExtensionsKt.getDisplayName(his);
-      ItemStackExtensionsKt.setDisplayName(his, name);
-      break;
+  private static void upgradeItem(ItemStack his, int upgradeBonus) {
+    int currentLevel = MaterialUtil.getUpgradeLevel(his);
+    if (his.getType().getMaxDurability() <= 1) {
+      int upgrade = (int) (Math.ceil((double) upgradeBonus / 3));
+      int plusAmount = upgrade * 3;
+      MaterialUtil.bumpItemPlus(his, currentLevel, upgrade, plusAmount);
+    } else {
+      MaterialUtil.bumpItemPlus(his, currentLevel, upgradeBonus, upgradeBonus);
     }
-    if (succeed) {
-      ItemStackExtensionsKt.setLore(his, lore);
-      if (upgradeBonus > 6) {
-        his.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
-        ItemStackExtensionsKt.addItemFlags(his, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-      }
-    }
-    return his;
   }
 
   private static ItemStack upgradeItemQuality(ItemStack his, int upgradeBonus) {
@@ -352,10 +329,10 @@ public class DropUtil implements Listener {
       String loreLev = CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(ss);
       int loreLevel = NumberUtils.toInt(loreLev);
       lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
-      String qualityEnhanceName = plugin.getSettings()
-          .getString("language.quality." + upgradeBonus, "");
-      String name = getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) +
-          qualityEnhanceName + " " + ItemStackExtensionsKt.getDisplayName(his);
+      String qualityEnhanceName = plugin.getSettings().getString("language.quality." + upgradeBonus, "");
+      String name =
+          getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) + qualityEnhanceName + " " + ItemStackExtensionsKt
+              .getDisplayName(his);
       ItemStackExtensionsKt.setDisplayName(his, name);
       break;
     }

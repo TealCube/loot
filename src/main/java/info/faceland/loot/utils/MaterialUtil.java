@@ -1,20 +1,18 @@
 /**
  * The MIT License Copyright (c) 2015 Teal Cube Games
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.utils;
 
@@ -37,6 +35,7 @@ import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.tier.Tier;
+import io.pixeloutlaw.minecraft.spigot.garbage.ListExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -59,10 +59,10 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 public final class MaterialUtil {
 
-  private static final double BONUS_ESS_MULT = 0.21;
-  private static final double TOOL_QUALITY_ESS_MULT = 0.06;
-  private static final double MIN_BONUS_ESS_MULT = 0.08;
-  private static final double BASE_ESSENCE_MULT = 0.65;
+  private static final double BONUS_ESS_MULT = 0.3;
+  private static final double TOOL_QUALITY_ESS_MULT = 0.08;
+  private static final double MIN_BONUS_ESS_MULT = 0.25;
+  private static final double BASE_ESSENCE_MULT = 0.3;
   private static final LootRandom random = new LootRandom();
 
   private static String upgradeFailureMsg;
@@ -116,26 +116,29 @@ public final class MaterialUtil {
         .getString("language.extend.fail", "");
   }
 
-  public static double getSuccessChance(Player player, int targetPlus, ItemStack scrollStack,
-      UpgradeScroll scroll) {
+  public static double getSuccessChance(Player player, int targetPlus, ItemStack scrollStack, UpgradeScroll scroll) {
     double success = scroll.getBaseSuccess();
     success -= scroll.getFlatDecay() * targetPlus;
     success *= 1 - (scroll.getPercentDecay() * targetPlus);
     success = Math.pow(success, scroll.getExponent());
     success += PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true) * 0.001;
     if (success <= 1) {
-      for (String s : ItemStackExtensionsKt.getLore(scrollStack)) {
-        if (s.startsWith(FAILURE_BONUS)) {
-          success += (1 - success) * getFailureMod(s);
-          break;
-        }
-      }
+      success += (1 - success) * getFailureMod(getFailureBonus(scrollStack));
     }
     return success;
   }
 
-  public static double getFailureMod(String failString) {
-    return 1 - (150D / (150 + MaterialUtil.getDigit(failString)));
+  public static int getFailureBonus(ItemStack scrollStack) {
+    for (String s : ItemStackExtensionsKt.getLore(scrollStack)) {
+      if (s.startsWith(FAILURE_BONUS)) {
+        return MaterialUtil.getDigit(ChatColor.stripColor(s));
+      }
+    }
+    return 0;
+  }
+
+  public static double getFailureMod(double failBonus) {
+    return 1 - (300D / (300D + failBonus));
   }
 
   public static double getUpgradeFailureDamagePercent(UpgradeScroll scroll, int itemPlus) {
@@ -194,35 +197,41 @@ public final class MaterialUtil {
     if (successChance < random.nextDouble()) {
       double damagePercentage = getUpgradeFailureDamagePercent(scroll, targetLevel);
       short damage;
+
       if (stack.getType().getMaxDurability() <= 1) {
         if (damagePercentage < 1) {
           sendMessage(player, upgradeItemNoDamageMsg);
+          int shards = getFailureBonus(scrollStack);
+          distributeShards(player, shards);
           return;
         }
         damage = 1000;
       } else {
-        double currentPercentage =
-            1 - ((double) stack.getDurability() / stack.getType().getMaxDurability());
+        double currentPercentage = 1 - ((double) stack.getDurability() / stack.getType().getMaxDurability());
         if (damagePercentage >= currentPercentage) {
           damage = stack.getType().getMaxDurability();
         } else {
-          damage = (short) (Math.floor(
-              (currentPercentage - damagePercentage) * (double) stack.getType()
-                  .getMaxDurability()));
+          damage = stack.getDurability();
+          damage += (short) (Math.floor((currentPercentage - damagePercentage) *
+              (double) stack.getType().getMaxDurability()));
         }
       }
+
       if (damage >= stack.getType().getMaxDurability()) {
         ItemStack clone = stack.clone();
         sendMessage(player, upgradeItemDestroyMsg);
         stack.setAmount(0);
         player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
+        int shards = getFailureBonus(scrollStack);
         if (itemUpgradeLevel > 5) {
-          ItemStack shard = ShardOfFailure.build(player.getName());
-          shard.setAmount(1 + random.nextIntRange(5, 3 + (int) (Math.pow(itemUpgradeLevel, 1.7) / 3)));
-          player.getInventory().addItem(shard);
+          shards += 1 + random.nextIntRange(0, (int) (Math.pow(itemUpgradeLevel, 1.2) / 6));
         }
+        distributeShards(player, shards);
         InventoryUtil.broadcast(player, clone, upgradeItemDestroyBroadcast);
         return;
+      } else {
+        int shards = getFailureBonus(scrollStack);
+        distributeShards(player, shards);
       }
       stack.setDurability(damage);
       sendMessage(player, upgradeItemDamageMsg);
@@ -243,12 +252,28 @@ public final class MaterialUtil {
     }
   }
 
-  private static void bumpItemPlus(ItemStack stack, int currentLevel, int amount) {
+  private static void distributeShards(Player player, int amount) {
+    if (amount > 0) {
+      ItemStack shard = ShardOfFailure.build(player.getName());
+      while (amount > 0) {
+        ItemStack loopShard = shard.clone();
+        loopShard.setAmount(Math.min(amount, 64));
+        if (player.getInventory().firstEmpty() != -1) {
+          player.getInventory().addItem(loopShard);
+        } else {
+          Item item = player.getWorld().dropItem(player.getLocation(), loopShard);
+          item.setOwner(player.getUniqueId());
+        }
+        amount -= 64;
+      }
+    }
+  }
+
+  public static void bumpItemPlus(ItemStack stack, int currentLevel, int amount) {
     bumpItemPlus(stack, currentLevel, amount, amount);
   }
 
-  private static void bumpItemPlus(ItemStack stack, int currentLevel, int statAmount,
-      int plusAmount) {
+  public static void bumpItemPlus(ItemStack stack, int currentLevel, int statAmount, int plusAmount) {
     String itemName = ItemStackExtensionsKt.getDisplayName(stack);
     if (StringUtils.isBlank(itemName)) {
       itemName = stack.getType().toString().replaceAll("_", " ");
@@ -363,39 +388,47 @@ public final class MaterialUtil {
       MessageUtils.sendMessage(player, "&eThis item cannot be enhanced.");
       return;
     }
-    List<String> lore = new ArrayList<>();
+    int index = -1;
     for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
       String string = ItemStackExtensionsKt.getLore(item).get(i);
       if (!isEnchantBar(string)) {
-        lore.add(string);
         continue;
       }
-      String enchantmentStatString = ChatColor.stripColor(lore.get(lore.size() - 1));
-
-      int statValue = NumberUtils.toInt(CharMatcher.digit()
-          .or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
-
-      int itemLevel = getLevelRequirement(item);
-      itemLevel = Math.max(1, Math.min(100, itemLevel));
-      double enchantingLevel = PlayerDataUtil.getEffectiveLifeSkill(player,
-          LifeSkillType.ENCHANTING, true);
-
-      double enchantingBonus = Math.min(2.5, Math.max(1, enchantingLevel / itemLevel));
-      float enhanceRoll = 0.1f + 0.2f * (float) Math.pow(Math.random(), 1.25);
-
-      int newValue = statValue + (int) (statValue * enhanceRoll * enchantingBonus);
-      newValue++;
-
-      lore.set(lore.size() - 1, ChatColor.BLUE + enchantmentStatString
-          .replace(Integer.toString(statValue), Integer.toString(newValue)));
-      lore.add(string.replace(ChatColor.BLACK + "", ChatColor.DARK_RED + ""));
+      index = i;
+      break;
     }
+    if (index == -1) {
+      return;
+    }
+
+    degradeItemEnchantment(item, player);
+
+    List<String> lore = new ArrayList<>(ItemStackExtensionsKt.getLore(item));
+    String enchantmentStatString = ChatColor.stripColor(lore.get(index - 1));
+
+    int statValue = NumberUtils.toInt(CharMatcher.digit().or(CharMatcher.is('-')).retainFrom(enchantmentStatString));
+
+    int itemLevel = getLevelRequirement(item);
+    itemLevel = Math.max(1, Math.min(100, itemLevel));
+    double enchantingLevel = PlayerDataUtil.getEffectiveLifeSkill(player,
+        LifeSkillType.ENCHANTING, true);
+
+    double enchantingBonus = Math.min(2.5, Math.max(1, enchantingLevel / itemLevel));
+    float enhanceRoll = 0.1f + 0.2f * (float) Math.pow(Math.random(), 1.25);
+
+    int newValue = statValue + (int) (statValue * enhanceRoll * enchantingBonus);
+    newValue++;
+
+    lore.set(index - 1,
+        ChatColor.BLUE + enchantmentStatString.replace(Integer.toString(statValue), Integer.toString(newValue)));
+    lore.set(index, lore.get(index).replace(ChatColor.BLACK + "", ChatColor.DARK_RED + ""));
     ItemStackExtensionsKt.setLore(item, lore);
     enhancer.setAmount(enhancer.getAmount() - 1);
     StrifePlugin.getInstance().getSkillExperienceManager()
         .addExperience(player, LifeSkillType.ENCHANTING, 400, false, false);
     player.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.8f);
   }
+
 
   public static void removeEnchantment(ItemStack item) {
     if (!MaterialUtil.isEnchanted(item)) {
@@ -442,18 +475,18 @@ public final class MaterialUtil {
     for (String string : ItemStackExtensionsKt.getLore(stack)) {
       String s = net.md_5.bungee.api.ChatColor.stripColor(string);
       if (!(s.startsWith("[") && string.endsWith("]") && s.contains("||"))) {
-        continue;
+        return true;
       }
-      return true;
     }
     return false;
   }
 
   public static boolean isArcaneEnchanted(ItemStack stack) {
+    if (!isEnchanted(stack)) {
+      return false;
+    }
     for (String string : ItemStackExtensionsKt.getLore(stack)) {
-      String s = net.md_5.bungee.api.ChatColor.stripColor(string);
-      if (!(s.startsWith("[") && string.endsWith("]") && s.contains("||")) && string.contains(
-          net.md_5.bungee.api.ChatColor.DARK_RED + "")) {
+      if (isEnchantBar(string) && string.contains("" + ChatColor.DARK_RED)) {
         return true;
       }
     }
@@ -466,37 +499,35 @@ public final class MaterialUtil {
     }
     List<String> lore = new ArrayList<>();
     for (int i = 0; i < ItemStackExtensionsKt.getLore(item).size(); i++) {
-      String string = ItemStackExtensionsKt.getLore(item).get(i);
-      if (!isEnchantBar(string)) {
-        lore.add(string);
+      String barString = ItemStackExtensionsKt.getLore(item).get(i);
+      if (!isEnchantBar(barString)) {
+        lore.add(barString);
         continue;
       }
       ChatColor incompleteBarColor;
       int index;
-      if (string.contains("" + ChatColor.DARK_RED)) {
-        index = string.indexOf("" + ChatColor.DARK_RED);
+      if (barString.contains("" + ChatColor.DARK_RED)) {
+        index = barString.indexOf("" + ChatColor.DARK_RED);
         incompleteBarColor = ChatColor.DARK_RED;
-      } else if (string.contains("" + ChatColor.BLACK)) {
-        index = string.indexOf("" + ChatColor.BLACK);
+      } else if (barString.contains("" + ChatColor.BLACK)) {
+        index = barString.indexOf("" + ChatColor.BLACK);
         incompleteBarColor = ChatColor.BLACK;
       } else {
-        index = string.length() - 3;
+        index = barString.indexOf("]");
         incompleteBarColor = ChatColor.BLACK;
       }
-      Bukkit.getLogger().warning("boop: " + index);
       if (index <= 4) {
         lore.remove(lore.size() - 1);
         lore.add(ChatColor.BLUE + "(Enchantable)");
-        sendMessage(player, LootPlugin.getInstance().getSettings()
-            .getString("language.enchant.degrade", ""));
+        sendMessage(player, LootPlugin.getInstance().getSettings().getString("language.enchant.degrade", ""));
         continue;
       } else if (index <= 7) {
-        sendMessage(player, LootPlugin.getInstance().getSettings()
-            .getString("language.enchant.bar-low", ""));
+        sendMessage(player, LootPlugin.getInstance().getSettings().getString("language.enchant.bar-low", ""));
       }
-      string = string.replace("" + incompleteBarColor, "");
-      string = new StringBuilder(string).insert(index - 1, incompleteBarColor + "").toString();
-      lore.add(string);
+      barString = barString.replace("" + incompleteBarColor, "");
+      barString = new StringBuilder(barString).insert(index - 1, incompleteBarColor + "").toString();
+      barString = barString.replace("|]", "|" + ChatColor.BLUE + "]");
+      lore.add(barString);
     }
     ItemStackExtensionsKt.setLore(item, lore);
   }
@@ -524,30 +555,28 @@ public final class MaterialUtil {
     int index = strippedLore.indexOf("(Enchantable)");
     lore.remove(index);
 
-    double enchantLevel = PlayerDataUtil
-        .getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
+    double enchantSkill = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
 
     List<String> added = new ArrayList<>();
     if (!tome.getLore().isEmpty()) {
-      added.addAll(TextUtils.color(tome.getLore()));
+      added.addAll(ListExtensionsKt.chatColorize(tome.getLore()));
     }
 
     if (!StringUtils.isBlank(tome.getStat())) {
-      double rarity = getBonusMultiplier(enchantLevel);
-
       int itemLevel = MaterialUtil.getLevelRequirement(targetItem);
-      double eLevel = Math.max(1, Math.min(enchantLevel, itemLevel * 2));
+      double eLevel = Math.max(1, Math.min(enchantSkill, itemLevel));
+      double rarity = MaterialUtil.getBaseEnchantBonus(enchantSkill);
 
       ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
       added.add(LootPlugin.getInstance().getStatManager().getFinalStat(stat, eLevel, rarity, false).getStatString());
     }
 
     if (tome.getBar()) {
-      double bonus = getBonusMultiplier(enchantLevel);
-      double size = 8 + (25 * bonus);
-      String bars = IntStream.range(0, (int) size).mapToObj(i -> "|")
-          .collect(Collectors.joining(""));
-      added.add(ChatColor.BLUE + "[" + bars + ChatColor.BLACK + "|" + ChatColor.BLUE + "]");
+      double skillRatio = Math.min(1, enchantSkill / 100);
+      double roll = skillRatio * Math.random() + (1 - skillRatio) * Math.pow(Math.random(), 2.5);
+      double size = 8 + 22 * roll;
+      String bars = IntStream.range(0, (int) size).mapToObj(i -> "|").collect(Collectors.joining(""));
+      added.add(ChatColor.BLUE + "[" + bars + "]");
     }
 
     lore.addAll(index, added);
@@ -714,17 +743,18 @@ public final class MaterialUtil {
     return 0;
   }
 
-  public static ItemStack buildEssence(String type, double itemLevel, double craftLevel,
-      int toolQuality, List<String> possibleStats, boolean lucky) {
-    int essLevel = 1 + (int) (itemLevel * 0.85 + random.nextDouble() * itemLevel * 0.125);
+  public static ItemStack buildEssence(Tier tier, double itemLevel, double craftLevelAdvantage, int toolQuality,
+      List<String> possibleStats, boolean lucky) {
 
-    String statString = ChatColor.stripColor(
-        possibleStats.get(random.nextInt(possibleStats.size())));
+    int essLevel = Math.max(1, (int) (Math.floor(itemLevel) / 10) * 10);
+
+    String statString = ChatColor.stripColor(possibleStats.get(random.nextInt(possibleStats.size())));
     int statVal = getDigit(statString);
 
-    double toolQualityBonus = rollMult(lucky) * (TOOL_QUALITY_ESS_MULT * toolQuality);
-    double baseCraftBonus = MIN_BONUS_ESS_MULT * (craftLevel / 100);
-    double bonusCraftBonus = rollMult(lucky, 1.3) * (BONUS_ESS_MULT * (craftLevel / 100));
+    craftLevelAdvantage = Math.min(craftLevelAdvantage, 200);
+    double toolQualityBonus = TOOL_QUALITY_ESS_MULT * toolQuality;
+    double baseCraftBonus = MIN_BONUS_ESS_MULT * (craftLevelAdvantage / 200);
+    double bonusCraftBonus = (BONUS_ESS_MULT * (craftLevelAdvantage / 200)) * rollMult(lucky, 1.3);
 
     double essMult = BASE_ESSENCE_MULT + baseCraftBonus + bonusCraftBonus + toolQualityBonus;
 
@@ -736,21 +766,25 @@ public final class MaterialUtil {
 
     List<String> esslore = new ArrayList<>();
     esslore.add("&fItem Level Requirement: " + essLevel);
-    esslore.add("&fItem Type: " + type);
+    esslore.add("&fItem Type: " + tier.getName());
     esslore.add("&e" + newStatString);
     esslore.add("&7&oCraft this together with an");
     esslore.add("&7&ounfinished item to have a");
     esslore.add("&7&ochance of applying this stat!");
     esslore.add("&e[ Crafting Component ]");
-    ItemStackExtensionsKt.setLore(shard, TextUtils.color(esslore));
+    ItemStackExtensionsKt.setLore(shard, ListExtensionsKt.chatColorize(esslore));
+    ItemStackExtensionsKt.setCustomModelData(shard, 501);
 
     return shard;
   }
 
+  public static int getUpgradeLevel(ItemStack stack) {
+    return getUpgradeLevel(ItemStackExtensionsKt.getDisplayName(stack));
+  }
+
   public static int getUpgradeLevel(String name) {
     name = stripColor(name);
-    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(name, ' ')
-        .trim();
+    String lev = CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(name, ' ').trim();
     return NumberUtils.toInt(lev.split(" ")[0], 0);
   }
 
@@ -771,8 +805,7 @@ public final class MaterialUtil {
   public static Tier getTierFromStack(ItemStack stack) {
     String strTier = "";
     int data = MaterialUtil.getCustomData(stack);
-    for (DeconstructData dd : LootPlugin.getInstance().getCraftMatManager()
-        .getDeconstructDataSet()) {
+    for (DeconstructData dd : LootPlugin.getInstance().getCraftMatManager().getDeconstructDataSet()) {
       if (StringUtils.isBlank(dd.getTierName())) {
         continue;
       }
@@ -828,10 +861,7 @@ public final class MaterialUtil {
   }
 
   private static double rollMult(boolean lucky, double exponent) {
-    if (!lucky) {
-      return Math.pow(random.nextDouble(), exponent);
-    }
-    return random.nextDouble();
+    return lucky ? random.nextDouble() : Math.pow(random.nextDouble(), exponent);
   }
 
   public static void applyTierLevelData(ItemStack stack, Tier tier, int level) {
@@ -842,24 +872,14 @@ public final class MaterialUtil {
   }
 
   public static int getCustomData(ItemStack stack) {
-    if (stack.getItemMeta() == null) {
-      return -1;
-    }
-    if (!stack.getItemMeta().hasCustomModelData()) {
+    if (stack.getItemMeta() == null || !stack.getItemMeta().hasCustomModelData()) {
       return -1;
     }
     return stack.getItemMeta().getCustomModelData();
   }
 
   public static double getBaseEnchantBonus(double enchantSkill) {
-    return enchantSkill * 0.005;
-  }
-
-  public static double getBonusMultiplier(double enchantSkill) {
-    double enchantPower = Math.max(0, Math.min(1, enchantSkill / 100));
-    double skillRoll = enchantPower * random.nextDouble();
-    double dumbLuckRoll = (1 - enchantPower) * Math.pow(random.nextDouble(), 2.5);
-    return skillRoll + dumbLuckRoll + getBaseEnchantBonus(enchantSkill);
+    return enchantSkill * 0.0015;
   }
 
   private static boolean isBannedUpgradeMaterial(ItemStack item) {

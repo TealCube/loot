@@ -13,17 +13,21 @@ import info.faceland.loot.events.LootDeconstructEvent;
 import info.faceland.loot.events.LootDeconstructEvent.DeconstructType;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
-import info.faceland.loot.utils.InventoryUtil;
+import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import land.face.strife.data.champion.LifeSkillType;
 import land.face.strife.util.PlayerDataUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,8 +139,7 @@ public class DeconstructListener implements Listener {
 
     int toolQuality = 1;
     if (cursorItem.hasItemMeta()) {
-      toolQuality = (int) ItemStackExtensionsKt.getLore(cursorItem).get(1).chars()
-          .filter(ch -> ch == '✪').count();
+      toolQuality = (int) ItemStackExtensionsKt.getLore(cursorItem).get(1).chars().filter(ch -> ch == '✪').count();
     }
 
     double levelAdvantage = getLevelAdvantage(craftingLevel, itemLevel);
@@ -153,10 +156,17 @@ public class DeconstructListener implements Listener {
     List<String> lore = ItemStackExtensionsKt.getLore(targetItem);
     List<String> possibleStats = new ArrayList<>();
     for (String str : lore) {
-      if (str.startsWith("" + ChatColor.GREEN) || str.startsWith("" + ChatColor.YELLOW)) {
-        if (str.contains(":")) {
-          continue;
+      if (!ChatColor.stripColor(str).startsWith("+")) {
+        continue;
+      }
+      net.md_5.bungee.api.ChatColor color = getHexFromString(str);
+      if (color != null) {
+        if (isValidStealColor(color.getColor())) {
+          possibleStats.add(str);
         }
+        continue;
+      }
+      if (str.startsWith(ChatColor.GREEN + "") || str.startsWith(ChatColor.YELLOW + "")) {
         possibleStats.add(str);
       }
     }
@@ -178,20 +188,28 @@ public class DeconstructListener implements Listener {
 
     player.playSound(player.getEyeLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 0.8F);
     event.setTargetItem(null);
-    player.getInventory().addItem(craftMaterial);
+    if (player.getInventory().firstEmpty() != -1) {
+      player.getInventory().addItem(craftMaterial);
+    } else {
+      Item item = player.getWorld().dropItem(player.getLocation(), craftMaterial);
+      item.setOwner(player.getUniqueId());
+    }
 
-    double essChance = 0.1 + 0.1 * toolQuality + Math.min(effectiveLevelAdvantage * 0.015, 0.35);
-    if (possibleStats.size() > 0 && random.nextDouble() < essChance) {
+    if (possibleStats.size() > 0) {
       player.playSound(player.getEyeLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.4F, 2F);
-      String type = InventoryUtil.getItemType(targetItem);
-      ItemStack essence = buildEssence(type, itemLevel, craftingLevel, toolQuality,
-          possibleStats, player.hasPotionEffect(PotionEffectType.LUCK));
+      Tier tier = MaterialUtil.getTierFromStack(targetItem);
+
+      ItemStack essence = buildEssence(tier, itemLevel, effectiveLevelAdvantage, toolQuality, possibleStats,
+          player.hasPotionEffect(PotionEffectType.LUCK));
+
       if (player.getInventory().firstEmpty() != -1) {
         player.getInventory().addItem(essence);
       } else {
-        player.getWorld().dropItem(player.getLocation(), essence);
+        Item item = player.getWorld().dropItem(player.getLocation(), essence);
+        item.setOwner(player.getUniqueId());
       }
     }
+
     List<String> toolLore = ItemStackExtensionsKt.getLore(cursorItem);
     if (ChatColor.stripColor(toolLore.get(toolLore.size() - 1)).startsWith("Remaining Uses: ")) {
       int uses = getDigit(ChatColor.stripColor(toolLore.get(toolLore.size() - 1)));
@@ -205,9 +223,9 @@ public class DeconstructListener implements Listener {
         event.setCursorItem(cursorItem);
       }
     }
-    double exp = 2 + Math.pow((double) itemLevel / 4, 1.2);
-    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
-        LifeSkillType.CRAFTING, exp, false, false);
+    double exp = 5 + itemLevel * 1.1;
+    plugin.getStrifePlugin().getSkillExperienceManager()
+        .addExperience(player, LifeSkillType.CRAFTING, exp, false, false);
   }
 
   private void doEnchantDeconstruct(LootDeconstructEvent event) {
@@ -236,5 +254,22 @@ public class DeconstructListener implements Listener {
   public static int getLevelAdvantage(int craftLevel, int itemLevel) {
     int lvlReq = 20 + (int) Math.floor((double) craftLevel / 10) * 14;
     return lvlReq - itemLevel;
+  }
+
+  private boolean isValidStealColor(Color color) {
+    float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+    return hsb[0] >= 0.14 && hsb[0] <= 0.34 && hsb[1] >= 0.7 && hsb[1] <= 0.72 && hsb[2] >= 0.99 && hsb[2] <= 1.01;
+  }
+
+  private final Pattern hexPattern = Pattern.compile("§x(§[A-Fa-f0-9]){6}");
+
+  public net.md_5.bungee.api.ChatColor getHexFromString(String message) {
+    Matcher matcher = hexPattern.matcher(message);
+    if (matcher.find()) {
+      String str = "#" + matcher.group().replace("§x", "").replace("§", "");
+      Bukkit.getLogger().warning(str);
+      return net.md_5.bungee.api.ChatColor.of(str);
+    }
+    return null;
   }
 }

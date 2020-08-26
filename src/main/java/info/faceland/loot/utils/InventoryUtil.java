@@ -53,11 +53,6 @@ public final class InventoryUtil {
 
   public static net.md_5.bungee.api.ChatColor getRollColor(double roll, float minHue, float maxHue, float minSat,
       float maxSat, float minBright, float maxBright) {
-    if (roll < 0.92) {
-      roll = Math.max(0, (roll - 0.5) * 2);
-    } else {
-      roll = 1;
-    }
     float hue = minHue + (maxHue - minHue) * (float) roll;
     float saturation = minSat + (maxSat - minSat) * (float) roll;
     float brightness = minBright + (maxBright - minBright) * (float) roll;

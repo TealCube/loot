@@ -20,6 +20,7 @@ import static com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils.send
 import static info.faceland.loot.utils.InventoryUtil.stripColor;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils;
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
@@ -32,6 +33,8 @@ import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.MaterialUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.ListExtensionsKt;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -56,51 +62,61 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class CraftingListener implements Listener {
 
   private final LootPlugin plugin;
+
+  public static String ESSENCE_SLOT_TEXT;
+
+  private final String BAD_INFUSE_NAME;
   private final double CRAFT_EXP;
   private final double CRAFT_LEVEL_MULT;
   private final double CRAFT_QUALITY_MULT;
   private final double CRAFT_MASTER_MULT;
-  private final double BASE_INFUSE_EXP;
-  private final double BONUS_ESS_EXP;
-  private final double INFUSE_LEVEL_MULT;
-  private final double INFUSE_SUCCESS_MULT;
-  private final double INFUSE_BASE_CHANCE;
   private final double MAX_QUALITY;
   private final double MAX_SLOTS;
   private final double MAX_SOCKETS;
-  public static String ESSENCE_SLOT_TEXT;
-  private LootRandom random;
+
+  private final ItemMeta dupeStatMeta;
+  private final ItemMeta powerfulEssenceMeta;
+  private final ItemMeta lowLevelMeta;
+  private final ItemMeta wrongTypeMeta;
+  private final ItemMeta noSlotsMeta;
+
+  private final LootRandom random;
 
   public CraftingListener(LootPlugin plugin) {
     this.plugin = plugin;
     this.random = new LootRandom();
 
-    this.CRAFT_EXP = plugin.getSettings()
-        .getDouble("config.crafting.base-craft-exp", 1);
-    this.CRAFT_LEVEL_MULT = plugin.getSettings()
-        .getDouble("config.crafting.craft-item-level-mult", 0.01);
-    this.CRAFT_QUALITY_MULT = plugin.getSettings()
-        .getDouble("config.crafting.craft-quality-mult", 0.1);
-    this.CRAFT_MASTER_MULT = plugin.getSettings()
-        .getDouble("config.crafting.craft-master-mult", 2.5);
-    this.BASE_INFUSE_EXP = plugin.getSettings()
-        .getDouble("config.crafting.base-infusion-exp", 4);
-    this.BONUS_ESS_EXP = plugin.getSettings()
-        .getDouble("config.crafting.infusion-exp-per-essence", 2);
-    this.INFUSE_LEVEL_MULT = plugin.getSettings()
-        .getDouble("config.crafting.infusion-item-level-mult", 0.05);
-    this.INFUSE_SUCCESS_MULT = plugin.getSettings()
-        .getDouble("config.crafting.infusion-success-mult", 2);
-    this.INFUSE_BASE_CHANCE = plugin.getSettings()
-        .getDouble("config.crafting.infusion-base-success-chance", 0.3);
-    this.MAX_QUALITY = plugin.getSettings()
-        .getDouble("config.crafting.craft-max-quality", 5);
-    this.MAX_SLOTS = plugin.getSettings()
-        .getDouble("config.crafting.craft-max-craft-slots", 5);
-    this.MAX_SOCKETS = plugin.getSettings()
-        .getDouble("config.crafting.craft-max-sockets", 3);
-    ESSENCE_SLOT_TEXT = TextUtils
-        .color(plugin.getSettings().getString("config.crafting.essence-text", "&b(Essence Slot)"));
+    CRAFT_EXP = plugin.getSettings().getDouble("config.crafting.base-craft-exp", 1);
+    CRAFT_LEVEL_MULT = plugin.getSettings().getDouble("config.crafting.craft-item-level-mult", 0.01);
+    CRAFT_QUALITY_MULT = plugin.getSettings().getDouble("config.crafting.craft-quality-mult", 0.1);
+    CRAFT_MASTER_MULT = plugin.getSettings().getDouble("config.crafting.craft-master-mult", 2.5);
+    MAX_QUALITY = plugin.getSettings().getDouble("config.crafting.craft-max-quality", 5);
+    MAX_SLOTS = plugin.getSettings().getDouble("config.crafting.craft-max-craft-slots", 5);
+    MAX_SOCKETS = plugin.getSettings().getDouble("config.crafting.craft-max-sockets", 3);
+    ESSENCE_SLOT_TEXT = StringExtensionsKt
+        .chatColorize(plugin.getSettings().getString("config.crafting.essence-text", "&b(Essence Slot)"));
+
+    BAD_INFUSE_NAME = StringExtensionsKt
+        .chatColorize(plugin.getSettings().getString("language.essence.invalid-title", "&cCannot Use Essence!"));
+
+    ItemStack failStack = new ItemStack(Material.BARRIER);
+    ItemStackExtensionsKt.setDisplayName(failStack, StringExtensionsKt.chatColorize(BAD_INFUSE_NAME));
+
+    dupeStatMeta = failStack.getItemMeta().clone();
+    dupeStatMeta.setLore(ListExtensionsKt.chatColorize(
+        plugin.getSettings().getStringList("language.essence.duplicate-stats")));
+    powerfulEssenceMeta = failStack.getItemMeta().clone();
+    powerfulEssenceMeta.setLore(ListExtensionsKt.chatColorize(
+        plugin.getSettings().getStringList("language.essence.essence-strength")));
+    lowLevelMeta = failStack.getItemMeta().clone();
+    lowLevelMeta.setLore(ListExtensionsKt.chatColorize(
+        plugin.getSettings().getStringList("language.essence.low-craft-level")));
+    wrongTypeMeta = failStack.getItemMeta().clone();
+    wrongTypeMeta.setLore(ListExtensionsKt.chatColorize(
+        plugin.getSettings().getStringList("language.essence.wrong-type")));
+    noSlotsMeta = failStack.getItemMeta().clone();
+    noSlotsMeta.setLore(ListExtensionsKt.chatColorize(
+        plugin.getSettings().getStringList("language.essence.no-slots")));
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -153,9 +169,32 @@ public final class CraftingListener implements Listener {
     }
   }
 
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onCraftEquipment(InventoryClickEvent event) {
+    if (event.getRawSlot() == 0 && event.getSlot() == 0 && event.getSlotType() == SlotType.RESULT) {
+      if (event.getClick() == ClickType.CONTROL_DROP) {
+        MessageUtils.sendMessage(event.getWhoClicked(),
+            "&e&oSorry, this crafting operation is blocked due to bugs! No items have been consumed, even if your game client may say they were until you close the crafting grid...");
+        event.setCancelled(true);
+        return;
+      }
+      if (event.getAction() == InventoryAction.DROP_ONE_SLOT && (event.getCursor() != null
+          && event.getCursor().getType() != Material.AIR)) {
+        MessageUtils.sendMessage(event.getWhoClicked(),
+            "&e&oSorry, this crafting operation is blocked due to bugs! No items have been consumed, even if your game client may say they were until you close the crafting grid...");
+        event.setCancelled(true);
+      }
+    }
+  }
+
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onCraftEquipment(CraftItemEvent event) {
+    if (event.isCancelled()) {
+      return;
+    }
+
     ItemStack resultStack = event.getCurrentItem();
+
     if (!plugin.getCraftBaseManager().getCraftBases().containsKey(resultStack.getType())) {
       return;
     }
@@ -163,8 +202,7 @@ public final class CraftingListener implements Listener {
       if (is == null) {
         continue;
       }
-      if (is.getType() == Material.PRISMARINE_SHARD || isDyeEvent(is.getType(),
-          resultStack.getType())) {
+      if (is.getType() == Material.PRISMARINE_SHARD || isDyeEvent(is.getType(), resultStack.getType())) {
         return;
       }
     }
@@ -176,18 +214,17 @@ public final class CraftingListener implements Listener {
     Tier tier = MaterialUtil.getTierFromStack(resultStack);
 
     if (tier == null) {
-      Bukkit.getLogger()
-          .warning("Attempted to craft item with unknown tier... " + resultStack.getType());
+      Bukkit.getLogger().warning("Attempted to craft item with unknown tier... " + resultStack.getType());
       return;
     }
 
     int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
-    double effectiveCraftLevel = PlayerDataUtil
-        .getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
+    double effectiveCraftLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
 
     int numMaterials = 0;
     double totalQuality = 0;
     double totalItemLevel = 0;
+
     for (ItemStack is : event.getInventory().getMatrix()) {
       if (is == null || is.getType() == Material.AIR || is.getType() == resultStack.getType()) {
         continue;
@@ -195,23 +232,21 @@ public final class CraftingListener implements Listener {
       ItemStack loopItem = new ItemStack(is);
       if (hasItemLevel(loopItem)) {
         int iLevel = NumberUtils.toInt(CharMatcher.digit().or(CharMatcher.is('-')).negate()
-            .collapseFrom(ChatColor.stripColor(ItemStackExtensionsKt.getLore(loopItem).get(0)), ' ')
-            .trim());
+            .collapseFrom(ChatColor.stripColor(ItemStackExtensionsKt.getLore(loopItem).get(0)), ' ').trim());
         totalItemLevel += iLevel;
-        numMaterials++;
       } else {
         totalItemLevel += 0.5;
-        numMaterials++;
       }
+      numMaterials++;
       if (hasQuality(loopItem)) {
-        long count = ItemStackExtensionsKt.getLore(loopItem).get(1).chars().filter(ch -> ch == '✪')
-            .count();
+        long count = ItemStackExtensionsKt.getLore(loopItem).get(1).chars().filter(ch -> ch == '✪').count();
         totalQuality += count;
       }
     }
 
     double rawItemLevel = totalItemLevel / numMaterials;
     double levelAdvantage = DeconstructListener.getLevelAdvantage(craftingLevel, (int) rawItemLevel);
+
     if (levelAdvantage < 0) {
       sendMessage(player, plugin.getSettings().getString("language.craft.low-level-craft", ""));
       player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
@@ -220,8 +255,7 @@ public final class CraftingListener implements Listener {
 
     double effiLevelAdvantage = DeconstructListener.getLevelAdvantage((int) effectiveCraftLevel, (int) rawItemLevel);
     double skillMultiplier = 1 + Math.min(1, effiLevelAdvantage / 25);
-    double quality = Math
-        .max(1, Math.min(totalQuality / numMaterials, MAX_QUALITY) - (0.5 * random.nextDouble()));
+    double quality = Math.max(1, Math.min(totalQuality / numMaterials, MAX_QUALITY) - (0.5 * random.nextDouble()));
 
     double slotLuckBonus = (MAX_SLOTS - quality) * Math.pow(random.nextDouble(), 6);
     double craftedSlotScore = Math.max(1, quality + slotLuckBonus);
@@ -229,6 +263,7 @@ public final class CraftingListener implements Listener {
     double skillSocketRoll = skillMultiplier * 0.5 * Math.pow(random.nextDouble(), 2);
     double luckSocketRoll = (1 - skillMultiplier) * Math.pow(random.nextDouble(), 6);
     double craftedSocketScore = MAX_SOCKETS * (skillSocketRoll + luckSocketRoll);
+
     if (skillMultiplier > 1.75) {
       craftedSocketScore = Math.max(2, craftedSocketScore);
     } else if (skillMultiplier > 1.5) {
@@ -292,8 +327,7 @@ public final class CraftingListener implements Listener {
       case NETHERITE_LEGGINGS:
       case NETHERITE_BOOTS:
         ItemMeta iMeta = newResult.getItemMeta();
-        iMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE,
-            LootItemBuilder.MINUS_ONE_KB_RESIST);
+        iMeta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, LootItemBuilder.MINUS_ONE_KB_RESIST);
         newResult.setItemMeta(iMeta);
     }
     MaterialUtil.applyTierLevelData(newResult, tier, itemLevel);
@@ -321,121 +355,119 @@ public final class CraftingListener implements Listener {
     player.playSound(player.getEyeLocation(), Sound.BLOCK_ANVIL_FALL, 0.5F, 1F);
   }
 
+  @EventHandler
+  public void onEssenceInfuse(PrepareItemCraftEvent event) {
+
+    if (event.getRecipe() == null) {
+      return;
+    }
+
+    ItemStack resultStack = event.getRecipe().getResult();
+    ItemStack equipmentItem = null;
+    ItemStack essenceStack = null;
+
+    for (ItemStack is : event.getInventory().getMatrix()) {
+      if (!(essenceStack == null || equipmentItem == null)) {
+        break;
+      }
+      if (is == null || is.getType() == Material.AIR) {
+        continue;
+      }
+      ItemStack loopItem = new ItemStack(is);
+      if (is.getType() == resultStack.getType()) {
+        equipmentItem = loopItem;
+        continue;
+      }
+      if (isEssence(loopItem)) {
+        essenceStack = loopItem;
+      }
+    }
+
+    if (essenceStack == null || equipmentItem == null) {
+      return;
+    }
+
+    if (getEssenceTier(essenceStack) != MaterialUtil.getTierFromStack(equipmentItem)) {
+      event.getInventory().getResult().setType(Material.BARRIER);
+      event.getInventory().getResult().setItemMeta(wrongTypeMeta);
+      return;
+    }
+
+    List<String> lore = ItemStackExtensionsKt.getLore(equipmentItem);
+    List<String> strippedLore = stripColor(lore);
+
+    if (!lore.contains(CraftingListener.ESSENCE_SLOT_TEXT)) {
+      event.getInventory().getResult().setType(Material.BARRIER);
+      event.getInventory().getResult().setItemMeta(noSlotsMeta);
+      return;
+    }
+
+    int itemLevel = NumberUtils.toInt(CharMatcher.digit().or(CharMatcher.is('-')).negate()
+        .collapseFrom(ChatColor.stripColor(strippedLore.get(0)), ' ').trim());
+
+    int essenceLevel = getEssenceLevel(essenceStack);
+
+    Player player = (Player) event.getViewers().get(0);
+    int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
+    double levelAdvantage = DeconstructListener.getLevelAdvantage(craftingLevel, itemLevel);
+    if (levelAdvantage < 0) {
+      event.getInventory().getResult().setType(Material.BARRIER);
+      event.getInventory().getResult().setItemMeta(lowLevelMeta);
+      return;
+    }
+
+    if (essenceLevel > itemLevel) {
+      event.getInventory().getResult().setType(Material.BARRIER);
+      event.getInventory().getResult().setItemMeta(powerfulEssenceMeta);
+      return;
+    }
+
+    List<String> existingCraftStatStrings = new ArrayList<>();
+    for (String str : lore) {
+      if (!str.startsWith(ChatColor.AQUA + "+")) {
+        continue;
+      }
+      str = CharMatcher.javaLetter().or(CharMatcher.is(' ')).retainFrom(ChatColor.stripColor(str).trim());
+      existingCraftStatStrings.add(str);
+    }
+
+    String essenceStat = getEssenceStat(essenceStack);
+    String strippedStat = CharMatcher.javaLetter().or(CharMatcher.is(' '))
+        .retainFrom(ChatColor.stripColor(essenceStat).trim());
+
+    if (existingCraftStatStrings.contains(strippedStat)) {
+      event.getInventory().getResult().setType(Material.BARRIER);
+      event.getInventory().getResult().setItemMeta(dupeStatMeta);
+      return;
+    }
+
+    int slotIndex = lore.indexOf(CraftingListener.ESSENCE_SLOT_TEXT);
+    lore.set(slotIndex, ChatColor.AQUA + ChatColor.stripColor(essenceStat));
+    ItemStackExtensionsKt.setLore(equipmentItem, lore);
+
+    event.getInventory().getResult().setType(equipmentItem.getType());
+    event.getInventory().getResult().setItemMeta(equipmentItem.getItemMeta());
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void onCraftBarrier(CraftItemEvent event) {
+    if (event.getCurrentItem() != null && event.getCurrentItem().getType() == Material.BARRIER
+        || event.getCursor() != null && event.getCursor().getType() == Material.BARRIER) {
+      event.setCancelled(true);
+    }
+  }
+
   @EventHandler(priority = EventPriority.MONITOR)
   public void onEssenceInfuse(CraftItemEvent event) {
     if (event.isCancelled()) {
       return;
     }
-    if (!(event.getCursor() == null || event.getCursor().getType() == Material.AIR)) {
+    if (!ItemStackExtensionsKt.getDisplayName(event.getRecipe().getResult())
+        .equals(EquipmentRecipeBuilder.INFUSE_NAME)) {
       return;
     }
-    ItemStack resultStack = event.getCurrentItem();
-    if (!resultStack.hasItemMeta() || !resultStack.getItemMeta().hasDisplayName()) {
-      return;
-    }
-    if (!resultStack.getItemMeta().getDisplayName().equals(EquipmentRecipeBuilder.INFUSE_NAME)) {
-      return;
-    }
-
-    event.setCancelled(true);
-
-    Player player = (Player) event.getWhoClicked();
-    double effectiveCraftLevel = PlayerDataUtil
-        .getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
-    List<String> essenceStats = new ArrayList<>();
-    ItemStack baseItem = null;
-    int highestEssLevel = 0;
-    double totalEssenceLevel = 0;
-    for (ItemStack is : event.getInventory().getMatrix()) {
-      if (is == null || is.getType() == Material.AIR) {
-        continue;
-      }
-      ItemStack loopItem = new ItemStack(is);
-      if (isEssence(loopItem)) {
-        if (getEssenceMaterial(loopItem) != resultStack.getType()) {
-          sendMessage(player, plugin.getSettings().getString("language.craft.wrong-ess-type", ""));
-          player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
-          return;
-        }
-        int essLevel = getEssenceLevel(loopItem);
-        totalEssenceLevel += essLevel;
-        highestEssLevel = Math.max(essLevel, highestEssLevel);
-        essenceStats.add(getEssenceStat(loopItem));
-        continue;
-      }
-      if (is.getType() == resultStack.getType()) {
-        baseItem = loopItem;
-        continue;
-      }
-      System.out.println("ERROR! SOMETHING IS UP WITH ESSENCE CRAFTING!");
-      return;
-    }
-    if (baseItem == null) {
-      return;
-    }
-    List<String> lore = ItemStackExtensionsKt.getLore(baseItem);
-    List<String> strippedLore = stripColor(lore);
-    int itemLevel = NumberUtils
-        .toInt(CharMatcher.digit().or(CharMatcher.is('-')).negate().collapseFrom(
-            ChatColor.stripColor(strippedLore.get(0)), ' ').trim());
-    if (highestEssLevel > itemLevel) {
-      sendMessage(player, plugin.getSettings().getString("language.craft.item-too-low", ""));
-      player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
-      return;
-    }
-    if (!lore.contains(CraftingListener.ESSENCE_SLOT_TEXT)) {
-      sendMessage(player, plugin.getSettings().getString("language.craft.no-slots", ""));
-      player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
-      return;
-    }
-    List<String> craftedStatTypes = new ArrayList<>();
-    for (String str : lore) {
-      if (str.startsWith(ChatColor.AQUA + "")) {
-        str = CharMatcher.javaLetter().or(CharMatcher.is(' '))
-            .retainFrom(ChatColor.stripColor(str).trim());
-        craftedStatTypes.add(str);
-      }
-    }
-    for (String str : essenceStats) {
-      str = CharMatcher.javaLetter().or(CharMatcher.is(' '))
-          .retainFrom(ChatColor.stripColor(str).trim());
-      if (craftedStatTypes.contains(str)) {
-        sendMessage(player, plugin.getSettings().getString("language.craft.stat-exists", ""));
-        player.playSound(player.getEyeLocation(), Sound.BLOCK_LAVA_POP, 0.7F, 0.5F);
-        return;
-      }
-    }
-
-    int essenceCount = essenceStats.size();
-
-    double craftExp = BASE_INFUSE_EXP + (essenceCount * BONUS_ESS_EXP);
-    craftExp *= 1 + INFUSE_LEVEL_MULT * (totalEssenceLevel / essenceCount);
-
-    double forceSuccessChance = INFUSE_BASE_CHANCE * (1 + effectiveCraftLevel / 100);
-    int selectedSlot =
-        random.nextDouble() > forceSuccessChance ? random.nextInt(essenceCount) : random.nextInt(8);
-    if (selectedSlot > essenceCount - 1) {
-      event.setCurrentItem(baseItem);
-      plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
-          LifeSkillType.CRAFTING, craftExp, false, false);
-      sendMessage(player, plugin.getSettings().getString("language.craft.ess-failed", ""));
-      player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 0.5F);
-      event.setCancelled(false);
-      return;
-    }
-    int slotIndex = lore.indexOf(CraftingListener.ESSENCE_SLOT_TEXT);
-    lore.remove(slotIndex);
-    lore.add(slotIndex, ChatColor.AQUA + ChatColor.stripColor(essenceStats.get(selectedSlot)));
-    ItemStackExtensionsKt.setLore(baseItem, lore);
-
-    event.setCurrentItem(baseItem);
-    craftExp *= INFUSE_SUCCESS_MULT;
-    plugin.getStrifePlugin().getSkillExperienceManager().addExperience(player,
-        LifeSkillType.CRAFTING, craftExp, false, false);
-    sendMessage(player, plugin.getSettings().getString("language.craft.ess-success", ""));
-    player.playSound(player.getEyeLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1F, 1.5F);
-    player.playSound(player.getEyeLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1F, 0.7F);
-    event.setCancelled(false);
+    plugin.getStrifePlugin().getSkillExperienceManager().addExperience((Player) event.getWhoClicked(),
+        LifeSkillType.CRAFTING, 25, false, false);
   }
 
   private boolean isUncraftableByName(String name) {
@@ -453,8 +485,7 @@ public final class CraftingListener implements Listener {
         .isBlank(ItemStackExtensionsKt.getDisplayName(itemStack))) {
       return false;
     }
-    if (!ChatColor.stripColor(ItemStackExtensionsKt.getDisplayName(itemStack))
-        .equals("Item Essence")) {
+    if (!ChatColor.stripColor(ItemStackExtensionsKt.getDisplayName(itemStack)).equals("Item Essence")) {
       return false;
     }
     List<String> lore = ItemStackExtensionsKt.getLore(itemStack);
@@ -471,21 +502,9 @@ public final class CraftingListener implements Listener {
     return true;
   }
 
-  private Material getEssenceMaterial(ItemStack itemStack) {
-    String str = ChatColor.stripColor(ItemStackExtensionsKt.getLore(itemStack).get(1))
-        .replace("Item Type: ", "");
-    if (str.equalsIgnoreCase("Wand")) {
-      return Material.WOODEN_SWORD;
-    }
-    str = str.replace(" ", "_").toUpperCase();
-    Material material;
-    try {
-      material = Material.getMaterial(str);
-    } catch (Exception e) {
-      System.out.println("INVALID MATERIAL ON ESSENCE! What tf is " + str + "?");
-      return null;
-    }
-    return material;
+  private Tier getEssenceTier(ItemStack itemStack) {
+    String str = ChatColor.stripColor(ItemStackExtensionsKt.getLore(itemStack).get(1)).replace("Item Type: ", "");
+    return plugin.getTierManager().getTier(str);
   }
 
   private String getEssenceStat(ItemStack itemStack) {

@@ -1,20 +1,18 @@
 /**
  * The MIT License Copyright (c) 2015 Teal Cube Games
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package info.faceland.loot.menu.upgrade;
 
@@ -26,9 +24,12 @@ import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.items.prefabs.ArcaneEnhancer;
 import info.faceland.loot.items.prefabs.PurifyingScroll;
+import info.faceland.loot.managers.StatManager.RollStyle;
 import info.faceland.loot.menu.BlankIcon;
 import info.faceland.loot.utils.MaterialUtil;
 import info.faceland.loot.utils.NumberUtil;
+import io.pixeloutlaw.minecraft.spigot.garbage.ListExtensionsKt;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -202,13 +203,13 @@ public class EnchantMenu extends ItemMenu {
     confirmIcon.getIcon().setType(Material.BARRIER);
     List<String> lore = new ArrayList<>();
     if (selectedEquipment == null || selectedEquipment.getType() == Material.AIR) {
-      confirmIcon.setDisplayName(TextUtils.color("&eNo Equipment Item..."));
+      confirmIcon.setDisplayName(StringExtensionsKt.chatColorize("&eNo Equipment Item..."));
       lore.addAll(noEquipmentLore);
       ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
       return;
     }
     if (selectedUpgradeItem == null || selectedUpgradeItem.getType() == Material.AIR) {
-      confirmIcon.setDisplayName(TextUtils.color("&eNo Upgrade Item..."));
+      confirmIcon.setDisplayName(StringExtensionsKt.chatColorize("&eNo Upgrade Item..."));
       lore.addAll(noUpgradeItemLore);
       ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
       return;
@@ -249,37 +250,49 @@ public class EnchantMenu extends ItemMenu {
       confirmIcon.getIcon().setType(Material.NETHER_STAR);
 
       EnchantmentTome tome = MaterialUtil.getEnchantmentItem(selectedUpgradeItem);
+
       if (StringUtils.isNotBlank(tome.getStat())) {
         int itemLevel = MaterialUtil.getLevelRequirement(selectedEquipment);
-        double enchantLevel = PlayerDataUtil
-            .getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
+        double enchantLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.ENCHANTING, true);
         double effectiveLevel = Math.max(1, Math.min(enchantLevel, itemLevel));
         ItemStat stat = LootPlugin.getInstance().getStatManager().getStat(tome.getStat());
         double rarityBonus = MaterialUtil.getBaseEnchantBonus(enchantLevel);
 
         String minStat = ChatColor.stripColor(
-            TextUtils
-                .color((plugin.getStatManager().getMinStat(stat, effectiveLevel, rarityBonus))));
-        String maxStat = ChatColor.stripColor(TextUtils
-            .color(plugin.getStatManager().getMaxStat(stat, effectiveLevel, 1 + rarityBonus)));
+            (plugin.getStatManager().getFinalStat(stat, itemLevel, rarityBonus, false, RollStyle.MIN)).getStatString());
+        String maxStat = ChatColor.stripColor(
+            (plugin.getStatManager().getFinalStat(stat, itemLevel, rarityBonus, false, RollStyle.MAX)).getStatString());
+
         for (String s : validEnchantLore) {
           lore.add(s.replace("{min}", minStat).replace("{max}", maxStat));
         }
+
+        lore.add("");
+        lore.add("&bEnchantment Power: &f" + Math.min(itemLevel, (int) effectiveLevel));
+        lore.add("&7 Determines max/min enchant");
+        lore.add("&7 values! This number is the");
+        lore.add("&7 lowest between your enchant");
+        lore.add("&7 skill and the item's level.");
+        lore.add("");
+        lore.add("&dEnchantment Bonus: &f+" + rarityBonus * 100 + "%");
+        lore.add("&7 Extra power based on your");
+        lore.add("&7 enchanting skill, applied");
+        lore.add("&7 after all other numbers!");
       }
+
       if (!tome.getEnchantments().isEmpty()) {
-        lore.add(TextUtils.color("&fApplied Enchantments:"));
+        lore.add("&fApplied Enchantments:");
         for (Enchantment enchantment : tome.getEnchantments().keySet()) {
-          lore.add(TextUtils.color(" &9" + WordUtils.capitalizeFully(enchantment.getKey()
-              .getKey()) + " " + NumberUtil.toRoman(tome.getEnchantments().get(enchantment))));
+          lore.add(" &9" + WordUtils.capitalizeFully(enchantment.getKey().getKey()) + " " + NumberUtil
+              .toRoman(tome.getEnchantments().get(enchantment)));
         }
       }
 
-      ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
+      ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), ListExtensionsKt.chatColorize(lore));
       return;
     }
     if (MaterialUtil.isExtender(selectedUpgradeItem)) {
-      if (!MaterialUtil
-          .canBeExtended(new ArrayList<>(ItemStackExtensionsKt.getLore(selectedEquipment)))) {
+      if (!MaterialUtil.canBeExtended(new ArrayList<>(ItemStackExtensionsKt.getLore(selectedEquipment)))) {
         confirmIcon.setDisplayName(invalidExtend);
         lore.addAll(invalidExtendLore);
         ItemStackExtensionsKt.setLore(confirmIcon.getIcon(), lore);
@@ -360,21 +373,23 @@ public class EnchantMenu extends ItemMenu {
         itemPlus += 1;
       }
       itemPlus = Math.min(itemPlus, 15);
-      double successChance = Math.min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus,
-          selectedUpgradeItem, scroll));
+      double successChance = Math.min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus, selectedUpgradeItem, scroll));
       double maxDura = selectedEquipment.getType().getMaxDurability();
+      double damage;
+      if (maxDura <= 1) {
+        maxDura = 100;
+        damage = 0;
+      } else {
+        damage = selectedEquipment.getDurability();
+
+      }
       double maxPercent = MaterialUtil.getMaxFailureDamagePercent(scroll, itemPlus);
       double maxDamage = maxDura * maxPercent;
-      double damage = selectedEquipment.getDurability();
       double killChance = 0;
       double damageChance = 0;
       if (successChance < 99.9) {
         double failChance = 100 - successChance;
-        if (maxDura <= 1) {
-          killChance = Math.max(0, maxPercent - 1) * 100;
-        } else {
-          killChance = failChance * Math.max(0, ((damage + maxDamage) - maxDura) / maxDamage);
-        }
+        killChance = failChance * Math.max(0, ((damage + maxDamage) - maxDura) / maxDamage);
         damageChance = failChance - killChance;
       }
 

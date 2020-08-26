@@ -1,8 +1,11 @@
 package info.faceland.loot.recipe;
 
-import com.tealcube.minecraft.bukkit.TextUtils;
 import info.faceland.loot.LootPlugin;
+import io.pixeloutlaw.minecraft.spigot.garbage.StringExtensionsKt;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -11,16 +14,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class EquipmentRecipeBuilder {
 
   public static final String INFUSE_NAME = ChatColor.AQUA + "Item Essence Infusion";
+
+  private final LootPlugin plugin;
+
   private static List<Material> MATERIAL_LIST;
   private static List<String> INFUSE_LORE;
-  private LootPlugin plugin;
 
   public EquipmentRecipeBuilder(LootPlugin plugin) {
     this.plugin = plugin;
@@ -30,13 +31,11 @@ public class EquipmentRecipeBuilder {
 
   public void setupAllRecipes() {
     for (Material m : MATERIAL_LIST) {
-      for(int i=0; i<8; i++) {
-        setupEssenceRecipe(m, i);
-      }
+      setupEssenceRecipe(m);
     }
   }
 
-  private void setupEssenceRecipe(Material material, int index) {
+  private void setupEssenceRecipe(Material material) {
     ItemStack itemStack = new ItemStack(material);
 
     ItemStackExtensionsKt.setDisplayName(itemStack, INFUSE_NAME);
@@ -44,8 +43,8 @@ public class EquipmentRecipeBuilder {
     ItemMeta meta = itemStack.getItemMeta();
     meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
     itemStack.setItemMeta(meta);
-    ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(plugin, material.toString()+"_"+index), itemStack);
-    recipe.addIngredient(1, material).addIngredient(1 + index, Material.PRISMARINE_SHARD);
+    ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(plugin, material.toString() + "_ESS"), itemStack);
+    recipe.addIngredient(1, material).addIngredient(1, Material.PRISMARINE_SHARD);
     try {
       plugin.getServer().addRecipe(recipe);
     } catch (Exception e) {
@@ -55,15 +54,15 @@ public class EquipmentRecipeBuilder {
 
   private List<String> setupInfusionItem() {
     List<String> lore = new ArrayList<>();
-    lore.add(TextUtils.color("&7Clicking this will put an essence"));
-    lore.add(TextUtils.color("&7from a random craft slot into"));
-    lore.add(TextUtils.color("&7an open stat slot on your item."));
-    lore.add(TextUtils.color("&7"));
-    lore.add(TextUtils.color("&eYou cannot add duplicate stat"));
-    lore.add(TextUtils.color("&etypes to the same item."));
-    lore.add(TextUtils.color("&7"));
-    lore.add(TextUtils.color("&cAll essences will be consumed"));
-    lore.add(TextUtils.color("&cregardless of the outcome."));
+    lore.add(StringExtensionsKt.chatColorize("&7Clicking this will put an essence"));
+    lore.add(StringExtensionsKt.chatColorize("&7from a random craft slot into"));
+    lore.add(StringExtensionsKt.chatColorize("&7an open stat slot on your item."));
+    lore.add(StringExtensionsKt.chatColorize("&7"));
+    lore.add(StringExtensionsKt.chatColorize("&eYou cannot add duplicate stat"));
+    lore.add(StringExtensionsKt.chatColorize("&etypes to the same item."));
+    lore.add(StringExtensionsKt.chatColorize("&7"));
+    lore.add(StringExtensionsKt.chatColorize("&cAll essences will be consumed"));
+    lore.add(StringExtensionsKt.chatColorize("&cregardless of the outcome."));
     return lore;
   }
 
