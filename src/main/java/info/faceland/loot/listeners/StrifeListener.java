@@ -22,8 +22,8 @@ import static info.faceland.loot.listeners.sockets.SocketsListener.applyEffects;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
-import info.faceland.loot.api.sockets.SocketGem.GemType;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import info.faceland.loot.sockets.SocketGem.GemType;
 import java.util.HashSet;
 import java.util.Set;
 import land.face.strife.events.CriticalEvent;

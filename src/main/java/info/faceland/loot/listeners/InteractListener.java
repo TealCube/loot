@@ -30,12 +30,12 @@ import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.math.NumberUtils
 import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.items.prefabs.ShardOfFailure;
 import info.faceland.loot.math.LootRandom;
 import info.faceland.loot.menu.upgrade.EnchantMenu;
+import info.faceland.loot.sockets.SocketGem;
 import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.InventoryUtil;
 import info.faceland.loot.utils.MaterialUtil;

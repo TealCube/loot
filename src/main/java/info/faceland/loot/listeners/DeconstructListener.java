@@ -134,8 +134,7 @@ public class DeconstructListener implements Listener {
     int itemLevel = getLevelRequirement(targetItem);
 
     int craftingLevel = PlayerDataUtil.getLifeSkillLevel(player, LifeSkillType.CRAFTING);
-    double effectiveCraftLevel = PlayerDataUtil
-        .getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
+    double effectiveCraftLevel = PlayerDataUtil.getEffectiveLifeSkill(player, LifeSkillType.CRAFTING, true);
 
     int toolQuality = 1;
     if (cursorItem.hasItemMeta()) {
@@ -179,8 +178,8 @@ public class DeconstructListener implements Listener {
       return;
     }
     int quality = 1;
-    while (random.nextDouble() <= plugin.getSettings()
-        .getDouble("config.drops.material-quality-up", 0.1D) && quality < 5) {
+    while (random.nextDouble() <= plugin.getSettings().getDouble("config.drops.material-quality-up", 0.1D)
+        && quality < 5) {
       quality++;
     }
     ItemStack craftMaterial = MaterialUtil.buildMaterial(material,

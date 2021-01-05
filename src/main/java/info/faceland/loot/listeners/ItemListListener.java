@@ -19,12 +19,12 @@
 package info.faceland.loot.listeners;
 
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
 import info.faceland.loot.items.prefabs.ArcaneEnhancer;
 import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.items.prefabs.SocketExtender;
+import info.faceland.loot.sockets.SocketGem;
 import info.faceland.loot.tier.Tier;
 import info.faceland.loot.utils.MaterialUtil;
 import land.face.market.data.PlayerMarketState.Category;

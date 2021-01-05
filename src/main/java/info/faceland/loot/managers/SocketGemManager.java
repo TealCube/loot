@@ -20,8 +20,8 @@ package info.faceland.loot.managers;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.sockets.SocketGem;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.Collections;

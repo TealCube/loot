@@ -1,8 +1,8 @@
 package info.faceland.loot.utils;
 
 import com.tealcube.minecraft.bukkit.TextUtils;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.managers.SocketGemManager;
+import info.faceland.loot.sockets.SocketGem;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
 import java.util.HashSet;

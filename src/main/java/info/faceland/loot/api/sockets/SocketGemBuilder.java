@@ -24,7 +24,7 @@ package info.faceland.loot.api.sockets;
 
 import info.faceland.loot.api.groups.ItemGroup;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-
+import info.faceland.loot.sockets.SocketGem;
 import java.util.List;
 
 public interface SocketGemBuilder {
@@ -58,4 +58,6 @@ public interface SocketGemBuilder {
     SocketGemBuilder withBonusWeight(double d);
 
     SocketGemBuilder withGemType(SocketGem.GemType type);
+
+    SocketGemBuilder withLoreAbilityId(String string);
 }

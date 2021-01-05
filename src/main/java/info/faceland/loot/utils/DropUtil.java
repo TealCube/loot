@@ -9,7 +9,6 @@ import com.tealcube.minecraft.bukkit.shade.google.common.base.CharMatcher;
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.items.CustomItem;
 import info.faceland.loot.api.items.ItemGenerationReason;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.BuiltItem;
 import info.faceland.loot.data.ItemRarity;
 import info.faceland.loot.data.UniqueLoot;
@@ -22,6 +21,7 @@ import info.faceland.loot.items.prefabs.PurifyingScroll;
 import info.faceland.loot.items.prefabs.SocketExtender;
 import info.faceland.loot.items.prefabs.UnidentifiedItem;
 import info.faceland.loot.math.LootRandom;
+import info.faceland.loot.sockets.SocketGem;
 import info.faceland.loot.tier.Tier;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.ArrayList;
@@ -41,6 +41,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.inventivetalent.glow.GlowAPI;
+import org.inventivetalent.glow.GlowAPI.Color;
 
 public class DropUtil implements Listener {
 
@@ -86,7 +88,10 @@ public class DropUtil implements Listener {
     }
     double dropMultiplier = event.getQuantityMultiplier();
     double rarityMultiplier = event.getQualityMultiplier();
-    int mobLevel = event.getMonsterLevel();
+    float mobLevel = event.getMonsterLevel();
+    float itemLevelRange = Math.max(5, mobLevel / 10);
+    float itemLevel = (float) (mobLevel - (Math.random() * itemLevelRange));
+    itemLevel = Math.min(100, Math.max(1, (int) itemLevel));
 
     List<ItemRarity> bonusDrops = new ArrayList<>(event.getBonusTierItems());
     if (StringUtils.isNotBlank(event.getUniqueEntity())) {
@@ -126,7 +131,7 @@ public class DropUtil implements Listener {
       BuiltItem builtItem = plugin.getNewItemBuilder()
           .withTier(tier)
           .withRarity(rarity)
-          .withLevel(Math.max(1, Math.min(mobLevel + 1 - random.nextIntRange(0, 4), 100)))
+          .withLevel((int) itemLevel)
           .withItemGenerationReason(ItemGenerationReason.MONSTER)
           .withSpecialStat(specialStat)
           .build();
@@ -156,11 +161,11 @@ public class DropUtil implements Listener {
       }
 
       boolean broadcast = rarity.isBroadcast() || upgradeBonus > 4 || qualityBonus > 2;
-      dropItem(event.getLocation(), tierItem, killer, builtItem.getTicksLived(), broadcast);
+      Color glowColor = rarity.isBroadcast() ? Color.valueOf(rarity.getColor().name()) : null;
+      dropItem(event.getLocation(), tierItem, killer, builtItem.getTicksLived(), broadcast, glowColor);
     }
 
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.craft-mat", 0D)) {
+    if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.craft-mat", 0D)) {
       Object[] matArr = plugin.getCraftMatManager().getCraftMaterials().keySet().toArray();
       Material m = (Material) matArr[random.nextInt(matArr.length)];
 
@@ -176,46 +181,47 @@ public class DropUtil implements Listener {
           m, plugin.getCraftMatManager().getCraftMaterials().get(m), (int) materialLevel, quality);
       his.setAmount(1 + random.nextInt(2));
 
-      dropItem(event.getLocation(), his, killer, false);
+      dropItem(event.getLocation(), his, killer, false, null);
     }
     if (random.nextDouble() < dropMultiplier * socketDropChance) {
       SocketGem sg;
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-        sg = plugin.getSocketGemManager().getRandomSocketGemByLevel(mobLevel);
+        sg = plugin.getSocketGemManager().getRandomSocketGemByLevel((int) mobLevel);
       } else {
         sg = plugin.getSocketGemManager().getRandomSocketGem(true, event.getDistance());
       }
 
+      assert sg != null;
       ItemStack his = sg.toItemStack(1);
-      dropItem(event.getLocation(), his, killer, sg.isBroadcast());
+      dropItem(event.getLocation(), his, killer, sg.isBroadcast(), sg.isBroadcast() ? Color.GREEN : null);
     }
     if (plugin.getSettings().getBoolean("config.custom-enchanting", true)) {
       if (random.nextDouble() < dropMultiplier * tomeDropChance) {
         EnchantmentTome es = plugin.getEnchantTomeManager().getRandomEnchantTome(rarityMultiplier);
+        assert es != null;
         ItemStack his = es.toItemStack(1);
-        dropItem(event.getLocation(), his, killer, es.isBroadcast());
+        dropItem(event.getLocation(), his, killer, es.isBroadcast(), es.isBroadcast() ? Color.BLUE : null);
       }
       if (random.nextDouble() < dropMultiplier * enhancerDropChance) {
-        dropItem(event.getLocation(), ArcaneEnhancer.get(), killer, true);
+        dropItem(event.getLocation(), ArcaneEnhancer.get(), killer, true, Color.RED);
       }
       if (random.nextDouble() < dropMultiplier * purityDropChance) {
-        dropItem(event.getLocation(), PurifyingScroll.get(), killer, false);
+        dropItem(event.getLocation(), PurifyingScroll.get(), killer, false, null);
       }
     }
     if (random.nextDouble() < dropMultiplier * scrollDropChance) {
       UpgradeScroll us = plugin.getScrollManager().getRandomScroll();
       ItemStack stack = plugin.getScrollManager().buildItemStack(us);
-      dropItem(event.getLocation(), stack, killer, us.isBroadcast());
+      dropItem(event.getLocation(), stack, killer, us.isBroadcast(), us.isBroadcast() ? Color.DARK_GREEN : null);
     }
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.identity-tome", 0D)) {
+    if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.identity-tome", 0D)) {
       ItemStack his = new IdentityTome();
-      dropItem(event.getLocation(), his, killer, false);
+      dropItem(event.getLocation(), his, killer, false, null);
     }
     if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.custom-item", 0D)) {
       CustomItem ci;
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-        ci = plugin.getCustomItemManager().getRandomCustomItemByLevel(mobLevel);
+        ci = plugin.getCustomItemManager().getRandomCustomItemByLevel((int) mobLevel);
       } else {
         ci = plugin.getCustomItemManager().getRandomCustomItem(true, event.getDistance());
       }
@@ -231,31 +237,31 @@ public class DropUtil implements Listener {
           while (random.nextDouble() <= multiQualityChance && qualityBonus < 5) {
             qualityBonus++;
           }
-          stack = upgradeItemQuality(stack, qualityBonus);
+          upgradeItemQuality(stack, qualityBonus);
         }
       }
       boolean broadcast = ci.isBroadcast() || qualityBonus > 2;
-      dropItem(event.getLocation(), stack, killer, broadcast);
+      dropItem(event.getLocation(), stack, killer, broadcast, broadcast ? Color.GOLD : null);
     }
     if (random.nextDouble() < plugin.getSettings().getDouble("config.drops.socket-extender", 0D)) {
       ItemStack his = new SocketExtender();
-      dropItem(event.getLocation(), his, killer, true);
+      dropItem(event.getLocation(), his, killer, true, Color.AQUA);
     }
     // NOTE: Drop bonus should not be applied to Unidentified Items!
-    if (random.nextDouble() < dropMultiplier * plugin.getSettings()
-        .getDouble("config.drops.unidentified-item", 0D)) {
+    if (random.nextDouble() < dropMultiplier * plugin.getSettings().getDouble("config.drops.unidentified-item", 0D)) {
       Material m = Material.WOODEN_SWORD;
       ItemStack his;
       if (plugin.getSettings().getBoolean("config.beast.beast-mode-activate", false)) {
-        his = new UnidentifiedItem(m, Math.min(mobLevel, 100));
+        his = new UnidentifiedItem(m, (int) itemLevel);
       } else {
         his = new UnidentifiedItem(m, -1);
       }
       ItemMeta itemMeta = his.getItemMeta();
+      assert itemMeta != null;
       itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
       his.setItemMeta(itemMeta);
 
-      dropItem(event.getLocation(), his, null, false);
+      dropItem(event.getLocation(), his, null, false, null);
     }
   }
 
@@ -267,7 +273,7 @@ public class DropUtil implements Listener {
           continue;
         }
         ItemStack his = gem.toItemStack(1);
-        dropItem(location, his, killer, gem.isBroadcast());
+        dropItem(location, his, killer, gem.isBroadcast(), gem.isBroadcast() ? Color.GREEN : null);
       }
     }
     for (String tomeString : uniqueLoot.getTomeMap().keySet()) {
@@ -277,7 +283,7 @@ public class DropUtil implements Listener {
           continue;
         }
         ItemStack his = tome.toItemStack(1);
-        dropItem(location, his, killer, tome.isBroadcast());
+        dropItem(location, his, killer, tome.isBroadcast(), tome.isBroadcast() ? Color.BLUE : null);
       }
     }
     for (String tableName : uniqueLoot.getCustomItemMap().keySet()) {
@@ -298,7 +304,7 @@ public class DropUtil implements Listener {
             break;
           }
           ItemStack his = ci.toItemStack(1);
-          dropItem(location, his, killer, ci.isBroadcast());
+          dropItem(location, his, killer, ci.isBroadcast(), ci.isBroadcast() ? Color.GOLD : null);
           break;
         }
       }
@@ -330,9 +336,8 @@ public class DropUtil implements Listener {
       int loreLevel = NumberUtils.toInt(loreLev);
       lore.set(i, s.replace("+" + loreLevel, "+" + (loreLevel + upgradeBonus)));
       String qualityEnhanceName = plugin.getSettings().getString("language.quality." + upgradeBonus, "");
-      String name =
-          getFirstColor(ItemStackExtensionsKt.getDisplayName(his)) + qualityEnhanceName + " " + ItemStackExtensionsKt
-              .getDisplayName(his);
+      String name = getFirstColor(Objects.requireNonNull(ItemStackExtensionsKt.getDisplayName(his))) +
+          qualityEnhanceName + " " + ItemStackExtensionsKt.getDisplayName(his);
       ItemStackExtensionsKt.setDisplayName(his, name);
       break;
     }
@@ -342,13 +347,17 @@ public class DropUtil implements Listener {
     return his;
   }
 
-  private static void dropItem(Location loc, ItemStack itemStack, Player looter, boolean broadcast) {
-    dropItem(loc, itemStack, looter, 0, broadcast);
+  private static void dropItem(Location loc, ItemStack itemStack, Player looter, boolean broadcast, Color glowColor) {
+    dropItem(loc, itemStack, looter, 0, broadcast, glowColor);
   }
 
-  private static void dropItem(Location loc, ItemStack itemStack, Player looter, int ticksLived,
-      boolean broadcast) {
+  private static void dropItem(Location loc, ItemStack itemStack, Player looter, int ticksLived, boolean broadcast,
+      Color glowColor) {
     Item drop = Objects.requireNonNull(loc.getWorld()).dropItemNaturally(loc, itemStack);
+    if (glowColor != null) {
+      GlowAPI.setGlowing(drop, true, looter);
+      GlowAPI.setGlowing(drop, glowColor, looter);
+    }
     if (ticksLived != 0) {
       drop.setTicksLived(ticksLived);
     }

@@ -21,6 +21,7 @@ package info.faceland.loot;
 import com.tealcube.minecraft.bukkit.TextUtils;
 import com.tealcube.minecraft.bukkit.facecore.logging.PluginLogger;
 import com.tealcube.minecraft.bukkit.facecore.plugin.FacePlugin;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import info.faceland.loot.api.creatures.CreatureModBuilder;
 import info.faceland.loot.api.creatures.MobInfo;
 import info.faceland.loot.api.enchantments.EnchantmentTomeBuilder;
@@ -35,7 +36,6 @@ import info.faceland.loot.api.managers.ItemGroupManager;
 import info.faceland.loot.api.managers.NameManager;
 import info.faceland.loot.api.managers.RarityManager;
 import info.faceland.loot.api.managers.UniqueDropsManager;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
 import info.faceland.loot.api.tier.TierBuilder;
@@ -88,6 +88,7 @@ import info.faceland.loot.managers.TierManager;
 import info.faceland.loot.menu.pawn.PawnMenu;
 import info.faceland.loot.recipe.EquipmentRecipeBuilder;
 import info.faceland.loot.sockets.LootSocketGemBuilder;
+import info.faceland.loot.sockets.SocketGem;
 import info.faceland.loot.sockets.effects.LootSocketPotionEffect;
 import info.faceland.loot.tier.LootTierBuilder;
 import info.faceland.loot.tier.Tier;
@@ -178,6 +179,7 @@ public final class LootPlugin extends FacePlugin {
 
   @Override
   public void enable() {
+    instance = this;
     debugPrinter = new PluginLogger(this);
 
     recipeBuilder = new EquipmentRecipeBuilder(this);
@@ -599,6 +601,12 @@ public final class LootPlugin extends FacePlugin {
       builder.withTriggerable(cs.getBoolean("triggerable"));
       builder.withTriggerText(cs.getString("trigger-text"));
       builder.withGemType(SocketGem.GemType.fromName(cs.getString("gem-type")));
+
+      String loreAbilityId = cs.getString("lore-ability-id");
+      if (StringUtils.isNotBlank(loreAbilityId)) {
+        builder.withLoreAbilityId(loreAbilityId);
+      }
+
       SocketGem gem = builder.build();
       gems.add(gem);
       loadedSocketGems.add(gem.getName());
