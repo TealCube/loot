@@ -22,9 +22,8 @@
  */
 package info.faceland.loot.api.data;
 
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-
+import info.faceland.loot.sockets.SocketGem;
 import java.util.Set;
 import java.util.UUID;
 

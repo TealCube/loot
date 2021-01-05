@@ -24,8 +24,9 @@ package info.faceland.loot.data;
 
 import info.faceland.loot.LootPlugin;
 import info.faceland.loot.api.data.GemCacheData;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
+import info.faceland.loot.sockets.SocketGem;
+import info.faceland.loot.sockets.SocketGem.GemType;
 import info.faceland.loot.utils.GemUtil;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public class LootGemCacheData implements GemCacheData {
 
     private final LootPlugin plugin;
     private final UUID owner;
-    private Map<SocketGem.GemType, Set<SocketEffect>> armorGems;
+    private Map<GemType, Set<SocketEffect>> armorGems;
     private Map<SocketGem.GemType, Set<SocketEffect>> weaponGems;
 
     public LootGemCacheData(LootPlugin plugin, UUID owner) {

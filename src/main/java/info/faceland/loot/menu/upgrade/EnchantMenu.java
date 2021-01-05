@@ -259,9 +259,11 @@ public class EnchantMenu extends ItemMenu {
         double rarityBonus = MaterialUtil.getBaseEnchantBonus(enchantLevel);
 
         String minStat = ChatColor.stripColor(
-            (plugin.getStatManager().getFinalStat(stat, itemLevel, rarityBonus, false, RollStyle.MIN)).getStatString());
+            (plugin.getStatManager().getFinalStat(stat, effectiveLevel, rarityBonus, false, RollStyle.MIN))
+                .getStatString());
         String maxStat = ChatColor.stripColor(
-            (plugin.getStatManager().getFinalStat(stat, itemLevel, rarityBonus, false, RollStyle.MAX)).getStatString());
+            (plugin.getStatManager().getFinalStat(stat, effectiveLevel, rarityBonus, false, RollStyle.MAX))
+                .getStatString());
 
         for (String s : validEnchantLore) {
           lore.add(s.replace("{min}", minStat).replace("{max}", maxStat));
@@ -373,7 +375,8 @@ public class EnchantMenu extends ItemMenu {
         itemPlus += 1;
       }
       itemPlus = Math.min(itemPlus, 15);
-      double successChance = Math.min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus, selectedUpgradeItem, scroll));
+      double successChance = Math
+          .min(100, 100 * MaterialUtil.getSuccessChance(player, itemPlus, selectedUpgradeItem, scroll));
       double maxDura = selectedEquipment.getType().getMaxDurability();
       double damage;
       if (maxDura <= 1) {

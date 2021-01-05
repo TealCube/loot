@@ -1,10 +1,10 @@
 package info.faceland.loot.managers;
 
 import info.faceland.loot.LootPlugin;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.data.PriceData;
 import info.faceland.loot.data.UpgradeScroll;
 import info.faceland.loot.enchantments.EnchantmentTome;
+import info.faceland.loot.sockets.SocketGem;
 import info.faceland.loot.utils.MaterialUtil;
 import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.util.HashMap;

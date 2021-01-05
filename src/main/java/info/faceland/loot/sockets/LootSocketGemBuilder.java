@@ -23,19 +23,17 @@
 package info.faceland.loot.sockets;
 
 import info.faceland.loot.api.groups.ItemGroup;
-import info.faceland.loot.api.sockets.SocketGem;
 import info.faceland.loot.api.sockets.SocketGemBuilder;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-
 import java.util.List;
 
 public final class LootSocketGemBuilder implements SocketGemBuilder {
 
     private boolean built = false;
-    private LootSocketGem gem;
+    private SocketGem gem;
 
     public LootSocketGemBuilder(String name) {
-        this.gem = new LootSocketGem(name);
+        this.gem = new SocketGem(name);
     }
 
     @Override
@@ -127,6 +125,12 @@ public final class LootSocketGemBuilder implements SocketGemBuilder {
     @Override
     public SocketGemBuilder withGemType(SocketGem.GemType type) {
         gem.setGemType(type);
+        return this;
+    }
+
+    @Override
+    public SocketGemBuilder withLoreAbilityId(String id) {
+        gem.setStrifeLoreAbility(id);
         return this;
     }
 

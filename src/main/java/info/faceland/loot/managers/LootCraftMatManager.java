@@ -20,31 +20,21 @@ package info.faceland.loot.managers;
 
 import info.faceland.loot.data.DeconstructData;
 import info.faceland.loot.utils.MaterialUtil;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
 
 public final class LootCraftMatManager {
 
   private final Map<Material, String> craftMaterials;
   private final Set<DeconstructData> deconstructDataSet;
-  private Random random;
 
   public LootCraftMatManager() {
     deconstructDataSet = new HashSet<>();
     craftMaterials = new HashMap<>();
-    random = new Random();
   }
 
   public void addCraftMaterial(Material material, String name) {
@@ -76,35 +66,6 @@ public final class LootCraftMatManager {
         return DeconstructData.getResultMaterial(data, craftMaterials.keySet());
       }
     }
-
-    List<Material> possibleMaterials = new ArrayList<>();
-    Iterator<Recipe> it = Bukkit.getServer().recipeIterator();
-    while (it.hasNext()) {
-      Recipe recipe;
-      try {
-        recipe = it.next();
-      } catch (NoSuchElementException e) {
-        // THIS IS HORRIBLE, BUT SPIGOT HAS MADE AN ITERATOR INCOMPETENT BEYOND
-        // MY EXPERIENCE LEVEL, THAT CAN RETURN NoSuchElement EVEN WITHIN A .hasNext()
-        // WHILE LOOP... MAY GOD HAVE MERCY ON OUR SOULS
-        break;
-      }
-      if (recipe.getResult().getType() == stack.getType() && recipe instanceof ShapedRecipe) {
-        ShapedRecipe shaped = (ShapedRecipe) recipe;
-        for (ItemStack i : shaped.getIngredientMap().values()) {
-          if (i == null || i.getType() == Material.AIR) {
-            continue;
-          }
-          if (getCraftMaterials().keySet().contains(i.getType())) {
-            possibleMaterials.add(i.getType());
-          }
-        }
-      }
-    }
-    if (possibleMaterials.isEmpty()) {
-      return null;
-    }
-    List<Material> mats = new ArrayList<>(possibleMaterials);
-    return mats.get(random.nextInt(mats.size()));
+    return null;
   }
 }

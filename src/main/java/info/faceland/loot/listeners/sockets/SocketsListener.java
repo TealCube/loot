@@ -20,19 +20,21 @@ package info.faceland.loot.listeners.sockets;
 
 import info.faceland.loot.api.data.GemCacheData;
 import info.faceland.loot.api.managers.GemCacheManager;
-import info.faceland.loot.api.sockets.SocketGem;
-import info.faceland.loot.api.sockets.SocketGem.GemType;
 import info.faceland.loot.api.sockets.effects.SocketEffect;
-
-import org.bukkit.entity.*;
+import info.faceland.loot.sockets.SocketGem;
+import info.faceland.loot.sockets.SocketGem.GemType;
+import java.util.HashSet;
+import java.util.Set;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-
-import java.util.*;
 
 public final class SocketsListener implements Listener {
 
